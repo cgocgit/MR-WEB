@@ -1,0 +1,22 @@
+header#topbar{height:56px;background:var(--panel);display:flex;align-items:center;justify-content:space-between;padding:0 16px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+nav#sidebar{width:220px;background:var(--panel);position:fixed;top:56px;bottom:0;left:0;padding:12px;overflow:auto;transition:transform .22s ease}
+nav#sidebar{width:220px;background:var(--panel);position:fixed;top:56px;bottom:0;left:0;padding:12px;overflow:auto;transition:transform .22s ease;box-shadow:2px 0 6px rgba(0,0,0,0.06);z-index:900}
+main#content{margin-left:240px;padding:20px;min-height:calc(100vh - 56px);transition:margin-left .22s ease}
+
+/* collapsed state (for mobile or explicit collapse) */
+.sidebar-collapsed nav#sidebar{transform:translateX(-260px)}
+.sidebar-collapsed main#content{margin-left:0}
+
+/* Ensure header above sidebar */
+header#topbar{position:relative;z-index:1000}
+
+/* hide layout pieces until authenticated to avoid showing layout over login */
+.auth-only{display:none}
+
+@media (max-width:720px){
+  nav#sidebar{position:fixed;left:0;top:56px;height:calc(100% - 56px);transform:translateX(-260px);z-index:900}
+  /* On small screens we overlay the sidebar; content remains full width */
+  main#content{margin-left:0;padding:12px}
+}
+
+#notifications{position:fixed;right:16px;bottom:16px;z-index:1000}

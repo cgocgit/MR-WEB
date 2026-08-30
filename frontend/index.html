@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mesa Regia — Frontend (Iteración 1)</title>
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+</head>
+<body>
+  <header id="topbar" class="auth-only" aria-hidden="true"></header>
+  <nav id="sidebar" class="auth-only" aria-hidden="true"></nav>
+  <main id="content" role="main"></main>
+  <div id="notifications" aria-live="polite"></div>
+  <script>
+    // Inline early error filter to suppress noisy injected VM### errors (extensions/devtools)
+    (function(){
+      function isInjected(ev){
+        try{
+          const msg = (ev && ev.message) || '';
+          const filename = (ev && ev.filename) || '';
+          const stack = (ev && ev.error && ev.error.stack) || '';
+          if(!msg && !stack && !filename) return false;
+          if(msg.includes && msg.includes('startTime')) return true;
+          if(stack.includes && stack.includes('reportAllChanges')) return true;
+          if(/^VM\d+/.test(filename)) return true;
+        }catch(e){}
+        return false;
+      }
+      window.addEventListener('error', function(ev){
+        try{ 
+          if(isInjected(ev)){
+            try{ 
+              const payload = {ts: Date.now(), message: ev.message, filename: ev.filename, stack: (ev.error && ev.error.stack) || null, href: location.href};
+              localStorage.setItem('mr_injected_error', JSON.stringify(payload));
+            }catch(e){}
+            console.info('Ignored injected script error:', ev.message||ev.filename); ev.preventDefault(); return; 
+          } 
+        }catch(e){}
+      }, true);
+      window.addEventListener('unhandledrejection', function(ev){
+        try{ const reason = ev && ev.reason; const msg = reason && (reason.message||String(reason))||''; const stack = reason && reason.stack||''; if(msg.includes('startTime')||stack.includes('reportAllChanges')){ try{ localStorage.setItem('mr_injected_error', JSON.stringify({ts:Date.now(), message: msg, stack, href: location.href})); }catch(e){}; console.info('Ignored injected unhandledrejection'); ev.preventDefault(); return } }catch(e){}
+      }, true);
+      // Defensive: filter noisy console errors from injected scripts
+      (function(){
+        const origErr = console.error; const origWarn = console.warn;
+        function shouldFilter(args){
+          try{
+            const joined = args.map(a=>String(a)).join(' ');
+            if(joined.includes('reportAllChanges') || joined.includes('startTime') || /VM\d+/.test(joined)) return true;
+          }catch(e){}
+          return false;
+        }
+        console.error = function(){ if(shouldFilter(Array.from(arguments))){ return; } return origErr.apply(console, arguments) };
+        console.warn = function(){ if(shouldFilter(Array.from(arguments))){ return; } return origWarn.apply(console, arguments) };
+      })();
+    })();
+  </script>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

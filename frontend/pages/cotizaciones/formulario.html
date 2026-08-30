@@ -1,0 +1,13 @@
+<section class="container">
+  <h1>Nuevo/Editar cotización</h1>
+  <form id="cotForm" class="card mt-12" style="display:flex;flex-direction:column;gap:8px;max-width:720px">
+    <label>Cliente<input name="cliente" required></label>
+    <label>Observaciones<textarea name="obs"></textarea></label>
+    <div style="display:flex;justify-content:flex-end"><button type="submit">Guardar</button></div>
+  </form>
+  <script type="module">
+    import { createCotizacion } from '../../js/api/cotizaciones.service.js';
+    const f = document.getElementById('cotForm');
+    f.addEventListener('submit', async (e)=>{ e.preventDefault(); const fd = new FormData(f); const payload = {cliente:fd.get('cliente'),obs:fd.get('obs')}; await createCotizacion(payload); alert('Cotización creada (mock)'); location.hash='#/cotizaciones'; });
+  </script>
+</section>

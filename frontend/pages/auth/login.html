@@ -1,0 +1,38 @@
+<section class="card container" style="max-width:420px;margin:32px auto">
+  <h2>Iniciar sesión</h2>
+  <form id="loginForm" style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+    <label>Usuario
+      <input name="username" required />
+    </label>
+    <label>Contraseña
+      <input name="password" type="password" required />
+    </label>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button type="submit">Ingresar</button>
+    </div>
+  </form>
+
+  <script type="module">
+    import { login } from '../../js/api/auth.service.js';
+    import { renderTopbar } from '../../js/components/topbar.js';
+    import { renderSidebar } from '../../js/components/sidebar.js';
+
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const f = new FormData(form);
+      const user = f.get('username');
+      const pass = f.get('password');
+      try{
+        await login(user, pass);
+        // re-render topbar and sidebar with new session data and show layout
+        const session = JSON.parse(localStorage.getItem('mr_session'));
+        const topbar = document.getElementById('topbar');
+        const sidebar = document.getElementById('sidebar');
+        if(topbar){ topbar.classList.remove('auth-only'); topbar.removeAttribute('aria-hidden'); renderTopbar(topbar, session); }
+        if(sidebar){ sidebar.classList.remove('auth-only'); sidebar.removeAttribute('aria-hidden'); renderSidebar(sidebar, session); }
+        location.hash = '#/dashboard';
+      }catch(err){ alert('Error autenticando') }
+    });
+  </script>
+</section>

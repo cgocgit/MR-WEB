@@ -1,0 +1,5 @@
+:root{--btn-bg:var(--primary);--btn-color:#fff}
+button{background:var(--btn-bg);color:var(--btn-color);border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
+input,select,textarea{padding:8px;border:1px solid #e6e6e6;border-radius:6px}
+table tr:nth-child(even){background:#fafafa}
+.card h3{margin-top:0}

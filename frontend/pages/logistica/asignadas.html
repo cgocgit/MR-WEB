@@ -1,0 +1,12 @@
+<section class="container logistica-list">
+  <h1>Órdenes asignadas</h1>
+  <div id="asignadas" class="card mt-12"></div>
+  <script type="module">
+    import { listAsignadas } from '../../js/api/logistica.service.js';
+    import { renderTable } from '../../js/components/table.js';
+    (async ()=>{
+      const datos = await listAsignadas();
+      renderTable(document.getElementById('asignadas'), ['Id','Orden','Fase','Direccion'], datos.map(d=>({id:d.id,orden:d.orden,fase:d.fase,direccion:d.direccion})));
+    })();
+  </script>
+</section>

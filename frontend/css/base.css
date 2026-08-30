@@ -1,0 +1,14 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,#content{height:100%}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.4}
+a{color:var(--primary);text-decoration:none}
+button{font:inherit}
+img{max-width:100%;height:auto}
+
+.container{max-width:var(--max-width);margin:0 auto;padding:16px}
+
+.card{background:var(--panel);border-radius:var(--radius);box-shadow:0 1px 3px rgba(0,0,0,.06);padding:16px}
+
+/* Accessibility: visible focus */
+:focus{outline:3px solid rgba(11,110,253,0.25);outline-offset:2px}
+

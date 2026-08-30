@@ -1,0 +1,30 @@
+<section class="container">
+  <h1>Nuevo / Editar Cliente</h1>
+  <form id="clienteForm" class="card mt-12" style="max-width:640px;display:flex;flex-direction:column;gap:8px">
+    <label>Nombre
+      <input name="nombre" required />
+    </label>
+    <label>Contacto
+      <input name="contacto" type="email" required />
+    </label>
+    <div style="display:flex;justify-content:flex-end"><button type="submit">Guardar cliente</button></div>
+  </form>
+
+  <script type="module">
+    import { createCliente, getCliente } from '../../js/api/clientes.service.js';
+    const form = document.getElementById('clienteForm');
+    // load if editing (hash may include ?id=)
+    const q = new URLSearchParams(location.hash.split('?')[1] || '');
+    const id = q.get('id');
+    if(id){ (async ()=>{ const data = await getCliente(id); form.nombre.value = data.nombre || ''; form.contacto.value = data.contacto || ''; })() }
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const fd = new FormData(form);
+      const payload = {nombre: fd.get('nombre'), contacto: fd.get('contacto')};
+      await createCliente(payload);
+      alert('Cliente guardado (mock)');
+      location.hash = '#/clientes';
+    });
+  </script>
+</section>
