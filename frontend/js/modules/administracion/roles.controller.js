@@ -14,19 +14,82 @@ export async function init(containerId) {
 
   const autorizado =
     hasPermission(session, 'administracion.consultar') ||
-    (
-      session &&
-      session.user &&
-      session.user.roles &&
-      session.user.roles.includes('ADMIN')
-    );
+    session?.user?.roles?.includes('ADMIN');
+
 
   if (!autorizado) {
     root.innerHTML = '<div class="card">Acceso denegado</div>';
     return;
   }
 
-  root.innerHTML = '<div class="card">Cargando roles...</div>';
+  if (containerId === 'admin-permissions-root') {
+    await renderPermisosPorRol(root);
+    return;
+  }
+
+  await renderCatalogoRoles(root); 
+}
+
+async function renderPermisosPorRol(root) {
+  root.innerHTML =
+    '<div class="card">Cargando permisos...</div>';
+
+  try {
+    const query =
+      location.hash.split('?')[1] || '';
+
+    const params =
+      new URLSearchParams(query);
+
+    const rolId =
+      params.get('rol');
+
+    if (!rolId) {
+      mostrarRolNoDisponible(root);
+      return;
+    }
+
+    const rol =
+      await getRole(rolId);
+
+    if (!rol) {
+      mostrarRolNoDisponible(root);
+      return;
+    }
+
+    const permisos =
+      await detallePermisosPorRol(rolId);
+
+    renderDetalleRol(
+      root,
+      rol,
+      permisos
+    );
+
+  } catch (error) {
+    console.error(
+      'Error consultando permisos:',
+      error
+    );
+
+    root.innerHTML = `
+      <div class="card">
+        <p>
+          No fue posible consultar los permisos.
+          Intente nuevamente.
+        </p>
+
+        <a href="#/administracion/roles">
+          Volver a roles
+        </a>
+      </div>
+    `;
+  }
+}
+
+async function renderCatalogoRoles(root) {
+
+    root.innerHTML = '<div class="card">Cargando roles...</div>';
 
   try {
     const roles = await listRoles();
@@ -128,6 +191,144 @@ export async function init(containerId) {
     root.innerHTML =
       '<div class="card">No fue posible consultar los roles. Intente nuevamente.</div>';
   }
+}
+
+function agruparPermisos(permisos) {
+  return permisos.reduce(
+    (grupos, permiso) => {
+
+      if (!grupos[permiso.modulo]) {
+        grupos[permiso.modulo] = [];
+      }
+
+      grupos[permiso.modulo]
+        .push(permiso);
+
+      return grupos;
+
+    },
+    {}
+  );
+}
+
+function renderDetalleRol(
+  root,
+  rol,
+  permisos
+) {
+
+  if (!permisos.length) {
+    root.innerHTML = `
+      <div class="card">
+
+        <h2>${rol.nombre}</h2>
+
+        <p>${rol.desc || ''}</p>
+
+        <p>
+          El rol no tiene permisos configurados.
+        </p>
+
+        <a href="#/administracion/roles">
+          Volver a roles
+        </a>
+
+      </div>
+    `;
+
+    return;
+  }
+
+  const grupos =
+    agruparPermisos(permisos);
+
+  root.innerHTML = `
+    <div class="card">
+
+      <header style="margin-bottom:20px">
+
+        <h2>${rol.nombre}</h2>
+
+        <p>
+          <strong>Código:</strong>
+          ${rol.id}
+        </p>
+
+        <p>
+          ${rol.desc || ''}
+        </p>
+
+        <p class="text-muted">
+          Los permisos se muestran en modo
+          consulta mientras no se encuentre
+          disponible el servicio backend.
+        </p>
+
+      </header>
+
+      ${Object.entries(grupos)
+        .map(([modulo, items]) => `
+
+          <section style="margin-bottom:24px">
+
+            <h3>${modulo}</h3>
+
+            <table
+              style="
+                width:100%;
+                border-collapse:collapse
+              "
+            >
+
+              <thead>
+                <tr>
+                  <th>Permiso</th>
+                  <th>Acción / nivel</th>
+                  <th>Alcance</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                ${items.map(item => `
+
+                  <tr>
+
+                    <td>
+                      ${item.codigo}
+                    </td>
+
+                    <td>
+                      ${item.accion}
+                    </td>
+
+                    <td>
+                      ${item.alcance}
+                    </td>
+
+                    <td>
+                      ${item.estado}
+                    </td>
+
+                  </tr>
+
+                `).join('')}
+
+              </tbody>
+
+            </table>
+
+          </section>
+
+        `).join('')}
+
+      <a href="#/administracion/roles">
+        Volver a roles
+      </a>
+
+    </div>
+  `;
 }
 
 export default {
