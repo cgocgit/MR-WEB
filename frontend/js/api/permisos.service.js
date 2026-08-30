@@ -482,4 +482,8 @@ export async function detallePermisosPorRol(rol) {
     .map(item => ({ ...item }));
 }
 
-export default { listPermisos, permisosPorRol };
+export default {
+  listPermisos,
+  permisosPorRol,
+  detallePermisosPorRol
+};

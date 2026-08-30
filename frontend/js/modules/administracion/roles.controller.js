@@ -1,7 +1,23 @@
-import { listRoles } from '../../../js/api/roles.service.js';
-import { searchUsuarios } from '../../../js/api/usuarios.service.js';
-import { getSession } from '../../../js/shared/auth-guard.js';
-import { hasPermission } from '../../../js/shared/permissions.js';
+import {
+  listRoles,
+  getRole
+} from '../../../js/api/roles.service.js';
+
+import {
+  detallePermisosPorRol
+} from '../../../js/api/permisos.service.js';
+
+import {
+  searchUsuarios
+} from '../../../js/api/usuarios.service.js';
+
+import {
+  getSession
+} from '../../../js/shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../../js/shared/permissions.js';
 
 export async function init(containerId) {
   const root = document.getElementById(containerId);
@@ -85,6 +101,20 @@ async function renderPermisosPorRol(root) {
       </div>
     `;
   }
+}
+
+function mostrarRolNoDisponible(root) {
+  root.innerHTML = `
+    <div class="card">
+      <p>
+        El rol seleccionado no está disponible.
+      </p>
+
+      <a href="#/administracion/roles">
+        Volver a roles
+      </a>
+    </div>
+  `;
 }
 
 async function renderCatalogoRoles(root) {
