@@ -1,4 +1,6 @@
-import { request } from './client.js';
+import {
+  getPermissionsForRoles
+} from '../shared/permissions.js';
 
 export async function login(username, password){
   // Mocked implementation: acepta cualquier contraseña, devuelve rol según usuario
@@ -18,60 +20,8 @@ export async function login(username, password){
   // Permissions are explicit — ADMIN can consult and manage configuration/users and catalogue,
   // but must NOT perform day-to-day operational actions (cotizaciones/ordenes creation,
   // inventory movements, logistic phases registration, manual payments, etc.)
-  const rolePermissions = {
-    'ADMIN': [
-      // User management
-      'usuarios.*', 'roles.*',
-      // Consultations across modules
-      'clientes.consultar', 'cotizaciones.consultar', 'ordenes.consultar', 'pagos.consultar', 'reportes.consultar', 'alertas.consultar',
-      // Catalogue management (allowed)
-      'catalogo.*',
-      // Inventory: consult only
-      'inventario.consultar', 'inventario.disponibilidad', 'inventario.movimientos.consultar',
-      // Logistics progress consult only
-      'logistica.consultar'
-      ,
-      // administration visibility
-      'administracion.consultar'
-    ],
-    'INVENTARIO': [
-      'catalogo.consultar','catalogo.gestionar','productos.*','paquetes.*','abc.*',
-      'inventario.*','inventario.consultar','inventario.disponibilidad','inventario.movimientos.*',
-      'ordenes.consultar','reportes.consultar','alertas.consultar'
-    ],
-    // USER = Ventas / Ejecutivo de ventas
-    'USER': [
-      'clientes.*','prospectos.*',
-      'catalogo.consultar','catalogo.precios','catalogo.disponibilidad',
-      'cotizaciones.gestionar','cotizaciones.consultar',
-      'ordenes.crear','ordenes.consultar','ordenes.consultar_mis',
-      'alertas.consultar','inventario.consultar','reportes.consultar'
-    ],
-    // Personal administrativo
-    'ADMINISTRATIVO': [
-      'clientes.*',
-      'cotizaciones.gestionar','cotizaciones.consultar',
-      'ordenes.gestionar','ordenes.asignar','ordenes.consultar',
-      'catalogo.consultar','inventario.consultar',
-      'pagos.registrar','pagos.consultar',
-      'reportes.consultar','alertas.consultar'
-    ],
-    'TECH': [
-      'catalogo.consultar','inventario.consultar',
-      'ordenes.asignadas','ordenes.consultar',
-      'logistica.registrar','logistica.ejecucion','logistica.evidencia','logistica.consultar',
-      'alertas.consultar'
-    ],
-    'SUPERVISOR': [
-      'clientes.consultar','catalogo.consultar','inventario.consultar','cotizaciones.consultar','ordenes.consultar','pagos.consultar',
-      'logistica.*','reportes.consultar','alertas.consultar'
-    ],
-    // Dirección / gerencia — solo consulta y panel ejecutivo
-    'DIRECCION': [
-      'dashboard.consultar','catalogo.consultar','inventario.consultar','cotizaciones.consultar','ordenes.consultar','pagos.consultar','alertas.consultar','reportes.*'
-    ]
-  };
-  const permissions = rolePermissions[role] || [];
+  const permissions = getPermissionsForRoles(user.roles);
+    
   const token = btoa(username + ':' + Date.now());
   const session = {user, token, permissions};
   localStorage.setItem('mr_session', JSON.stringify(session));

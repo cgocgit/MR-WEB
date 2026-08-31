@@ -1,4 +1,11 @@
-import { requireAuth, requireRole, getSession } from './shared/auth-guard.js';
+import {
+  requireAuth,
+  getSession
+} from './shared/auth-guard.js';
+
+import {
+  hasPermission
+} from './shared/permissions.js';
 
 const routes = {
   '': 'pages/auth/login.html',
@@ -37,34 +44,112 @@ const routes = {
   '#/administracion/documentacion-tecnica': 'pages/administracion/documentacion-tecnica.html'
 };
 
-// map routes to allowed roles (uses existing role names in the app)
+// Mapa central de permisos requeridos por ruta.
 const routePermissions = {
-  '#/administracion': ['ADMIN'],
-  '#/administracion/usuarios': ['ADMIN'],
-  '#/administracion/roles': ['ADMIN'],
-  '#/administracion/usuario-formulario': ['ADMIN'],
-  '#/administracion/usuario-detalle': ['ADMIN'],
-  '#/administracion/permisos': ['ADMIN'],
-  '#/administracion/matriz-acceso': ['ADMIN'],
-  '#/administracion/bitacora': ['ADMIN'],
-  '#/administracion/configuracion': ['ADMIN'],
-  '#/administracion/intercambio-csv': ['ADMIN'],
-  '#/administracion/documentacion-tecnica': ['ADMIN'],
-  '#/clientes': ['ADMIN','USER','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/catalogo': ['ADMIN','USER','INVENTARIO','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/inventario': ['ADMIN','INVENTARIO','SUPERVISOR','USER','ADMINISTRATIVO','DIRECCION'],
-  '#/inventario/movimientos': ['INVENTARIO'],
-  '#/inventario/alertas': ['INVENTARIO','ADMIN','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/cotizaciones': ['ADMIN','USER','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/cotizaciones/formulario': ['USER','ADMINISTRATIVO'],
-  '#/ordenes': ['ADMIN','USER','SUPERVISOR','TECH','INVENTARIO','ADMINISTRATIVO','DIRECCION'],
-  '#/ordenes/detalle': ['ADMIN','USER','SUPERVISOR','TECH','INVENTARIO','ADMINISTRATIVO','DIRECCION'],
-  '#/logistica': ['ADMIN','TECH','SUPERVISOR','USER','ADMINISTRATIVO','DIRECCION'],
-  '#/logistica/asignadas': ['TECH','SUPERVISOR'],
-  '#/logistica/ejecucion': ['TECH','SUPERVISOR'],
-  '#/pagos': ['ADMIN','USER','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/pagos/registro': ['ADMINISTRATIVO'],
-  '#/reportes': ['ADMIN','SUPERVISOR','INVENTARIO','ADMINISTRATIVO','DIRECCION']
+  '#/dashboard':
+    'dashboard.consultar',
+
+  // Clientes
+  '#/clientes':
+    'clientes.consultar',
+
+  // Catálogo
+  '#/catalogo':
+    'catalogo.consultar',
+
+  '#/catalogo/productos':
+    'catalogo.consultar',
+
+  '#/catalogo/servicios':
+    'catalogo.consultar',
+
+  '#/catalogo/paquetes':
+    'catalogo.consultar',
+
+  '#/catalogo/precios':
+    'catalogo.consultar',
+
+  // Inventario
+  '#/inventario':
+    'inventario.consultar',
+
+  '#/inventario/existencias':
+    'inventario.consultar',
+
+  '#/inventario/movimientos':
+    'inventario.consultar',
+
+  '#/inventario/alertas':
+    'alertas.consultar',
+
+  // Cotizaciones
+  '#/cotizaciones':
+    'cotizaciones.consultar',
+
+  '#/cotizaciones/formulario':
+    'cotizaciones.gestionar',
+
+  // Órdenes
+  '#/ordenes':
+    'ordenes.consultar',
+
+  '#/ordenes/detalle':
+    'ordenes.consultar',
+
+  // Logística
+  '#/logistica':
+    'logistica.consultar',
+
+  '#/logistica/asignadas':
+    'logistica.consultar',
+
+  '#/logistica/ejecucion':
+    'logistica.ejecutar',
+
+  // Pagos
+  '#/pagos':
+    'pagos.consultar',
+
+  '#/pagos/registro':
+    'pagos.gestionar',
+
+  // Reportes
+  '#/reportes':
+    'reportes.consultar',
+
+  // Administración
+  '#/administracion':
+    'administracion.consultar',
+
+  '#/administracion/usuarios':
+    'usuarios.consultar',
+
+  '#/administracion/usuario-formulario':
+    'usuarios.consultar',
+
+  '#/administracion/usuario-detalle':
+    'usuarios.consultar',
+
+  '#/administracion/roles':
+    'roles.consultar',
+
+  '#/administracion/permisos':
+    'permisos.consultar',
+
+  '#/administracion/matriz-acceso':
+    'matriz.consultar',
+
+  '#/administracion/bitacora':
+    'auditoria.consultar',
+
+  '#/administracion/configuracion':
+    'configuracion.consultar',
+
+  '#/administracion/intercambio-csv':
+    'intercambio.validar',
+
+  '#/administracion/documentacion-tecnica':
+    'documentacion.tecnica.consultar'
 };
 
 export async function loadRoute(container) {
@@ -75,11 +160,26 @@ export async function loadRoute(container) {
   // protect routes (allow login page)
   if(hash !== '' && hash !== '#/login'){
     if(!requireAuth()) return;
-    const allowed = routePermissions[hash];
-    if(allowed){
-      // if user has none of the allowed roles, show access denied
-      if(!requireRole(allowed)){
-        container.innerHTML = '<div class="card">Acceso denegado: no dispone de permisos para ver esta página.</div>';
+  
+    const requiredPermission = routePermissions[hash];
+
+    if (requiredPermission) {
+      const session = getSession();
+
+      if (
+        !hasPermission(
+          session,
+          requiredPermission
+        )
+      ) {
+        container.innerHTML = `
+          <div class="card">
+            Acceso denegado:
+            no dispone de permisos para
+            ver esta página.
+          </div>
+        `;
+
         return;
       }
     }
