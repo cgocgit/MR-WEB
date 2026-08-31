@@ -44,19 +44,21 @@ const routes = {
   '#/administracion/documentacion-tecnica': 'pages/administracion/documentacion-tecnica.html'
 };
 
-// map routes to allowed roles (uses existing role names in the app)
+// Mapa central de permisos requeridos por ruta.
 const routePermissions = {
   '#/dashboard':
     'dashboard.consultar',
 
+  // Clientes
   '#/clientes':
     'clientes.consultar',
 
+  // Catálogo
   '#/catalogo':
     'catalogo.consultar',
 
   '#/catalogo/productos':
-  'catalogo.consultar',
+    'catalogo.consultar',
 
   '#/catalogo/servicios':
     'catalogo.consultar',
@@ -67,14 +69,12 @@ const routePermissions = {
   '#/catalogo/precios':
     'catalogo.consultar',
 
+  // Inventario
   '#/inventario':
     'inventario.consultar',
 
-  '#/inventario/movimientos':
-  'inventario.gestionar',
-
   '#/inventario/existencias':
-  'inventario.consultar',
+    'inventario.consultar',
 
   '#/inventario/movimientos':
     'inventario.consultar',
@@ -82,46 +82,52 @@ const routePermissions = {
   '#/inventario/alertas':
     'alertas.consultar',
 
+  // Cotizaciones
   '#/cotizaciones':
     'cotizaciones.consultar',
-  
-  '#/cotizaciones/formulario':
-  'cotizaciones.gestionar',
 
+  '#/cotizaciones/formulario':
+    'cotizaciones.gestionar',
+
+  // Órdenes
   '#/ordenes':
     'ordenes.consultar',
 
   '#/ordenes/detalle':
-  'ordenes.consultar',
+    'ordenes.consultar',
 
+  // Logística
   '#/logistica':
     'logistica.consultar',
 
-  '#/logistica/ejecucion':
-  'logistica.ejecutar',
-
   '#/logistica/asignadas':
     'logistica.consultar',
-  
-  '#/logistica/ejecucion':
-  'logistica.ejecutar',
 
+  '#/logistica/ejecucion':
+    'logistica.ejecutar',
+
+  // Pagos
   '#/pagos':
     'pagos.consultar',
 
   '#/pagos/registro':
-  'pagos.gestionar',
+    'pagos.gestionar',
 
-  '#/pagos/registro':
-  'pagos.gestionar',
-
+  // Reportes
   '#/reportes':
     'reportes.consultar',
 
+  // Administración
   '#/administracion':
     'administracion.consultar',
 
   '#/administracion/usuarios':
+    'usuarios.consultar',
+
+  '#/administracion/usuario-formulario':
+    'usuarios.consultar',
+
+  '#/administracion/usuario-detalle':
     'usuarios.consultar',
 
   '#/administracion/roles':
@@ -143,14 +149,7 @@ const routePermissions = {
     'intercambio.validar',
 
   '#/administracion/documentacion-tecnica':
-    'documentacion.tecnica.consultar',
-
-  '#/administracion/usuario-formulario':
-  'usuarios.consultar',
-
-  '#/administracion/usuario-detalle':
-  'usuarios.consultar'
-
+    'documentacion.tecnica.consultar'
 };
 
 export async function loadRoute(container) {
