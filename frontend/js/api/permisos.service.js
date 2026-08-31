@@ -455,6 +455,10 @@ const PERMISOS_POR_ROL = {
   ]
 };
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // Mock permisos service
 export async function listPermisos() {
   await delay(80);

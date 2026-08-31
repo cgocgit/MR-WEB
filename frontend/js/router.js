@@ -1,4 +1,11 @@
-import { requireAuth, requireRole, getSession } from './shared/auth-guard.js';
+import {
+  requireAuth,
+  getSession
+} from './shared/auth-guard.js';
+
+import {
+  hasPermission
+} from './shared/permissions.js';
 
 const routes = {
   '': 'pages/auth/login.html',
@@ -39,32 +46,59 @@ const routes = {
 
 // map routes to allowed roles (uses existing role names in the app)
 const routePermissions = {
-  '#/administracion': ['ADMIN'],
-  '#/administracion/usuarios': ['ADMIN'],
-  '#/administracion/roles': ['ADMIN'],
-  '#/administracion/usuario-formulario': ['ADMIN'],
-  '#/administracion/usuario-detalle': ['ADMIN'],
-  '#/administracion/permisos': ['ADMIN'],
-  '#/administracion/matriz-acceso': ['ADMIN'],
-  '#/administracion/bitacora': ['ADMIN'],
-  '#/administracion/configuracion': ['ADMIN'],
-  '#/administracion/intercambio-csv': ['ADMIN'],
-  '#/administracion/documentacion-tecnica': ['ADMIN'],
-  '#/clientes': ['ADMIN','USER','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/catalogo': ['ADMIN','USER','INVENTARIO','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/inventario': ['ADMIN','INVENTARIO','SUPERVISOR','USER','ADMINISTRATIVO','DIRECCION'],
-  '#/inventario/movimientos': ['INVENTARIO'],
-  '#/inventario/alertas': ['INVENTARIO','ADMIN','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/cotizaciones': ['ADMIN','USER','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/cotizaciones/formulario': ['USER','ADMINISTRATIVO'],
-  '#/ordenes': ['ADMIN','USER','SUPERVISOR','TECH','INVENTARIO','ADMINISTRATIVO','DIRECCION'],
-  '#/ordenes/detalle': ['ADMIN','USER','SUPERVISOR','TECH','INVENTARIO','ADMINISTRATIVO','DIRECCION'],
-  '#/logistica': ['ADMIN','TECH','SUPERVISOR','USER','ADMINISTRATIVO','DIRECCION'],
-  '#/logistica/asignadas': ['TECH','SUPERVISOR'],
-  '#/logistica/ejecucion': ['TECH','SUPERVISOR'],
-  '#/pagos': ['ADMIN','USER','SUPERVISOR','ADMINISTRATIVO','DIRECCION'],
-  '#/pagos/registro': ['ADMINISTRATIVO'],
-  '#/reportes': ['ADMIN','SUPERVISOR','INVENTARIO','ADMINISTRATIVO','DIRECCION']
+  '#/dashboard':
+    'dashboard.consultar',
+
+  '#/clientes':
+    'clientes.consultar',
+
+  '#/catalogo':
+    'catalogo.consultar',
+
+  '#/inventario':
+    'inventario.consultar',
+
+  '#/cotizaciones':
+    'cotizaciones.consultar',
+
+  '#/ordenes':
+    'ordenes.consultar',
+
+  '#/logistica':
+    'logistica.consultar',
+
+  '#/pagos':
+    'pagos.consultar',
+
+  '#/reportes':
+    'reportes.consultar',
+
+  '#/administracion':
+    'administracion.consultar',
+
+  '#/administracion/usuarios':
+    'usuarios.consultar',
+
+  '#/administracion/roles':
+    'roles.consultar',
+
+  '#/administracion/permisos':
+    'permisos.consultar',
+
+  '#/administracion/matriz-acceso':
+    'matriz.consultar',
+
+  '#/administracion/bitacora':
+    'auditoria.consultar',
+
+  '#/administracion/configuracion':
+    'configuracion.consultar',
+
+  '#/administracion/intercambio-csv':
+    'intercambio.validar',
+
+  '#/administracion/documentacion-tecnica':
+    'documentacion.tecnica.consultar'
 };
 
 export async function loadRoute(container) {
@@ -75,11 +109,26 @@ export async function loadRoute(container) {
   // protect routes (allow login page)
   if(hash !== '' && hash !== '#/login'){
     if(!requireAuth()) return;
-    const allowed = routePermissions[hash];
-    if(allowed){
-      // if user has none of the allowed roles, show access denied
-      if(!requireRole(allowed)){
-        container.innerHTML = '<div class="card">Acceso denegado: no dispone de permisos para ver esta página.</div>';
+  
+    const requiredPermission = routePermissions[hash];
+
+    if (requiredPermission) {
+      const session = getSession();
+
+      if (
+        !hasPermission(
+          session,
+          requiredPermission
+        )
+      ) {
+        container.innerHTML = `
+          <div class="card">
+            Acceso denegado:
+            no dispone de permisos para
+            ver esta página.
+          </div>
+        `;
+
         return;
       }
     }
