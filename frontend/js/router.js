@@ -55,20 +55,65 @@ const routePermissions = {
   '#/catalogo':
     'catalogo.consultar',
 
+  '#/catalogo/productos':
+  'catalogo.consultar',
+
+  '#/catalogo/servicios':
+    'catalogo.consultar',
+
+  '#/catalogo/paquetes':
+    'catalogo.consultar',
+
+  '#/catalogo/precios':
+    'catalogo.consultar',
+
   '#/inventario':
     'inventario.consultar',
 
+  '#/inventario/movimientos':
+  'inventario.gestionar',
+
+  '#/inventario/existencias':
+  'inventario.consultar',
+
+  '#/inventario/movimientos':
+    'inventario.consultar',
+
+  '#/inventario/alertas':
+    'alertas.consultar',
+
   '#/cotizaciones':
     'cotizaciones.consultar',
+  
+  '#/cotizaciones/formulario':
+  'cotizaciones.gestionar',
 
   '#/ordenes':
     'ordenes.consultar',
 
+  '#/ordenes/detalle':
+  'ordenes.consultar',
+
   '#/logistica':
     'logistica.consultar',
 
+  '#/logistica/ejecucion':
+  'logistica.ejecutar',
+
+  '#/logistica/asignadas':
+    'logistica.consultar',
+  
+  '#/logistica/ejecucion':
+  'logistica.ejecutar',
+
   '#/pagos':
     'pagos.consultar',
+
+  '#/pagos/registro':
+  'pagos.gestionar',
+
+  '#/pagos/registro':
+  'pagos.gestionar',
 
   '#/reportes':
     'reportes.consultar',
@@ -98,7 +143,14 @@ const routePermissions = {
     'intercambio.validar',
 
   '#/administracion/documentacion-tecnica':
-    'documentacion.tecnica.consultar'
+    'documentacion.tecnica.consultar',
+
+  '#/administracion/usuario-formulario':
+  'usuarios.consultar',
+
+  '#/administracion/usuario-detalle':
+  'usuarios.consultar'
+
 };
 
 export async function loadRoute(container) {

@@ -4,7 +4,7 @@ import {
 
 export function renderSidebar(container, session){
   const hasSession = session && session.user;
-  const roles = hasSession ? session.user.roles : [];
+  
   // Hide sidebar when there is no authenticated session
   if(!hasSession){ container.style.display = 'none'; container.innerHTML = ''; return }
   container.style.display = '';

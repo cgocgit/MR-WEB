@@ -1,4 +1,3 @@
-import { request } from './client.js';
 import {
   getPermissionsForRoles
 } from '../shared/permissions.js';
