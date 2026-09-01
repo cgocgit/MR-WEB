@@ -797,40 +797,6 @@ function validarPaquete(datos, idActual) {
 // ====================
 
 /**
- * Normaliza un identificador recibido desde URL, dataset o controlador.
- *
- * @param {number|string} id
- * @param {string} entidad
- * @returns {number}
- */
-function normalizarId(id, entidad = 'registro') {
-  const valor = Number(id);
-
-  if (!Number.isInteger(valor) || valor <= 0) {
-    throw crearError(
-      'ID_INVALIDO',
-      `El identificador de ${entidad} no es válido.`
-    );
-  }
-
-  return valor;
-}
-
-/**
- * Crear objeto de error normalizado
- */
-function crearError(codigo, mensaje, detalles = null) {
-  const error = new Error(mensaje);
-  error.codigo = codigo;
-  error.detalles = detalles;
-  return error;
-}
-
-// ====================
-// UTILIDADES
-// ====================
-
-/**
  * Obtiene el usuario autenticado para auditoría.
  */
 function obtenerUsuarioActual() {
