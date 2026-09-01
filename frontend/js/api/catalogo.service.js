@@ -25,6 +25,7 @@ import {
   MENSAJES,
   LIMITES_CAMPOS
 } from './catalogo.constants.js';
+import { getSession } from '../shared/auth-guard.js';
 
 // ====================
 // OPERACIONES PRODUCTOS
@@ -131,9 +132,9 @@ export async function registrarProducto(datos) {
     ...datos,
     activo: ESTADO_REGISTRO.ACTIVO,
     fechaRegistro: new Date(),
-    creadoPor: 'usuario@mesaregia.com', // TODO: obtener del contexto de sesión
+    creadoPor: obtenerUsuarioActual(),
     fechaModificacion: new Date(),
-    modificadoPor: 'usuario@mesaregia.com',
+    modificadoPor: obtenerUsuarioActual(),
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
   };
   
@@ -172,7 +173,7 @@ export async function actualizarProducto(id, datos) {
     ...datos,
     idProducto: idProducto,
     fechaModificacion: new Date(),
-    modificadoPor: 'usuario@mesaregia.com',
+    modificadoPor: obtenerUsuarioActual(),
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
   };
   
@@ -201,7 +202,7 @@ export async function cambiarEstadoProducto(id, activo) {
 
   PRODUCTOS_MOCK[indice].activo = activo ? 1 : 0;
   PRODUCTOS_MOCK[indice].fechaModificacion = new Date();
-  PRODUCTOS_MOCK[indice].modificadoPor = 'usuario@mesaregia.com';
+  PRODUCTOS_MOCK[indice].modificadoPor = obtenerUsuarioActual();
 
   return clonarDatos(PRODUCTOS_MOCK[indice]);
 }
@@ -305,9 +306,9 @@ export async function registrarServicio(datos) {
     ...datos,
     activo: ESTADO_REGISTRO.ACTIVO,
     fechaRegistro: new Date(),
-    creadoPor: 'usuario@mesaregia.com',
+    creadoPor: obtenerUsuarioActual(),
     fechaModificacion: new Date(),
-    modificadoPor: 'usuario@mesaregia.com',
+    modificadoPor: obtenerUsuarioActual(),
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
   };
   
@@ -359,7 +360,7 @@ export async function actualizarServicio(id, datos) {
     ...datos,
     idServicio,
     fechaModificacion: new Date(),
-    modificadoPor: 'usuario@mesaregia.com',
+    modificadoPor: obtenerUsuarioActual(),
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
   };
 
@@ -389,7 +390,7 @@ export async function cambiarEstadoServicio(id, activo) {
 
   SERVICIOS_MOCK[indice].activo = activo ? 1 : 0;
   SERVICIOS_MOCK[indice].fechaModificacion = new Date();
-  SERVICIOS_MOCK[indice].modificadoPor = 'usuario@mesaregia.com';
+  SERVICIOS_MOCK[indice].modificadoPor = obtenerUsuarioActual();
 
   return clonarDatos(SERVICIOS_MOCK[indice]);
 }
@@ -483,9 +484,9 @@ export async function registrarPaquete(datos) {
     precio: datos.precio || 0,
     activo: ESTADO_REGISTRO.ACTIVO,
     fechaRegistro: new Date(),
-    creadoPor: 'usuario@mesaregia.com',
+    creadoPor: obtenerUsuarioActual(),
     fechaModificacion: new Date(),
-    modificadoPor: 'usuario@mesaregia.com',
+    modificadoPor: obtenerUsuarioActual(),
     estadoRegistro: ESTADO_REGISTRO.ACTIVO,
     detalleProductos: datos.detalleProductos || [],
     detalleServicios: datos.detalleServicios || []
@@ -539,7 +540,7 @@ export async function actualizarPaquete(id, datos) {
     ...datos,
     idPaquete,
     fechaModificacion: new Date(),
-    modificadoPor: 'usuario@mesaregia.com',
+    modificadoPor: obtenerUsuarioActual(),
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
   };
 
@@ -569,7 +570,7 @@ export async function cambiarEstadoPaquete(id, activo) {
 
   PAQUETES_MOCK[indice].activo = activo ? 1 : 0;
   PAQUETES_MOCK[indice].fechaModificacion = new Date();
-  PAQUETES_MOCK[indice].modificadoPor = 'usuario@mesaregia.com';
+  PAQUETES_MOCK[indice].modificadoPor = obtenerUsuarioActual();
 
   return clonarDatos(PAQUETES_MOCK[indice]);
 }
@@ -608,6 +609,34 @@ export async function listarTiposProducto() {
 export async function listarColores() {
   await simularLatencia(100);
   return clonarDatos(COLORES);
+}
+
+/**
+ * Consultar disponibilidad de un producto.
+ */
+export async function consultarDisponibilidad(id) {
+  await simularLatencia(100);
+
+  const idProducto = normalizarId(id, 'producto');
+
+  const producto = PRODUCTOS_MOCK.find(
+    item => item.idProducto === idProducto
+  );
+
+  if (!producto) {
+    throw crearError(
+      'PRODUCTO_NO_ENCONTRADO',
+      MENSAJES.PRODUCTO_NO_ENCONTRADO
+    );
+  }
+
+  const cantidadDisponible = Number(producto.disponibilidad || 0);
+
+  return {
+    idProducto,
+    disponible: cantidadDisponible > 0,
+    cantidadDisponible
+  };
 }
 
 // ====================
@@ -796,3 +825,12 @@ function crearError(codigo, mensaje, detalles = null) {
   error.detalles = detalles;
   return error;
 }
+
+// ====================
+// UTILIDADES
+// ====================
+
+/**
+ * Normaliza un identificador recibido desde URL, dataset o controlador.
+ */
+function normalizarId(id, entidad = 'registro') {

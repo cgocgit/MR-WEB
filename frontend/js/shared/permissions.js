@@ -29,7 +29,6 @@ export const ROLE_PERMISSIONS = {
     'clientes.buscar',
 
     // Catálogo - permisos granulares
-    // Catálogo - permisos granulares
     'catalogo.consultar',
     'catalogo.productos.registrar',
     'catalogo.productos.modificar',

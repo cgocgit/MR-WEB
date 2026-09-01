@@ -13,9 +13,6 @@ import {
   UNIDADES_MEDIDA
 } from './catalogo.constants.js';
 
-// Simular usuario actual para auditoría
-const USUARIO_ACTUAL = 'admin@mesaregia.com';
-
 /**
  * Productos Mock
  * Incluye escenarios: completo, sin imagen, inactivo, sin color, precio cero, en paquetes, con disponibilidad
