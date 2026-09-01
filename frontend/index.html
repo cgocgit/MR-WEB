@@ -2,16 +2,40 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mesa Regia — Frontend (Iteración 1)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Mesa Regia - Frontend (Iteración 1)</title>
   <link rel="stylesheet" href="css/variables.css">
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/utilities.css">
+  <link rel="stylesheet" href="css/modules/clientes.css">
 </head>
 <body>
-  <header id="topbar" class="auth-only" aria-hidden="true"></header>
-  <nav id="sidebar" class="auth-only" aria-hidden="true"></nav>
-  <main id="content" role="main"></main>
+  <header
+    id="topbar"
+    class="auth-only"
+    aria-hidden="true"
+  ></header>
+
+  <nav
+    id="sidebar"
+    class="auth-only"
+    aria-hidden="true"
+    aria-label="Navegación principal"
+  ></nav>
+
+  <div
+    id="sidebarBackdrop"
+    class="sidebar-backdrop"
+    aria-hidden="true"
+  ></div>
+
+  <main
+    id="content"
+    role="main"
+    tabindex="-1"
+  ></main>
   <div id="notifications" aria-live="polite"></div>
   <script>
     // Inline early error filter to suppress noisy injected VM### errors (extensions/devtools)

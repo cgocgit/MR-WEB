@@ -1,0 +1,66 @@
+<section
+  id="cliente-revision-page"
+  class="container clientes-page"
+  aria-labelledby="revision-title"
+>
+  <header>
+    <h1 id="revision-title">
+      Revisión y clasificación del prospecto
+    </h1>
+
+    <p>
+      Revisa la información disponible antes de
+      decidir la clasificación del prospecto.
+    </p>
+  </header>
+
+  <div
+    id="cliente-revision-content"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    Cargando información...
+  </div>
+
+  <dialog
+    id="clasificacion-confirmacion"
+    class="clientes-dialog"
+    aria-labelledby="clasificacion-confirmacion-title"
+  >
+    <form method="dialog">
+      <h2 id="clasificacion-confirmacion-title">
+        Confirmar clasificación
+      </h2>
+
+      <div
+        id="clasificacion-confirmacion-content"
+      ></div>
+
+      <div
+        class="clientes-dialog-actions"
+      >
+        <button
+          id="clasificacion-cancelar-confirmacion"
+          type="button"
+        >
+          Volver a revisar
+        </button>
+
+        <button
+          id="clasificacion-confirmar"
+          type="button"
+        >
+          Confirmar
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module">
+    import {
+      init
+    } from './js/modules/clientes/revision.js';
+
+    init();
+  </script>
+</section>

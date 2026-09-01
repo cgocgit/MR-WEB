@@ -8,6 +8,21 @@ const topbar = document.getElementById('topbar');
 const sidebar = document.getElementById('sidebar');
 const content = document.getElementById('content');
 
+const sidebarBackdrop =
+  document.getElementById(
+    'sidebarBackdrop'
+  );
+
+const MOBILE_LAYOUT_QUERY =
+  '(max-width: 900px), ' +
+  '(hover: none) and (pointer: coarse)';
+
+function isMobileLayout() {
+  return window.matchMedia(
+    MOBILE_LAYOUT_QUERY
+  ).matches;
+}
+
 function getSession(){
   try{ return JSON.parse(localStorage.getItem('mr_session')) }catch(e){return null}
 }
@@ -36,24 +51,140 @@ function init(){
 }
 
 // Adjust main content margin when sidebar visibility changes or on resize
-function adjustContentForSidebar(){
-  const sidebarEl = document.getElementById('sidebar');
-  const main = document.getElementById('content');
-  if(!main) return;
-  const isCollapsed = document.documentElement.classList.contains('sidebar-collapsed');
-  const small = window.innerWidth <= 720;
-  if(isCollapsed || small){
-    main.style.marginLeft = '0';
-  } else if(sidebarEl){
-    // keep a small gap (20px) consistent with previous layout
+function adjustContentForSidebar() {
+  const sidebarEl =
+    document.getElementById(
+      'sidebar'
+    );
+
+  const main =
+    document.getElementById(
+      'content'
+    );
+
+  const toggle =
+    document.getElementById(
+      'sidebarToggle'
+    );
+
+  if (!main) {
+    return;
+  }
+
+  const root =
+    document.documentElement;
+
+  if (isMobileLayout()) {
+    /*
+     * sidebar-collapsed no se utiliza
+     * para controlar móvil.
+     */
+    root.classList.remove(
+      'sidebar-collapsed'
+    );
+
+    main.style.marginLeft =
+      '0';
+
+    const expanded =
+      root.classList.contains(
+        'sidebar-open'
+      );
+
+    if (toggle) {
+      toggle.setAttribute(
+        'aria-expanded',
+        String(expanded)
+      );
+    }
+
+    return;
+  }
+
+  /*
+   * Si cambiamos de móvil a
+   * escritorio, eliminamos el
+   * estado off-canvas.
+   */
+  root.classList.remove(
+    'sidebar-open'
+  );
+
+  const isCollapsed =
+    root.classList.contains(
+      'sidebar-collapsed'
+    );
+
+  if (isCollapsed) {
+    main.style.marginLeft =
+      '0';
+  } else if (sidebarEl) {
     const gap = 20;
-    const w = sidebarEl.getBoundingClientRect().width || 220;
-    main.style.marginLeft = (w + gap) + 'px';
+
+    const width =
+      sidebarEl
+        .getBoundingClientRect()
+        .width || 240;
+
+    main.style.marginLeft =
+      `${width + gap}px`;
+  }
+
+  if (toggle) {
+    toggle.setAttribute(
+      'aria-expanded',
+      String(!isCollapsed)
+    );
   }
 }
 
 // listen for changes triggered by topbar/sidebar controls
 window.addEventListener('sidebar:changed', adjustContentForSidebar);
+if (sidebarBackdrop) {
+  sidebarBackdrop.addEventListener(
+    'click',
+    () => {
+      document.documentElement
+        .classList
+        .remove('sidebar-open');
+
+      adjustContentForSidebar();
+    }
+  );
+}
+document.addEventListener(
+  'keydown',
+  event => {
+    if (
+      event.key !== 'Escape' ||
+      !isMobileLayout()
+    ) {
+      return;
+    }
+
+    const root =
+      document.documentElement;
+
+    if (
+      !root.classList.contains(
+        'sidebar-open'
+      )
+    ) {
+      return;
+    }
+
+    root.classList.remove(
+      'sidebar-open'
+    );
+
+    adjustContentForSidebar();
+
+    document.getElementById(
+      'sidebarToggle'
+    )?.focus();
+  }
+);
+
 window.addEventListener('resize', adjustContentForSidebar);
 
 // call once on load in case initial state needs correction

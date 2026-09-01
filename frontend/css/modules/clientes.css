@@ -1,0 +1,190 @@
+.clientes-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.clientes-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clientes-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.clientes-filters {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.clientes-actions,
+.clientes-row-actions,
+.clientes-form-actions,
+.clientes-decision-actions,
+.clientes-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clientes-actions,
+.clientes-form-actions,
+.clientes-dialog-actions {
+  justify-content: flex-end;
+}
+
+.clientes-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.clientes-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.clientes-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.clientes-table th,
+.clientes-table td {
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.clientes-table th {
+  white-space: nowrap;
+}
+
+.clientes-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.clientes-card {
+  margin-top: 12px;
+}
+
+.clientes-form {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.clientes-contact-row {
+  display: grid;
+  grid-template-columns: 180px 1fr auto;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: end;
+}
+
+.clientes-contact-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.clientes-errors {
+  padding: 12px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+}
+
+.clientes-errors[hidden] {
+  display: none;
+}
+
+.clientes-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.clientes-status[data-estado="PROSPECTO"] {
+  border: 1px solid currentColor;
+}
+
+.clientes-status[data-estado="CLIENTE"] {
+  border: 1px solid currentColor;
+}
+
+.clientes-status[data-estado="PROSPECTO_REVISADO"] {
+  border: 1px dashed currentColor;
+}
+
+.clientes-detail-section,
+.clientes-review-section {
+  margin-top: 12px;
+}
+
+.clientes-related-item {
+  margin-top: 8px;
+}
+
+.clientes-empty,
+.clientes-message {
+  margin: 0;
+}
+
+.clientes-dialog {
+  width: min(560px, calc(100% - 32px));
+  border: 0;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.clientes-dialog::backdrop {
+  background: rgb(0 0 0 / 45%);
+}
+
+@media (max-width: 720px) {
+  .clientes-list-header,
+  .clientes-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .clientes-actions,
+  .clientes-row-actions,
+  .clientes-form-actions,
+  .clientes-decision-actions,
+  .clientes-dialog-actions {
+    flex-direction: column;
+  }
+
+  .clientes-contact-row {
+    grid-template-columns: 1fr;
+  }
+
+  .clientes-table {
+    min-width: 760px;
+  }
+
+  .clientes-actions a,
+  .clientes-row-actions a,
+  .clientes-actions button,
+  .clientes-row-actions button,
+  .clientes-form-actions button,
+  .clientes-decision-actions button,
+  .clientes-decision-actions a {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

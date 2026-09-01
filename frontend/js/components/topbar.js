@@ -1,36 +1,278 @@
-export function renderTopbar(container, session){
-  const userLabel = session && session.user ? `${session.user.name}` : 'Invitado';
-  const hasSession = session && session.user;
-  container.innerHTML = `
-    <div class="container" style="display:flex;align-items:center;justify-content:space-between">
-      <div style="display:flex;gap:12px;align-items:center">
-        <button id="sidebarToggle" aria-label="Mostrar u ocultar menú" title="Mostrar/Ocultar menú" style="display:inline-block">☰</button>
-        <div style="font-weight:600">Mesa Regia</div>
-      </div>
-      <div style="display:flex;gap:12px;align-items:center">
-        <button id="alertsBtn" aria-label="Alertas" title="Alertas" style="background:transparent;border:none;cursor:pointer">🔔 <span id="alertsCount" style="font-weight:600;color:var(--accent);margin-left:6px;">0</span></button>
-        <div style="color:var(--muted)">Bienvenido, ${userLabel}</div>
-        ${hasSession ? '<button id="logoutBtn">Cerrar sesión</button>' : ''}
-      </div>
-    </div>
-  `;
+const MOBILE_LAYOUT_QUERY =
+  '(max-width: 900px), ' +
+  '(hover: none) and (pointer: coarse)';
 
-  const toggle = container.querySelector('#sidebarToggle');
-  if(toggle){
-    toggle.addEventListener('click', ()=>{
-      document.documentElement.classList.toggle('sidebar-collapsed');
-      // update aria-expanded
-      const expanded = !document.documentElement.classList.contains('sidebar-collapsed');
-      toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      // notify layout to adjust main content
-      window.dispatchEvent(new Event('sidebar:changed'));
-    });
+function isMobileLayout() {
+  return window.matchMedia(
+    MOBILE_LAYOUT_QUERY
+  ).matches;
+}
+
+function isSidebarOpen() {
+  if (isMobileLayout()) {
+    return document.documentElement
+      .classList
+      .contains('sidebar-open');
   }
 
-  const btn = container.querySelector('#logoutBtn');
-  if(btn) btn.addEventListener('click', ()=>{ localStorage.removeItem('mr_session'); location.hash = '#/login'; location.reload(); });
+  return !document.documentElement
+    .classList
+    .contains('sidebar-collapsed');
+}
 
-  // simple alerts count placeholder
-  const alertsCount = container.querySelector('#alertsCount');
-  if(alertsCount) alertsCount.textContent = '0';
+function updateToggleState(toggle) {
+  if (!toggle) {
+    return;
+  }
+
+  const expanded =
+    isSidebarOpen();
+
+  toggle.setAttribute(
+    'aria-expanded',
+    String(expanded)
+  );
+
+  toggle.setAttribute(
+    'aria-label',
+    expanded
+      ? 'Cerrar menú de navegación'
+      : 'Abrir menú de navegación'
+  );
+
+  toggle.title =
+    expanded
+      ? 'Cerrar menú'
+      : 'Abrir menú';
+}
+
+function toggleSidebar(toggle) {
+  const root =
+    document.documentElement;
+
+  if (isMobileLayout()) {
+    /*
+     * Móvil:
+     * sidebar-open controla si el
+     * menú off-canvas está visible.
+     */
+    root.classList.remove(
+      'sidebar-collapsed'
+    );
+
+    root.classList.toggle(
+      'sidebar-open'
+    );
+  } else {
+    /*
+     * Escritorio:
+     * conservamos el comportamiento
+     * de sidebar colapsable.
+     */
+    root.classList.remove(
+      'sidebar-open'
+    );
+
+    root.classList.toggle(
+      'sidebar-collapsed'
+    );
+  }
+
+  updateToggleState(toggle);
+
+  window.dispatchEvent(
+    new Event('sidebar:changed')
+  );
+}
+
+export function renderTopbar(
+  container,
+  session
+) {
+  if (!container) {
+    return;
+  }
+
+  const hasSession =
+    Boolean(session?.user);
+
+  const userLabel =
+    session?.user?.name ||
+    'Invitado';
+
+  container.replaceChildren();
+
+  const wrapper =
+    document.createElement('div');
+
+  wrapper.className =
+    'container topbar-container';
+
+  const brandGroup =
+    document.createElement('div');
+
+  brandGroup.className =
+    'topbar-brand-group';
+
+  const toggle =
+    document.createElement('button');
+
+  toggle.id =
+    'sidebarToggle';
+
+  toggle.type =
+    'button';
+
+  toggle.className =
+    'sidebar-toggle';
+
+  toggle.setAttribute(
+    'aria-controls',
+    'sidebar'
+  );
+
+  toggle.textContent =
+    '☰';
+
+  updateToggleState(
+    toggle
+  );
+
+  const brand =
+    document.createElement('div');
+
+  brand.className =
+    'topbar-brand';
+
+  brand.textContent =
+    'Mesa Regia';
+
+  brandGroup.append(
+    toggle,
+    brand
+  );
+
+  const actions =
+    document.createElement('div');
+
+  actions.className =
+    'topbar-actions';
+
+  const alerts =
+    document.createElement('button');
+
+  alerts.id =
+    'alertsBtn';
+
+  alerts.type =
+    'button';
+
+  alerts.className =
+    'topbar-alerts';
+
+  alerts.setAttribute(
+    'aria-label',
+    'Alertas'
+  );
+
+  alerts.title =
+    'Alertas';
+
+  alerts.append(
+    document.createTextNode('🔔')
+  );
+
+  const alertsCount =
+    document.createElement('span');
+
+  alertsCount.id =
+    'alertsCount';
+
+  alertsCount.className =
+    'topbar-alerts-count';
+
+  alertsCount.textContent =
+    '0';
+
+  alerts.appendChild(
+    alertsCount
+  );
+
+  const welcome =
+    document.createElement('div');
+
+  welcome.className =
+    'topbar-welcome';
+
+  welcome.textContent =
+    `Bienvenido, ${userLabel}`;
+
+  actions.append(
+    alerts,
+    welcome
+  );
+
+  if (hasSession) {
+    const logout =
+      document.createElement('button');
+
+    logout.id =
+      'logoutBtn';
+
+    logout.type =
+      'button';
+
+    logout.className =
+      'topbar-logout';
+
+    logout.textContent =
+      'Salir';
+
+    logout.setAttribute(
+      'aria-label',
+      'Cerrar sesión'
+    );
+
+    actions.appendChild(
+      logout
+    );
+
+    logout.addEventListener(
+      'click',
+      () => {
+        localStorage.removeItem(
+          'mr_session'
+        );
+
+        document.documentElement
+          .classList.remove(
+            'sidebar-open',
+            'sidebar-collapsed'
+          );
+
+        location.hash =
+          '#/login';
+
+        location.reload();
+      }
+    );
+  }
+
+  wrapper.append(
+    brandGroup,
+    actions
+  );
+
+  container.appendChild(
+    wrapper
+  );
+
+  toggle.addEventListener(
+    'click',
+    () => {
+      toggleSidebar(
+        toggle
+      );
+    }
+  );
 }

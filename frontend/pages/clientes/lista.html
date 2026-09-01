@@ -1,9 +1,148 @@
-<section class="container">
-  <h1>Clientes</h1>
-    <div id="card" class="card" style="margin-top:12px">Cargando clientes...</div>
+<section
+  class="container clientes-page"
+  aria-labelledby="clientes-title"
+>
+  <header class="clientes-header">
+    <h1 id="clientes-title">
+      Clientes y prospectos
+    </h1>
 
-    <script type="module">
-      import clientesModule from '../../js/modules/clientes/index.js';
-      clientesModule.init('card');
-    </script>
+    <p>
+      Consulta, búsqueda y seguimiento de
+      prospectos y clientes registrados.
+    </p>
+  </header>
+
+  <section
+    id="clientes-toolbar"
+    class="card clientes-toolbar"
+    aria-label="Búsqueda y filtros"
+  >
+    <div class="clientes-filters">
+      <label>
+        Buscar
+        <input
+          id="clientes-busqueda"
+          type="search"
+          placeholder="Nombre, apellido, contacto o evento"
+          autocomplete="off"
+        >
+      </label>
+
+      <label>
+        Estado
+        <select id="clientes-estado">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="PROSPECTO">
+            Prospecto
+          </option>
+
+          <option value="CLIENTE">
+            Cliente
+          </option>
+
+          <option value="PROSPECTO_REVISADO">
+            Prospecto revisado
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Tipo de contacto
+        <select id="clientes-tipo-contacto">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="TELEFONO">
+            Teléfono
+          </option>
+
+          <option value="EMAIL">
+            E-mail
+          </option>
+
+          <option value="CELULAR">
+            Celular
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Cotizaciones
+        <select id="clientes-cotizaciones">
+          <option value="">
+            Todas
+          </option>
+
+          <option value="true">
+            Con cotizaciones
+          </option>
+
+          <option value="false">
+            Sin cotizaciones
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Evento
+        <input
+          id="clientes-evento"
+          type="text"
+          placeholder="Ej. Boda"
+        >
+      </label>
+    </div>
+
+    <div class="clientes-actions">
+      <button
+        id="clientes-limpiar-filtros"
+        type="button"
+      >
+        Limpiar filtros
+      </button>
+
+      <button
+        id="clientes-buscar"
+        type="button"
+      >
+        Buscar
+      </button>
+    </div>
+
+  <section class="clientes-list-header">
+    <div
+      id="clientes-resumen"
+      aria-live="polite"
+    ></div>
+
+    <div id="clientes-actions"></div>
+  </section>
+
+  <div
+    id="clientes-content"
+    class="card clientes-card"
+    aria-live="polite"
+    aria-busy="false"
+  >
+    Cargando clientes y prospectos...
+  </div>
+
+  <nav
+    id="clientes-pagination"
+    aria-label="Paginación de clientes y prospectos"
+    class="clientes-pagination"
+  ></nav>
+
+  <script type="module">
+    import {
+      init
+    } from './js/modules/clientes/index.js';
+
+    init();
+  </script>
 </section>

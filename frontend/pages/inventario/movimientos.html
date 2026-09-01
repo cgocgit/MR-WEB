@@ -2,11 +2,12 @@
   <h1>Movimientos</h1>
   <div id="movimientos" class="card mt-12"></div>
   <script type="module">
-    import { getMovimientos } from '../../js/api/inventario.service.js';
-    import { renderTable } from '../../js/components/table.js';
+    import { getMovimientos } from './js/api/inventario.service.js';
+    import { renderTable } from './js/components/table.js';
     (async ()=>{
       const datos = await getMovimientos();
       renderTable(document.getElementById('movimientos'), ['Producto','Tipo','Cantidad','Fecha'], datos.map(d=>({producto:d.producto,tipo:d.tipo,cantidad:d.cantidad,fecha:d.fecha})));
     })();
   </script>
 </section>
+
