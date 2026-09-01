@@ -22,9 +22,11 @@ export const ROLE_PERMISSIONS = {
     'documentacion.tecnica.consultar',
 
     // Clientes y prospectos:
-    // el Administrador no adquiere permisos operativos
-    // únicamente por ser ADMIN.
+    // el Administrador puede consultar y buscar registros.
+    // Los permisos de registrar, modificar o clasificar
+    // requieren asignación explícita.
     'clientes.consultar',
+    'clientes.buscar',
 
     'catalogo.consultar',
     'catalogo.gestionar',

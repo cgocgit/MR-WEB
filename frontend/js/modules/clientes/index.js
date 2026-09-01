@@ -3,6 +3,10 @@ import {
 } from '../../api/clientes.service.js';
 
 import {
+  ESTADOS_CLIENTE_PROSPECTO
+} from '../../api/clientes.constants.js';
+
+import {
   getSession
 } from '../../shared/auth-guard.js';
 
@@ -88,7 +92,7 @@ function createActions(
    * a Prospectos y requiere permiso.
    */
   if (
-    registro.estado === 'PROSPECTO' &&
+    registro.estado === ESTADOS_CLIENTE_PROSPECTO.PROSPECTO &&
     hasPermission(
       session,
       'clientes.clasificar'
