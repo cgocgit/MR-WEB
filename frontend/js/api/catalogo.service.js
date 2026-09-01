@@ -1102,40 +1102,101 @@ function validarProducto(datos, idActual) {
  */
 function validarServicio(datos, idActual) {
   const errores = [];
-  
+
   if (!datos.codigo || datos.codigo.trim() === '') {
-    errores.push('Código es requerido');
-  } else if (datos.codigo.length > LIMITES_CAMPOS.CODIGO_SERVICIO.max) {
-    errores.push(`Código máximo ${LIMITES_CAMPOS.CODIGO_SERVICIO.max} caracteres`);
+    errores.push({
+      campo: 'codigo',
+      mensaje: 'Código es requerido'
+    });
+  } else if (
+    datos.codigo.length >
+    LIMITES_CAMPOS.CODIGO_SERVICIO.max
+  ) {
+    errores.push({
+      campo: 'codigo',
+      mensaje:
+        `Código máximo ${LIMITES_CAMPOS.CODIGO_SERVICIO.max} caracteres`
+    });
   }
-  
+
   if (!datos.nombre || datos.nombre.trim() === '') {
-    errores.push('Nombre es requerido');
-  } else if (datos.nombre.length > LIMITES_CAMPOS.NOMBRE.max) {
-    errores.push(`Nombre máximo ${LIMITES_CAMPOS.NOMBRE.max} caracteres`);
+    errores.push({
+      campo: 'nombre',
+      mensaje: 'Nombre es requerido'
+    });
+  } else if (
+    datos.nombre.length >
+    LIMITES_CAMPOS.NOMBRE.max
+  ) {
+    errores.push({
+      campo: 'nombre',
+      mensaje:
+        `Nombre máximo ${LIMITES_CAMPOS.NOMBRE.max} caracteres`
+    });
   }
-  
-  if (datos.descripcion && datos.descripcion.length > LIMITES_CAMPOS.DESCRIPCION.max) {
-    errores.push(`Descripción máximo ${LIMITES_CAMPOS.DESCRIPCION.max} caracteres`);
+
+  if (
+    datos.descripcion &&
+    datos.descripcion.length >
+    LIMITES_CAMPOS.DESCRIPCION.max
+  ) {
+    errores.push({
+      campo: 'descripcion',
+      mensaje:
+        `Descripción máximo ${LIMITES_CAMPOS.DESCRIPCION.max} caracteres`
+    });
   }
-  
+
   if (!datos.idCategoria) {
-    errores.push('Categoría es requerida');
+    errores.push({
+      campo: 'idCategoria',
+      mensaje: 'Categoría es requerida'
+    });
   } else {
-    const catValida = CATEGORIAS_SERVICIO.some(c => c.id === datos.idCategoria && c.activo === 1);
-    if (!catValida) {
-      errores.push('Categoría inválida o inactiva');
+    const categoriaValida =
+      CATEGORIAS_SERVICIO.some(
+        categoria =>
+          categoria.id === datos.idCategoria &&
+          categoria.activo === 1
+      );
+
+    if (!categoriaValida) {
+      errores.push({
+        campo: 'idCategoria',
+        mensaje: 'Categoría inválida o inactiva'
+      });
     }
   }
-  
-  if (!datos.tipoServicio || datos.tipoServicio.trim() === '') {
-    errores.push('Tipo de servicio es requerido');
+
+  if (
+    !datos.tipoServicio ||
+    datos.tipoServicio.trim() === ''
+  ) {
+    errores.push({
+      campo: 'tipoServicio',
+      mensaje: 'Tipo de servicio es requerido'
+    });
+  } else if (
+    !TIPOS_SERVICIO.includes(datos.tipoServicio)
+  ) {
+    errores.push({
+      campo: 'tipoServicio',
+      mensaje: 'Tipo de servicio inválido'
+    });
   }
-  
-  if (typeof datos.tarifaBase !== 'number' || datos.tarifaBase < 0) {
-    errores.push('Tarifa base debe ser un número mayor o igual a cero');
+
+  if (
+    typeof datos.tarifaBase !== 'number' ||
+    Number.isNaN(datos.tarifaBase) ||
+    datos.tarifaBase < 0
+  ) {
+    errores.push({
+      campo: 'tarifaBase',
+      mensaje:
+        'Tarifa base debe ser un número mayor o igual a cero'
+    });
   }
-  
+
   return errores;
 }
 
