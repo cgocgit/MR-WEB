@@ -8,24 +8,171 @@
     </h1>
 
     <p>
-      Consulta y administración de
+      Consulta, búsqueda y seguimiento de
       prospectos y clientes registrados.
     </p>
   </header>
 
+  <section
+    id="clientes-toolbar"
+    class="card"
+    aria-label="Búsqueda y filtros"
+  >
+    <div
+      style="
+        display: grid;
+        grid-template-columns:
+          repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      "
+    >
+      <label>
+        Buscar
+        <input
+          id="clientes-busqueda"
+          type="search"
+          placeholder="Nombre, apellido, contacto o evento"
+          autocomplete="off"
+        >
+      </label>
+
+      <label>
+        Estado
+        <select id="clientes-estado">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="PROSPECTO">
+            Prospecto
+          </option>
+
+          <option value="CLIENTE">
+            Cliente
+          </option>
+
+          <option value="PROSPECTO_REVISADO">
+            Prospecto revisado
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Tipo de contacto
+        <select id="clientes-tipo-contacto">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="TELEFONO">
+            Teléfono
+          </option>
+
+          <option value="EMAIL">
+            E-mail
+          </option>
+
+          <option value="CELULAR">
+            Celular
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Cotizaciones
+        <select id="clientes-cotizaciones">
+          <option value="">
+            Todas
+          </option>
+
+          <option value="true">
+            Con cotizaciones
+          </option>
+
+          <option value="false">
+            Sin cotizaciones
+          </option>
+        </select>
+      </label>
+
+      <label>
+        Evento
+        <input
+          id="clientes-evento"
+          type="text"
+          placeholder="Ej. Boda"
+        >
+      </label>
+    </div>
+
+    <div
+      style="
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
+      "
+    >
+      <button
+        id="clientes-limpiar-filtros"
+        type="button"
+      >
+        Limpiar filtros
+      </button>
+
+      <button
+        id="clientes-buscar"
+        type="button"
+      >
+        Buscar
+      </button>
+    </div>
+  </section>
+
+  <section
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    "
+  >
+    <div
+      id="clientes-resumen"
+      aria-live="polite"
+    ></div>
+
+    <div id="clientes-actions"></div>
+  </section>
+
   <div
-    id="card"
+    id="clientes-content"
     class="card"
     style="margin-top: 12px"
     aria-live="polite"
+    aria-busy="false"
   >
     Cargando clientes y prospectos...
   </div>
 
-  <script type="module">
-    import clientesModule
-      from '../../js/modules/clientes/index.js';
+  <nav
+    id="clientes-pagination"
+    aria-label="Paginación de clientes y prospectos"
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 12px;
+    "
+  ></nav>
 
-    clientesModule.init('card');
+  <script type="module">
+    import {
+      init
+    } from '../../js/modules/clientes/index.js';
+
+    init();
   </script>
 </section>
