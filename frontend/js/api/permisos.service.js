@@ -166,7 +166,7 @@ const PERMISSION_METADATA = {
 
   'catalogo.abc.gestionar': {
     modulo: 'Catálogo',
-    accion: 'Gestionar clasificación ABC'
+    accion: 'Gestionar altas, bajas y cambios'
   },
 
   'catalogo.precios.gestionar': {
