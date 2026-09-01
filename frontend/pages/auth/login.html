@@ -13,9 +13,9 @@
   </form>
 
   <script type="module">
-    import { login } from '../../js/api/auth.service.js';
-    import { renderTopbar } from '../../js/components/topbar.js';
-    import { renderSidebar } from '../../js/components/sidebar.js';
+    import { login } from './js/api/auth.service.js';
+    import { renderTopbar } from './js/components/topbar.js';
+    import { renderSidebar } from './js/components/sidebar.js';
 
     const form = document.getElementById('loginForm');
     form.addEventListener('submit', async (e)=>{
@@ -36,3 +36,4 @@
     });
   </script>
 </section>
+

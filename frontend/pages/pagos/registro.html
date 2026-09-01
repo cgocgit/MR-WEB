@@ -9,8 +9,9 @@
     <div style="display:flex;justify-content:flex-end"><button type="submit">Registrar</button></div>
   </form>
   <script type="module">
-    import { registrarPago } from '../../js/api/pagos.service.js';
+    import { registrarPago } from './js/api/pagos.service.js';
     const f = document.getElementById('pagoForm');
     f.addEventListener('submit', async (e)=>{ e.preventDefault(); const fd = new FormData(f); const payload = {orden:fd.get('orden'),fecha:fd.get('fecha'),monto:fd.get('monto'),metodo:fd.get('metodo'),referencia:fd.get('referencia')}; await registrarPago(payload); alert('Pago registrado (mock)'); location.hash='#/pagos'; });
   </script>
 </section>
+
