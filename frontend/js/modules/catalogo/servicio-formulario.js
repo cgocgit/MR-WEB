@@ -11,11 +11,10 @@ import {
 } from '../../api/catalogo.service.js';
 
 import {
-  ESTADO_REGISTRO,
   TIPOS_SERVICIO,
   PERMISOS_CATALOGO,
   MENSAJES,
-  LIMITES_CAMPOS
+  RUTAS_IMAGENES
 } from '../../api/catalogo.constants.js';
 
 import { getSession, requireAuth } from '../../shared/auth-guard.js';
@@ -52,6 +51,9 @@ function obtenerElementos() {
     tipoServicio: document.getElementById('tipoServicio'),
     tarifaBase: document.getElementById('tarifaBase'),
     activo: document.getElementById('activo'),
+
+    previewImagen:
+      document.getElementById('preview-imagen'),
 
     // Botones
     btnCancelar: document.getElementById('btn-cancelar'),
@@ -123,38 +125,35 @@ function mostrarMensaje(tipo, mensaje) {
 }
 
 async function cargarCategoriasServicio() {
-  const { idCategoria } = obtenerElementos();
+  const { idCategoria } =
+    obtenerElementos();
 
   if (!idCategoria) return;
 
-  try {
-    const categorias = await listarCategoriasServicio();
+  const categorias =
+    await listarCategoriasServicio();
 
-    idCategoria.innerHTML =
-      '<option value="">Seleccione una categoría</option>';
+  idCategoria.innerHTML =
+    '<option value="">Seleccione una categoría</option>';
 
-    categorias
-      .filter(categoria => categoria.activo === 1)
-      .forEach(categoria => {
-        const option = document.createElement('option');
+  categorias.forEach(categoria => {
+    const option =
+      document.createElement('option');
 
-        option.value = categoria.id;
-        option.textContent = categoria.nombre;
+    option.value = categoria.id;
 
-        idCategoria.appendChild(option);
-      });
+    option.textContent =
+      `${categoria.nombre}${
+        categoria.activo
+          ? ''
+          : ' (Inactiva)'
+      }`;
 
-  } catch (error) {
-    console.error(
-      'Error cargando categorías de servicio:',
-      error
-    );
+    option.disabled =
+      categoria.activo !== 1;
 
-    showNotification(
-      'No fue posible cargar las categorías de servicio.',
-      { type: 'error' }
-    );
-  }
+    idCategoria.appendChild(option);
+  });
 }
 
 // ============================================================================
@@ -178,7 +177,8 @@ async function cargarServicio(id) {
       idCategoria,
       tipoServicio,
       tarifaBase,
-      activo
+      activo,
+      previewImagen
     } = obtenerElementos();
 
     if (formTitle) {
@@ -212,6 +212,22 @@ async function cargarServicio(id) {
 
     if (activo) {
       activo.checked = servicio.activo === 1;
+    }
+
+    if (previewImagen) {
+      previewImagen.src =
+        servicio.imagenUrl ||
+        RUTAS_IMAGENES.PLACEHOLDER_SERVICIO;
+
+      previewImagen.alt =
+        `Imagen de ${servicio.nombre}`;
+
+      previewImagen.onerror = () => {
+        previewImagen.onerror = null;
+
+        previewImagen.src =
+          RUTAS_IMAGENES.PLACEHOLDER_SERVICIO;
+      };
     }
 
   } catch (error) {
@@ -266,7 +282,10 @@ async function manejarEnvio(e) {
 
       tarifaBase: Number(tarifaBase?.value || 0),
 
-      activo: Boolean(activo?.checked)
+      activo: Boolean(activo?.checked),
+
+      imagenUrl:
+        servicioActual?.imagenUrl || null
     };
 
     let resultado;
@@ -291,8 +310,9 @@ async function manejarEnvio(e) {
     }
 
     setTimeout(() => {
-      window.location.hash = '#/catalogo/servicios';
-    }, 1500);
+      window.location.hash =
+        `#/catalogo/servicios/detalle?id=${resultado.idServicio}`;
+    }, 500);
 
   } catch (error) {
     console.error('Error guardando servicio:', error);

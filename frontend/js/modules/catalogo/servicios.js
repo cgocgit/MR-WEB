@@ -1,453 +1,712 @@
-/**
- * Módulo: Catálogo - Lista de Servicios
- * Funcionalidad: Listar, filtrar y paginar servicios del catálogo
- */
-
 import {
   listarServicios,
-  cambiarEstadoServicio
+  cambiarEstadoServicio,
+  listarCategoriasServicio
 } from '../../api/catalogo.service.js';
 
 import {
-  ESTADO_REGISTRO,
-  TIPOS_SERVICIO,
   PERMISOS_CATALOGO,
-  MENSAJES
+  MENSAJES,
+  RUTAS_IMAGENES
 } from '../../api/catalogo.constants.js';
 
-import { getSession, requireAuth } from '../../shared/auth-guard.js';
-import { hasPermission } from '../../shared/permissions.js';
-import { showNotification } from '../../components/notification.js';
-import { showLoader, hideLoader } from '../../components/loader.js';
+import {
+  getSession,
+  requireAuth
+} from '../../shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../shared/permissions.js';
+
+import {
+  showNotification
+} from '../../components/notification.js';
 
 import {
   renderNavegacionCatalogo
 } from './catalogo-ui.js';
-// ============================================================================
-// ESTADO DEL MÓDULO
-// ============================================================================
 
-let filtroActual = {
-  codigo: '',
-  nombre: '',
-  descripcion: '',
+let categorias = [];
+
+let paginaActual = 1;
+let totalServicios = 0;
+let puedeGestionar = false;
+
+let filtros = {
+  texto: '',
+  categoria: '',
   tipo: '',
   estado: '',
+  tarifaMin: '',
+  tarifaMax: '',
   soloActivos: false,
   skip: 0,
   limit: 10
 };
 
-let paginaActual = 1;
-let totalServicios = 0;
-let serviciosActuales = [];
-
-// ============================================================================
-// REFERENCIAS AL DOM
-// ============================================================================
-
 function obtenerElementos() {
   return {
-    // Contenedores
-    contenedorPrincipal: document.getElementById('servicios-content'),
-    contenedorCargando: document.getElementById('estado-cargando'),
-    contenedorError: document.getElementById('estado-error'),
-    contenedorAcceso: document.getElementById('estado-acceso'),
-    contenedorVacio: document.getElementById('estado-vacio'),
+    contenido:
+      document.getElementById('servicios-content'),
 
-    // Filtros
-    filtrosCodigo: document.getElementById('filtro-codigo'),
-    filtrosNombre: document.getElementById('filtro-nombre'),
-    filtrosTipo: document.getElementById('filtro-tipo'),
-    filtrosEstado: document.getElementById('filtro-estado'),
-    btnLimpiar: document.getElementById('btn-limpiar-filtros'),
-    btnFiltrar: document.getElementById('btn-filtrar'),
+    cargando:
+      document.getElementById('estado-cargando'),
 
-    // Tabla
-    tablaCuerpo: document.querySelector('.catalogo-table tbody'),
-    tablaContenedor: document.querySelector('.catalogo-table'),
+    error:
+      document.getElementById('estado-error'),
 
-    // Acciones
-    btnNuevo: document.getElementById('btn-nuevo-servicio'),
+    vacio:
+      document.getElementById('estado-vacio'),
 
-    // Paginación
-    paginacionContenedor: document.getElementById('paginacion'),
+    acceso:
+      document.getElementById('estado-acceso'),
 
-    // Mensajes
-    mensajeError: document.getElementById('error-mensaje')
+    errorMensaje:
+      document.getElementById('error-mensaje'),
+
+    tbody:
+      document.getElementById('servicios-tbody'),
+
+    cards:
+      document.getElementById('servicios-cards'),
+
+    paginacion:
+      document.getElementById('paginacion'),
+
+    filtroTexto:
+      document.getElementById('filtro-texto'),
+
+    filtroCategoria:
+      document.getElementById('filtro-categoria'),
+
+    filtroTipo:
+      document.getElementById('filtro-tipo'),
+
+    filtroEstado:
+      document.getElementById('filtro-estado'),
+
+    filtroTarifaMin:
+      document.getElementById('filtro-tarifa-min'),
+
+    filtroTarifaMax:
+      document.getElementById('filtro-tarifa-max'),
+
+    grupoEstado:
+      document.getElementById('grupo-filtro-estado'),
+
+    btnFiltrar:
+      document.getElementById('btn-filtrar'),
+
+    btnLimpiar:
+      document.getElementById('btn-limpiar-filtros'),
+
+    btnNuevo:
+      document.getElementById('btn-nuevo-servicio'),
+
+    colUltimaModificacion:
+      document.getElementById(
+        'col-ultima-modificacion'
+      )
   };
 }
 
-// ============================================================================
-// CARGA Y RENDERIZADO DE SERVICIOS
-// ============================================================================
+function obtenerCategoria(id) {
+  return categorias.find(
+    item => item.id === id
+  )?.nombre || '—';
+}
+
+function formatoMoneda(valor) {
+  return Number(valor || 0).toLocaleString(
+    'es-MX',
+    {
+      style: 'currency',
+      currency: 'MXN'
+    }
+  );
+}
+
+function formatoFecha(fecha) {
+  if (!fecha) return '—';
+
+  return new Date(fecha).toLocaleString(
+    'es-MX',
+    {
+      dateStyle: 'short',
+      timeStyle: 'short'
+    }
+  );
+}
+
+function imagenServicio(servicio) {
+  return (
+    servicio.imagenUrl ||
+    RUTAS_IMAGENES.PLACEHOLDER_SERVICIO
+  );
+}
+
+async function cargarCategorias() {
+  categorias =
+    await listarCategoriasServicio();
+
+  const {
+    filtroCategoria
+  } = obtenerElementos();
+
+  filtroCategoria.innerHTML =
+    '<option value="">Todas</option>';
+
+  categorias.forEach(item => {
+    filtroCategoria.insertAdjacentHTML(
+      'beforeend',
+      `<option value="${item.id}">
+        ${item.nombre}
+      </option>`
+    );
+  });
+}
+
+function accionesServicio(servicio) {
+  const session = getSession();
+
+  const editar = hasPermission(
+    session,
+    PERMISOS_CATALOGO.SERVICIOS_MODIFICAR
+  );
+
+  const cambiarEstado = hasPermission(
+    session,
+    PERMISOS_CATALOGO.SERVICIOS_DESACTIVAR
+  );
+
+  return `
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
+      data-action="ver"
+      data-id="${servicio.idServicio}"
+    >
+      Ver
+    </button>
+
+    ${editar ? `
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary"
+        data-action="editar"
+        data-id="${servicio.idServicio}"
+      >
+        Editar
+      </button>
+    ` : ''}
+
+    ${cambiarEstado ? `
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary"
+        data-action="estado"
+        data-id="${servicio.idServicio}"
+        data-activo="${servicio.activo}"
+      >
+        ${servicio.activo
+          ? 'Desactivar'
+          : 'Activar'}
+      </button>
+    ` : ''}
+  `;
+}
+
+function renderTabla(servicios) {
+  const { tbody } = obtenerElementos();
+
+  tbody.innerHTML = servicios
+    .map(servicio => `
+      <tr>
+
+        <td>
+          <img
+            src="${imagenServicio(servicio)}"
+            alt="${servicio.nombre}"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='${RUTAS_IMAGENES.PLACEHOLDER_SERVICIO}'"
+          >
+        </td>
+
+        <td>${servicio.codigo}</td>
+
+        <td>${servicio.nombre}</td>
+
+        <td>
+          ${obtenerCategoria(
+            servicio.idCategoria
+          )}
+        </td>
+
+        <td>
+          ${servicio.tipoServicio || '—'}
+        </td>
+
+        <td>
+          ${formatoMoneda(
+            servicio.tarifaBase
+          )}
+        </td>
+
+        <td>
+          <span class="catalogo-badge ${
+            servicio.activo
+              ? 'estado-activo'
+              : 'estado-inactivo'
+          }">
+            ${servicio.activo
+              ? 'Activo'
+              : 'Inactivo'}
+          </span>
+        </td>
+
+        ${puedeGestionar ? `
+          <td>
+            ${formatoFecha(
+              servicio.fechaModificacion
+            )}
+          </td>
+        ` : ''}
+
+        <td>
+          <div class="catalogo-table-actions">
+            ${accionesServicio(servicio)}
+          </div>
+        </td>
+
+      </tr>
+    `)
+    .join('');
+}
+
+function renderCards(servicios) {
+  const { cards } = obtenerElementos();
+
+  cards.innerHTML = servicios
+    .map(servicio => `
+      <article class="catalogo-card">
+
+        <img
+          class="catalogo-card-image"
+          src="${imagenServicio(servicio)}"
+          alt="${servicio.nombre}"
+          loading="lazy"
+          onerror="this.onerror=null;this.src='${RUTAS_IMAGENES.PLACEHOLDER_SERVICIO}'"
+        >
+
+        <div class="catalogo-card-content">
+
+          <h3 class="catalogo-card-title">
+            ${servicio.nombre}
+          </h3>
+
+          <p class="catalogo-card-subtitle">
+            ${servicio.codigo}
+          </p>
+
+          <div class="catalogo-card-info">
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Tarifa
+              </span>
+
+              <span>
+                ${formatoMoneda(
+                  servicio.tarifaBase
+                )}
+              </span>
+            </div>
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Categoría
+              </span>
+
+              <span>
+                ${obtenerCategoria(
+                  servicio.idCategoria
+                )}
+              </span>
+            </div>
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Tipo
+              </span>
+
+              <span>
+                ${servicio.tipoServicio}
+              </span>
+            </div>
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Estado
+              </span>
+
+              <span>
+                ${servicio.activo
+                  ? 'Activo'
+                  : 'Inactivo'}
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="catalogo-card-actions">
+          ${accionesServicio(servicio)}
+        </div>
+
+      </article>
+    `)
+    .join('');
+}
+
+function registrarAcciones() {
+  document
+    .querySelectorAll('[data-action][data-id]')
+    .forEach(boton => {
+      boton.addEventListener(
+        'click',
+        manejarAccion
+      );
+    });
+}
 
 async function cargarServicios() {
   const {
-    contenedorPrincipal,
-    contenedorCargando,
-    contenedorError,
-    contenedorVacio,
-    tablaCuerpo,
-    mensajeError
+    contenido,
+    cargando,
+    error,
+    vacio,
+    errorMensaje
   } = obtenerElementos();
 
   try {
-    // Mostrar cargando
-    if (contenedorCargando) contenedorCargando.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
-    if (contenedorError) contenedorError.style.display = 'none';
-    if (contenedorVacio) contenedorVacio.style.display = 'none';
+    cargando.style.display = 'flex';
+    contenido.style.display = 'none';
+    error.style.display = 'none';
+    vacio.style.display = 'none';
 
-    // Calcular skip basado en página actual
-    filtroActual.skip = (paginaActual - 1) * filtroActual.limit;
+    filtros.skip =
+      (paginaActual - 1) *
+      filtros.limit;
 
-    // Cargar datos
-    const resultado = await listarServicios(filtroActual);
-    serviciosActuales = resultado.items;
+    const resultado =
+      await listarServicios(filtros);
+
     totalServicios = resultado.total;
 
-    // Mostrar contenedor principal
-    if (contenedorCargando) contenedorCargando.style.display = 'none';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'block';
+    cargando.style.display = 'none';
 
-    // Renderizar tabla
-    if (serviciosActuales.length === 0) {
-      if (contenedorVacio) contenedorVacio.style.display = 'flex';
-      if (tablaCuerpo) tablaCuerpo.innerHTML = '';
-    } else {
-      if (contenedorVacio) contenedorVacio.style.display = 'none';
-      renderizarTabla(serviciosActuales);
+    if (!resultado.items.length) {
+      vacio.style.display = 'block';
+      return;
     }
 
-    // Renderizar paginación
-    renderizarPaginacion();
+    contenido.style.display = 'block';
 
-  } catch (error) {
-    console.error('Error cargando servicios:', error);
+    renderTabla(resultado.items);
+    renderCards(resultado.items);
+    renderPaginacion();
+    registrarAcciones();
 
-    if (contenedorCargando) contenedorCargando.style.display = 'none';
-    if (contenedorError) contenedorError.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
+  } catch (err) {
+    cargando.style.display = 'none';
+    error.style.display = 'flex';
 
-    if (mensajeError) {
-      mensajeError.textContent = error.detalles || error.message || 'Error desconocido';
-    }
+    errorMensaje.textContent =
+      err.message || 'Error desconocido';
   }
 }
 
-function renderizarTabla(servicios) {
-  const { tablaCuerpo } = obtenerElementos();
-  const session = getSession();
+function renderPaginacion() {
+  const { paginacion } =
+    obtenerElementos();
 
-  if (!tablaCuerpo) return;
-
-  tablaCuerpo.innerHTML = servicios.map(servicio => {
-    const puedeBorrar = hasPermission(session, PERMISOS_CATALOGO.SERVICIOS_DESACTIVAR);
-    const puedeEditar = hasPermission(session, PERMISOS_CATALOGO.SERVICIOS_MODIFICAR);
-    const estadoTexto = servicio.activo ? 'Activo' : 'Inactivo';
-    const estadoClase = servicio.activo ? 'estado-activo' : 'estado-inactivo';
-
-    return `
-      <tr class="catalogo-table-row">
-        <td class="catalogo-table-cell">
-          <strong>${servicio.codigo}</strong>
-        </td>
-        <td class="catalogo-table-cell">
-          ${servicio.nombre}
-        </td>
-        <td class="catalogo-table-cell">
-          ${servicio.tipoServicio}
-        </td>
-        <td class="catalogo-table-cell">
-          $${servicio.tarifaBase.toFixed(2)}
-        </td>
-        <td class="catalogo-table-cell">
-          <span class="catalogo-badge ${estadoClase}">
-            ${estadoTexto}
-          </span>
-        </td>
-        <td class="catalogo-table-cell">
-          <div class="catalogo-table-actions">
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              data-action="ver"
-              data-id="${servicio.idServicio}"
-              title="Ver detalle"
-            >
-              👁️
-            </button>
-
-            ${puedeEditar ? `
-              <button
-                type="button"
-                class="btn btn-sm btn-secondary"
-                data-action="editar"
-                data-id="${servicio.idServicio}"
-                title="Editar"
-              >
-                ✎
-              </button>
-            ` : ''}
-
-            ${puedeBorrar ? `
-              <button
-                type="button"
-                class="btn btn-sm btn-danger"
-                data-action="cambiar-estado"
-                data-id="${servicio.idServicio}"
-                data-estado="${!servicio.activo}"
-                title="${servicio.activo ? 'Desactivar' : 'Activar'}"
-              >
-                ${servicio.activo ? '⊘' : '↻'}
-              </button>
-            ` : ''}
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-
-  // Agregar event listeners a los botones
-  tablaCuerpo.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', manejarAccionTabla);
-  });
-}
-
-function renderizarPaginacion() {
-  const { paginacionContenedor } = obtenerElementos();
-
-  if (!paginacionContenedor) return;
-
-  const totalPaginas = Math.ceil(totalServicios / filtroActual.limit);
+  const totalPaginas =
+    Math.ceil(
+      totalServicios / filtros.limit
+    );
 
   if (totalPaginas <= 1) {
-    paginacionContenedor.innerHTML = '';
+    paginacion.innerHTML = '';
     return;
   }
 
-  const paginas = [];
-  for (let i = 1; i <= totalPaginas; i++) {
-    paginas.push(i);
-  }
-
-  paginacionContenedor.innerHTML = `
+  paginacion.innerHTML = `
     <div class="catalogo-pagination">
-      <button
-        type="button"
-        class="btn btn-sm ${paginaActual === 1 ? 'disabled' : ''}"
-        id="btn-anterior"
-        ${paginaActual === 1 ? 'disabled' : ''}
-      >
-        ← Anterior
-      </button>
-
-      <div class="catalogo-pagination-numbers">
-        ${paginas.map(p => `
-          <button
-            type="button"
-            class="btn btn-sm ${p === paginaActual ? 'active' : ''}"
-            data-page="${p}"
-          >
-            ${p}
-          </button>
-        `).join('')}
-      </div>
 
       <button
         type="button"
-        class="btn btn-sm ${paginaActual === totalPaginas ? 'disabled' : ''}"
-        id="btn-siguiente"
-        ${paginaActual === totalPaginas ? 'disabled' : ''}
+        id="pagina-anterior"
+        class="btn btn-secondary"
+        ${paginaActual === 1
+          ? 'disabled'
+          : ''}
       >
-        Siguiente →
+        Anterior
       </button>
 
-      <span style="margin-left: 1rem; font-size: 0.875rem; color: var(--color-text-secondary);">
-        Página ${paginaActual} de ${totalPaginas} (${totalServicios} servicios)
+      <span>
+        Página ${paginaActual}
+        de ${totalPaginas}
       </span>
+
+      <button
+        type="button"
+        id="pagina-siguiente"
+        class="btn btn-secondary"
+        ${paginaActual === totalPaginas
+          ? 'disabled'
+          : ''}
+      >
+        Siguiente
+      </button>
+
     </div>
   `;
 
-  // Event listeners de paginación
-  document.getElementById('btn-anterior')?.addEventListener('click', () => {
-    if (paginaActual > 1) {
-      paginaActual--;
-      cargarServicios();
-    }
-  });
+  document
+    .getElementById('pagina-anterior')
+    ?.addEventListener(
+      'click',
+      () => {
+        paginaActual--;
+        cargarServicios();
+      }
+    );
 
-  document.getElementById('btn-siguiente')?.addEventListener('click', () => {
-    if (paginaActual < totalPaginas) {
-      paginaActual++;
-      cargarServicios();
-    }
-  });
-
-  paginacionContenedor.querySelectorAll('[data-page]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      paginaActual = parseInt(e.target.dataset.page);
-      cargarServicios();
-    });
-  });
+  document
+    .getElementById('pagina-siguiente')
+    ?.addEventListener(
+      'click',
+      () => {
+        paginaActual++;
+        cargarServicios();
+      }
+    );
 }
 
-// ============================================================================
-// MANEJO DE EVENTOS
-// ============================================================================
+async function manejarAccion(evento) {
+  const boton = evento.currentTarget;
+  const id = boton.dataset.id;
 
-function manejarAccionTabla(e) {
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-
-  const action = btn.dataset.action;
-  const id = btn.dataset.id;
-
-  switch (action) {
-    case 'ver':
-      window.location.hash = `#/catalogo/servicios/detalle?id=${id}`;
-      break;
-
-    case 'editar':
-      window.location.hash = `#/catalogo/servicios/formulario?id=${id}`;
-      break;
-
-    case 'cambiar-estado':
-      const nuevoEstado = btn.dataset.estado === 'true';
-      cambiarEstadoServicioUI(id, nuevoEstado);
-      break;
+  if (boton.dataset.action === 'ver') {
+    location.hash =
+      `#/catalogo/servicios/detalle?id=${id}`;
+    return;
   }
-}
 
-async function cambiarEstadoServicioUI(id, activo) {
-  try {
-    showLoader();
+  if (boton.dataset.action === 'editar') {
+    location.hash =
+      `#/catalogo/servicios/formulario?id=${id}`;
+    return;
+  }
 
-    await cambiarEstadoServicio(id, activo);
+  if (boton.dataset.action === 'estado') {
+    const activo =
+      boton.dataset.activo === '1';
+
+    const confirmar =
+      window.confirm(
+        activo
+          ? '¿Desactivar este servicio?'
+          : '¿Activar este servicio?'
+      );
+
+    if (!confirmar) return;
+
+    await cambiarEstadoServicio(
+      id,
+      !activo
+    );
 
     showNotification(
       activo
-        ? MENSAJES.SERVICIO_ACTIVADO
-        : MENSAJES.SERVICIO_DESACTIVADO,
-      { type: 'success', timeout: 2000 }
+        ? MENSAJES.SERVICIO_DESACTIVADO
+        : MENSAJES.SERVICIO_ACTIVADO,
+      { type: 'success' }
     );
 
-    // Recargar lista
-    paginaActual = 1;
     await cargarServicios();
-
-  } catch (error) {
-    console.error('Error cambiando estado:', error);
-    showNotification(error.message, { type: 'error' });
-  } finally {
-    hideLoader();
   }
 }
 
-function manejarFiltros() {
+function aplicarFiltros() {
   const {
-    filtrosCodigo,
-    filtrosNombre,
-    filtrosTipo,
-    filtrosEstado
+    filtroTexto,
+    filtroCategoria,
+    filtroTipo,
+    filtroEstado,
+    filtroTarifaMin,
+    filtroTarifaMax
   } = obtenerElementos();
 
-  filtroActual = {
-    codigo: filtrosCodigo?.value.trim() || '',
-    nombre: filtrosNombre?.value.trim() || '',
-    descripcion: '',
-    tipo: filtrosTipo?.value || '',
-    estado: filtrosEstado?.value || '',
-    soloActivos: false,
-    skip: 0,
-    limit: filtroActual.limit
+  filtros = {
+    ...filtros,
+
+    texto:
+      filtroTexto.value.trim(),
+
+    categoria:
+      filtroCategoria.value,
+
+    tipo:
+      filtroTipo.value,
+
+    estado:
+      puedeGestionar
+        ? filtroEstado.value
+        : '',
+
+    tarifaMin:
+      filtroTarifaMin.value,
+
+    tarifaMax:
+      filtroTarifaMax.value,
+
+    soloActivos:
+      !puedeGestionar,
+
+    skip: 0
   };
 
   paginaActual = 1;
+
   cargarServicios();
 }
 
 function limpiarFiltros() {
   const {
-    filtrosCodigo,
-    filtrosNombre,
-    filtrosTipo,
-    filtrosEstado
+    filtroTexto,
+    filtroCategoria,
+    filtroTipo,
+    filtroEstado,
+    filtroTarifaMin,
+    filtroTarifaMax
   } = obtenerElementos();
 
-  if (filtrosCodigo) filtrosCodigo.value = '';
-  if (filtrosNombre) filtrosNombre.value = '';
-  if (filtrosTipo) filtrosTipo.value = '';
-  if (filtrosEstado) filtrosEstado.value = '';
+  filtroTexto.value = '';
+  filtroCategoria.value = '';
+  filtroTipo.value = '';
+  filtroEstado.value = '';
+  filtroTarifaMin.value = '';
+  filtroTarifaMax.value = '';
 
-  filtroActual = {
-    codigo: '',
-    nombre: '',
-    descripcion: '',
+  filtros = {
+    texto: '',
+    categoria: '',
     tipo: '',
     estado: '',
-    soloActivos: false,
+    tarifaMin: '',
+    tarifaMax: '',
+    soloActivos: !puedeGestionar,
     skip: 0,
-    limit: filtroActual.limit
+    limit: 10
   };
 
   paginaActual = 1;
+
   cargarServicios();
 }
 
-function manejarNuevoServicio() {
-  window.location.hash = '#/catalogo/servicios/formulario';
-}
-
-// ============================================================================
-// INICIALIZACIÓN
-// ============================================================================
-
 export async function init() {
-  // Validar autenticación y permisos
   if (!requireAuth()) return;
 
   renderNavegacionCatalogo();
 
   const session = getSession();
-  if (!hasPermission(session, PERMISOS_CATALOGO.CONSULTAR)) {
-    const { contenedorAcceso, contenedorPrincipal } = obtenerElementos();
-    if (contenedorAcceso) contenedorAcceso.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
+
+  if (
+    !hasPermission(
+      session,
+      PERMISOS_CATALOGO.CONSULTAR
+    )
+  ) {
+    obtenerElementos().acceso.style.display =
+      'flex';
+
     return;
   }
 
-  // Verificar si el usuario puede crear servicios
-  const puedeCrear = hasPermission(session, PERMISOS_CATALOGO.SERVICIOS_REGISTRAR);
-  const { btnNuevo } = obtenerElementos();
-  if (btnNuevo && !puedeCrear) {
+  puedeGestionar =
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.SERVICIOS_REGISTRAR
+    ) ||
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.SERVICIOS_MODIFICAR
+    ) ||
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.SERVICIOS_DESACTIVAR
+    );
+
+  filtros.soloActivos =
+    !puedeGestionar;
+
+  const {
+    btnNuevo,
+    grupoEstado,
+    colUltimaModificacion,
+    btnFiltrar,
+    btnLimpiar,
+    filtroTexto
+  } = obtenerElementos();
+
+  if (
+    !hasPermission(
+      session,
+      PERMISOS_CATALOGO.SERVICIOS_REGISTRAR
+    )
+  ) {
     btnNuevo.style.display = 'none';
   }
 
-  // Cargar servicios inicialmente
+  if (!puedeGestionar) {
+    grupoEstado.style.display = 'none';
+
+    colUltimaModificacion.style.display =
+      'none';
+  }
+
+  await cargarCategorias();
   await cargarServicios();
 
-  // Configurar event listeners
-  const {
-    btnFiltrar,
-    btnLimpiar,
-    btnNuevo
-  } = obtenerElementos();
+  btnFiltrar.addEventListener(
+    'click',
+    aplicarFiltros
+  );
 
-  if (btnFiltrar) btnFiltrar.addEventListener('click', manejarFiltros);
-  if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFiltros);
-  if (btnNuevo) btnNuevo.addEventListener('click', manejarNuevoServicio);
+  btnLimpiar.addEventListener(
+    'click',
+    limpiarFiltros
+  );
 
-  // Permitir filtrar con Enter en los campos de texto
-  const { filtrosCodigo, filtrosNombre } = obtenerElementos();
-  [filtrosCodigo, filtrosNombre].forEach(campo => {
-    if (campo) {
-      campo.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          manejarFiltros();
-        }
-      });
+  btnNuevo.addEventListener(
+    'click',
+    () => {
+      location.hash =
+        '#/catalogo/servicios/formulario';
     }
-  });
+  );
+
+  filtroTexto.addEventListener(
+    'keydown',
+    evento => {
+      if (evento.key === 'Enter') {
+        aplicarFiltros();
+      }
+    }
+  );
 }

@@ -146,7 +146,7 @@ export const SERVICIOS_MOCK = [
     tarifaBase: 850.00,
     costoInterno: 450.00,
     activo: 1,
-    imagenUrl: './assets/images/catalogo/servicios/banquete-ejecutivo.jpg',
+    imagenUrl: './assets/images/catalogo/servicios/banquete-ejecutivo.svg',
     fechaRegistro: new Date('2024-01-10'),
     creadoPor: 'admin@mesaregia.com',
     fechaModificacion: new Date('2024-01-10'),
@@ -476,9 +476,23 @@ export function existeCodigoProducto(
   );
 }
 
-export function existeCodigoServicio(codigo, excluyendoId = null) {
-  return SERVICIOS_MOCK.some(s => 
-    s.codigo === codigo && (excluyendoId === null || s.idServicio !== excluyendoId)
+export function existeCodigoServicio(
+  codigo,
+  excluyendoId = null
+) {
+  const codigoNormalizado =
+    String(codigo || '')
+      .trim()
+      .toUpperCase();
+
+  return SERVICIOS_MOCK.some(servicio =>
+    String(servicio.codigo || '')
+      .trim()
+      .toUpperCase() === codigoNormalizado &&
+    (
+      excluyendoId === null ||
+      servicio.idServicio !== Number(excluyendoId)
+    )
   );
 }
 

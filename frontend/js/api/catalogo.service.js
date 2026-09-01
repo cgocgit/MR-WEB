@@ -252,51 +252,99 @@ export async function cambiarEstadoProducto(id, activo) {
  */
 export async function listarServicios(filtros = {}) {
   await simularLatencia(200);
-  
+
   let resultado = clonarDatos(SERVICIOS_MOCK);
-  
-  // Aplicar filtros
-  if (filtros.codigo) {
-    const codigo = filtros.codigo.toLowerCase();
-    resultado = resultado.filter(s => s.codigo.toLowerCase().includes(codigo));
+
+  if (filtros.texto) {
+    const texto = filtros.texto
+      .toLowerCase()
+      .trim();
+
+    resultado = resultado.filter(servicio =>
+      servicio.codigo?.toLowerCase().includes(texto) ||
+      servicio.nombre?.toLowerCase().includes(texto) ||
+      servicio.descripcion?.toLowerCase().includes(texto)
+    );
   }
-  
-  if (filtros.nombre) {
-    const nombre = filtros.nombre.toLowerCase();
-    resultado = resultado.filter(s => s.nombre.toLowerCase().includes(nombre));
+
+  if (
+    filtros.categoria !== undefined &&
+    filtros.categoria !== null &&
+    filtros.categoria !== ''
+  ) {
+    resultado = resultado.filter(
+      servicio =>
+        servicio.idCategoria === Number(filtros.categoria)
+    );
   }
-  
-  if (filtros.descripcion) {
-    const desc = filtros.descripcion.toLowerCase();
-    resultado = resultado.filter(s => s.descripcion && s.descripcion.toLowerCase().includes(desc));
+
+  if (
+    filtros.tipo !== undefined &&
+    filtros.tipo !== null &&
+    filtros.tipo !== ''
+  ) {
+    resultado = resultado.filter(
+      servicio =>
+        servicio.tipoServicio === filtros.tipo
+    );
   }
-  
-  if (filtros.categoria !== undefined && filtros.categoria !== null && filtros.categoria !== '') {
-    resultado = resultado.filter(s => s.idCategoria === parseInt(filtros.categoria));
+
+  if (
+    filtros.estado !== undefined &&
+    filtros.estado !== null &&
+    filtros.estado !== ''
+  ) {
+    resultado = resultado.filter(
+      servicio =>
+        servicio.activo === Number(filtros.estado)
+    );
   }
-  
-  if (filtros.tipo !== undefined && filtros.tipo !== null && filtros.tipo !== '') {
-    resultado = resultado.filter(s => s.tipoServicio === filtros.tipo);
-  }
-  
-  if (filtros.estado !== undefined && filtros.estado !== null && filtros.estado !== '') {
-    resultado = resultado.filter(s => s.activo === parseInt(filtros.estado));
-  }
-  
+
   if (filtros.soloActivos === true) {
-    resultado = resultado.filter(s => s.activo === 1);
+    resultado = resultado.filter(
+      servicio => servicio.activo === 1
+    );
   }
-  
-  // Ordenar
-  resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  
-  // Paginar
-  const skip = filtros.skip || 0;
-  const limit = filtros.limit || 10;
+
+  if (
+    filtros.tarifaMin !== undefined &&
+    filtros.tarifaMin !== null &&
+    filtros.tarifaMin !== ''
+  ) {
+    resultado = resultado.filter(
+      servicio =>
+        Number(servicio.tarifaBase) >=
+        Number(filtros.tarifaMin)
+    );
+  }
+
+  if (
+    filtros.tarifaMax !== undefined &&
+    filtros.tarifaMax !== null &&
+    filtros.tarifaMax !== ''
+  ) {
+    resultado = resultado.filter(
+      servicio =>
+        Number(servicio.tarifaBase) <=
+        Number(filtros.tarifaMax)
+    );
+  }
+
+  resultado.sort(
+    (a, b) =>
+      a.nombre.localeCompare(b.nombre)
+  );
+
+  const skip = Number(filtros.skip || 0);
+  const limit = Number(filtros.limit || 10);
   const total = resultado.length;
-  const items = resultado.slice(skip, skip + limit);
-  
-  return { items, total, skip, limit };
+
+  return {
+    items: resultado.slice(skip, skip + limit),
+    total,
+    skip,
+    limit
+  };
 }
 
 /**
@@ -340,7 +388,7 @@ export async function registrarServicio(datos) {
   const nuevoServicio = {
     idServicio: Math.max(...SERVICIOS_MOCK.map(s => s.idServicio), 0) + 1,
     ...datos,
-    activo: ESTADO_REGISTRO.ACTIVO,
+    activo: datos.activo ? 1 : 0,
     fechaRegistro: new Date(),
     creadoPor: obtenerUsuarioActual(),
     fechaModificacion: new Date(),
