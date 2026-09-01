@@ -20,7 +20,7 @@ export function renderSidebar(container, session){
   {
     key: 'clientes',
     href: '#/clientes',
-    label: 'Clientes',
+    label: 'Clientes y prospectos',
     permission: 'clientes.consultar'
   },
   {

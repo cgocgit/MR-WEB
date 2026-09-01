@@ -1,15 +1,32 @@
-<section class="container">
-  <h1>Detalle de cliente</h1>
-  <div id="detalle" class="card mt-12">Cargando...</div>
+<section
+  id="cliente-detalle-page"
+  class="container clientes-page"
+  aria-labelledby="detalle-title"
+>
+  <header>
+    <h1 id="detalle-title">
+      Detalle de cliente o prospecto
+    </h1>
+
+    <p>
+      Consulta la información registrada,
+      contactos, cotizaciones y datos de control.
+    </p>
+  </header>
+
+  <div
+    id="cliente-detalle-content"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    Cargando...
+  </div>
 
   <script type="module">
-    import { getCliente } from '../../js/api/clientes.service.js';
-    const q = new URLSearchParams(location.hash.split('?')[1] || '');
-    const id = q.get('id');
-    (async ()=>{
-      if(!id){ document.getElementById('detalle').textContent = 'No se indicó cliente.'; return }
-      const data = await getCliente(id);
-      document.getElementById('detalle').innerHTML = `<p><strong>Nombre:</strong> ${data.nombre}</p><p><strong>Contacto:</strong> ${data.contacto}</p>`;
-    })();
+    import {
+      init
+    } from '../../js/modules/clientes/detalle.js';
+
+    init();
   </script>
 </section>
