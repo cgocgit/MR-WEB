@@ -358,11 +358,16 @@ export async function init() {
   }
 
   if (!idProducto) {
-    showNotification('ID de producto no especificado', { type: 'error' });
+    showNotification(
+      'ID de producto no especificado',
+      { type: 'error' }
+    );
+
     setTimeout(() => {
       window.location.hash =
-        `#/catalogo/productos/formulario?id=${productoActual.idProducto}`;
+        '#/catalogo/productos';
     }, 2000);
+
     return;
   }
 
@@ -379,10 +384,11 @@ export async function init() {
   }
 
   if (btnEditar) {
-    btnEditar.addEventListener('click', () => {
-      window.location.hash = `#/catalogo/productos/formulario?id=${productoActual.id}`;
-    });
-  }
+  btnEditar.addEventListener('click', () => {
+    window.location.hash =
+      `#/catalogo/productos/formulario?id=${productoActual.idProducto}`;
+  });
+}
 
   if (btnEstado) {
     btnEstado.addEventListener('click', manejarCambioEstado);

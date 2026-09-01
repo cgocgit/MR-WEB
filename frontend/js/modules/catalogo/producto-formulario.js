@@ -242,7 +242,6 @@ async function cargarProducto(id) {
       idColor,
       unidadMedida,
       precioBase,
-      urlImagen,
       previewImagen,
       activo
     } = obtenerElementos();
@@ -305,7 +304,6 @@ async function manejarEnvio(e) {
     idColor,
     unidadMedida,
     precioBase,
-    urlImagen,
     activo
   } = obtenerElementos();
 

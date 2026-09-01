@@ -17,7 +17,7 @@
   </div>
 
   <!-- Sección de Categorías -->
-  <div id="seccion-categorias" class="catalogo-auxiliar-tab" style="display: none;">
+  <div id="seccion-categorias" class="catalogo-auxiliar-tab" style="display: block;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h2 style="margin: 0;">Categorías</h2>
       <button id="btn-nueva-categoria" class="btn btn-primary">+ Nueva Categoría</button>
@@ -46,6 +46,17 @@
       <button id="btn-nuevo-tipo" class="btn btn-primary">+ Nuevo Tipo</button>
     </div>
 
+    <div class="catalogo-form-group">
+      <label for="buscar-tipos">
+        Buscar tipo
+      </label>
+      <input
+        id="buscar-tipos"
+        type="text"
+        placeholder="Buscar por nombre..."
+      >
+    </div>
+
     <div id="tipos-lista" class="catalogo-cards">
       <p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">Cargando tipos...</p>
     </div>
@@ -56,6 +67,17 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
       <h2 style="margin: 0;">Colores</h2>
       <button id="btn-nuevo-color" class="btn btn-primary">+ Nuevo Color</button>
+    </div>
+
+    <div class="catalogo-form-group">
+      <label for="buscar-colores">
+        Buscar color
+      </label>
+      <input
+        id="buscar-colores"
+        type="text"
+        placeholder="Buscar por nombre..."
+      >
     </div>
 
     <div id="colores-lista" class="catalogo-cards">
