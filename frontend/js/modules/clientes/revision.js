@@ -307,10 +307,7 @@ function createCotizacion(
     createElement('article');
 
   item.className =
-    'card';
-
-  item.style.marginTop =
-    '8px';
+  'card clientes-related-item';
 
   item.appendChild(
     createField(
@@ -480,19 +477,10 @@ function createDecisionSection(
   );
 
   const actions =
-    createElement('div');
+  createElement('div');
 
-  actions.style.display =
-    'flex';
-
-  actions.style.flexWrap =
-    'wrap';
-
-  actions.style.gap =
-    '8px';
-
-  actions.style.marginTop =
-    '12px';
+  actions.className =
+    'clientes-decision-actions';
 
   actions.appendChild(
     createDecisionButton(
