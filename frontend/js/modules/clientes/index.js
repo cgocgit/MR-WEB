@@ -131,7 +131,7 @@ function createStatusBadge(
     getEstadoLabel(estado);
 
   badge.className =
-    'status-badge';
+  'clientes-status';
 
   badge.dataset.estado =
     estado;
@@ -146,14 +146,8 @@ function createActions(
   const container =
     document.createElement('div');
 
-  container.style.display =
-    'flex';
-
-  container.style.flexWrap =
-    'wrap';
-
-  container.style.gap =
-    '8px';
+    container.className =
+    'clientes-row-actions';
 
   if (
     hasPermission(
@@ -215,17 +209,14 @@ function createTable(
   const wrapper =
     document.createElement('div');
 
-  wrapper.style.overflowX =
-    'auto';
+  wrapper.className =
+  'clientes-table-wrapper';
 
   const table =
     document.createElement('table');
 
-  table.style.width =
-    '100%';
-
-  table.style.borderCollapse =
-    'collapse';
+  table.className =
+  'clientes-table';
 
   const thead =
     document.createElement('thead');

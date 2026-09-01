@@ -66,3 +66,79 @@ export function getContactoPrincipal(
 
   return registro.contactos[0];
 }
+
+export function formatDateTime(
+  value
+) {
+  if (!value) {
+    return 'No registrado';
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(
+    'es-MX',
+    {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    }
+  ).format(date);
+}
+
+export function formatDate(
+  value
+) {
+  if (!value) {
+    return 'No registrada';
+  }
+
+  const date =
+    new Date(
+      `${value}T00:00:00`
+    );
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(
+    'es-MX',
+    {
+      dateStyle: 'medium'
+    }
+  ).format(date);
+}
+
+export function formatCurrency(
+  value
+) {
+  const amount =
+    Number(value);
+
+  if (
+    !Number.isFinite(amount)
+  ) {
+    return 'No registrado';
+  }
+
+  return new Intl.NumberFormat(
+    'es-MX',
+    {
+      style: 'currency',
+      currency: 'MXN'
+    }
+  ).format(amount);
+}

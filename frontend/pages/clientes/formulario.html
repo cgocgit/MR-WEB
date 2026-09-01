@@ -1,6 +1,6 @@
 <section
   id="cliente-form-page"
-  class="container"
+  class="container clientes-page"
   aria-labelledby="cliente-form-title"
 >
   <header>
@@ -15,17 +15,12 @@
 
   <form
     id="cliente-form"
-    class="card mt-12"
-    style="
-      max-width: 720px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    "
+    class="card clientes-form"
     novalidate
   >
     <div
       id="cliente-form-errors"
+      class="clientes-errors"
       role="alert"
       aria-live="assertive"
       hidden
@@ -81,13 +76,7 @@
       >
     </label>
 
-    <div
-      style="
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-      "
-    >
+    <div class="clientes-form-actions">
       <button
         id="cancelar"
         type="button"

@@ -96,13 +96,8 @@ function createContactoRow(
   row.dataset.contactoRow =
     'true';
 
-  row.style.display = 'grid';
-
-  row.style.gridTemplateColumns =
-    '180px 1fr auto';
-
-  row.style.gap = '8px';
-  row.style.marginBottom = '8px';
+  row.className =
+  'clientes-contact-row';
 
   const tipoWrapper =
     document.createElement('label');

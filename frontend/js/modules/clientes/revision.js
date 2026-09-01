@@ -17,6 +17,9 @@ import {
 } from '../../shared/permissions.js';
 
 import {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
   getEstadoLabel,
   getNombreCompleto,
   getTipoContactoLabel
@@ -66,10 +69,7 @@ function createCard(title) {
     createElement('section');
 
   section.className =
-    'card';
-
-  section.style.marginTop =
-    '12px';
+  'card clientes-review-section';
 
   const heading =
     createElement(
@@ -124,76 +124,6 @@ function createLink(
   link.href = href;
 
   return link;
-}
-
-function formatDateTime(value) {
-  if (!value) {
-    return 'No registrado';
-  }
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(
-    'es-MX',
-    {
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    }
-  ).format(date);
-}
-
-function formatDate(value) {
-  if (!value) {
-    return 'No registrada';
-  }
-
-  const date =
-    new Date(
-      `${value}T00:00:00`
-    );
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(
-    'es-MX',
-    {
-      dateStyle: 'medium'
-    }
-  ).format(date);
-}
-
-function formatCurrency(value) {
-  const amount =
-    Number(value);
-
-  if (
-    !Number.isFinite(amount)
-  ) {
-    return 'No registrado';
-  }
-
-  return new Intl.NumberFormat(
-    'es-MX',
-    {
-      style: 'currency',
-      currency: 'MXN'
-    }
-  ).format(amount);
 }
 
 function createInformationSection(

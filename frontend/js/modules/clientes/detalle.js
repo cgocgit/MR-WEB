@@ -17,6 +17,9 @@ import {
 } from '../../shared/permissions.js';
 
 import {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
   getEstadoLabel,
   getTipoContactoLabel
 } from './clientes.utils.js';
@@ -55,8 +58,7 @@ function createCard(
   const section =
     createElement('section');
 
-  section.className = 'card';
-  section.style.marginTop = '12px';
+  section.className = 'card clientes-detail-section';
 
   const heading =
     createElement(
@@ -113,82 +115,6 @@ function createLink(
   return link;
 }
 
-function formatDateTime(
-  value
-) {
-  if (!value) {
-    return 'No registrado';
-  }
-
-  const date =
-    new Date(value);
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(
-    'es-MX',
-    {
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    }
-  ).format(date);
-}
-
-function formatDate(
-  value
-) {
-  if (!value) {
-    return 'No registrada';
-  }
-
-  const date =
-    new Date(
-      `${value}T00:00:00`
-    );
-
-  if (
-    Number.isNaN(
-      date.getTime()
-    )
-  ) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat(
-    'es-MX',
-    {
-      dateStyle: 'medium'
-    }
-  ).format(date);
-}
-
-function formatCurrency(
-  value
-) {
-  const amount =
-    Number(value);
-
-  if (
-    !Number.isFinite(amount)
-  ) {
-    return 'No registrado';
-  }
-
-  return new Intl.NumberFormat(
-    'es-MX',
-    {
-      style: 'currency',
-      currency: 'MXN'
-    }
-  ).format(amount);
-}
-
 function createHeader(
   registro,
   session
@@ -229,19 +155,10 @@ function createHeader(
   );
 
   const actions =
-    createElement('div');
+  createElement('div');
 
-  actions.style.display =
-    'flex';
-
-  actions.style.flexWrap =
-    'wrap';
-
-  actions.style.gap =
-    '8px';
-
-  actions.style.marginTop =
-    '16px';
+actions.className =
+  'clientes-row-actions';
 
   actions.appendChild(
     createLink(
@@ -377,10 +294,8 @@ function createCotizacionCard(
   const item =
     createElement('article');
 
-  item.className = 'card';
-
-  item.style.marginTop =
-    '8px';
+  item.className =
+  'card clientes-related-item';
 
   item.appendChild(
     createField(
@@ -499,10 +414,8 @@ function createAuditoriaItem(
   const item =
     createElement('article');
 
-  item.className = 'card';
-
-  item.style.marginTop =
-    '8px';
+  item.className =
+  'card clientes-related-item';
 
   item.appendChild(
     createField(

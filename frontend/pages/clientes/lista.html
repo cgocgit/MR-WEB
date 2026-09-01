@@ -1,8 +1,8 @@
 <section
-  class="container"
+  class="container clientes-page"
   aria-labelledby="clientes-title"
 >
-  <header>
+  <header class="clientes-header">
     <h1 id="clientes-title">
       Clientes y prospectos
     </h1>
@@ -15,17 +15,10 @@
 
   <section
     id="clientes-toolbar"
-    class="card"
+    class="card clientes-toolbar"
     aria-label="Búsqueda y filtros"
   >
-    <div
-      style="
-        display: grid;
-        grid-template-columns:
-          repeat(auto-fit, minmax(180px, 1fr));
-        gap: 12px;
-      "
-    >
+    <div class="clientes-filters">
       <label>
         Buscar
         <input
@@ -105,14 +98,7 @@
       </label>
     </div>
 
-    <div
-      style="
-        display: flex;
-        justify-content: flex-end;
-        gap: 8px;
-        margin-top: 12px;
-      "
-    >
+    <div class="clientes-actions">
       <button
         id="clientes-limpiar-filtros"
         type="button"
@@ -127,17 +113,8 @@
         Buscar
       </button>
     </div>
-  </section>
 
-  <section
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-top: 12px;
-    "
-  >
+  <section class="clientes-list-header">
     <div
       id="clientes-resumen"
       aria-live="polite"
@@ -148,8 +125,7 @@
 
   <div
     id="clientes-content"
-    class="card"
-    style="margin-top: 12px"
+    class="card clientes-card"
     aria-live="polite"
     aria-busy="false"
   >
@@ -159,13 +135,7 @@
   <nav
     id="clientes-pagination"
     aria-label="Paginación de clientes y prospectos"
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-top: 12px;
-    "
+    class="clientes-pagination"
   ></nav>
 
   <script type="module">
