@@ -1,4 +1,5 @@
 <section
+  id="cliente-revision-page"
   class="container"
   aria-labelledby="revision-title"
 >
@@ -8,32 +9,62 @@
     </h1>
 
     <p>
-      Revisa la información disponible
-      antes de decidir la clasificación
-      del prospecto.
+      Revisa la información disponible antes de
+      decidir la clasificación del prospecto.
     </p>
   </header>
 
   <div
-    class="card"
-    style="margin-top: 12px"
-    role="status"
+    id="cliente-revision-content"
+    aria-live="polite"
+    aria-busy="true"
   >
-    <p>
-      La navegación hacia esta pantalla
-      se encuentra habilitada.
-    </p>
-
-    <p>
-      La información del prospecto,
-      cotizaciones y acciones de
-      clasificación se incorporarán
-      durante la implementación de la
-      funcionalidad de revisión.
-    </p>
-
-    <a href="#/clientes">
-      Volver a Clientes y prospectos
-    </a>
+    Cargando información...
   </div>
+
+  <dialog
+    id="clasificacion-confirmacion"
+    aria-labelledby="clasificacion-confirmacion-title"
+  >
+    <form method="dialog">
+      <h2 id="clasificacion-confirmacion-title">
+        Confirmar clasificación
+      </h2>
+
+      <div
+        id="clasificacion-confirmacion-content"
+      ></div>
+
+      <div
+        style="
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-top: 16px;
+        "
+      >
+        <button
+          id="clasificacion-cancelar-confirmacion"
+          type="button"
+        >
+          Volver a revisar
+        </button>
+
+        <button
+          id="clasificacion-confirmar"
+          type="button"
+        >
+          Confirmar
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module">
+    import {
+      init
+    } from '../../js/modules/clientes/revision.js';
+
+    init();
+  </script>
 </section>
