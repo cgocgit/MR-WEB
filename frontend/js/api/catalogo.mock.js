@@ -422,6 +422,38 @@ export const PAQUETES_MOCK = [
 ];
 
 /**
+ * Listas de precios Mock
+ */
+export const LISTAS_PRECIOS_MOCK = [
+  {
+    idListaPrecio: 6001,
+    nombre: 'Lista General',
+    descripcion: 'Lista general de precios vigente.',
+    vigenciaInicio: '2026-01-01',
+    vigenciaFin: '2026-12-31',
+    activo: 1,
+    fechaRegistro: new Date('2026-01-01'),
+    creadoPor: 'admin@mesaregia.com',
+    fechaModificacion: new Date('2026-01-01'),
+    modificadoPor: 'admin@mesaregia.com',
+    estadoRegistro: 1
+  },
+  {
+    idListaPrecio: 6002,
+    nombre: 'Lista Temporada',
+    descripcion: 'Lista temporal de referencia.',
+    vigenciaInicio: '2026-06-01',
+    vigenciaFin: '2026-08-31',
+    activo: 0,
+    fechaRegistro: new Date('2026-05-15'),
+    creadoPor: 'admin@mesaregia.com',
+    fechaModificacion: new Date('2026-08-31'),
+    modificadoPor: 'admin@mesaregia.com',
+    estadoRegistro: 1
+  }
+];
+
+/**
  * Función auxiliar para crear copias profundas de los mocks
  * Evita mutaciones accidentales de los datos
  */
@@ -496,9 +528,23 @@ export function existeCodigoServicio(
   );
 }
 
-export function existeCodigoPaquete(codigo, excluyendoId = null) {
-  return PAQUETES_MOCK.some(p => 
-    p.codigo === codigo && (excluyendoId === null || p.idPaquete !== excluyendoId)
+export function existeCodigoPaquete(
+  codigo,
+  excluyendoId = null
+) {
+  const codigoNormalizado =
+    String(codigo || '')
+      .trim()
+      .toUpperCase();
+
+  return PAQUETES_MOCK.some(paquete =>
+    String(paquete.codigo || '')
+      .trim()
+      .toUpperCase() === codigoNormalizado &&
+    (
+      excluyendoId === null ||
+      paquete.idPaquete !== Number(excluyendoId)
+    )
   );
 }
 

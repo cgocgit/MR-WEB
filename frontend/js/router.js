@@ -58,8 +58,14 @@ const routes = {
   '#/catalogo/paquetes/detalle':
     'pages/catalogo/paquete-detalle.html',
 
-  '#/catalogo/precios':
+    '#/catalogo/precios':
     'pages/catalogo/precios.html',
+
+  '#/catalogo/precios/formulario':
+    'pages/catalogo/precio-formulario.html',
+
+  '#/catalogo/precios/detalle':
+    'pages/catalogo/precio-detalle.html',
 
   '#/catalogo/configuracion':
     'pages/catalogo/configuracion.html',

@@ -1,8 +1,3 @@
-/**
- * Módulo: Catálogo - Formulario de Paquetes
- * Funcionalidad: Crear y editar paquetes con componentes
- */
-
 import {
   registrarPaquete,
   obtenerPaquete,
@@ -16,116 +11,318 @@ import {
   MENSAJES
 } from '../../api/catalogo.constants.js';
 
-import { getSession, requireAuth } from '../../shared/auth-guard.js';
-import { hasPermission } from '../../shared/permissions.js';
-import { showNotification } from '../../components/notification.js';
-import { showLoader, hideLoader } from '../../components/loader.js';
+import {
+  getSession,
+  requireAuth
+} from '../../shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../shared/permissions.js';
+
+import {
+  showNotification
+} from '../../components/notification.js';
+
+import {
+  showLoader,
+  hideLoader
+} from '../../components/loader.js';
 
 import {
   renderNavegacionCatalogo
 } from './catalogo-ui.js';
 
-// ============================================================================
-// ESTADO DEL MÓDULO
-// ============================================================================
-
 let paqueteActual = null;
 let esEdicion = false;
+
 let productosDisponibles = [];
 let serviciosDisponibles = [];
+
 let componentesProductos = [];
 let componentesServicios = [];
 
-// ============================================================================
-// REFERENCIAS AL DOM
-// ============================================================================
-
 function obtenerElementos() {
   return {
-    // Formulario
-    form: document.getElementById('paquete-form'),
-    formTitle: document.getElementById('form-title'),
-    formMessage: document.getElementById('form-message'),
+    form:
+      document.getElementById(
+        'paquete-form'
+      ),
 
-    // Campos básicos
-    codigo: document.getElementById('codigo'),
-    nombre: document.getElementById('nombre'),
-    descripcion: document.getElementById('descripcion'),
-    precio: document.getElementById('precio'),
-    activo: document.getElementById('activo'),
+    formTitle:
+      document.getElementById(
+        'form-title'
+      ),
 
-    // Búsqueda de productos
-    buscarProductos: document.getElementById('buscar-productos'),
-    btnAgregarProducto: document.getElementById('btn-agregar-producto'),
-    productosComponentes: document.getElementById('productos-componentes'),
+    codigo:
+      document.getElementById(
+        'codigo'
+      ),
 
-    // Búsqueda de servicios
-    buscarServicios: document.getElementById('buscar-servicios'),
-    btnAgregarServicio: document.getElementById('btn-agregar-servicio'),
-    serviciosComponentes: document.getElementById('servicios-componentes'),
+    nombre:
+      document.getElementById(
+        'nombre'
+      ),
 
-    // Resumen
-    resumenTotalProductos: document.getElementById('resumen-total-productos'),
-    resumenTotalServicios: document.getElementById('resumen-total-servicios'),
-    resumenTotalComponentes: document.getElementById('resumen-total-componentes'),
-    resumenSubtotal: document.getElementById('resumen-subtotal'),
-    resumenPrecioRegistrado: document.getElementById('resumen-precio-registrado'),
-    resumenDiferencia: document.getElementById('resumen-diferencia'),
+    descripcion:
+      document.getElementById(
+        'descripcion'
+      ),
 
-    // Botones
-    btnCancelar: document.getElementById('btn-cancelar'),
-    btnGuardar: document.querySelector('button[type="submit"]'),
+    precio:
+      document.getElementById(
+        'precio'
+      ),
 
-    // Errores
-    errorCodigo: document.getElementById('error-codigo'),
-    errorNombre: document.getElementById('error-nombre'),
-    errorDescripcion: document.getElementById('error-descripcion'),
-    errorPrecio: document.getElementById('error-precio')
+    activo:
+      document.getElementById(
+        'activo'
+      ),
+
+    buscarProductos:
+      document.getElementById(
+        'buscar-productos'
+      ),
+
+    btnAgregarProducto:
+      document.getElementById(
+        'btn-agregar-producto'
+      ),
+
+    productosComponentes:
+      document.getElementById(
+        'productos-componentes'
+      ),
+
+    buscarServicios:
+      document.getElementById(
+        'buscar-servicios'
+      ),
+
+    btnAgregarServicio:
+      document.getElementById(
+        'btn-agregar-servicio'
+      ),
+
+    serviciosComponentes:
+      document.getElementById(
+        'servicios-componentes'
+      ),
+
+    advertenciaInactivos:
+      document.getElementById(
+        'advertencia-componentes-inactivos'
+      ),
+
+    resumenTotalProductos:
+      document.getElementById(
+        'resumen-total-productos'
+      ),
+
+    resumenTotalServicios:
+      document.getElementById(
+        'resumen-total-servicios'
+      ),
+
+    resumenTotalComponentes:
+      document.getElementById(
+        'resumen-total-componentes'
+      ),
+
+    resumenSubtotal:
+      document.getElementById(
+        'resumen-subtotal'
+      ),
+
+    resumenPrecioRegistrado:
+      document.getElementById(
+        'resumen-precio-registrado'
+      ),
+
+    resumenDiferencia:
+      document.getElementById(
+        'resumen-diferencia'
+      ),
+
+    btnCancelar:
+      document.getElementById(
+        'btn-cancelar'
+      )
   };
 }
 
-// ============================================================================
-// UTILIDADES
-// ============================================================================
-
 function obtenerIdPaquete() {
-  const queryString = location.hash.split('?')[1] || '';
-  return new URLSearchParams(queryString).get('id');
+  const queryString =
+    location.hash.split('?')[1] || '';
+
+  return new URLSearchParams(
+    queryString
+  ).get('id');
+}
+
+function formatoMoneda(valor) {
+  return Number(valor || 0)
+    .toLocaleString(
+      'es-MX',
+      {
+        style: 'currency',
+        currency: 'MXN'
+      }
+    );
+}
+
+function mostrarError(
+  campo,
+  mensaje
+) {
+  const elemento =
+    document.getElementById(
+      `error-${campo}`
+    );
+
+  if (!elemento) {
+    return false;
+  }
+
+  elemento.textContent =
+    mensaje;
+
+  return true;
 }
 
 function limpiarErrores() {
+  document
+    .querySelectorAll(
+      '.catalogo-form-error'
+    )
+    .forEach(elemento => {
+      elemento.textContent = '';
+    });
+}
+
+async function cargarCatalogos() {
+  const [
+    resultadoProductos,
+    resultadoServicios
+  ] = await Promise.all([
+    listarProductos({
+      limit: 100,
+      soloActivos: false
+    }),
+
+    listarServicios({
+      limit: 100,
+      soloActivos: false
+    })
+  ]);
+
+  productosDisponibles =
+    resultadoProductos.items;
+
+  serviciosDisponibles =
+    resultadoServicios.items;
+}
+
+function enriquecerProducto(
+  detalle
+) {
+  const producto =
+    productosDisponibles.find(
+      item =>
+        item.idProducto ===
+        Number(detalle.idProducto)
+    );
+
+  return {
+    ...detalle,
+
+    idProducto:
+      Number(detalle.idProducto),
+
+    codigo:
+      producto?.codigo ||
+      detalle.codigo ||
+      `Producto ${detalle.idProducto}`,
+
+    nombre:
+      producto?.nombre ||
+      detalle.nombre ||
+      'Producto no disponible',
+
+    activo:
+      producto?.activo === 1
+        ? 1
+        : 0
+  };
+}
+
+function enriquecerServicio(
+  detalle
+) {
+  const servicio =
+    serviciosDisponibles.find(
+      item =>
+        item.idServicio ===
+        Number(detalle.idServicio)
+    );
+
+  return {
+    ...detalle,
+
+    idServicio:
+      Number(detalle.idServicio),
+
+    codigo:
+      servicio?.codigo ||
+      detalle.codigo ||
+      `Servicio ${detalle.idServicio}`,
+
+    nombre:
+      servicio?.nombre ||
+      detalle.nombre ||
+      'Servicio no disponible',
+
+    activo:
+      servicio?.activo === 1
+        ? 1
+        : 0
+  };
+}
+
+function tieneComponentesInactivos() {
+  return (
+    componentesProductos.some(
+      componente =>
+        componente.activo !== 1
+    ) ||
+    componentesServicios.some(
+      componente =>
+        componente.activo !== 1
+    )
+  );
+}
+
+function actualizarEstadoActivacion() {
   const {
-    errorCodigo,
-    errorNombre,
-    errorDescripcion,
-    errorPrecio
+    activo,
+    advertenciaInactivos
   } = obtenerElementos();
 
-  [errorCodigo, errorNombre, errorDescripcion, errorPrecio].forEach(el => {
-    if (el) el.textContent = '';
-  });
-}
+  const tieneInactivos =
+    tieneComponentesInactivos();
 
-function mostrarError(campo, mensaje) {
-  const elemento = document.getElementById(`error-${campo}`);
-  if (elemento) elemento.textContent = mensaje;
-}
+  if (advertenciaInactivos) {
+    advertenciaInactivos.style.display =
+      tieneInactivos
+        ? 'flex'
+        : 'none';
+  }
 
-// ============================================================================
-// CARGA DE DATOS
-// ============================================================================
-
-async function cargarProductosYServicios() {
-  try {
-    const resultadoProductos = await listarProductos({ soloActivos: true, limit: 100 });
-    const resultadoServicios = await listarServicios({ soloActivos: true, limit: 100 });
-
-    productosDisponibles = resultadoProductos.items;
-    serviciosDisponibles = resultadoServicios.items;
-
-  } catch (error) {
-    console.error('Error cargando productos y servicios:', error);
-    showNotification('Error cargando productos y servicios', { type: 'error' });
+  if (
+    tieneInactivos &&
+    activo?.checked
+  ) {
+    activo.checked = false;
   }
 }
 
@@ -133,8 +330,9 @@ async function cargarPaquete(id) {
   try {
     showLoader();
 
-    const paquete = await obtenerPaquete(id);
-    paqueteActual = paquete;
+    paqueteActual =
+      await obtenerPaquete(id);
+
     esEdicion = true;
 
     const {
@@ -146,342 +344,512 @@ async function cargarPaquete(id) {
       activo
     } = obtenerElementos();
 
-    if (formTitle) formTitle.textContent = 'Editar Paquete';
-    if (codigo) codigo.value = paquete.codigo;
-    if (nombre) nombre.value = paquete.nombre;
-    if (descripcion) descripcion.value = paquete.descripcion || '';
-    if (precio) precio.value = paquete.precio;
-    if (activo) activo.checked = paquete.activo;
+    formTitle.textContent =
+      'Editar Paquete';
 
-    // Cargar componentes
-    componentesProductos = JSON.parse(JSON.stringify(paquete.detalleProductos || []));
-    componentesServicios = JSON.parse(JSON.stringify(paquete.detalleServicios || []));
+    codigo.value =
+      paqueteActual.codigo;
 
-    // Desactivar código
-    if (codigo) codigo.disabled = true;
+    nombre.value =
+      paqueteActual.nombre;
 
-    // Renderizar componentes
+    descripcion.value =
+      paqueteActual.descripcion || '';
+
+    precio.value =
+      paqueteActual.precio;
+
+    activo.checked =
+      paqueteActual.activo === 1;
+
+    componentesProductos =
+      (paqueteActual.detalleProductos || [])
+        .map(
+          enriquecerProducto
+        );
+
+    componentesServicios =
+      (paqueteActual.detalleServicios || [])
+        .map(
+          enriquecerServicio
+        );
+
     renderizarComponentesProductos();
     renderizarComponentesServicios();
     actualizarResumen();
+    actualizarEstadoActivacion();
 
-  } catch (error) {
-    console.error('Error cargando paquete:', error);
-    showNotification(error.message || 'Error cargando paquete', { type: 'error' });
-    setTimeout(() => {
-      window.location.hash = '#/catalogo/paquetes';
-    }, 2000);
   } finally {
     hideLoader();
   }
 }
 
-// ============================================================================
-// MANEJO DE COMPONENTES
-// ============================================================================
-
 function manejarAgregarProducto() {
-  const { buscarProductos } = obtenerElementos();
+  const {
+    buscarProductos
+  } = obtenerElementos();
 
   const valor =
-    buscarProductos?.value.toLowerCase().trim();
+    buscarProductos.value
+      .trim()
+      .toLowerCase();
 
   if (!valor) {
     showNotification(
-      'Ingrese un código o nombre de producto',
+      'Ingrese código o nombre del producto.',
       { type: 'warning' }
     );
     return;
   }
 
-  const producto = productosDisponibles.find(p =>
-    p.codigo.toLowerCase().includes(valor) ||
-    p.nombre.toLowerCase().includes(valor)
-  );
+  const producto =
+    productosDisponibles.find(
+      item =>
+        item.activo === 1 &&
+        (
+          item.codigo
+            .toLowerCase()
+            .includes(valor) ||
+          item.nombre
+            .toLowerCase()
+            .includes(valor)
+        )
+    );
 
   if (!producto) {
     showNotification(
-      'Producto no encontrado',
+      'No se encontró un producto activo.',
       { type: 'error' }
     );
     return;
   }
 
-  const existente = componentesProductos.find(
-    componente =>
-      componente.idProducto === producto.idProducto
-  );
+  const existente =
+    componentesProductos.find(
+      componente =>
+        componente.idProducto ===
+        producto.idProducto
+    );
 
   if (existente) {
     existente.cantidad += 1;
+
     existente.subtotal =
-      existente.cantidad * existente.precioUnitario;
+      existente.cantidad *
+      existente.precioUnitario;
 
-    renderizarComponentesProductos();
-    actualizarResumen();
+  } else {
+    componentesProductos.push({
+      idProducto:
+        producto.idProducto,
 
-    if (buscarProductos) {
-      buscarProductos.value = '';
-    }
+      codigo:
+        producto.codigo,
 
-    showNotification(
-      'Cantidad del producto actualizada',
-      { type: 'success', timeout: 1500 }
-    );
+      nombre:
+        producto.nombre,
 
-    return;
+      cantidad:
+        1,
+
+      precioUnitario:
+        Number(
+          producto.precioBase || 0
+        ),
+
+      subtotal:
+        Number(
+          producto.precioBase || 0
+        ),
+
+      activo:
+        producto.activo
+    });
   }
 
-  componentesProductos.push({
-    idProducto: producto.idProducto,
-    codigo: producto.codigo,
-    nombre: producto.nombre,
-    cantidad: 1,
-    precioUnitario: producto.precioBase,
-    subtotal: producto.precioBase,
-    activo: producto.activo
-  });
-
-  if (buscarProductos) {
-    buscarProductos.value = '';
-  }
+  buscarProductos.value = '';
 
   renderizarComponentesProductos();
   actualizarResumen();
-
-  showNotification(
-    'Producto agregado',
-    { type: 'success', timeout: 1500 }
-  );
+  actualizarEstadoActivacion();
 }
 
 function manejarAgregarServicio() {
-  const { buscarServicios } = obtenerElementos();
+  const {
+    buscarServicios
+  } = obtenerElementos();
 
-  const valor = buscarServicios?.value
-    .toLowerCase()
-    .trim();
+  const valor =
+    buscarServicios.value
+      .trim()
+      .toLowerCase();
 
   if (!valor) {
     showNotification(
-      'Ingrese un código o nombre de servicio',
+      'Ingrese código o nombre del servicio.',
       { type: 'warning' }
     );
     return;
   }
 
-  const servicio = serviciosDisponibles.find(item =>
-    item.codigo.toLowerCase().includes(valor) ||
-    item.nombre.toLowerCase().includes(valor)
-  );
+  const servicio =
+    serviciosDisponibles.find(
+      item =>
+        item.activo === 1 &&
+        (
+          item.codigo
+            .toLowerCase()
+            .includes(valor) ||
+          item.nombre
+            .toLowerCase()
+            .includes(valor)
+        )
+    );
 
   if (!servicio) {
     showNotification(
-      'Servicio no encontrado',
+      'No se encontró un servicio activo.',
       { type: 'error' }
     );
     return;
   }
 
-  const existente = componentesServicios.find(
-    componente =>
-      componente.idServicio === servicio.idServicio
-  );
+  const existente =
+    componentesServicios.find(
+      componente =>
+        componente.idServicio ===
+        servicio.idServicio
+    );
 
   if (existente) {
     existente.cantidad += 1;
 
     existente.subtotal =
-      existente.cantidad * existente.tarifa;
+      existente.cantidad *
+      existente.tarifa;
 
-    renderizarComponentesServicios();
-    actualizarResumen();
+  } else {
+    componentesServicios.push({
+      idServicio:
+        servicio.idServicio,
 
-    if (buscarServicios) {
-      buscarServicios.value = '';
-    }
+      codigo:
+        servicio.codigo,
 
-    showNotification(
-      'Cantidad del servicio actualizada',
-      { type: 'success', timeout: 1500 }
-    );
+      nombre:
+        servicio.nombre,
 
-    return;
+      cantidad:
+        1,
+
+      tarifa:
+        Number(
+          servicio.tarifaBase || 0
+        ),
+
+      subtotal:
+        Number(
+          servicio.tarifaBase || 0
+        ),
+
+      activo:
+        servicio.activo
+    });
   }
 
-  componentesServicios.push({
-    idServicio: servicio.idServicio,
-    codigo: servicio.codigo,
-    nombre: servicio.nombre,
-    cantidad: 1,
-    tarifa: servicio.tarifaBase,
-    subtotal: servicio.tarifaBase,
-    activo: servicio.activo
-  });
-
-  if (buscarServicios) {
-    buscarServicios.value = '';
-  }
+  buscarServicios.value = '';
 
   renderizarComponentesServicios();
   actualizarResumen();
-
-  showNotification(
-    'Servicio agregado',
-    { type: 'success', timeout: 1500 }
-  );
+  actualizarEstadoActivacion();
 }
 
-function eliminarComponentoProducto(index) {
-  componentesProductos.splice(index, 1);
-  renderizarComponentesProductos();
-  actualizarResumen();
-}
+function actualizarCantidadProducto(
+  indice,
+  cantidad
+) {
+  const componente =
+    componentesProductos[indice];
 
-function eliminarComponentoServicio(index) {
-  componentesServicios.splice(index, 1);
-  renderizarComponentesServicios();
-  actualizarResumen();
-}
-
-function actualizarCantidadProducto(index, cantidad) {
-  componentesProductos[index].cantidad = Math.max(1, parseInt(cantidad) || 1);
-  componentesProductos[index].subtotal = componentesProductos[index].cantidad * componentesProductos[index].precioUnitario;
-  renderizarComponentesProductos();
-  actualizarResumen();
-}
-
-function actualizarCantidadServicio(index, cantidad) {
-  const componente = componentesServicios[index];
-
-  if (!componente) {
-    return;
-  }
+  if (!componente) return;
 
   componente.cantidad =
-    Math.max(1, parseInt(cantidad, 10) || 1);
+    Math.max(
+      1,
+      Number(cantidad) || 1
+    );
 
   componente.subtotal =
-    componente.cantidad * componente.tarifa;
+    componente.cantidad *
+    componente.precioUnitario;
+
+  renderizarComponentesProductos();
+  actualizarResumen();
+}
+
+function actualizarCantidadServicio(
+  indice,
+  cantidad
+) {
+  const componente =
+    componentesServicios[indice];
+
+  if (!componente) return;
+
+  componente.cantidad =
+    Math.max(
+      1,
+      Number(cantidad) || 1
+    );
+
+  componente.subtotal =
+    componente.cantidad *
+    componente.tarifa;
 
   renderizarComponentesServicios();
   actualizarResumen();
 }
 
-// ============================================================================
-// RENDERIZADO
-// ============================================================================
+function eliminarProducto(indice) {
+  componentesProductos.splice(
+    indice,
+    1
+  );
+
+  renderizarComponentesProductos();
+  actualizarResumen();
+  actualizarEstadoActivacion();
+}
+
+function eliminarServicio(indice) {
+  componentesServicios.splice(
+    indice,
+    1
+  );
+
+  renderizarComponentesServicios();
+  actualizarResumen();
+  actualizarEstadoActivacion();
+}
 
 function renderizarComponentesProductos() {
-  const { productosComponentes } = obtenerElementos();
-  if (!productosComponentes) return;
+  const {
+    productosComponentes
+  } = obtenerElementos();
 
-  if (componentesProductos.length === 0) {
-    productosComponentes.innerHTML = '<p style="color: var(--color-text-secondary); text-align: center; padding: 2rem;">No hay productos agregados</p>';
+  if (
+    componentesProductos.length === 0
+  ) {
+    productosComponentes.innerHTML =
+      '<p class="catalogo-empty-text">No hay productos agregados.</p>';
+
     return;
   }
 
-  productosComponentes.innerHTML = componentesProductos.map((comp, idx) => `
-    <div style="padding: 1rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
-      <div style="flex: 1;">
-        <div style="font-weight: 500;">${comp.nombre}</div>
-        <div style="font-size: 0.875rem; color: var(--color-text-secondary);">Código: ${comp.codigo}</div>
-      </div>
+  productosComponentes.innerHTML =
+    componentesProductos
+      .map(
+        (componente, indice) => `
+          <div class="catalogo-component-item">
 
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <input
-          type="number"
-          min="1"
-          value="${comp.cantidad}"
-          style="width: 60px; padding: 0.5rem;"
-          data-index="${idx}"
-          data-type="cantidad-producto"
-        >
-        <div style="width: 100px; text-align: right;">
-          <div style="font-size: 0.875rem; color: var(--color-text-secondary);">Subtotal:</div>
-          <div style="font-weight: 500;">$${comp.subtotal.toFixed(2)}</div>
-        </div>
-        <button
-          type="button"
-          class="btn btn-sm btn-danger"
-          data-index="${idx}"
-          data-action="eliminar-producto"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
-  `).join('');
+            <div>
+              <strong>
+                ${componente.nombre}
+              </strong>
 
-  // Event listeners
-  productosComponentes.querySelectorAll('[data-type="cantidad-producto"]').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      actualizarCantidadProducto(idx, e.target.value);
+              <div class="catalogo-card-subtitle">
+                ${componente.codigo}
+              </div>
+
+              ${componente.activo !== 1 ? `
+                <span class="catalogo-badge estado-inactivo">
+                  Inactivo
+                </span>
+              ` : ''}
+            </div>
+
+            <input
+              type="number"
+              min="1"
+              value="${componente.cantidad}"
+              data-cantidad-producto="${indice}"
+              aria-label="Cantidad de ${componente.nombre}"
+            >
+
+            <div>
+              <div>
+                Referencia:
+                ${formatoMoneda(
+                  componente.precioUnitario
+                )}
+              </div>
+
+              <strong>
+                ${formatoMoneda(
+                  componente.subtotal
+                )}
+              </strong>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-eliminar-producto="${indice}"
+            >
+              Quitar
+            </button>
+
+          </div>
+        `
+      )
+      .join('');
+
+  productosComponentes
+    .querySelectorAll(
+      '[data-cantidad-producto]'
+    )
+    .forEach(input => {
+      input.addEventListener(
+        'change',
+        evento => {
+          actualizarCantidadProducto(
+            Number(
+              evento.target.dataset
+                .cantidadProducto
+            ),
+            evento.target.value
+          );
+        }
+      );
     });
-  });
 
-  productosComponentes.querySelectorAll('[data-action="eliminar-producto"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      eliminarComponentoProducto(parseInt(e.target.dataset.index));
+  productosComponentes
+    .querySelectorAll(
+      '[data-eliminar-producto]'
+    )
+    .forEach(boton => {
+      boton.addEventListener(
+        'click',
+        evento => {
+          eliminarProducto(
+            Number(
+              evento.currentTarget.dataset
+                .eliminarProducto
+            )
+          );
+        }
+      );
     });
-  });
 }
 
 function renderizarComponentesServicios() {
-  const { serviciosComponentes } = obtenerElementos();
-  if (!serviciosComponentes) return;
+  const {
+    serviciosComponentes
+  } = obtenerElementos();
 
-  if (componentesServicios.length === 0) {
-    serviciosComponentes.innerHTML = '<p style="color: var(--color-text-secondary); text-align: center; padding: 2rem;">No hay servicios agregados</p>';
+  if (
+    componentesServicios.length === 0
+  ) {
+    serviciosComponentes.innerHTML =
+      '<p class="catalogo-empty-text">No hay servicios agregados.</p>';
+
     return;
   }
 
-  serviciosComponentes.innerHTML = componentesServicios.map((comp, idx) => `
-    <div style="padding: 1rem; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
-      <div style="flex: 1;">
-        <div style="font-weight: 500;">${comp.nombre}</div>
-        <div style="font-size: 0.875rem; color: var(--color-text-secondary);">Código: ${comp.codigo}</div>
-      </div>
+  serviciosComponentes.innerHTML =
+    componentesServicios
+      .map(
+        (componente, indice) => `
+          <div class="catalogo-component-item">
 
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <input
-          type="number"
-          min="1"
-          value="${comp.cantidad}"
-          style="width: 60px; padding: 0.5rem;"
-          data-index="${idx}"
-          data-type="cantidad-servicio"
-        >
-        <div style="width: 100px; text-align: right;">
-          <div style="font-size: 0.875rem; color: var(--color-text-secondary);">Subtotal:</div>
-          <div style="font-weight: 500;">$${comp.subtotal.toFixed(2)}</div>
-        </div>
-        <button
-          type="button"
-          class="btn btn-sm btn-danger"
-          data-index="${idx}"
-          data-action="eliminar-servicio"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
-  `).join('');
+            <div>
+              <strong>
+                ${componente.nombre}
+              </strong>
 
-  // Event listeners
-  serviciosComponentes.querySelectorAll('[data-type="cantidad-servicio"]').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const idx = parseInt(e.target.dataset.index);
-      actualizarCantidadServicio(idx, e.target.value);
+              <div class="catalogo-card-subtitle">
+                ${componente.codigo}
+              </div>
+
+              ${componente.activo !== 1 ? `
+                <span class="catalogo-badge estado-inactivo">
+                  Inactivo
+                </span>
+              ` : ''}
+            </div>
+
+            <input
+              type="number"
+              min="1"
+              value="${componente.cantidad}"
+              data-cantidad-servicio="${indice}"
+              aria-label="Cantidad de ${componente.nombre}"
+            >
+
+            <div>
+              <div>
+                Tarifa:
+                ${formatoMoneda(
+                  componente.tarifa
+                )}
+              </div>
+
+              <strong>
+                ${formatoMoneda(
+                  componente.subtotal
+                )}
+              </strong>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-eliminar-servicio="${indice}"
+            >
+              Quitar
+            </button>
+
+          </div>
+        `
+      )
+      .join('');
+
+  serviciosComponentes
+    .querySelectorAll(
+      '[data-cantidad-servicio]'
+    )
+    .forEach(input => {
+      input.addEventListener(
+        'change',
+        evento => {
+          actualizarCantidadServicio(
+            Number(
+              evento.target.dataset
+                .cantidadServicio
+            ),
+            evento.target.value
+          );
+        }
+      );
     });
-  });
 
-  serviciosComponentes.querySelectorAll('[data-action="eliminar-servicio"]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      eliminarComponentoServicio(parseInt(e.target.dataset.index));
+  serviciosComponentes
+    .querySelectorAll(
+      '[data-eliminar-servicio]'
+    )
+    .forEach(boton => {
+      boton.addEventListener(
+        'click',
+        evento => {
+          eliminarServicio(
+            Number(
+              evento.currentTarget.dataset
+                .eliminarServicio
+            )
+          );
+        }
+      );
     });
-  });
 }
 
 function actualizarResumen() {
@@ -491,36 +859,72 @@ function actualizarResumen() {
     resumenTotalComponentes,
     resumenSubtotal,
     resumenPrecioRegistrado,
-    resumenDiferencia
+    resumenDiferencia,
+    precio
   } = obtenerElementos();
 
-  const totalProductos = componentesProductos.length;
-  const totalServicios = componentesServicios.length;
-  const totalComponentes = totalProductos + totalServicios;
+  const subtotalProductos =
+    componentesProductos
+      .reduce(
+        (total, componente) =>
+          total +
+          Number(
+            componente.subtotal || 0
+          ),
+        0
+      );
 
-  const subtotal = [
-    ...componentesProductos.map(p => p.subtotal || 0),
-    ...componentesServicios.map(s => s.subtotal || 0)
-  ].reduce((a, b) => a + b, 0);
+  const subtotalServicios =
+    componentesServicios
+      .reduce(
+        (total, componente) =>
+          total +
+          Number(
+            componente.subtotal || 0
+          ),
+        0
+      );
 
-  const { precio } = obtenerElementos();
-  const precioRegistrado = parseFloat(precio?.value) || 0;
-  const diferencia = precioRegistrado - subtotal;
+  const subtotal =
+    subtotalProductos +
+    subtotalServicios;
 
-  if (resumenTotalProductos) resumenTotalProductos.textContent = totalProductos;
-  if (resumenTotalServicios) resumenTotalServicios.textContent = totalServicios;
-  if (resumenTotalComponentes) resumenTotalComponentes.textContent = totalComponentes;
-  if (resumenSubtotal) resumenSubtotal.textContent = `$${subtotal.toFixed(2)}`;
-  if (resumenPrecioRegistrado) resumenPrecioRegistrado.textContent = `$${precioRegistrado.toFixed(2)}`;
-  if (resumenDiferencia) resumenDiferencia.textContent = `$${Math.abs(diferencia).toFixed(2)}`;
+  const precioRegistrado =
+    Number(
+      precio?.value || 0
+    );
+
+  resumenTotalProductos.textContent =
+    componentesProductos.length;
+
+  resumenTotalServicios.textContent =
+    componentesServicios.length;
+
+  resumenTotalComponentes.textContent =
+    componentesProductos.length +
+    componentesServicios.length;
+
+  resumenSubtotal.textContent =
+    formatoMoneda(subtotal);
+
+  resumenPrecioRegistrado.textContent =
+    formatoMoneda(
+      precioRegistrado
+    );
+
+  resumenDiferencia.textContent =
+    formatoMoneda(
+      precioRegistrado -
+      subtotal
+    );
 }
 
-// ============================================================================
-// ENVÍO DEL FORMULARIO
-// ============================================================================
+async function manejarEnvio(
+  evento
+) {
+  evento.preventDefault();
 
-async function manejarEnvio(e) {
-  e.preventDefault();
+  limpiarErrores();
 
   const {
     codigo,
@@ -530,95 +934,162 @@ async function manejarEnvio(e) {
     activo
   } = obtenerElementos();
 
+  if (
+    activo.checked &&
+    tieneComponentesInactivos()
+  ) {
+    activo.checked = false;
+
+    showNotification(
+      'No puede activar el paquete mientras tenga componentes inactivos.',
+      { type: 'error' }
+    );
+
+    return;
+  }
+
+  const datos = {
+    codigo:
+      codigo.value.trim(),
+
+    nombre:
+      nombre.value.trim(),
+
+    descripcion:
+      descripcion.value.trim(),
+
+    precio:
+      Number(precio.value),
+
+    activo:
+      Boolean(activo.checked),
+
+    detalleProductos:
+      componentesProductos,
+
+    detalleServicios:
+      componentesServicios
+  };
+
   try {
     showLoader();
-    limpiarErrores();
 
-    // Validar que hay componentes
-    if (componentesProductos.length === 0 && componentesServicios.length === 0) {
-      showNotification('El paquete debe tener al menos un componente', { type: 'error' });
-      hideLoader();
-      return;
-    }
+    let resultado;
 
-    // Obtener datos
-    const datos = {
-      codigo: codigo?.value.trim() || '',
-      nombre: nombre?.value.trim() || '',
-      descripcion: descripcion?.value.trim() || '',
-      precio: parseFloat(precio?.value) || 0,
-      detalleProductos: componentesProductos,
-      detalleServicios: componentesServicios,
-      activo: activo?.checked || false
-    };
+    if (
+      esEdicion &&
+      paqueteActual
+    ) {
+      resultado =
+        await actualizarPaquete(
+          paqueteActual.idPaquete,
+          datos
+        );
 
-    // Guardar
-    if (esEdicion && paqueteActual) {
-      await actualizarPaquete(
-        paqueteActual.idPaquete,
-        datos
+      showNotification(
+        MENSAJES.PAQUETE_ACTUALIZADO,
+        { type: 'success' }
       );
-      showNotification(MENSAJES.PAQUETE_ACTUALIZADO, { type: 'success' });
+
     } else {
-      await registrarPaquete(datos);
-      showNotification(MENSAJES.PAQUETE_REGISTRADO, { type: 'success' });
+      resultado =
+        await registrarPaquete(
+          datos
+        );
+
+      showNotification(
+        MENSAJES.PAQUETE_REGISTRADO,
+        { type: 'success' }
+      );
     }
 
-    // Redirigir
-    setTimeout(() => {
-      window.location.hash = '#/catalogo/paquetes';
-    }, 1500);
+    window.location.hash =
+      `#/catalogo/paquetes/detalle?id=${resultado.idPaquete}`;
 
   } catch (error) {
-    console.error('Error guardando paquete:', error);
+    if (
+      Array.isArray(
+        error.detalles
+      )
+    ) {
+      let mostrado = false;
 
-    if (error.detalles && Array.isArray(error.detalles)) {
-      error.detalles.forEach(err => {
-        mostrarError(err.campo, err.mensaje);
-      });
+      error.detalles.forEach(
+        detalle => {
+          const encontrado =
+            mostrarError(
+              detalle.campo,
+              detalle.mensaje
+            );
+
+          mostrado =
+            mostrado ||
+            encontrado;
+        }
+      );
+
+      if (!mostrado) {
+        showNotification(
+          error.detalles[0]?.mensaje ||
+          error.message,
+          { type: 'error' }
+        );
+      }
+
     } else {
-      showNotification(error.message || 'Error desconocido', { type: 'error' });
+      showNotification(
+        error.message ||
+        'No fue posible guardar el paquete.',
+        { type: 'error' }
+      );
     }
+
   } finally {
     hideLoader();
   }
 }
 
-// ============================================================================
-// INICIALIZACIÓN
-// ============================================================================
-
 export async function init() {
-  // Validar autenticación y permisos
   if (!requireAuth()) return;
 
   renderNavegacionCatalogo();
 
-  const session = getSession();
-  const idPaquete = obtenerIdPaquete();
+  const session =
+    getSession();
 
-  // Verificar permisos
-  const permiso = idPaquete
-    ? PERMISOS_CATALOGO.PAQUETES_MODIFICAR
-    : PERMISOS_CATALOGO.PAQUETES_REGISTRAR;
+  const idPaquete =
+    obtenerIdPaquete();
 
-  if (!hasPermission(session, permiso)) {
-    showNotification('No tiene permisos para acceder a esta página', { type: 'error' });
-    setTimeout(() => {
-      window.location.hash = '#/catalogo/paquetes';
-    }, 2000);
+  const permiso =
+    idPaquete
+      ? PERMISOS_CATALOGO.PAQUETES_MODIFICAR
+      : PERMISOS_CATALOGO.PAQUETES_REGISTRAR;
+
+  if (
+    !hasPermission(
+      session,
+      permiso
+    )
+  ) {
+    showNotification(
+      'No tiene permisos para administrar paquetes.',
+      { type: 'error' }
+    );
+
+    window.location.hash =
+      '#/catalogo/paquetes';
+
     return;
   }
 
-  // Cargar productos y servicios disponibles
-  await cargarProductosYServicios();
+  await cargarCatalogos();
 
-  // Cargar paquete si es edición
   if (idPaquete) {
-    await cargarPaquete(idPaquete);
+    await cargarPaquete(
+      idPaquete
+    );
   }
 
-  // Configurar event listeners
   const {
     form,
     btnCancelar,
@@ -626,32 +1097,78 @@ export async function init() {
     btnAgregarServicio,
     buscarProductos,
     buscarServicios,
-    precio
+    precio,
+    activo
   } = obtenerElementos();
 
-  if (form) form.addEventListener('submit', manejarEnvio);
-  if (btnCancelar) btnCancelar.addEventListener('click', () => {
-    window.location.hash = '#/catalogo/paquetes';
-  });
+  form.addEventListener(
+    'submit',
+    manejarEnvio
+  );
 
-  if (btnAgregarProducto) btnAgregarProducto.addEventListener('click', manejarAgregarProducto);
-  if (btnAgregarServicio) btnAgregarServicio.addEventListener('click', manejarAgregarServicio);
+  btnCancelar.addEventListener(
+    'click',
+    () => {
+      window.location.hash =
+        '#/catalogo/paquetes';
+    }
+  );
 
-  // Permitir agregar con Enter
-  if (buscarProductos) {
-    buscarProductos.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') manejarAgregarProducto();
-    });
-  }
+  btnAgregarProducto.addEventListener(
+    'click',
+    manejarAgregarProducto
+  );
 
-  if (buscarServicios) {
-    buscarServicios.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') manejarAgregarServicio();
-    });
-  }
+  btnAgregarServicio.addEventListener(
+    'click',
+    manejarAgregarServicio
+  );
 
-  // Actualizar resumen al cambiar precio
-  if (precio) {
-    precio.addEventListener('input', actualizarResumen);
-  }
+  buscarProductos.addEventListener(
+    'keydown',
+    evento => {
+      if (
+        evento.key === 'Enter'
+      ) {
+        evento.preventDefault();
+        manejarAgregarProducto();
+      }
+    }
+  );
+
+  buscarServicios.addEventListener(
+    'keydown',
+    evento => {
+      if (
+        evento.key === 'Enter'
+      ) {
+        evento.preventDefault();
+        manejarAgregarServicio();
+      }
+    }
+  );
+
+  precio.addEventListener(
+    'input',
+    actualizarResumen
+  );
+
+  activo.addEventListener(
+    'change',
+    () => {
+      if (
+        activo.checked &&
+        tieneComponentesInactivos()
+      ) {
+        activo.checked = false;
+
+        showNotification(
+          'El paquete tiene componentes inactivos y no puede activarse.',
+          { type: 'error' }
+        );
+      }
+    }
+  );
+
+  actualizarResumen();
 }

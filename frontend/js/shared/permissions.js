@@ -40,6 +40,7 @@ export const ROLE_PERMISSIONS = {
     'catalogo.paquetes.modificar',
     'catalogo.paquetes.desactivar',
     'catalogo.auxiliares.gestionar',
+    'catalogo.precios.gestionar',
 
     'inventario.consultar',
 
@@ -71,6 +72,7 @@ export const ROLE_PERMISSIONS = {
     'catalogo.paquetes.modificar',
     'catalogo.paquetes.desactivar',
     'catalogo.auxiliares.gestionar',
+    'catalogo.precios.gestionar',
 
     'inventario.consultar',
     'inventario.gestionar',

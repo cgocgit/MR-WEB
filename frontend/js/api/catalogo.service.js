@@ -7,6 +7,7 @@ import {
   PRODUCTOS_MOCK,
   SERVICIOS_MOCK,
   PAQUETES_MOCK,
+  LISTAS_PRECIOS_MOCK,
   clonarDatos,
   obtenerProductoPorId,
   obtenerServicioPorId,
@@ -484,54 +485,551 @@ export async function cambiarEstadoServicio(id, activo) {
 // OPERACIONES PAQUETES
 // ====================
 
-/**
- * Listar paquetes con filtros opcionales
- */
-export async function listarPaquetes(filtros = {}) {
-  await simularLatencia(200);
-  
-  let resultado = clonarDatos(PAQUETES_MOCK);
-  
-  // Aplicar filtros
-  if (filtros.codigo) {
-    const codigo = filtros.codigo.toLowerCase();
-    resultado = resultado.filter(p => p.codigo.toLowerCase().includes(codigo));
-  }
-  
-  if (filtros.nombre) {
-    const nombre = filtros.nombre.toLowerCase();
-    resultado = resultado.filter(p => p.nombre.toLowerCase().includes(nombre));
-  }
-  
-  if (filtros.estado !== undefined && filtros.estado !== null && filtros.estado !== '') {
-    resultado = resultado.filter(p => p.activo === parseInt(filtros.estado));
-  }
-  
-  if (filtros.soloActivos === true) {
-    resultado = resultado.filter(p => p.activo === 1);
-  }
-  
-  // Ordenar
-  resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  
-  // Paginar
-  const skip = filtros.skip || 0;
-  const limit = filtros.limit || 10;
-  const total = resultado.length;
-  const items = resultado.slice(skip, skip + limit);
-  
-  return { items, total, skip, limit };
+function enriquecerPaquete(paquete) {
+  const detalleProductos =
+    (paquete.detalleProductos || []).map(detalle => {
+      const producto =
+        PRODUCTOS_MOCK.find(
+          item =>
+            item.idProducto ===
+            Number(detalle.idProducto)
+        );
+
+      return {
+        ...detalle,
+        idProducto:
+          Number(detalle.idProducto),
+
+        codigo:
+          producto?.codigo ||
+          `Producto ${detalle.idProducto}`,
+
+        nombre:
+          producto?.nombre ||
+          'Producto no disponible',
+
+        activo:
+          producto?.activo === 1 ? 1 : 0,
+
+        existe:
+          Boolean(producto)
+      };
+    });
+
+  const detalleServicios =
+    (paquete.detalleServicios || []).map(detalle => {
+      const servicio =
+        SERVICIOS_MOCK.find(
+          item =>
+            item.idServicio ===
+            Number(detalle.idServicio)
+        );
+
+      return {
+        ...detalle,
+        idServicio:
+          Number(detalle.idServicio),
+
+        codigo:
+          servicio?.codigo ||
+          `Servicio ${detalle.idServicio}`,
+
+        nombre:
+          servicio?.nombre ||
+          'Servicio no disponible',
+
+        activo:
+          servicio?.activo === 1 ? 1 : 0,
+
+        existe:
+          Boolean(servicio)
+      };
+    });
+
+  const totalCalculado = [
+    ...detalleProductos.map(
+      detalle =>
+        Number(detalle.subtotal || 0)
+    ),
+    ...detalleServicios.map(
+      detalle =>
+        Number(detalle.subtotal || 0)
+    )
+  ].reduce(
+    (total, subtotal) =>
+      total + subtotal,
+    0
+  );
+
+  return {
+    ...clonarDatos(paquete),
+
+    detalleProductos,
+    detalleServicios,
+
+    totalProductos:
+      detalleProductos.length,
+
+    totalServicios:
+      detalleServicios.length,
+
+    totalComponentes:
+      detalleProductos.length +
+      detalleServicios.length,
+
+    totalCalculado,
+
+    tieneComponentesInactivos:
+      detalleProductos.some(
+        detalle =>
+          detalle.activo !== 1
+      ) ||
+      detalleServicios.some(
+        detalle =>
+          detalle.activo !== 1
+      )
+  };
 }
 
-/**
- * Obtener paquete con sus detalles
- */
+function prepararDetallesPaquete(
+  datos,
+  idPaquete
+) {
+  const idsProductos =
+    PAQUETES_MOCK.flatMap(
+      paquete =>
+        paquete.detalleProductos || []
+    )
+      .map(
+        detalle =>
+          Number(
+            detalle.idDetallePaqueteProducto || 0
+          )
+      );
+
+  const idsServicios =
+    PAQUETES_MOCK.flatMap(
+      paquete =>
+        paquete.detalleServicios || []
+    )
+      .map(
+        detalle =>
+          Number(
+            detalle.idDetallePaqueteServicio || 0
+          )
+      );
+
+  let siguienteProducto =
+    Math.max(
+      ...idsProductos,
+      4000
+    ) + 1;
+
+  let siguienteServicio =
+    Math.max(
+      ...idsServicios,
+      5000
+    ) + 1;
+
+  const detalleProductos =
+    (datos.detalleProductos || [])
+      .map(detalle => {
+        const cantidad =
+          Number(detalle.cantidad);
+
+        const precioUnitario =
+          Number(detalle.precioUnitario);
+
+        return {
+          idDetallePaqueteProducto:
+            detalle.idDetallePaqueteProducto ||
+            siguienteProducto++,
+
+          idPaquete,
+
+          idProducto:
+            Number(detalle.idProducto),
+
+          cantidad,
+
+          precioUnitario,
+
+          subtotal:
+            cantidad * precioUnitario
+        };
+      });
+
+  const detalleServicios =
+    (datos.detalleServicios || [])
+      .map(detalle => {
+        const cantidad =
+          Number(detalle.cantidad);
+
+        const tarifa =
+          Number(detalle.tarifa);
+
+        return {
+          idDetallePaqueteServicio:
+            detalle.idDetallePaqueteServicio ||
+            siguienteServicio++,
+
+          idPaquete,
+
+          idServicio:
+            Number(detalle.idServicio),
+
+          cantidad,
+
+          tarifa,
+
+          subtotal:
+            cantidad * tarifa
+        };
+      });
+
+  return {
+    detalleProductos,
+    detalleServicios
+  };
+}
+
+function validarPaquete(datos) {
+  const errores = [];
+
+  if (
+    !datos.codigo ||
+    datos.codigo.trim() === ''
+  ) {
+    errores.push({
+      campo: 'codigo',
+      mensaje: 'Código es requerido'
+    });
+  } else if (
+    datos.codigo.length >
+    LIMITES_CAMPOS.CODIGO_PAQUETE.max
+  ) {
+    errores.push({
+      campo: 'codigo',
+      mensaje:
+        `Código máximo ${LIMITES_CAMPOS.CODIGO_PAQUETE.max} caracteres`
+    });
+  }
+
+  if (
+    !datos.nombre ||
+    datos.nombre.trim() === ''
+  ) {
+    errores.push({
+      campo: 'nombre',
+      mensaje: 'Nombre es requerido'
+    });
+  } else if (
+    datos.nombre.length >
+    LIMITES_CAMPOS.NOMBRE.max
+  ) {
+    errores.push({
+      campo: 'nombre',
+      mensaje:
+        `Nombre máximo ${LIMITES_CAMPOS.NOMBRE.max} caracteres`
+    });
+  }
+
+  if (
+    datos.descripcion &&
+    datos.descripcion.length >
+    LIMITES_CAMPOS.DESCRIPCION.max
+  ) {
+    errores.push({
+      campo: 'descripcion',
+      mensaje:
+        `Descripción máximo ${LIMITES_CAMPOS.DESCRIPCION.max} caracteres`
+    });
+  }
+
+  if (
+    typeof datos.precio !== 'number' ||
+    Number.isNaN(datos.precio) ||
+    datos.precio < 0
+  ) {
+    errores.push({
+      campo: 'precio',
+      mensaje:
+        'Precio debe ser un número mayor o igual a cero'
+    });
+  }
+
+  const productos =
+    datos.detalleProductos || [];
+
+  const servicios =
+    datos.detalleServicios || [];
+
+  if (
+    productos.length === 0 &&
+    servicios.length === 0
+  ) {
+    errores.push({
+      campo: 'componentes',
+      mensaje:
+        MENSAJES.PAQUETE_SIN_COMPONENTES
+    });
+  }
+
+  productos.forEach(
+    (detalle, indice) => {
+      const producto =
+        PRODUCTOS_MOCK.find(
+          item =>
+            item.idProducto ===
+            Number(detalle.idProducto)
+        );
+
+      if (!producto) {
+        errores.push({
+          campo: 'componentes',
+          mensaje:
+            `Producto ${indice + 1} no existe`
+        });
+
+        return;
+      }
+
+      if (
+        !Number.isFinite(
+          Number(detalle.cantidad)
+        ) ||
+        Number(detalle.cantidad) <= 0
+      ) {
+        errores.push({
+          campo: 'componentes',
+          mensaje:
+            `Producto ${indice + 1}: cantidad inválida`
+        });
+      }
+
+      if (
+        !Number.isFinite(
+          Number(detalle.precioUnitario)
+        ) ||
+        Number(detalle.precioUnitario) < 0
+      ) {
+        errores.push({
+          campo: 'componentes',
+          mensaje:
+            `Producto ${indice + 1}: precio inválido`
+        });
+      }
+
+      if (
+        datos.activo &&
+        producto.activo !== 1
+      ) {
+        errores.push({
+          campo: 'activo',
+          mensaje:
+            `No puede activarse el paquete porque el producto "${producto.nombre}" está inactivo`
+        });
+      }
+    }
+  );
+
+  servicios.forEach(
+    (detalle, indice) => {
+      const servicio =
+        SERVICIOS_MOCK.find(
+          item =>
+            item.idServicio ===
+            Number(detalle.idServicio)
+        );
+
+      if (!servicio) {
+        errores.push({
+          campo: 'componentes',
+          mensaje:
+            `Servicio ${indice + 1} no existe`
+        });
+
+        return;
+      }
+
+      if (
+        !Number.isFinite(
+          Number(detalle.cantidad)
+        ) ||
+        Number(detalle.cantidad) <= 0
+      ) {
+        errores.push({
+          campo: 'componentes',
+          mensaje:
+            `Servicio ${indice + 1}: cantidad inválida`
+        });
+      }
+
+      if (
+        !Number.isFinite(
+          Number(detalle.tarifa)
+        ) ||
+        Number(detalle.tarifa) < 0
+      ) {
+        errores.push({
+          campo: 'componentes',
+          mensaje:
+            `Servicio ${indice + 1}: tarifa inválida`
+        });
+      }
+
+      if (
+        datos.activo &&
+        servicio.activo !== 1
+      ) {
+        errores.push({
+          campo: 'activo',
+          mensaje:
+            `No puede activarse el paquete porque el servicio "${servicio.nombre}" está inactivo`
+        });
+      }
+    }
+  );
+
+  return errores;
+}
+
+export async function listarPaquetes(
+  filtros = {}
+) {
+  await simularLatencia(200);
+
+  let resultado =
+    PAQUETES_MOCK.map(
+      enriquecerPaquete
+    );
+
+  if (filtros.texto) {
+    const texto =
+      filtros.texto
+        .toLowerCase()
+        .trim();
+
+    resultado = resultado.filter(
+      paquete =>
+        paquete.codigo
+          ?.toLowerCase()
+          .includes(texto) ||
+        paquete.nombre
+          ?.toLowerCase()
+          .includes(texto) ||
+        paquete.descripcion
+          ?.toLowerCase()
+          .includes(texto)
+    );
+  }
+
+  if (filtros.componente === 'productos') {
+    resultado = resultado.filter(
+      paquete =>
+        paquete.totalProductos > 0 &&
+        paquete.totalServicios === 0
+    );
+  }
+
+  if (filtros.componente === 'servicios') {
+    resultado = resultado.filter(
+      paquete =>
+        paquete.totalServicios > 0 &&
+        paquete.totalProductos === 0
+    );
+  }
+
+  if (filtros.componente === 'ambos') {
+    resultado = resultado.filter(
+      paquete =>
+        paquete.totalProductos > 0 &&
+        paquete.totalServicios > 0
+    );
+  }
+
+  if (
+    filtros.precioMin !== undefined &&
+    filtros.precioMin !== null &&
+    filtros.precioMin !== ''
+  ) {
+    resultado = resultado.filter(
+      paquete =>
+        Number(paquete.precio) >=
+        Number(filtros.precioMin)
+    );
+  }
+
+  if (
+    filtros.precioMax !== undefined &&
+    filtros.precioMax !== null &&
+    filtros.precioMax !== ''
+  ) {
+    resultado = resultado.filter(
+      paquete =>
+        Number(paquete.precio) <=
+        Number(filtros.precioMax)
+    );
+  }
+
+  if (
+    filtros.estado !== undefined &&
+    filtros.estado !== null &&
+    filtros.estado !== ''
+  ) {
+    resultado = resultado.filter(
+      paquete =>
+        paquete.activo ===
+        Number(filtros.estado)
+    );
+  }
+
+  if (filtros.soloActivos === true) {
+    resultado = resultado.filter(
+      paquete =>
+        paquete.activo === 1
+    );
+  }
+
+  resultado.sort(
+    (a, b) =>
+      a.nombre.localeCompare(b.nombre)
+  );
+
+  const skip =
+    Number(filtros.skip || 0);
+
+  const limit =
+    Number(filtros.limit || 10);
+
+  const total =
+    resultado.length;
+
+  return {
+    items:
+      resultado.slice(
+        skip,
+        skip + limit
+      ),
+    total,
+    skip,
+    limit
+  };
+}
+
 export async function obtenerPaquete(id) {
   await simularLatencia(150);
 
-  const idPaquete = normalizarId(id, 'paquete');
+  const idPaquete =
+    normalizarId(
+      id,
+      'paquete'
+    );
 
-  const paquete = obtenerPaquetePorId(idPaquete);
+  const paquete =
+    obtenerPaquetePorId(
+      idPaquete
+    );
 
   if (!paquete) {
     throw crearError(
@@ -540,67 +1038,18 @@ export async function obtenerPaquete(id) {
     );
   }
 
-  return paquete;
-}
-
-/**
- * Registrar nuevo paquete con sus componentes
- */
-export async function registrarPaquete(datos) {
-  await simularLatencia(300);
-  
-  // Validaciones
-  const errores = validarPaquete(datos, null);
-  if (errores.length > 0) {
-    throw crearError('VALIDACION_ERROR', MENSAJES.VALIDACION_ERROR, errores);
-  }
-  
-  // Verificar código duplicado
-  if (existeCodigoPaquete(datos.codigo)) {
-    throw crearError('CODIGO_DUPLICADO', MENSAJES.PAQUETE_CODIGO_DUPLICADO);
-  }
-  
-  // Generar nuevo paquete
-  const nuevoPaquete = {
-    idPaquete: Math.max(...PAQUETES_MOCK.map(p => p.idPaquete), 0) + 1,
-    codigo: datos.codigo,
-    nombre: datos.nombre,
-    descripcion: datos.descripcion || '',
-    precio: datos.precio || 0,
-    activo: ESTADO_REGISTRO.ACTIVO,
-    fechaRegistro: new Date(),
-    creadoPor: obtenerUsuarioActual(),
-    fechaModificacion: new Date(),
-    modificadoPor: obtenerUsuarioActual(),
-    estadoRegistro: ESTADO_REGISTRO.ACTIVO,
-    detalleProductos: datos.detalleProductos || [],
-    detalleServicios: datos.detalleServicios || []
-  };
-  
-  PAQUETES_MOCK.push(nuevoPaquete);
-  return clonarDatos(nuevoPaquete);
-}
-
-/**
- * Actualizar paquete y sus componentes
- */
-export async function actualizarPaquete(id, datos) {
-  await simularLatencia(300);
-
-  const idPaquete = normalizarId(id, 'paquete');
-
-  const indice = PAQUETES_MOCK.findIndex(
-    paquete => paquete.idPaquete === idPaquete
+  return enriquecerPaquete(
+    paquete
   );
+}
 
-  if (indice === -1) {
-    throw crearError(
-      'PAQUETE_NO_ENCONTRADO',
-      MENSAJES.PAQUETE_NO_ENCONTRADO
-    );
-  }
+export async function registrarPaquete(
+  datos
+) {
+  await simularLatencia(300);
 
-  const errores = validarPaquete(datos, idPaquete);
+  const errores =
+    validarPaquete(datos);
 
   if (errores.length > 0) {
     throw crearError(
@@ -611,8 +1060,9 @@ export async function actualizarPaquete(id, datos) {
   }
 
   if (
-    datos.codigo !== PAQUETES_MOCK[indice].codigo &&
-    existeCodigoPaquete(datos.codigo, idPaquete)
+    existeCodigoPaquete(
+      datos.codigo
+    )
   ) {
     throw crearError(
       'CODIGO_DUPLICADO',
@@ -620,31 +1070,94 @@ export async function actualizarPaquete(id, datos) {
     );
   }
 
-  const paqueteActualizado = {
-    ...PAQUETES_MOCK[indice],
-    ...datos,
+  const idPaquete =
+    Math.max(
+      ...PAQUETES_MOCK.map(
+        paquete =>
+          paquete.idPaquete
+      ),
+      0
+    ) + 1;
+
+  const detalles =
+    prepararDetallesPaquete(
+      datos,
+      idPaquete
+    );
+
+  const ahora =
+    new Date();
+
+  const usuario =
+    obtenerUsuarioActual();
+
+  const nuevoPaquete = {
     idPaquete,
-    fechaModificacion: new Date(),
-    modificadoPor: obtenerUsuarioActual(),
-    estadoRegistro: ESTADO_REGISTRO.ACTIVO
+
+    codigo:
+      datos.codigo.trim(),
+
+    nombre:
+      datos.nombre.trim(),
+
+    descripcion:
+      datos.descripcion?.trim() || '',
+
+    precio:
+      Number(datos.precio),
+
+    activo:
+      datos.activo ? 1 : 0,
+
+    fechaRegistro:
+      ahora,
+
+    creadoPor:
+      usuario,
+
+    fechaModificacion:
+      ahora,
+
+    modificadoPor:
+      usuario,
+
+    estadoRegistro:
+      ESTADO_REGISTRO.ACTIVO,
+
+    detalleProductos:
+      detalles.detalleProductos,
+
+    detalleServicios:
+      detalles.detalleServicios
   };
 
-  PAQUETES_MOCK[indice] = paqueteActualizado;
+  PAQUETES_MOCK.push(
+    nuevoPaquete
+  );
 
-  return clonarDatos(paqueteActualizado);
+  return enriquecerPaquete(
+    nuevoPaquete
+  );
 }
 
-/**
- * Cambiar estado activo/inactivo de paquete
- */
-export async function cambiarEstadoPaquete(id, activo) {
-  await simularLatencia(200);
+export async function actualizarPaquete(
+  id,
+  datos
+) {
+  await simularLatencia(300);
 
-  const idPaquete = normalizarId(id, 'paquete');
+  const idPaquete =
+    normalizarId(
+      id,
+      'paquete'
+    );
 
-  const indice = PAQUETES_MOCK.findIndex(
-    paquete => paquete.idPaquete === idPaquete
-  );
+  const indice =
+    PAQUETES_MOCK.findIndex(
+      paquete =>
+        paquete.idPaquete ===
+        idPaquete
+    );
 
   if (indice === -1) {
     throw crearError(
@@ -653,11 +1166,529 @@ export async function cambiarEstadoPaquete(id, activo) {
     );
   }
 
-  PAQUETES_MOCK[indice].activo = activo ? 1 : 0;
-  PAQUETES_MOCK[indice].fechaModificacion = new Date();
-  PAQUETES_MOCK[indice].modificadoPor = obtenerUsuarioActual();
+  const errores =
+    validarPaquete(datos);
 
-  return clonarDatos(PAQUETES_MOCK[indice]);
+  if (errores.length > 0) {
+    throw crearError(
+      'VALIDACION_ERROR',
+      MENSAJES.VALIDACION_ERROR,
+      errores
+    );
+  }
+
+  if (
+    existeCodigoPaquete(
+      datos.codigo,
+      idPaquete
+    )
+  ) {
+    throw crearError(
+      'CODIGO_DUPLICADO',
+      MENSAJES.PAQUETE_CODIGO_DUPLICADO
+    );
+  }
+
+  const detalles =
+    prepararDetallesPaquete(
+      datos,
+      idPaquete
+    );
+
+  const paqueteActualizado = {
+    ...PAQUETES_MOCK[indice],
+
+    codigo:
+      datos.codigo.trim(),
+
+    nombre:
+      datos.nombre.trim(),
+
+    descripcion:
+      datos.descripcion?.trim() || '',
+
+    precio:
+      Number(datos.precio),
+
+    activo:
+      datos.activo ? 1 : 0,
+
+    detalleProductos:
+      detalles.detalleProductos,
+
+    detalleServicios:
+      detalles.detalleServicios,
+
+    fechaModificacion:
+      new Date(),
+
+    modificadoPor:
+      obtenerUsuarioActual(),
+
+    estadoRegistro:
+      ESTADO_REGISTRO.ACTIVO
+  };
+
+  PAQUETES_MOCK[indice] =
+    paqueteActualizado;
+
+  return enriquecerPaquete(
+    paqueteActualizado
+  );
+}
+
+export async function cambiarEstadoPaquete(
+  id,
+  activo
+) {
+  await simularLatencia(200);
+
+  const idPaquete =
+    normalizarId(
+      id,
+      'paquete'
+    );
+
+  const indice =
+    PAQUETES_MOCK.findIndex(
+      paquete =>
+        paquete.idPaquete ===
+        idPaquete
+    );
+
+  if (indice === -1) {
+    throw crearError(
+      'PAQUETE_NO_ENCONTRADO',
+      MENSAJES.PAQUETE_NO_ENCONTRADO
+    );
+  }
+
+  if (activo) {
+    const paquete =
+      enriquecerPaquete(
+        PAQUETES_MOCK[indice]
+      );
+
+    if (
+      paquete.tieneComponentesInactivos
+    ) {
+      throw crearError(
+        'COMPONENTES_INACTIVOS',
+        'No puede activarse el paquete mientras contenga productos o servicios inactivos.'
+      );
+    }
+  }
+
+  PAQUETES_MOCK[indice].activo =
+    activo ? 1 : 0;
+
+  PAQUETES_MOCK[indice].fechaModificacion =
+    new Date();
+
+  PAQUETES_MOCK[indice].modificadoPor =
+    obtenerUsuarioActual();
+
+  return enriquecerPaquete(
+    PAQUETES_MOCK[indice]
+  );
+}
+
+// ====================
+// OPERACIONES LISTAS DE PRECIOS
+// ====================
+
+function existeNombreListaPrecio(
+  nombre,
+  excluyendoId = null
+) {
+  const valor =
+    String(nombre || '')
+      .trim()
+      .toLowerCase();
+
+  return LISTAS_PRECIOS_MOCK.some(
+    lista =>
+      String(lista.nombre || '')
+        .trim()
+        .toLowerCase() === valor &&
+      (
+        excluyendoId === null ||
+        lista.idListaPrecio !==
+          Number(excluyendoId)
+      )
+  );
+}
+
+function validarListaPrecio(datos) {
+  const errores = [];
+
+  if (
+    !datos.nombre ||
+    datos.nombre.trim() === ''
+  ) {
+    errores.push({
+      campo: 'nombre',
+      mensaje:
+        'Nombre es requerido'
+    });
+  } else if (
+    datos.nombre.length > 150
+  ) {
+    errores.push({
+      campo: 'nombre',
+      mensaje:
+        'Nombre máximo 150 caracteres'
+    });
+  }
+
+  if (
+    datos.descripcion &&
+    datos.descripcion.length > 255
+  ) {
+    errores.push({
+      campo: 'descripcion',
+      mensaje:
+        'Descripción máximo 255 caracteres'
+    });
+  }
+
+  if (!datos.vigenciaInicio) {
+    errores.push({
+      campo: 'vigenciaInicio',
+      mensaje:
+        'Inicio de vigencia es requerido'
+    });
+  }
+
+  if (!datos.vigenciaFin) {
+    errores.push({
+      campo: 'vigenciaFin',
+      mensaje:
+        'Fin de vigencia es requerido'
+    });
+  }
+
+  if (
+    datos.vigenciaInicio &&
+    datos.vigenciaFin &&
+    datos.vigenciaFin <
+      datos.vigenciaInicio
+  ) {
+    errores.push({
+      campo: 'vigenciaFin',
+      mensaje:
+        'Fin de vigencia no puede ser anterior al inicio'
+    });
+  }
+
+  return errores;
+}
+
+export async function listarListasPrecio(
+  filtros = {}
+) {
+  await simularLatencia(200);
+
+  let resultado =
+    clonarDatos(
+      LISTAS_PRECIOS_MOCK
+    );
+
+  if (filtros.texto) {
+    const texto =
+      filtros.texto
+        .trim()
+        .toLowerCase();
+
+    resultado =
+      resultado.filter(
+        lista =>
+          lista.nombre
+            ?.toLowerCase()
+            .includes(texto) ||
+          lista.descripcion
+            ?.toLowerCase()
+            .includes(texto)
+      );
+  }
+
+  if (
+    filtros.estado !== undefined &&
+    filtros.estado !== null &&
+    filtros.estado !== ''
+  ) {
+    resultado =
+      resultado.filter(
+        lista =>
+          lista.activo ===
+          Number(filtros.estado)
+      );
+  }
+
+  if (
+    filtros.soloActivos === true
+  ) {
+    resultado =
+      resultado.filter(
+        lista =>
+          lista.activo === 1
+      );
+  }
+
+  resultado.sort(
+    (a, b) =>
+      a.nombre.localeCompare(b.nombre)
+  );
+
+  const skip =
+    Number(filtros.skip || 0);
+
+  const limit =
+    Number(filtros.limit || 10);
+
+  const total =
+    resultado.length;
+
+  return {
+    items:
+      resultado.slice(
+        skip,
+        skip + limit
+      ),
+    total,
+    skip,
+    limit
+  };
+}
+
+export async function obtenerListaPrecio(
+  id
+) {
+  await simularLatencia(150);
+
+  const idListaPrecio =
+    normalizarId(
+      id,
+      'lista de precios'
+    );
+
+  const lista =
+    LISTAS_PRECIOS_MOCK.find(
+      item =>
+        item.idListaPrecio ===
+        idListaPrecio
+    );
+
+  if (!lista) {
+    throw crearError(
+      'LISTA_PRECIO_NO_ENCONTRADA',
+      'Lista de precios no encontrada.'
+    );
+  }
+
+  return clonarDatos(lista);
+}
+
+export async function registrarListaPrecio(
+  datos
+) {
+  await simularLatencia(250);
+
+  const errores =
+    validarListaPrecio(datos);
+
+  if (errores.length > 0) {
+    throw crearError(
+      'VALIDACION_ERROR',
+      MENSAJES.VALIDACION_ERROR,
+      errores
+    );
+  }
+
+  if (
+    existeNombreListaPrecio(
+      datos.nombre
+    )
+  ) {
+    throw crearError(
+      'NOMBRE_DUPLICADO',
+      'Ya existe una lista de precios con ese nombre.'
+    );
+  }
+
+  const ahora =
+    new Date();
+
+  const usuario =
+    obtenerUsuarioActual();
+
+  const nuevaLista = {
+    idListaPrecio:
+      Math.max(
+        ...LISTAS_PRECIOS_MOCK.map(
+          lista =>
+            lista.idListaPrecio
+        ),
+        6000
+      ) + 1,
+
+    nombre:
+      datos.nombre.trim(),
+
+    descripcion:
+      datos.descripcion?.trim() || '',
+
+    vigenciaInicio:
+      datos.vigenciaInicio,
+
+    vigenciaFin:
+      datos.vigenciaFin,
+
+    activo:
+      datos.activo ? 1 : 0,
+
+    fechaRegistro:
+      ahora,
+
+    creadoPor:
+      usuario,
+
+    fechaModificacion:
+      ahora,
+
+    modificadoPor:
+      usuario,
+
+    estadoRegistro:
+      ESTADO_REGISTRO.ACTIVO
+  };
+
+  LISTAS_PRECIOS_MOCK.push(
+    nuevaLista
+  );
+
+  return clonarDatos(
+    nuevaLista
+  );
+}
+
+export async function actualizarListaPrecio(
+  id,
+  datos
+) {
+  await simularLatencia(250);
+
+  const idListaPrecio =
+    normalizarId(
+      id,
+      'lista de precios'
+    );
+
+  const indice =
+    LISTAS_PRECIOS_MOCK.findIndex(
+      lista =>
+        lista.idListaPrecio ===
+        idListaPrecio
+    );
+
+  if (indice === -1) {
+    throw crearError(
+      'LISTA_PRECIO_NO_ENCONTRADA',
+      'Lista de precios no encontrada.'
+    );
+  }
+
+  const errores =
+    validarListaPrecio(datos);
+
+  if (errores.length > 0) {
+    throw crearError(
+      'VALIDACION_ERROR',
+      MENSAJES.VALIDACION_ERROR,
+      errores
+    );
+  }
+
+  if (
+    existeNombreListaPrecio(
+      datos.nombre,
+      idListaPrecio
+    )
+  ) {
+    throw crearError(
+      'NOMBRE_DUPLICADO',
+      'Ya existe una lista de precios con ese nombre.'
+    );
+  }
+
+  LISTAS_PRECIOS_MOCK[indice] = {
+    ...LISTAS_PRECIOS_MOCK[indice],
+
+    nombre:
+      datos.nombre.trim(),
+
+    descripcion:
+      datos.descripcion?.trim() || '',
+
+    vigenciaInicio:
+      datos.vigenciaInicio,
+
+    vigenciaFin:
+      datos.vigenciaFin,
+
+    activo:
+      datos.activo ? 1 : 0,
+
+    fechaModificacion:
+      new Date(),
+
+    modificadoPor:
+      obtenerUsuarioActual()
+  };
+
+  return clonarDatos(
+    LISTAS_PRECIOS_MOCK[indice]
+  );
+}
+
+export async function cambiarEstadoListaPrecio(
+  id,
+  activo
+) {
+  await simularLatencia(200);
+
+  const idListaPrecio =
+    normalizarId(
+      id,
+      'lista de precios'
+    );
+
+  const indice =
+    LISTAS_PRECIOS_MOCK.findIndex(
+      lista =>
+        lista.idListaPrecio ===
+        idListaPrecio
+    );
+
+  if (indice === -1) {
+    throw crearError(
+      'LISTA_PRECIO_NO_ENCONTRADA',
+      'Lista de precios no encontrada.'
+    );
+  }
+
+  LISTAS_PRECIOS_MOCK[indice].activo =
+    activo ? 1 : 0;
+
+  LISTAS_PRECIOS_MOCK[indice].fechaModificacion =
+    new Date();
+
+  LISTAS_PRECIOS_MOCK[indice].modificadoPor =
+    obtenerUsuarioActual();
+
+  return clonarDatos(
+    LISTAS_PRECIOS_MOCK[indice]
+  );
 }
 
 // ====================
@@ -1198,57 +2229,6 @@ function validarServicio(datos, idActual) {
     });
   }
 
-  return errores;
-}
-
-/**
- * Validar paquete
- */
-function validarPaquete(datos, idActual) {
-  const errores = [];
-  
-  if (!datos.codigo || datos.codigo.trim() === '') {
-    errores.push('Código es requerido');
-  } else if (datos.codigo.length > LIMITES_CAMPOS.CODIGO_PAQUETE.max) {
-    errores.push(`Código máximo ${LIMITES_CAMPOS.CODIGO_PAQUETE.max} caracteres`);
-  }
-  
-  if (!datos.nombre || datos.nombre.trim() === '') {
-    errores.push('Nombre es requerido');
-  } else if (datos.nombre.length > LIMITES_CAMPOS.NOMBRE.max) {
-    errores.push(`Nombre máximo ${LIMITES_CAMPOS.NOMBRE.max} caracteres`);
-  }
-  
-  // Verificar que tenga al menos un componente
-  const tieneComponentes = (datos.detalleProductos && datos.detalleProductos.length > 0) ||
-                           (datos.detalleServicios && datos.detalleServicios.length > 0);
-  if (!tieneComponentes) {
-    errores.push(MENSAJES.PAQUETE_SIN_COMPONENTES);
-  }
-  
-  // Validar componentes
-  if (datos.detalleProductos) {
-    datos.detalleProductos.forEach((dp, idx) => {
-      if (!dp.cantidad || dp.cantidad <= 0) {
-        errores.push(`Componente producto ${idx + 1}: cantidad debe ser mayor a cero`);
-      }
-      if (dp.precioUnitario === undefined || dp.precioUnitario < 0) {
-        errores.push(`Componente producto ${idx + 1}: precio unitario inválido`);
-      }
-    });
-  }
-  
-  if (datos.detalleServicios) {
-    datos.detalleServicios.forEach((ds, idx) => {
-      if (!ds.cantidad || ds.cantidad <= 0) {
-        errores.push(`Componente servicio ${idx + 1}: cantidad debe ser mayor a cero`);
-      }
-      if (ds.tarifa === undefined || ds.tarifa < 0) {
-        errores.push(`Componente servicio ${idx + 1}: tarifa inválida`);
-      }
-    });
-  }
-  
   return errores;
 }
 

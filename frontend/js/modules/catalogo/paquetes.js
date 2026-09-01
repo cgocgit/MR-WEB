@@ -1,454 +1,734 @@
-/**
- * Módulo: Catálogo - Lista de Paquetes
- * Funcionalidad: Listar, filtrar y paginar paquetes del catálogo
- */
-
 import {
   listarPaquetes,
   cambiarEstadoPaquete
 } from '../../api/catalogo.service.js';
 
 import {
-  ESTADO_REGISTRO,
   PERMISOS_CATALOGO,
   MENSAJES
 } from '../../api/catalogo.constants.js';
 
-import { getSession, requireAuth } from '../../shared/auth-guard.js';
-import { hasPermission } from '../../shared/permissions.js';
-import { showNotification } from '../../components/notification.js';
-import { showLoader, hideLoader } from '../../components/loader.js';
+import {
+  getSession,
+  requireAuth
+} from '../../shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../shared/permissions.js';
+
+import {
+  showNotification
+} from '../../components/notification.js';
 
 import {
   renderNavegacionCatalogo
 } from './catalogo-ui.js';
 
-// ============================================================================
-// ESTADO DEL MÓDULO
-// ============================================================================
+let paginaActual = 1;
+let totalPaquetes = 0;
+let puedeGestionar = false;
 
-let filtroActual = {
-  codigo: '',
-  nombre: '',
-  descripcion: '',
+let filtros = {
+  texto: '',
+  componente: '',
+  precioMin: '',
+  precioMax: '',
   estado: '',
   soloActivos: false,
   skip: 0,
   limit: 10
 };
 
-let paginaActual = 1;
-let totalPaquetes = 0;
-let paquetesActuales = [];
-
-// ============================================================================
-// REFERENCIAS AL DOM
-// ============================================================================
-
 function obtenerElementos() {
   return {
-    // Contenedores
-    contenedorPrincipal: document.getElementById('paquetes-content'),
-    contenedorCargando: document.getElementById('estado-cargando'),
-    contenedorError: document.getElementById('estado-error'),
-    contenedorAcceso: document.getElementById('estado-acceso'),
-    contenedorVacio: document.getElementById('estado-vacio'),
+    contenido:
+      document.getElementById(
+        'paquetes-content'
+      ),
 
-    // Filtros
-    filtrosCodigo: document.getElementById('filtro-codigo'),
-    filtrosNombre: document.getElementById('filtro-nombre'),
-    filtrosEstado: document.getElementById('filtro-estado'),
-    btnLimpiar: document.getElementById('btn-limpiar-filtros'),
-    btnFiltrar: document.getElementById('btn-filtrar'),
+    cargando:
+      document.getElementById(
+        'estado-cargando'
+      ),
 
-    // Tabla
-    tablaCuerpo: document.querySelector('.catalogo-table tbody'),
-    tablaContenedor: document.querySelector('.catalogo-table'),
+    error:
+      document.getElementById(
+        'estado-error'
+      ),
 
-    // Acciones
-    btnNuevo: document.getElementById('btn-nuevo-paquete'),
+    vacio:
+      document.getElementById(
+        'estado-vacio'
+      ),
 
-    // Paginación
-    paginacionContenedor: document.getElementById('paginacion'),
+    acceso:
+      document.getElementById(
+        'estado-acceso'
+      ),
 
-    // Mensajes
-    mensajeError: document.getElementById('error-mensaje')
+    errorMensaje:
+      document.getElementById(
+        'error-mensaje'
+      ),
+
+    tbody:
+      document.getElementById(
+        'paquetes-tbody'
+      ),
+
+    cards:
+      document.getElementById(
+        'paquetes-cards'
+      ),
+
+    paginacion:
+      document.getElementById(
+        'paginacion'
+      ),
+
+    filtroTexto:
+      document.getElementById(
+        'filtro-texto'
+      ),
+
+    filtroComponente:
+      document.getElementById(
+        'filtro-componente'
+      ),
+
+    filtroPrecioMin:
+      document.getElementById(
+        'filtro-precio-min'
+      ),
+
+    filtroPrecioMax:
+      document.getElementById(
+        'filtro-precio-max'
+      ),
+
+    filtroEstado:
+      document.getElementById(
+        'filtro-estado'
+      ),
+
+    grupoEstado:
+      document.getElementById(
+        'grupo-filtro-estado'
+      ),
+
+    btnFiltrar:
+      document.getElementById(
+        'btn-filtrar'
+      ),
+
+    btnLimpiar:
+      document.getElementById(
+        'btn-limpiar-filtros'
+      ),
+
+    btnNuevo:
+      document.getElementById(
+        'btn-nuevo-paquete'
+      ),
+
+    colUltimaModificacion:
+      document.getElementById(
+        'col-ultima-modificacion'
+      )
   };
 }
 
-// ============================================================================
-// CARGA Y RENDERIZADO DE PAQUETES
-// ============================================================================
+function formatoMoneda(valor) {
+  return Number(valor || 0)
+    .toLocaleString(
+      'es-MX',
+      {
+        style: 'currency',
+        currency: 'MXN'
+      }
+    );
+}
+
+function formatoFecha(fecha) {
+  if (!fecha) return '—';
+
+  return new Date(fecha)
+    .toLocaleString(
+      'es-MX',
+      {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      }
+    );
+}
+
+function accionesPaquete(paquete) {
+  const session = getSession();
+
+  const editar =
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PAQUETES_MODIFICAR
+    );
+
+  const cambiarEstado =
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PAQUETES_DESACTIVAR
+    );
+
+  return `
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
+      data-action="ver"
+      data-id="${paquete.idPaquete}"
+    >
+      Ver
+    </button>
+
+    ${editar ? `
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary"
+        data-action="editar"
+        data-id="${paquete.idPaquete}"
+      >
+        Editar
+      </button>
+    ` : ''}
+
+    ${cambiarEstado ? `
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary"
+        data-action="estado"
+        data-id="${paquete.idPaquete}"
+        data-activo="${paquete.activo}"
+      >
+        ${paquete.activo
+          ? 'Desactivar'
+          : 'Activar'}
+      </button>
+    ` : ''}
+  `;
+}
+
+function renderTabla(paquetes) {
+  const { tbody } =
+    obtenerElementos();
+
+  tbody.innerHTML =
+    paquetes.map(
+      paquete => `
+        <tr>
+          <td>${paquete.codigo}</td>
+
+          <td>${paquete.nombre}</td>
+
+          <td>
+            ${paquete.totalProductos}
+          </td>
+
+          <td>
+            ${paquete.totalServicios}
+          </td>
+
+          <td>
+            ${paquete.totalComponentes}
+          </td>
+
+          <td>
+            ${formatoMoneda(
+              paquete.precio
+            )}
+          </td>
+
+          <td>
+            <span class="catalogo-badge ${
+              paquete.activo
+                ? 'estado-activo'
+                : 'estado-inactivo'
+            }">
+              ${paquete.activo
+                ? 'Activo'
+                : 'Inactivo'}
+            </span>
+          </td>
+
+          ${puedeGestionar ? `
+            <td>
+              ${formatoFecha(
+                paquete.fechaModificacion
+              )}
+            </td>
+          ` : ''}
+
+          <td>
+            <div class="catalogo-table-actions">
+              ${accionesPaquete(paquete)}
+            </div>
+          </td>
+        </tr>
+      `
+    ).join('');
+}
+
+function renderCards(paquetes) {
+  const { cards } =
+    obtenerElementos();
+
+  cards.innerHTML =
+    paquetes.map(
+      paquete => `
+        <article class="catalogo-card">
+
+          <div class="catalogo-card-content">
+
+            <h3 class="catalogo-card-title">
+              ${paquete.nombre}
+            </h3>
+
+            <p class="catalogo-card-subtitle">
+              ${paquete.codigo}
+            </p>
+
+            <div class="catalogo-card-info">
+
+              <div class="catalogo-card-info-item">
+                <span class="catalogo-card-info-label">
+                  Productos
+                </span>
+                <span>
+                  ${paquete.totalProductos}
+                </span>
+              </div>
+
+              <div class="catalogo-card-info-item">
+                <span class="catalogo-card-info-label">
+                  Servicios
+                </span>
+                <span>
+                  ${paquete.totalServicios}
+                </span>
+              </div>
+
+              <div class="catalogo-card-info-item">
+                <span class="catalogo-card-info-label">
+                  Precio
+                </span>
+                <span>
+                  ${formatoMoneda(
+                    paquete.precio
+                  )}
+                </span>
+              </div>
+
+              <div class="catalogo-card-info-item">
+                <span class="catalogo-card-info-label">
+                  Estado
+                </span>
+                <span>
+                  ${paquete.activo
+                    ? 'Activo'
+                    : 'Inactivo'}
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="catalogo-card-actions">
+            ${accionesPaquete(paquete)}
+          </div>
+
+        </article>
+      `
+    ).join('');
+}
+
+function registrarAcciones() {
+  document
+    .querySelectorAll(
+      '[data-action][data-id]'
+    )
+    .forEach(boton => {
+      boton.addEventListener(
+        'click',
+        manejarAccion
+      );
+    });
+}
 
 async function cargarPaquetes() {
   const {
-    contenedorPrincipal,
-    contenedorCargando,
-    contenedorError,
-    contenedorVacio,
-    tablaCuerpo,
-    mensajeError
+    contenido,
+    cargando,
+    error,
+    vacio,
+    errorMensaje
   } = obtenerElementos();
 
   try {
-    // Mostrar cargando
-    if (contenedorCargando) contenedorCargando.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
-    if (contenedorError) contenedorError.style.display = 'none';
-    if (contenedorVacio) contenedorVacio.style.display = 'none';
+    cargando.style.display = 'flex';
+    contenido.style.display = 'none';
+    error.style.display = 'none';
+    vacio.style.display = 'none';
 
-    // Calcular skip basado en página actual
-    filtroActual.skip = (paginaActual - 1) * filtroActual.limit;
+    filtros.skip =
+      (paginaActual - 1) *
+      filtros.limit;
 
-    // Cargar datos
-    const resultado = await listarPaquetes(filtroActual);
-    paquetesActuales = resultado.items;
-    totalPaquetes = resultado.total;
+    const resultado =
+      await listarPaquetes(
+        filtros
+      );
 
-    // Mostrar contenedor principal
-    if (contenedorCargando) contenedorCargando.style.display = 'none';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'block';
+    totalPaquetes =
+      resultado.total;
 
-    // Renderizar tabla
-    if (paquetesActuales.length === 0) {
-      if (contenedorVacio) contenedorVacio.style.display = 'flex';
-      if (tablaCuerpo) tablaCuerpo.innerHTML = '';
-    } else {
-      if (contenedorVacio) contenedorVacio.style.display = 'none';
-      renderizarTabla(paquetesActuales);
+    cargando.style.display = 'none';
+
+    if (
+      resultado.items.length === 0
+    ) {
+      vacio.style.display = 'block';
+      return;
     }
 
-    // Renderizar paginación
-    renderizarPaginacion();
+    contenido.style.display =
+      'block';
 
-  } catch (error) {
-    console.error('Error cargando paquetes:', error);
+    renderTabla(
+      resultado.items
+    );
 
-    if (contenedorCargando) contenedorCargando.style.display = 'none';
-    if (contenedorError) contenedorError.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
+    renderCards(
+      resultado.items
+    );
 
-    if (mensajeError) {
-      mensajeError.textContent = error.detalles || error.message || 'Error desconocido';
-    }
+    renderPaginacion();
+    registrarAcciones();
+
+  } catch (err) {
+    cargando.style.display = 'none';
+    error.style.display = 'flex';
+
+    errorMensaje.textContent =
+      err.message ||
+      'Error desconocido';
   }
 }
 
-function renderizarTabla(paquetes) {
-  const { tablaCuerpo } = obtenerElementos();
-  const session = getSession();
+function renderPaginacion() {
+  const { paginacion } =
+    obtenerElementos();
 
-  if (!tablaCuerpo) return;
-
-  tablaCuerpo.innerHTML = paquetes.map(paquete => {
-    const puedeBorrar = hasPermission(session, PERMISOS_CATALOGO.PAQUETES_DESACTIVAR);
-    const puedeEditar = hasPermission(session, PERMISOS_CATALOGO.PAQUETES_MODIFICAR);
-    const estadoTexto = paquete.activo ? 'Activo' : 'Inactivo';
-    const estadoClase = paquete.activo ? 'estado-activo' : 'estado-inactivo';
-
-    // Contar componentes
-    const totalProductos = (paquete.detalleProductos || []).length;
-    const totalServicios = (paquete.detalleServicios || []).length;
-    const totalComponentes = totalProductos + totalServicios;
-
-    return `
-      <tr class="catalogo-table-row">
-        <td class="catalogo-table-cell">
-          <strong>${paquete.codigo}</strong>
-        </td>
-        <td class="catalogo-table-cell">
-          ${paquete.nombre}
-        </td>
-        <td class="catalogo-table-cell">
-          <span style="font-size: 0.875rem; color: var(--color-text-secondary);">
-            ${totalComponentes} componentes
-          </span>
-        </td>
-        <td class="catalogo-table-cell">
-          $${paquete.precio.toFixed(2)}
-        </td>
-        <td class="catalogo-table-cell">
-          <span class="catalogo-badge ${estadoClase}">
-            ${estadoTexto}
-          </span>
-        </td>
-        <td class="catalogo-table-cell">
-          <div class="catalogo-table-actions">
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              data-action="ver"
-              data-id="${paquete.idPaquete}"
-              title="Ver detalle"
-            >
-              👁️
-            </button>
-
-            ${puedeEditar ? `
-              <button
-                type="button"
-                class="btn btn-sm btn-secondary"
-                data-action="editar"
-                data-id="${paquete.idPaquete}"
-                title="Editar"
-              >
-                ✎
-              </button>
-            ` : ''}
-
-            ${puedeBorrar ? `
-              <button
-                type="button"
-                class="btn btn-sm btn-danger"
-                data-action="cambiar-estado"
-                data-id="${paquete.idPaquete}"
-                data-estado="${!paquete.activo}"
-                title="${paquete.activo ? 'Desactivar' : 'Activar'}"
-              >
-                ${paquete.activo ? '⊘' : '↻'}
-              </button>
-            ` : ''}
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('');
-
-  // Agregar event listeners a los botones
-  tablaCuerpo.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', manejarAccionTabla);
-  });
-}
-
-function renderizarPaginacion() {
-  const { paginacionContenedor } = obtenerElementos();
-
-  if (!paginacionContenedor) return;
-
-  const totalPaginas = Math.ceil(totalPaquetes / filtroActual.limit);
+  const totalPaginas =
+    Math.ceil(
+      totalPaquetes /
+      filtros.limit
+    );
 
   if (totalPaginas <= 1) {
-    paginacionContenedor.innerHTML = '';
+    paginacion.innerHTML = '';
     return;
   }
 
-  const paginas = [];
-  for (let i = 1; i <= totalPaginas; i++) {
-    paginas.push(i);
-  }
-
-  paginacionContenedor.innerHTML = `
+  paginacion.innerHTML = `
     <div class="catalogo-pagination">
-      <button
-        type="button"
-        class="btn btn-sm ${paginaActual === 1 ? 'disabled' : ''}"
-        id="btn-anterior"
-        ${paginaActual === 1 ? 'disabled' : ''}
-      >
-        ← Anterior
-      </button>
-
-      <div class="catalogo-pagination-numbers">
-        ${paginas.map(p => `
-          <button
-            type="button"
-            class="btn btn-sm ${p === paginaActual ? 'active' : ''}"
-            data-page="${p}"
-          >
-            ${p}
-          </button>
-        `).join('')}
-      </div>
 
       <button
         type="button"
-        class="btn btn-sm ${paginaActual === totalPaginas ? 'disabled' : ''}"
-        id="btn-siguiente"
-        ${paginaActual === totalPaginas ? 'disabled' : ''}
+        id="pagina-anterior"
+        class="btn btn-secondary"
+        ${paginaActual === 1
+          ? 'disabled'
+          : ''}
       >
-        Siguiente →
+        Anterior
       </button>
 
-      <span style="margin-left: 1rem; font-size: 0.875rem; color: var(--color-text-secondary);">
-        Página ${paginaActual} de ${totalPaginas} (${totalPaquetes} paquetes)
+      <span>
+        Página ${paginaActual}
+        de ${totalPaginas}
       </span>
+
+      <button
+        type="button"
+        id="pagina-siguiente"
+        class="btn btn-secondary"
+        ${paginaActual === totalPaginas
+          ? 'disabled'
+          : ''}
+      >
+        Siguiente
+      </button>
+
     </div>
   `;
 
-  // Event listeners de paginación
-  document.getElementById('btn-anterior')?.addEventListener('click', () => {
-    if (paginaActual > 1) {
-      paginaActual--;
-      cargarPaquetes();
-    }
-  });
-
-  document.getElementById('btn-siguiente')?.addEventListener('click', () => {
-    if (paginaActual < totalPaginas) {
-      paginaActual++;
-      cargarPaquetes();
-    }
-  });
-
-  paginacionContenedor.querySelectorAll('[data-page]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      paginaActual = parseInt(e.target.dataset.page);
-      cargarPaquetes();
-    });
-  });
-}
-
-// ============================================================================
-// MANEJO DE EVENTOS
-// ============================================================================
-
-function manejarAccionTabla(e) {
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-
-  const action = btn.dataset.action;
-  const id = btn.dataset.id;
-
-  switch (action) {
-    case 'ver':
-      window.location.hash = `#/catalogo/paquetes/detalle?id=${id}`;
-      break;
-
-    case 'editar':
-      window.location.hash = `#/catalogo/paquetes/formulario?id=${id}`;
-      break;
-
-    case 'cambiar-estado':
-      const nuevoEstado = btn.dataset.estado === 'true';
-      cambiarEstadoPaqueteUI(id, nuevoEstado);
-      break;
-  }
-}
-
-async function cambiarEstadoPaqueteUI(id, activo) {
-  try {
-    showLoader();
-
-    await cambiarEstadoPaquete(id, activo);
-
-    showNotification(
-      activo
-        ? MENSAJES.PAQUETE_ACTIVADO
-        : MENSAJES.PAQUETE_DESACTIVADO,
-      { type: 'success', timeout: 2000 }
+  document
+    .getElementById(
+      'pagina-anterior'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+        paginaActual--;
+        cargarPaquetes();
+      }
     );
 
-    // Recargar lista
-    paginaActual = 1;
-    await cargarPaquetes();
+  document
+    .getElementById(
+      'pagina-siguiente'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+        paginaActual++;
+        cargarPaquetes();
+      }
+    );
+}
 
-  } catch (error) {
-    console.error('Error cambiando estado:', error);
-    showNotification(error.message, { type: 'error' });
-  } finally {
-    hideLoader();
+async function manejarAccion(
+  evento
+) {
+  const boton =
+    evento.currentTarget;
+
+  const id =
+    boton.dataset.id;
+
+  if (
+    boton.dataset.action === 'ver'
+  ) {
+    location.hash =
+      `#/catalogo/paquetes/detalle?id=${id}`;
+
+    return;
+  }
+
+  if (
+    boton.dataset.action ===
+    'editar'
+  ) {
+    location.hash =
+      `#/catalogo/paquetes/formulario?id=${id}`;
+
+    return;
+  }
+
+  if (
+    boton.dataset.action ===
+    'estado'
+  ) {
+    const activo =
+      boton.dataset.activo === '1';
+
+    const confirmar =
+      window.confirm(
+        activo
+          ? '¿Desactivar este paquete?'
+          : '¿Activar este paquete?'
+      );
+
+    if (!confirmar) return;
+
+    try {
+      await cambiarEstadoPaquete(
+        id,
+        !activo
+      );
+
+      showNotification(
+        activo
+          ? MENSAJES.PAQUETE_DESACTIVADO
+          : MENSAJES.PAQUETE_ACTIVADO,
+        { type: 'success' }
+      );
+
+      await cargarPaquetes();
+
+    } catch (error) {
+      showNotification(
+        error.message,
+        { type: 'error' }
+      );
+    }
   }
 }
 
-function manejarFiltros() {
+function aplicarFiltros() {
   const {
-    filtrosCodigo,
-    filtrosNombre,
-    filtrosEstado
+    filtroTexto,
+    filtroComponente,
+    filtroPrecioMin,
+    filtroPrecioMax,
+    filtroEstado
   } = obtenerElementos();
 
-  filtroActual = {
-    codigo: filtrosCodigo?.value.trim() || '',
-    nombre: filtrosNombre?.value.trim() || '',
-    descripcion: '',
-    estado: filtrosEstado?.value || '',
-    soloActivos: false,
-    skip: 0,
-    limit: filtroActual.limit
+  filtros = {
+    ...filtros,
+
+    texto:
+      filtroTexto.value.trim(),
+
+    componente:
+      filtroComponente.value,
+
+    precioMin:
+      filtroPrecioMin.value,
+
+    precioMax:
+      filtroPrecioMax.value,
+
+    estado:
+      puedeGestionar
+        ? filtroEstado.value
+        : '',
+
+    soloActivos:
+      !puedeGestionar,
+
+    skip: 0
   };
 
   paginaActual = 1;
+
   cargarPaquetes();
 }
 
 function limpiarFiltros() {
   const {
-    filtrosCodigo,
-    filtrosNombre,
-    filtrosEstado
+    filtroTexto,
+    filtroComponente,
+    filtroPrecioMin,
+    filtroPrecioMax,
+    filtroEstado
   } = obtenerElementos();
 
-  if (filtrosCodigo) filtrosCodigo.value = '';
-  if (filtrosNombre) filtrosNombre.value = '';
-  if (filtrosEstado) filtrosEstado.value = '';
+  filtroTexto.value = '';
+  filtroComponente.value = '';
+  filtroPrecioMin.value = '';
+  filtroPrecioMax.value = '';
+  filtroEstado.value = '';
 
-  filtroActual = {
-    codigo: '',
-    nombre: '',
-    descripcion: '',
+  filtros = {
+    texto: '',
+    componente: '',
+    precioMin: '',
+    precioMax: '',
     estado: '',
-    soloActivos: false,
+    soloActivos:
+      !puedeGestionar,
     skip: 0,
-    limit: filtroActual.limit
+    limit: 10
   };
 
   paginaActual = 1;
+
   cargarPaquetes();
 }
 
-function manejarNuevoPaquete() {
-  window.location.hash = '#/catalogo/paquetes/formulario';
-}
-
-// ============================================================================
-// INICIALIZACIÓN
-// ============================================================================
-
 export async function init() {
-  // Validar autenticación y permisos
   if (!requireAuth()) return;
 
   renderNavegacionCatalogo();
 
-  const session = getSession();
-  if (!hasPermission(session, PERMISOS_CATALOGO.CONSULTAR)) {
-    const { contenedorAcceso, contenedorPrincipal } = obtenerElementos();
-    if (contenedorAcceso) contenedorAcceso.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
+  const session =
+    getSession();
+
+  if (
+    !hasPermission(
+      session,
+      PERMISOS_CATALOGO.CONSULTAR
+    )
+  ) {
+    obtenerElementos()
+      .acceso
+      .style.display =
+        'flex';
+
     return;
   }
 
-  // Verificar si el usuario puede crear paquetes
-  const puedeCrear = hasPermission(session, PERMISOS_CATALOGO.PAQUETES_REGISTRAR);
-  const { btnNuevo } = obtenerElementos();
-  if (btnNuevo && !puedeCrear) {
-    btnNuevo.style.display = 'none';
-  }
+  puedeGestionar =
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PAQUETES_REGISTRAR
+    ) ||
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PAQUETES_MODIFICAR
+    ) ||
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PAQUETES_DESACTIVAR
+    );
 
-  // Cargar paquetes inicialmente
-  await cargarPaquetes();
+  filtros.soloActivos =
+    !puedeGestionar;
 
-  // Configurar event listeners
   const {
+    btnNuevo,
+    grupoEstado,
+    colUltimaModificacion,
     btnFiltrar,
     btnLimpiar,
-    btnNuevo
+    filtroTexto
   } = obtenerElementos();
 
-  if (btnFiltrar) btnFiltrar.addEventListener('click', manejarFiltros);
-  if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFiltros);
-  if (btnNuevo) btnNuevo.addEventListener('click', manejarNuevoPaquete);
+  if (
+    !hasPermission(
+      session,
+      PERMISOS_CATALOGO.PAQUETES_REGISTRAR
+    )
+  ) {
+    btnNuevo.style.display =
+      'none';
+  }
 
-  // Permitir filtrar con Enter en los campos de texto
-  const { filtrosCodigo, filtrosNombre } = obtenerElementos();
-  [filtrosCodigo, filtrosNombre].forEach(campo => {
-    if (campo) {
-      campo.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          manejarFiltros();
-        }
-      });
+  if (!puedeGestionar) {
+    grupoEstado.style.display =
+      'none';
+
+    colUltimaModificacion.style.display =
+      'none';
+  }
+
+  await cargarPaquetes();
+
+  btnFiltrar.addEventListener(
+    'click',
+    aplicarFiltros
+  );
+
+  btnLimpiar.addEventListener(
+    'click',
+    limpiarFiltros
+  );
+
+  btnNuevo.addEventListener(
+    'click',
+    () => {
+      location.hash =
+        '#/catalogo/paquetes/formulario';
     }
-  });
-}
+  );
 
+  filtroTexto.addEventListener(
+    'keydown',
+    evento => {
+      if (
+        evento.key === 'Enter'
+      ) {
+        aplicarFiltros();
+      }
+    }
+  );
+}

@@ -1,288 +1,319 @@
-/**
- * Módulo: Catálogo - Detalle de Paquete
- * Funcionalidad: Mostrar detalles de un paquete y sus componentes
- */
-
 import {
   obtenerPaquete,
   cambiarEstadoPaquete
 } from '../../api/catalogo.service.js';
 
 import {
-  ESTADO_REGISTRO,
   PERMISOS_CATALOGO,
   MENSAJES
 } from '../../api/catalogo.constants.js';
 
-import { getSession, requireAuth } from '../../shared/auth-guard.js';
-import { hasPermission } from '../../shared/permissions.js';
-import { showNotification } from '../../components/notification.js';
-import { showLoader, hideLoader } from '../../components/loader.js';
+import {
+  getSession,
+  requireAuth
+} from '../../shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../shared/permissions.js';
+
+import {
+  showNotification
+} from '../../components/notification.js';
+
+import {
+  showLoader,
+  hideLoader
+} from '../../components/loader.js';
 
 import {
   renderNavegacionCatalogo
 } from './catalogo-ui.js';
 
-// ============================================================================
-// ESTADO DEL MÓDULO
-// ============================================================================
-
 let paqueteActual = null;
-
-// ============================================================================
-// REFERENCIAS AL DOM
-// ============================================================================
 
 function obtenerElementos() {
   return {
-    // Contenedores
-    detalleContent: document.getElementById('detalle-content'),
-    estadoCargando: document.getElementById('estado-cargando'),
-    estadoError: document.getElementById('estado-error'),
-    estadoAcceso: document.getElementById('estado-acceso'),
+    detalleContent:
+      document.getElementById(
+        'detalle-content'
+      ),
 
-    // Encabezado
-    paqueteNombre: document.getElementById('paquete-nombre'),
-    paqueteCodigo: document.getElementById('paquete-codigo'),
-    paquetePrecio: document.getElementById('paquete-precio'),
-    paqueteTotal: document.getElementById('paquete-total'),
-    paqueteEstado: document.getElementById('paquete-estado'),
+    estadoCargando:
+      document.getElementById(
+        'estado-cargando'
+      ),
 
-    // Descripción
-    paqueteDescripcion: document.getElementById('paquete-descripcion'),
+    estadoError:
+      document.getElementById(
+        'estado-error'
+      ),
 
-    // Tablas
-    tablaProductos: document.getElementById('tabla-productos'),
-    tablaServicios: document.getElementById('tabla-servicios'),
-    advertenciaInactivos: document.getElementById('advertencia-inactivos'),
+    estadoAcceso:
+      document.getElementById(
+        'estado-acceso'
+      ),
 
-    // Resumen
-    resumenTotalProductos: document.getElementById('resumen-total-productos'),
-    resumenTotalServicios: document.getElementById('resumen-total-servicios'),
-    resumenTotalComponentes: document.getElementById('resumen-total-componentes'),
-    resumenSubtotal: document.getElementById('resumen-subtotal'),
-    resumenPrecioRegistrado: document.getElementById('resumen-precio-registrado'),
-    resumenDiferencia: document.getElementById('resumen-diferencia'),
+    errorMensaje:
+      document.getElementById(
+        'error-mensaje'
+      ),
 
-    // Auditoría
-    seccionAuditoria: document.getElementById('seccion-auditoria'),
-    paqueteRegistro: document.getElementById('paquete-registro'),
-    paqueteModificacion: document.getElementById('paquete-modificacion'),
+    paqueteNombre:
+      document.getElementById(
+        'paquete-nombre'
+      ),
 
-    // Botones
-    btnVolver: document.getElementById('btn-volver'),
-    btnEditar: document.getElementById('btn-editar'),
-    btnEstado: document.getElementById('btn-estado'),
+    paqueteCodigo:
+      document.getElementById(
+        'paquete-codigo'
+      ),
 
-    // Mensajes
-    errorMensaje: document.getElementById('error-mensaje')
+    paquetePrecio:
+      document.getElementById(
+        'paquete-precio'
+      ),
+
+    paqueteTotal:
+      document.getElementById(
+        'paquete-total'
+      ),
+
+    paqueteEstado:
+      document.getElementById(
+        'paquete-estado'
+      ),
+
+    paqueteDescripcion:
+      document.getElementById(
+        'paquete-descripcion'
+      ),
+
+    tablaProductos:
+      document.getElementById(
+        'tabla-productos'
+      ),
+
+    tablaServicios:
+      document.getElementById(
+        'tabla-servicios'
+      ),
+
+    advertenciaInactivos:
+      document.getElementById(
+        'advertencia-inactivos'
+      ),
+
+    resumenTotalProductos:
+      document.getElementById(
+        'resumen-total-productos'
+      ),
+
+    resumenTotalServicios:
+      document.getElementById(
+        'resumen-total-servicios'
+      ),
+
+    resumenTotalComponentes:
+      document.getElementById(
+        'resumen-total-componentes'
+      ),
+
+    resumenSubtotal:
+      document.getElementById(
+        'resumen-subtotal'
+      ),
+
+    resumenPrecioRegistrado:
+      document.getElementById(
+        'resumen-precio-registrado'
+      ),
+
+    resumenDiferencia:
+      document.getElementById(
+        'resumen-diferencia'
+      ),
+
+    seccionAuditoria:
+      document.getElementById(
+        'seccion-auditoria'
+      ),
+
+    paqueteRegistro:
+      document.getElementById(
+        'paquete-registro'
+      ),
+
+    paqueteModificacion:
+      document.getElementById(
+        'paquete-modificacion'
+      ),
+
+    btnVolver:
+      document.getElementById(
+        'btn-volver'
+      ),
+
+    btnEditar:
+      document.getElementById(
+        'btn-editar'
+      ),
+
+    btnEstado:
+      document.getElementById(
+        'btn-estado'
+      )
   };
 }
 
-// ============================================================================
-// UTILIDADES
-// ============================================================================
-
 function obtenerIdPaquete() {
-  const queryString = location.hash.split('?')[1] || '';
-  return new URLSearchParams(queryString).get('id');
+  const queryString =
+    location.hash.split('?')[1] || '';
+
+  return new URLSearchParams(
+    queryString
+  ).get('id');
 }
 
-function formatearFecha(fecha) {
+function formatoMoneda(valor) {
+  return Number(valor || 0)
+    .toLocaleString(
+      'es-MX',
+      {
+        style: 'currency',
+        currency: 'MXN'
+      }
+    );
+}
+
+function formatoFecha(fecha) {
   if (!fecha) return '—';
-  const d = new Date(fecha);
-  return d.toLocaleString('es-MX', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+
+  return new Date(fecha)
+    .toLocaleString(
+      'es-MX',
+      {
+        dateStyle: 'short',
+        timeStyle: 'short'
+      }
+    );
 }
 
-// ============================================================================
-// CARGA DE PAQUETE
-// ============================================================================
+function renderProductos(productos) {
+  const { tablaProductos } =
+    obtenerElementos();
 
-async function cargarPaquete(id) {
-  const {
-    detalleContent,
-    estadoCargando,
-    estadoError,
-    paqueteNombre,
-    paqueteCodigo,
-    paquetePrecio,
-    paqueteTotal,
-    paqueteEstado,
-    paqueteDescripcion,
-    tablaProductos,
-    tablaServicios,
-    advertenciaInactivos,
-    resumenTotalProductos,
-    resumenTotalServicios,
-    resumenTotalComponentes,
-    resumenSubtotal,
-    resumenPrecioRegistrado,
-    resumenDiferencia,
-    seccionAuditoria,
-    paqueteRegistro,
-    paqueteModificacion,
-    btnEditar,
-    btnEstado,
-    errorMensaje
-  } = obtenerElementos();
-
-  try {
-    if (estadoCargando) estadoCargando.style.display = 'flex';
-    if (detalleContent) detalleContent.style.display = 'none';
-    if (estadoError) estadoError.style.display = 'none';
-
-    paqueteActual = await obtenerPaquete(id);
-
-    // Llenar datos generales
-    if (paqueteNombre) paqueteNombre.textContent = paqueteActual.nombre;
-    if (paqueteCodigo) paqueteCodigo.textContent = paqueteActual.codigo;
-
-    if (paquetePrecio) paquetePrecio.textContent = `$${paqueteActual.precio.toFixed(2)}`;
-
-    const estadoTexto = paqueteActual.activo ? 'Activo' : 'Inactivo';
-    if (paqueteEstado) {
-      paqueteEstado.textContent = estadoTexto;
-      paqueteEstado.className = paqueteActual.activo ? 'estado-activo' : 'estado-inactivo';
-    }
-
-    // Descripción
-    if (paqueteDescripcion) {
-      paqueteDescripcion.textContent = paqueteActual.descripcion || 'Sin descripción';
-    }
-
-    // Renderizar tablas
-    renderizarProductos(paqueteActual.detalleProductos || []);
-    renderizarServicios(paqueteActual.detalleServicios || []);
-
-    // Verificar componentes inactivos
-    const hayInactivos = 
-      (paqueteActual.detalleProductos || []).some(p => !p.activo) ||
-      (paqueteActual.detalleServicios || []).some(s => !s.activo);
-
-    if (advertenciaInactivos && hayInactivos) {
-      advertenciaInactivos.style.display = 'block';
-    }
-
-    // Calcular y mostrar resumen
-    calcularResumen();
-
-    // Auditoría
-    const session = getSession();
-    const esGestor = hasPermission(session, PERMISOS_CATALOGO.AUXILIARES_GESTIONAR);
-
-    if (seccionAuditoria && esGestor) {
-      seccionAuditoria.style.display = 'block';
-      if (paqueteRegistro) {
-        paqueteRegistro.textContent = `${paqueteActual.creadoPor || 'Sistema'} • ${formatearFecha(paqueteActual.fechaCreacion)}`;
-      }
-      if (paqueteModificacion) {
-        paqueteModificacion.textContent = `${paqueteActual.modificadoPor || 'Sistema'} • ${formatearFecha(paqueteActual.fechaModificacion)}`;
-      }
-    }
-
-    // Botones de acción
-    const puedeEditar = hasPermission(session, PERMISOS_CATALOGO.PAQUETES_MODIFICAR);
-    const puedeCambiarEstado = hasPermission(session, PERMISOS_CATALOGO.PAQUETES_DESACTIVAR);
-
-    if (btnEditar) {
-      btnEditar.style.display = puedeEditar ? 'inline-block' : 'none';
-    }
-
-    if (btnEstado) {
-      btnEstado.style.display = puedeCambiarEstado ? 'inline-block' : 'none';
-      btnEstado.textContent = paqueteActual.activo ? '⊘ Desactivar' : '↻ Activar';
-    }
-
-    // Mostrar contenido
-    if (estadoCargando) estadoCargando.style.display = 'none';
-    if (detalleContent) detalleContent.style.display = 'block';
-
-  } catch (error) {
-    console.error('Error cargando paquete:', error);
-
-    if (estadoCargando) estadoCargando.style.display = 'none';
-    if (estadoError) estadoError.style.display = 'flex';
-    if (detalleContent) detalleContent.style.display = 'none';
-
-    if (errorMensaje) {
-      errorMensaje.textContent = error.message || 'Error desconocido';
-    }
-  }
-}
-
-// ============================================================================
-// RENDERIZADO DE COMPONENTES
-// ============================================================================
-
-function renderizarProductos(productos) {
-  const { tablaProductos } = obtenerElementos();
-  if (!tablaProductos) return;
-
-  const tbody = tablaProductos.querySelector('tbody');
-  if (!tbody) return;
+  const tbody =
+    tablaProductos.querySelector(
+      'tbody'
+    );
 
   if (productos.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Sin productos</td></tr>';
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          Sin productos
+        </td>
+      </tr>
+    `;
+
     return;
   }
 
-  tbody.innerHTML = productos.map(prod => {
-    const estadoClase = prod.activo ? 'estado-activo' : 'estado-inactivo';
-    const estadoTexto = prod.activo ? 'Activo' : 'Inactivo';
+  tbody.innerHTML =
+    productos.map(
+      producto => `
+        <tr>
+          <td>${producto.codigo}</td>
+          <td>${producto.nombre}</td>
+          <td>${producto.cantidad}</td>
 
-    return `
-      <tr>
-        <td>${prod.codigo}</td>
-        <td>${prod.nombre}</td>
-        <td>${prod.cantidad}</td>
-        <td>$${prod.precioUnitario.toFixed(2)}</td>
-        <td>$${prod.subtotal.toFixed(2)}</td>
-        <td><span class="catalogo-badge ${estadoClase}">${estadoTexto}</span></td>
-      </tr>
-    `;
-  }).join('');
+          <td>
+            ${formatoMoneda(
+              producto.precioUnitario
+            )}
+          </td>
+
+          <td>
+            ${formatoMoneda(
+              producto.subtotal
+            )}
+          </td>
+
+          <td>
+            <span class="catalogo-badge ${
+              producto.activo === 1
+                ? 'estado-activo'
+                : 'estado-inactivo'
+            }">
+              ${producto.activo === 1
+                ? 'Activo'
+                : 'Inactivo'}
+            </span>
+          </td>
+        </tr>
+      `
+    ).join('');
 }
 
-function renderizarServicios(servicios) {
-  const { tablaServicios } = obtenerElementos();
-  if (!tablaServicios) return;
+function renderServicios(servicios) {
+  const { tablaServicios } =
+    obtenerElementos();
 
-  const tbody = tablaServicios.querySelector('tbody');
-  if (!tbody) return;
+  const tbody =
+    tablaServicios.querySelector(
+      'tbody'
+    );
 
   if (servicios.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Sin servicios</td></tr>';
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          Sin servicios
+        </td>
+      </tr>
+    `;
+
     return;
   }
 
-  tbody.innerHTML = servicios.map(serv => {
-    const estadoClase = serv.activo ? 'estado-activo' : 'estado-inactivo';
-    const estadoTexto = serv.activo ? 'Activo' : 'Inactivo';
+  tbody.innerHTML =
+    servicios.map(
+      servicio => `
+        <tr>
+          <td>${servicio.codigo}</td>
+          <td>${servicio.nombre}</td>
+          <td>${servicio.cantidad}</td>
 
-    return `
-      <tr>
-        <td>${serv.codigo}</td>
-        <td>${serv.nombre}</td>
-        <td>${serv.cantidad}</td>
-        <td>$${serv.precioUnitario.toFixed(2)}</td>
-        <td>$${serv.subtotal.toFixed(2)}</td>
-        <td><span class="catalogo-badge ${estadoClase}">${estadoTexto}</span></td>
-      </tr>
-    `;
-  }).join('');
+          <td>
+            ${formatoMoneda(
+              servicio.tarifa
+            )}
+          </td>
+
+          <td>
+            ${formatoMoneda(
+              servicio.subtotal
+            )}
+          </td>
+
+          <td>
+            <span class="catalogo-badge ${
+              servicio.activo === 1
+                ? 'estado-activo'
+                : 'estado-inactivo'
+            }">
+              ${servicio.activo === 1
+                ? 'Activo'
+                : 'Inactivo'}
+            </span>
+          </td>
+        </tr>
+      `
+    ).join('');
 }
 
-// ============================================================================
-// CÁLCULO DE RESUMEN
-// ============================================================================
-
-function calcularResumen() {
+function renderResumen() {
   const {
     resumenTotalProductos,
     resumenTotalServicios,
@@ -292,111 +323,278 @@ function calcularResumen() {
     resumenDiferencia
   } = obtenerElementos();
 
-  const productos = paqueteActual.detalleProductos || [];
-  const servicios = paqueteActual.detalleServicios || [];
+  resumenTotalProductos.textContent =
+    paqueteActual.totalProductos;
 
-  const totalProductos = productos.length;
-  const totalServicios = servicios.length;
-  const totalComponentes = totalProductos + totalServicios;
+  resumenTotalServicios.textContent =
+    paqueteActual.totalServicios;
 
-  const subtotal = [
-    ...productos.map(p => p.subtotal || 0),
-    ...servicios.map(s => s.subtotal || 0)
-  ].reduce((a, b) => a + b, 0);
+  resumenTotalComponentes.textContent =
+    paqueteActual.totalComponentes;
 
-  const precioRegistrado = paqueteActual.precio || 0;
-  const diferencia = precioRegistrado - subtotal;
+  resumenSubtotal.textContent =
+    formatoMoneda(
+      paqueteActual.totalCalculado
+    );
 
-  if (resumenTotalProductos) resumenTotalProductos.textContent = totalProductos;
-  if (resumenTotalServicios) resumenTotalServicios.textContent = totalServicios;
-  if (resumenTotalComponentes) resumenTotalComponentes.textContent = totalComponentes;
-  if (resumenSubtotal) resumenSubtotal.textContent = `$${subtotal.toFixed(2)}`;
-  if (resumenPrecioRegistrado) resumenPrecioRegistrado.textContent = `$${precioRegistrado.toFixed(2)}`;
-  if (resumenDiferencia) {
-    resumenDiferencia.textContent = `$${Math.abs(diferencia).toFixed(2)}`;
-    if (resumenDiferencia.parentElement) {
-      resumenDiferencia.parentElement.className = diferencia >= 0 ? 'ganancia' : 'perdida';
+  resumenPrecioRegistrado.textContent =
+    formatoMoneda(
+      paqueteActual.precio
+    );
+
+  resumenDiferencia.textContent =
+    formatoMoneda(
+      Number(paqueteActual.precio) -
+      Number(
+        paqueteActual.totalCalculado
+      )
+    );
+}
+
+async function cargarPaquete(id) {
+  const elementos =
+    obtenerElementos();
+
+  try {
+    elementos.estadoCargando.style.display =
+      'flex';
+
+    elementos.detalleContent.style.display =
+      'none';
+
+    elementos.estadoError.style.display =
+      'none';
+
+    paqueteActual =
+      await obtenerPaquete(id);
+
+    elementos.paqueteNombre.textContent =
+      paqueteActual.nombre;
+
+    elementos.paqueteCodigo.textContent =
+      paqueteActual.codigo;
+
+    elementos.paquetePrecio.textContent =
+      formatoMoneda(
+        paqueteActual.precio
+      );
+
+    elementos.paqueteTotal.textContent =
+      formatoMoneda(
+        paqueteActual.totalCalculado
+      );
+
+    elementos.paqueteEstado.textContent =
+      paqueteActual.activo
+        ? 'Activo'
+        : 'Inactivo';
+
+    elementos.paqueteEstado.className =
+      paqueteActual.activo
+        ? 'catalogo-detail-meta-value estado-activo'
+        : 'catalogo-detail-meta-value estado-inactivo';
+
+    elementos.paqueteDescripcion.textContent =
+      paqueteActual.descripcion ||
+      'Sin descripción';
+
+    renderProductos(
+      paqueteActual.detalleProductos
+    );
+
+    renderServicios(
+      paqueteActual.detalleServicios
+    );
+
+    renderResumen();
+
+    elementos.advertenciaInactivos.style.display =
+      paqueteActual.tieneComponentesInactivos
+        ? 'flex'
+        : 'none';
+
+    const session =
+      getSession();
+
+    const puedeEditar =
+      hasPermission(
+        session,
+        PERMISOS_CATALOGO.PAQUETES_MODIFICAR
+      );
+
+    const puedeEstado =
+      hasPermission(
+        session,
+        PERMISOS_CATALOGO.PAQUETES_DESACTIVAR
+      );
+
+    elementos.btnEditar.style.display =
+      puedeEditar
+        ? 'inline-block'
+        : 'none';
+
+    elementos.btnEstado.style.display =
+      puedeEstado
+        ? 'inline-block'
+        : 'none';
+
+    elementos.btnEstado.textContent =
+      paqueteActual.activo
+        ? 'Desactivar'
+        : 'Activar';
+
+    if (
+      puedeEditar ||
+      puedeEstado
+    ) {
+      elementos.seccionAuditoria.style.display =
+        'block';
+
+      elementos.paqueteRegistro.textContent =
+        `${paqueteActual.creadoPor || 'Sistema'} • ` +
+        `${formatoFecha(
+          paqueteActual.fechaRegistro
+        )}`;
+
+      elementos.paqueteModificacion.textContent =
+        `${paqueteActual.modificadoPor || 'Sistema'} • ` +
+        `${formatoFecha(
+          paqueteActual.fechaModificacion
+        )}`;
     }
+
+    elementos.estadoCargando.style.display =
+      'none';
+
+    elementos.detalleContent.style.display =
+      'block';
+
+  } catch (error) {
+    elementos.estadoCargando.style.display =
+      'none';
+
+    elementos.detalleContent.style.display =
+      'none';
+
+    elementos.estadoError.style.display =
+      'flex';
+
+    elementos.errorMensaje.textContent =
+      error.message ||
+      'Error desconocido';
   }
 }
 
-// ============================================================================
-// MANEJO DE EVENTOS
-// ============================================================================
-
 async function manejarCambioEstado() {
+  const nuevoEstado =
+    !Boolean(
+      paqueteActual.activo
+    );
+
+  const confirmar =
+    window.confirm(
+      nuevoEstado
+        ? '¿Activar este paquete?'
+        : '¿Desactivar este paquete?'
+    );
+
+  if (!confirmar) return;
+
   try {
     showLoader();
 
-    const nuevoEstado = !paqueteActual.activo;
-    await cambiarEstadoPaquete(paqueteActual.id, nuevoEstado);
+    await cambiarEstadoPaquete(
+      paqueteActual.idPaquete,
+      nuevoEstado
+    );
 
     showNotification(
       nuevoEstado
         ? MENSAJES.PAQUETE_ACTIVADO
         : MENSAJES.PAQUETE_DESACTIVADO,
-      { type: 'success', timeout: 2000 }
+      { type: 'success' }
     );
 
-    // Recargar paquete
-    await cargarPaquete(paqueteActual.id);
+    await cargarPaquete(
+      paqueteActual.idPaquete
+    );
 
   } catch (error) {
-    console.error('Error cambiando estado:', error);
-    showNotification(error.message, { type: 'error' });
+    showNotification(
+      error.message,
+      { type: 'error' }
+    );
+
   } finally {
     hideLoader();
   }
 }
 
-// ============================================================================
-// INICIALIZACIÓN
-// ============================================================================
-
 export async function init() {
-  // Validar autenticación y permisos
   if (!requireAuth()) return;
 
   renderNavegacionCatalogo();
-  
-  const session = getSession();
-  const idPaquete = obtenerIdPaquete();
 
-  // Verificar permiso de consulta
-  if (!hasPermission(session, PERMISOS_CATALOGO.CONSULTAR)) {
-    const { estadoAcceso, detalleContent } = obtenerElementos();
-    if (estadoAcceso) estadoAcceso.style.display = 'flex';
-    if (detalleContent) detalleContent.style.display = 'none';
+  const session =
+    getSession();
+
+  if (
+    !hasPermission(
+      session,
+      PERMISOS_CATALOGO.CONSULTAR
+    )
+  ) {
+    obtenerElementos()
+      .estadoAcceso
+      .style.display =
+        'flex';
+
     return;
   }
+
+  const idPaquete =
+    obtenerIdPaquete();
 
   if (!idPaquete) {
-    showNotification('ID de paquete no especificado', { type: 'error' });
-    setTimeout(() => {
-      window.location.hash = '#/catalogo/paquetes';
-    }, 2000);
+    showNotification(
+      'ID de paquete no especificado.',
+      { type: 'error' }
+    );
+
+    window.location.hash =
+      '#/catalogo/paquetes';
+
     return;
   }
 
-  // Cargar paquete
-  await cargarPaquete(idPaquete);
+  await cargarPaquete(
+    idPaquete
+  );
 
-  // Configurar event listeners
-  const { btnVolver, btnEditar, btnEstado } = obtenerElementos();
+  const {
+    btnVolver,
+    btnEditar,
+    btnEstado
+  } = obtenerElementos();
 
-  if (btnVolver) {
-    btnVolver.addEventListener('click', () => {
-      window.location.hash = '#/catalogo/paquetes';
-    });
-  }
+  btnVolver.addEventListener(
+    'click',
+    () => {
+      window.location.hash =
+        '#/catalogo/paquetes';
+    }
+  );
 
-  if (btnEditar) {
-    btnEditar.addEventListener('click', () => {
-      window.location.hash = `#/catalogo/paquetes/formulario?id=${paqueteActual.id}`;
-    });
-  }
+  btnEditar.addEventListener(
+    'click',
+    () => {
+      window.location.hash =
+        `#/catalogo/paquetes/formulario?id=${paqueteActual.idPaquete}`;
+    }
+  );
 
-  if (btnEstado) {
-    btnEstado.addEventListener('click', manejarCambioEstado);
-  }
+  btnEstado.addEventListener(
+    'click',
+    manejarCambioEstado
+  );
 }
