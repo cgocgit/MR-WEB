@@ -1,30 +1,97 @@
-<section class="container">
-  <h1>Nuevo / Editar Cliente</h1>
-  <form id="clienteForm" class="card mt-12" style="max-width:640px;display:flex;flex-direction:column;gap:8px">
-    <label>Nombre
-      <input name="nombre" required />
+<section
+  id="cliente-form-page"
+  class="container"
+  aria-labelledby="cliente-form-title"
+>
+  <h1 id="cliente-form-title">
+    Prospecto
+  </h1>
+
+  <form
+    id="cliente-form"
+    class="card mt-12"
+    style="
+      max-width: 720px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    "
+    novalidate
+  >
+    <label>
+      Nombres
+      <input
+        id="nombres"
+        name="nombres"
+        type="text"
+        autocomplete="given-name"
+      >
     </label>
-    <label>Contacto
-      <input name="contacto" type="email" required />
+
+    <label>
+      Apellidos
+      <input
+        id="apellidos"
+        name="apellidos"
+        type="text"
+        autocomplete="family-name"
+      >
     </label>
-    <div style="display:flex;justify-content:flex-end"><button type="submit">Guardar cliente</button></div>
+
+    <fieldset>
+      <legend>
+        Contactos
+      </legend>
+
+      <div
+        id="contactos-container"
+      ></div>
+
+      <button
+        id="agregar-contacto"
+        type="button"
+      >
+        Agregar contacto
+      </button>
+    </fieldset>
+
+    <label>
+      Evento
+      <input
+        id="evento"
+        name="evento"
+        type="text"
+      >
+    </label>
+
+    <div
+      style="
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      "
+    >
+      <button
+        id="cancelar"
+        type="button"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="guardar"
+        type="submit"
+      >
+        Guardar
+      </button>
+    </div>
   </form>
 
   <script type="module">
-    import { createCliente, getCliente } from '../../js/api/clientes.service.js';
-    const form = document.getElementById('clienteForm');
-    // load if editing (hash may include ?id=)
-    const q = new URLSearchParams(location.hash.split('?')[1] || '');
-    const id = q.get('id');
-    if(id){ (async ()=>{ const data = await getCliente(id); form.nombre.value = data.nombre || ''; form.contacto.value = data.contacto || ''; })() }
+    import {
+      init
+    } from '../../js/modules/clientes/formulario.js';
 
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const fd = new FormData(form);
-      const payload = {nombre: fd.get('nombre'), contacto: fd.get('contacto')};
-      await createCliente(payload);
-      alert('Cliente guardado (mock)');
-      location.hash = '#/clientes';
-    });
+    init();
   </script>
 </section>

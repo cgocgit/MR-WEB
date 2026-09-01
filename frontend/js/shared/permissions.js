@@ -1,5 +1,4 @@
 export const ROLE_PERMISSIONS = {
-
   ADMIN: [
     'dashboard.consultar',
 
@@ -22,6 +21,9 @@ export const ROLE_PERMISSIONS = {
     'intercambio.exportar',
     'documentacion.tecnica.consultar',
 
+    // Clientes y prospectos:
+    // el Administrador no adquiere permisos operativos
+    // únicamente por ser ADMIN.
     'clientes.consultar',
 
     'catalogo.consultar',
@@ -63,8 +65,12 @@ export const ROLE_PERMISSIONS = {
   USER: [
     'dashboard.consultar',
 
+    // USER representa actualmente al perfil mock
+    // de Ventas / Ejecutivo de ventas.
     'clientes.consultar',
-    'clientes.gestionar',
+    'clientes.buscar',
+    'clientes.registrar',
+    'clientes.modificar',
 
     'catalogo.consultar',
 
@@ -87,7 +93,9 @@ export const ROLE_PERMISSIONS = {
     'dashboard.consultar',
 
     'clientes.consultar',
-    'clientes.gestionar',
+    'clientes.buscar',
+    'clientes.registrar',
+    'clientes.modificar',
 
     'catalogo.consultar',
 
@@ -130,7 +138,11 @@ export const ROLE_PERMISSIONS = {
   SUPERVISOR: [
     'dashboard.consultar',
 
+    // Asignación mock provisional para ejercitar
+    // la revisión y clasificación.
     'clientes.consultar',
+    'clientes.buscar',
+    'clientes.clasificar',
 
     'catalogo.consultar',
 
@@ -171,44 +183,155 @@ export const ROLE_PERMISSIONS = {
   ]
 };
 
+/**
+ * Devuelve únicamente strings válidos de un arreglo.
+ *
+ * @param {*} value
+ * @returns {string[]}
+ */
+function normalizeStringArray(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(
+    item =>
+      typeof item === 'string' &&
+      item.trim().length > 0
+  );
+}
+
+/**
+ * Obtiene la unión de permisos correspondientes
+ * a uno o más roles.
+ *
+ * Utilizado actualmente por auth.service.js
+ * para construir la sesión mock.
+ *
+ * @param {string[]} roles
+ * @returns {string[]}
+ */
 export function getPermissionsForRoles(roles = []) {
+  const normalizedRoles =
+    normalizeStringArray(roles);
+
   return [
     ...new Set(
-      roles.flatMap(
+      normalizedRoles.flatMap(
         role => ROLE_PERMISSIONS[role] || []
       )
     )
   ];
 }
 
-export function hasAnyRole(session, allowedRoles){
-  if(!session || !session.user) return false;
-  const roles = session.user.roles || [];
-  return allowedRoles.some(r=> roles.includes(r));
-}
-
-export function hasPermission(session, permission) {
-  if (!session) return false;
-
-  if (typeof permission !== 'string') {
-    console.warn(
-      'hasPermission esperaba un permiso string:',
-      permission
-    );
-
+/**
+ * Conservado por compatibilidad con módulos existentes.
+ *
+ * Los módulos nuevos deben preferir autorización
+ * mediante permisos efectivos.
+ *
+ * @param {Object|null} session
+ * @param {string[]} allowedRoles
+ * @returns {boolean}
+ */
+export function hasAnyRole(
+  session,
+  allowedRoles = []
+) {
+  if (!session?.user) {
     return false;
   }
 
-  const perms = session.permissions || [];
+  const roles =
+    normalizeStringArray(session.user.roles);
 
-  if (perms.includes(permission)) {
+  const normalizedAllowedRoles =
+    normalizeStringArray(allowedRoles);
+
+  return normalizedAllowedRoles.some(
+    role => roles.includes(role)
+  );
+}
+
+/**
+ * Comprueba un permiso efectivo de la sesión.
+ *
+ * También admite comodines por dominio:
+ * clientes.* autoriza clientes.consultar,
+ * clientes.modificar, etc.
+ *
+ * @param {Object|null} session
+ * @param {string} permission
+ * @returns {boolean}
+ */
+export function hasPermission(
+  session,
+  permission
+) {
+  if (
+    !session ||
+    typeof permission !== 'string'
+  ) {
+    return false;
+  }
+
+  const normalizedPermission =
+    permission.trim();
+
+  if (!normalizedPermission) {
+    return false;
+  }
+
+  const permissions =
+    normalizeStringArray(
+      session.permissions
+    );
+
+  if (
+    permissions.includes(
+      normalizedPermission
+    )
+  ) {
     return true;
   }
 
-  const parts = permission.split('.');
+  const separatorIndex =
+    normalizedPermission.indexOf('.');
 
-  const wildcard =
-    parts[0] + '.*';
+  if (separatorIndex <= 0) {
+    return false;
+  }
 
-  return perms.includes(wildcard);
+  const namespace =
+    normalizedPermission.slice(
+      0,
+      separatorIndex
+    );
+
+  return permissions.includes(
+    `${namespace}.*`
+  );
+}
+
+/**
+ * Determina si la sesión posee al menos
+ * uno de los permisos indicados.
+ *
+ * @param {Object|null} session
+ * @param {string[]} permissions
+ * @returns {boolean}
+ */
+export function hasAnyPermission(
+  session,
+  permissions = []
+) {
+  return normalizeStringArray(
+    permissions
+  ).some(
+    permission =>
+      hasPermission(
+        session,
+        permission
+      )
+  );
 }
