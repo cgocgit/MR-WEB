@@ -28,6 +28,9 @@ import { hasPermission } from '../../shared/permissions.js';
 import { showNotification } from '../../components/notification.js';
 import { showLoader, hideLoader } from '../../components/loader.js';
 
+import {
+  renderNavegacionCatalogo
+} from './catalogo-ui.js';
 // ============================================================================
 // ESTADO DEL MÓDULO
 // ============================================================================
@@ -397,6 +400,8 @@ async function manejarEnvio(e) {
 export async function init() {
   // Validar autenticación y permisos
   if (!requireAuth()) return;
+
+  renderNavegacionCatalogo();
 
   const session = getSession();
   const idProducto = obtenerIdProducto();
