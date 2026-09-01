@@ -178,31 +178,58 @@ async function cargarPaquete(id) {
 
 function manejarAgregarProducto() {
   const { buscarProductos } = obtenerElementos();
-  const valor = buscarProductos?.value.toLowerCase().trim();
+
+  const valor =
+    buscarProductos?.value.toLowerCase().trim();
 
   if (!valor) {
-    showNotification('Ingrese un código o nombre de producto', { type: 'warning' });
+    showNotification(
+      'Ingrese un código o nombre de producto',
+      { type: 'warning' }
+    );
     return;
   }
 
   const producto = productosDisponibles.find(p =>
-    p.codigo.toLowerCase().includes(valor) || p.nombre.toLowerCase().includes(valor)
+    p.codigo.toLowerCase().includes(valor) ||
+    p.nombre.toLowerCase().includes(valor)
   );
 
   if (!producto) {
-    showNotification('Producto no encontrado', { type: 'error' });
+    showNotification(
+      'Producto no encontrado',
+      { type: 'error' }
+    );
     return;
   }
 
-  // Verificar si ya está en el paquete
-  if (componentesProductos.some(c => c.idProducto === producto.id)) {
-    showNotification('Este producto ya está en el paquete', { type: 'warning' });
+  const existente = componentesProductos.find(
+    componente =>
+      componente.idProducto === producto.idProducto
+  );
+
+  if (existente) {
+    existente.cantidad += 1;
+    existente.subtotal =
+      existente.cantidad * existente.precioUnitario;
+
+    renderizarComponentesProductos();
+    actualizarResumen();
+
+    if (buscarProductos) {
+      buscarProductos.value = '';
+    }
+
+    showNotification(
+      'Cantidad del producto actualizada',
+      { type: 'success', timeout: 1500 }
+    );
+
     return;
   }
 
-  // Agregar componente
   componentesProductos.push({
-    idProducto: producto.id,
+    idProducto: producto.idProducto,
     codigo: producto.codigo,
     nombre: producto.nombre,
     cantidad: 1,
@@ -211,10 +238,17 @@ function manejarAgregarProducto() {
     activo: producto.activo
   });
 
-  if (buscarProductos) buscarProductos.value = '';
+  if (buscarProductos) {
+    buscarProductos.value = '';
+  }
+
   renderizarComponentesProductos();
   actualizarResumen();
-  showNotification('Producto agregado', { type: 'success', timeout: 1500 });
+
+  showNotification(
+    'Producto agregado',
+    { type: 'success', timeout: 1500 }
+  );
 }
 
 function manejarAgregarServicio() {

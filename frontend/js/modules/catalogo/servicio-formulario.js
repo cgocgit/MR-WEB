@@ -6,7 +6,8 @@
 import {
   registrarServicio,
   obtenerServicio,
-  actualizarServicio
+  actualizarServicio,
+  listarCategoriasServicio
 } from '../../api/catalogo.service.js';
 
 import {
@@ -50,6 +51,7 @@ function obtenerElementos() {
     urlImagen: document.getElementById('urlImagen'),
     previewImagen: document.getElementById('preview-imagen'),
     activo: document.getElementById('activo'),
+    idCategoria: document.getElementById('idCategoria'),
 
     // Botones
     btnCancelar: document.getElementById('btn-cancelar'),
@@ -63,6 +65,7 @@ function obtenerElementos() {
     errorTarifaBase: document.getElementById('error-tarifaBase'),
     errorImagen: document.getElementById('error-imagen'),
     errorUrlImagen: document.getElementById('error-urlImagen')
+    idCategoria: document.getElementById('idCategoria'),
   };
 }
 
@@ -121,6 +124,41 @@ function mostrarMensaje(tipo, mensaje) {
   }
 }
 
+async function cargarCategoriasServicio() {
+  const { idCategoria } = obtenerElementos();
+
+  if (!idCategoria) return;
+
+  try {
+    const categorias = await listarCategoriasServicio();
+
+    idCategoria.innerHTML =
+      '<option value="">Seleccione una categoría</option>';
+
+    categorias
+      .filter(categoria => categoria.activo === 1)
+      .forEach(categoria => {
+        const option = document.createElement('option');
+
+        option.value = categoria.id;
+        option.textContent = categoria.nombre;
+
+        idCategoria.appendChild(option);
+      });
+
+  } catch (error) {
+    console.error(
+      'Error cargando categorías de servicio:',
+      error
+    );
+
+    showNotification(
+      'No fue posible cargar las categorías de servicio.',
+      { type: 'error' }
+    );
+  }
+}
+
 // ============================================================================
 // CARGA DE SERVICIO (Si es edición)
 // ============================================================================
@@ -139,10 +177,9 @@ async function cargarServicio(id) {
       codigo,
       nombre,
       descripcion,
+      idCategoria,
       tipoServicio,
       tarifaBase,
-      urlImagen,
-      previewImagen,
       activo
     } = obtenerElementos();
 
@@ -154,6 +191,9 @@ async function cargarServicio(id) {
     if (tarifaBase) tarifaBase.value = servicio.tarifaBase;
     if (urlImagen) urlImagen.value = servicio.urlImagen || '';
     if (activo) activo.checked = servicio.activo;
+    if (idCategoria) {
+      idCategoria.value = servicio.idCategoria || '';
+    }
 
     // Vista previa de imagen
     if (servicio.urlImagen && previewImagen) {
@@ -231,9 +271,9 @@ async function manejarEnvio(e) {
     codigo,
     nombre,
     descripcion,
+    idCategoria,
     tipoServicio,
     tarifaBase,
-    urlImagen,
     activo
   } = obtenerElementos();
 
@@ -241,28 +281,43 @@ async function manejarEnvio(e) {
     showLoader();
     limpiarErrores();
 
-    // Obtener datos
     const datos = {
       codigo: codigo?.value.trim() || '',
       nombre: nombre?.value.trim() || '',
       descripcion: descripcion?.value.trim() || '',
+
+      idCategoria: idCategoria?.value
+        ? Number(idCategoria.value)
+        : null,
+
       tipoServicio: tipoServicio?.value || '',
-      tarifaBase: parseFloat(tarifaBase?.value) || 0,
-      urlImagen: urlImagen?.value.trim() || '',
-      activo: activo?.checked || false
+
+      tarifaBase: Number(tarifaBase?.value || 0),
+
+      activo: Boolean(activo?.checked)
     };
 
-    // Guardar
     let resultado;
+
     if (esEdicion && servicioActual) {
-      resultado = await actualizarServicio(servicioActual.id, datos);
-      showNotification(MENSAJES.SERVICIO_ACTUALIZADO, { type: 'success' });
+      resultado = await actualizarServicio(
+        servicioActual.idServicio,
+        datos
+      );
+
+      showNotification(
+        MENSAJES.SERVICIO_ACTUALIZADO,
+        { type: 'success' }
+      );
     } else {
       resultado = await registrarServicio(datos);
-      showNotification(MENSAJES.SERVICIO_REGISTRADO, { type: 'success' });
+
+      showNotification(
+        MENSAJES.SERVICIO_REGISTRADO,
+        { type: 'success' }
+      );
     }
 
-    // Redirigir después de 1.5 segundos
     setTimeout(() => {
       window.location.hash = '#/catalogo/servicios';
     }, 1500);
@@ -271,12 +326,14 @@ async function manejarEnvio(e) {
     console.error('Error guardando servicio:', error);
 
     if (error.detalles && Array.isArray(error.detalles)) {
-      // Son errores de validación
       error.detalles.forEach(err => {
         mostrarError(err.campo, err.mensaje);
       });
     } else {
-      mostrarMensaje('error', error.message || 'Error desconocido');
+      mostrarMensaje(
+        'error',
+        error.message || 'Error desconocido'
+      );
     }
   } finally {
     hideLoader();
@@ -318,6 +375,8 @@ export async function init() {
       tipoServicio.appendChild(option);
     });
   }
+
+  await cargarCategoriasServicio();
 
   // Cargar servicio si es edición
   if (idServicio) {

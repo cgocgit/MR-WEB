@@ -232,7 +232,7 @@ function renderizarTabla(productos) {
               type="button"
               class="btn btn-sm btn-primary"
               data-action="ver"
-              data-id="${producto.id}"
+              data-id="${producto.idProducto}"
               title="Ver detalle"
             >
               👁️
@@ -242,7 +242,7 @@ function renderizarTabla(productos) {
                 type="button"
                 class="btn btn-sm btn-secondary"
                 data-action="editar"
-                data-id="${producto.id}"
+                data-id="${producto.idProducto}"
                 title="Editar"
               >
                 ✎
@@ -253,7 +253,7 @@ function renderizarTabla(productos) {
                 type="button"
                 class="btn btn-sm btn-danger"
                 data-action="cambiar-estado"
-                data-id="${producto.id}"
+                data-id="${producto.idProducto}"
                 data-estado="${!producto.activo}"
                 title="${producto.activo ? 'Desactivar' : 'Activar'}"
               >

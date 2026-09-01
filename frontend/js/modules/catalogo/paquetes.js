@@ -174,28 +174,30 @@ function renderizarTabla(paquetes) {
               type="button"
               class="btn btn-sm btn-primary"
               data-action="ver"
-              data-id="${paquete.id}"
+              data-id="${paquete.idPaquete}"
               title="Ver detalle"
             >
               👁️
             </button>
+
             ${puedeEditar ? `
               <button
                 type="button"
                 class="btn btn-sm btn-secondary"
                 data-action="editar"
-                data-id="${paquete.id}"
+                data-id="${paquete.idPaquete}"
                 title="Editar"
               >
                 ✎
               </button>
             ` : ''}
+
             ${puedeBorrar ? `
               <button
                 type="button"
                 class="btn btn-sm btn-danger"
                 data-action="cambiar-estado"
-                data-id="${paquete.id}"
+                data-id="${paquete.idPaquete}"
                 data-estado="${!paquete.activo}"
                 title="${paquete.activo ? 'Desactivar' : 'Activar'}"
               >

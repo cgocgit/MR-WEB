@@ -170,28 +170,30 @@ function renderizarTabla(servicios) {
               type="button"
               class="btn btn-sm btn-primary"
               data-action="ver"
-              data-id="${servicio.id}"
+              data-id="${servicio.idServicio}"
               title="Ver detalle"
             >
               👁️
             </button>
+
             ${puedeEditar ? `
               <button
                 type="button"
                 class="btn btn-sm btn-secondary"
                 data-action="editar"
-                data-id="${servicio.id}"
+                data-id="${servicio.idServicio}"
                 title="Editar"
               >
                 ✎
               </button>
             ` : ''}
+
             ${puedeBorrar ? `
               <button
                 type="button"
                 class="btn btn-sm btn-danger"
                 data-action="cambiar-estado"
-                data-id="${servicio.id}"
+                data-id="${servicio.idServicio}"
                 data-estado="${!servicio.activo}"
                 title="${servicio.activo ? 'Desactivar' : 'Activar'}"
               >

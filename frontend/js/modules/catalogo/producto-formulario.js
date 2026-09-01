@@ -17,6 +17,7 @@ import {
   CATEGORIAS_PRODUCTO,
   TIPOS_PRODUCTO,
   COLORES,
+  UNIDADES_MEDIDA,
   PERMISOS_CATALOGO,
   MENSAJES,
   LIMITES_CAMPOS
@@ -52,7 +53,7 @@ function obtenerElementos() {
     idCategoria: document.getElementById('idCategoria'),
     idTipoProducto: document.getElementById('idTipoProducto'),
     idColor: document.getElementById('idColor'),
-    unidad: document.getElementById('unidad'),
+    unidadMedida: document.getElementById('unidadMedida'),
     precioBase: document.getElementById('precioBase'),
     imagen: document.getElementById('imagen'),
     urlImagen: document.getElementById('urlImagen'),
@@ -70,7 +71,7 @@ function obtenerElementos() {
     errorIdCategoria: document.getElementById('error-idCategoria'),
     errorIdTipoProducto: document.getElementById('error-idTipoProducto'),
     errorIdColor: document.getElementById('error-idColor'),
-    errorUnidad: document.getElementById('error-unidad'),
+    errorUnidadMedida: document.getElementById('error-unidadMedida'),
     errorPrecioBase: document.getElementById('error-precioBase'),
     errorImagen: document.getElementById('error-imagen'),
     errorUrlImagen: document.getElementById('error-urlImagen')
@@ -182,6 +183,20 @@ async function cargarAuxiliares() {
         idColor.appendChild(option);
       });
     }
+
+    const { unidadMedida } = obtenerElementos();
+
+    if (unidadMedida) {
+      unidadMedida.innerHTML =
+        '<option value="">Seleccione una unidad</option>';
+
+      UNIDADES_MEDIDA.forEach(unidad => {
+        const option = document.createElement('option');
+        option.value = unidad;
+        option.textContent = unidad;
+        unidadMedida.appendChild(option);
+      });
+    }
   } catch (error) {
     console.error('Error cargando auxiliares:', error);
     showNotification('Error cargando datos auxiliares', { type: 'error' });
@@ -209,7 +224,7 @@ async function cargarProducto(id) {
       idCategoria,
       idTipoProducto,
       idColor,
-      unidad,
+      unidadMedida,
       precioBase,
       urlImagen,
       previewImagen,
@@ -223,7 +238,9 @@ async function cargarProducto(id) {
     if (idCategoria) idCategoria.value = producto.idCategoria || '';
     if (idTipoProducto) idTipoProducto.value = producto.idTipoProducto || '';
     if (idColor) idColor.value = producto.idColor || '';
-    if (unidad) unidad.value = producto.unidad || '';
+    if (unidadMedida) {
+      unidadMedida.value = producto.unidadMedida || '';
+    }
     if (precioBase) precioBase.value = producto.precioBase;
     if (urlImagen) urlImagen.value = producto.urlImagen || '';
     if (activo) activo.checked = producto.activo;
@@ -307,7 +324,7 @@ async function manejarEnvio(e) {
     idCategoria,
     idTipoProducto,
     idColor,
-    unidad,
+    unidadMedida,
     precioBase,
     urlImagen,
     activo
@@ -322,13 +339,24 @@ async function manejarEnvio(e) {
       codigo: codigo?.value.trim() || '',
       nombre: nombre?.value.trim() || '',
       descripcion: descripcion?.value.trim() || '',
-      idCategoria: idCategoria?.value || null,
-      idTipoProducto: idTipoProducto?.value || null,
-      idColor: idColor?.value || null,
-      unidad: unidad?.value.trim() || '',
-      precioBase: parseFloat(precioBase?.value) || 0,
-      urlImagen: urlImagen?.value.trim() || '',
-      activo: activo?.checked || false
+
+      idCategoria: idCategoria?.value
+        ? Number(idCategoria.value)
+        : null,
+
+      idTipoProducto: idTipoProducto?.value
+        ? Number(idTipoProducto.value)
+        : null,
+
+      idColor: idColor?.value
+        ? Number(idColor.value)
+        : null,
+
+      unidadMedida: unidadMedida?.value.trim() || '',
+
+      precioBase: Number(precioBase?.value || 0),
+
+      activo: Boolean(activo?.checked)
     };
 
     // Guardar

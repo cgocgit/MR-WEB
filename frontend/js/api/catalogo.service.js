@@ -96,12 +96,17 @@ export async function listarProductos(filtros = {}) {
  */
 export async function obtenerProducto(id) {
   await simularLatencia(150);
-  
-  const producto = obtenerProductoPorId(id);
+
+  const idProducto = normalizarId(id, 'producto');
+  const producto = obtenerProductoPorId(idProducto);
+
   if (!producto) {
-    throw crearError('PRODUCTO_NO_ENCONTRADO', MENSAJES.PRODUCTO_NO_ENCONTRADO);
+    throw crearError(
+      'PRODUCTO_NO_ENCONTRADO',
+      MENSAJES.PRODUCTO_NO_ENCONTRADO
+    );
   }
-  
+
   return producto;
 }
 
@@ -142,9 +147,12 @@ export async function registrarProducto(datos) {
  * Actualizar producto existente
  */
 export async function actualizarProducto(id, datos) {
+
   await simularLatencia(300);
   
-  const indice = PRODUCTOS_MOCK.findIndex(p => p.idProducto === id);
+  const idProducto = normalizarId(id, 'producto');
+
+  const indice = PRODUCTOS_MOCK.findIndex(p => p.idProducto === idProducto);
   if (indice === -1) {
     throw crearError('PRODUCTO_NO_ENCONTRADO', MENSAJES.PRODUCTO_NO_ENCONTRADO);
   }
@@ -156,7 +164,7 @@ export async function actualizarProducto(id, datos) {
   }
   
   // Verificar código duplicado (excluyendo el actual)
-  if (datos.codigo !== PRODUCTOS_MOCK[indice].codigo && existeCodigoProducto(datos.codigo, id)) {
+  if (datos.codigo !== PRODUCTOS_MOCK[indice].codigo && existeCodigoProducto(datos.codigo, idProducto)) {
     throw crearError('CODIGO_DUPLICADO', MENSAJES.PRODUCTO_CODIGO_DUPLICADO);
   }
   
@@ -164,7 +172,7 @@ export async function actualizarProducto(id, datos) {
   const productoActualizado = {
     ...PRODUCTOS_MOCK[indice],
     ...datos,
-    idProducto: id,
+    idProducto: idProducto,
     fechaModificacion: new Date(),
     modificadoPor: 'usuario@mesaregia.com',
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
@@ -179,16 +187,24 @@ export async function actualizarProducto(id, datos) {
  */
 export async function cambiarEstadoProducto(id, activo) {
   await simularLatencia(200);
-  
-  const indice = PRODUCTOS_MOCK.findIndex(p => p.idProducto === id);
+
+  const idProducto = normalizarId(id, 'producto');
+
+  const indice = PRODUCTOS_MOCK.findIndex(
+    producto => producto.idProducto === idProducto
+  );
+
   if (indice === -1) {
-    throw crearError('PRODUCTO_NO_ENCONTRADO', MENSAJES.PRODUCTO_NO_ENCONTRADO);
+    throw crearError(
+      'PRODUCTO_NO_ENCONTRADO',
+      MENSAJES.PRODUCTO_NO_ENCONTRADO
+    );
   }
-  
+
   PRODUCTOS_MOCK[indice].activo = activo ? 1 : 0;
   PRODUCTOS_MOCK[indice].fechaModificacion = new Date();
   PRODUCTOS_MOCK[indice].modificadoPor = 'usuario@mesaregia.com';
-  
+
   return clonarDatos(PRODUCTOS_MOCK[indice]);
 }
 
@@ -690,6 +706,26 @@ function validarPaquete(datos, idActual) {
 // ====================
 // UTILIDADES
 // ====================
+
+/**
+ * Normaliza un identificador recibido desde URL, dataset o controlador.
+ *
+ * @param {number|string} id
+ * @param {string} entidad
+ * @returns {number}
+ */
+function normalizarId(id, entidad = 'registro') {
+  const valor = Number(id);
+
+  if (!Number.isInteger(valor) || valor <= 0) {
+    throw crearError(
+      'ID_INVALIDO',
+      `El identificador de ${entidad} no es válido.`
+    );
+  }
+
+  return valor;
+}
 
 /**
  * Crear objeto de error normalizado
