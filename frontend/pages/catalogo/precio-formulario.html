@@ -1,0 +1,148 @@
+<section
+  class="catalogo-container"
+  id="lista-precio-formulario-page"
+>
+
+  <div class="catalogo-header">
+    <h1 id="form-title">
+      Nueva Lista de Precios
+    </h1>
+  </div>
+
+  <form
+    id="lista-precio-form"
+    class="catalogo-form"
+    novalidate
+  >
+
+    <div class="catalogo-form-section">
+
+      <h2>Información general</h2>
+
+      <div class="catalogo-form-grid">
+
+        <div class="catalogo-form-group">
+          <label for="nombre">
+            Nombre *
+          </label>
+
+          <input
+            id="nombre"
+            name="nombre"
+            type="text"
+            maxlength="150"
+            required
+          >
+
+          <span
+            id="error-nombre"
+            class="catalogo-form-error"
+          ></span>
+        </div>
+
+        <div class="catalogo-form-group">
+          <label for="vigenciaInicio">
+            Inicio de vigencia *
+          </label>
+
+          <input
+            id="vigenciaInicio"
+            name="vigenciaInicio"
+            type="date"
+            required
+          >
+
+          <span
+            id="error-vigenciaInicio"
+            class="catalogo-form-error"
+          ></span>
+        </div>
+
+        <div class="catalogo-form-group">
+          <label for="vigenciaFin">
+            Fin de vigencia *
+          </label>
+
+          <input
+            id="vigenciaFin"
+            name="vigenciaFin"
+            type="date"
+            required
+          >
+
+          <span
+            id="error-vigenciaFin"
+            class="catalogo-form-error"
+          ></span>
+        </div>
+
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="descripcion">
+          Descripción
+        </label>
+
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          rows="4"
+          maxlength="255"
+        ></textarea>
+
+        <span
+          id="error-descripcion"
+          class="catalogo-form-error"
+        ></span>
+      </div>
+
+    </div>
+
+    <div class="catalogo-form-section">
+
+      <h2>Estado</h2>
+
+      <div class="catalogo-form-group">
+        <label>
+          <input
+            id="activo"
+            name="activo"
+            type="checkbox"
+            checked
+          >
+          Lista activa
+        </label>
+      </div>
+
+    </div>
+
+    <div class="catalogo-form-actions">
+
+      <button
+        id="btn-cancelar"
+        type="button"
+        class="btn btn-secondary"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Guardar
+      </button>
+
+    </div>
+
+  </form>
+
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/catalogo/precio-formulario.js';
+
+  init();
+</script>

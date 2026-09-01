@@ -1,0 +1,186 @@
+<section
+  class="catalogo-container"
+  id="lista-precio-detalle-page"
+>
+
+  <div
+    id="estado-cargando"
+    class="catalogo-loading"
+  >
+    <div class="catalogo-loading-spinner"></div>
+    <span>
+      Cargando lista de precios...
+    </span>
+  </div>
+
+  <div
+    id="estado-error"
+    class="catalogo-error"
+    style="display:none"
+  >
+    <div class="catalogo-error-icon">
+      ⚠️
+    </div>
+
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">
+        Error al consultar la lista de precios
+      </div>
+
+      <p id="error-mensaje"></p>
+    </div>
+  </div>
+
+  <div
+    id="detalle-content"
+    style="display:none"
+  >
+
+    <div class="catalogo-header">
+
+      <div>
+        <h1 id="lista-nombre">
+          Lista de Precios
+        </h1>
+      </div>
+
+      <div class="catalogo-detail-actions">
+
+        <button
+          id="btn-volver"
+          type="button"
+          class="btn btn-secondary"
+        >
+          Volver
+        </button>
+
+        <button
+          id="btn-editar"
+          type="button"
+          class="btn btn-primary"
+        >
+          Editar
+        </button>
+
+        <button
+          id="btn-estado"
+          type="button"
+          class="btn btn-secondary"
+        >
+          Desactivar
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="catalogo-detail-section">
+
+      <h2>Información general</h2>
+
+      <div class="catalogo-detail-meta">
+
+        <div class="catalogo-detail-meta-item">
+
+          <span class="catalogo-detail-meta-label">
+            Estado
+          </span>
+
+          <span
+            id="lista-estado"
+            class="catalogo-detail-meta-value"
+          ></span>
+
+        </div>
+
+        <div class="catalogo-detail-meta-item">
+
+          <span class="catalogo-detail-meta-label">
+            Inicio de vigencia
+          </span>
+
+          <span
+            id="lista-vigencia-inicio"
+            class="catalogo-detail-meta-value"
+          ></span>
+
+        </div>
+
+        <div class="catalogo-detail-meta-item">
+
+          <span class="catalogo-detail-meta-label">
+            Fin de vigencia
+          </span>
+
+          <span
+            id="lista-vigencia-fin"
+            class="catalogo-detail-meta-value"
+          ></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="catalogo-detail-section">
+
+      <h2>Descripción</h2>
+
+      <p id="lista-descripcion">
+        Sin descripción
+      </p>
+
+    </div>
+
+    <div
+      id="seccion-auditoria"
+      class="catalogo-detail-section"
+      style="display:none"
+    >
+
+      <h2>Auditoría</h2>
+
+      <div class="catalogo-detail-meta">
+
+        <div class="catalogo-detail-meta-item">
+
+          <span class="catalogo-detail-meta-label">
+            Registro
+          </span>
+
+          <span
+            id="lista-registro"
+            class="catalogo-detail-meta-value"
+          ></span>
+
+        </div>
+
+        <div class="catalogo-detail-meta-item">
+
+          <span class="catalogo-detail-meta-label">
+            Última modificación
+          </span>
+
+          <span
+            id="lista-modificacion"
+            class="catalogo-detail-meta-value"
+          ></span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/catalogo/precio-detalle.js';
+
+  init();
+</script>
