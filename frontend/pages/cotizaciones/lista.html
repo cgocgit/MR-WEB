@@ -2,11 +2,12 @@
   <h1>Cotizaciones</h1>
   <div id="cotizaciones" class="card mt-12"></div>
   <script type="module">
-    import { listCotizaciones } from '../../js/api/cotizaciones.service.js';
-    import { renderTable } from '../../js/components/table.js';
+    import { listCotizaciones } from './js/api/cotizaciones.service.js';
+    import { renderTable } from './js/components/table.js';
     (async ()=>{
       const datos = await listCotizaciones();
       renderTable(document.getElementById('cotizaciones'), ['Id','Cliente','Total','Estado'], datos.map(d=>({id:d.id,cliente:d.cliente,total:d.total,estado:d.estado})));
     })();
   </script>
 </section>
+

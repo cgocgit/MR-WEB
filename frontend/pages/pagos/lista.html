@@ -2,8 +2,9 @@
   <h1>Pagos</h1>
   <div id="pagos" class="card mt-12"></div>
   <script type="module">
-    import { listPagos } from '../../js/api/pagos.service.js';
-    import { renderTable } from '../../js/components/table.js';
+    import { listPagos } from './js/api/pagos.service.js';
+    import { renderTable } from './js/components/table.js';
     (async ()=>{ const datos = await listPagos(); renderTable(document.getElementById('pagos'), ['Id','Orden','Monto','Fecha','Metodo'], datos.map(d=>({id:d.id,orden:d.orden,monto:d.monto,fecha:d.fecha,metodo:d.metodo}))); })();
   </script>
 </section>
+

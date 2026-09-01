@@ -1,22 +1,436 @@
-header#topbar{height:56px;background:var(--panel);display:flex;align-items:center;justify-content:space-between;padding:0 16px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
-nav#sidebar{width:220px;background:var(--panel);position:fixed;top:56px;bottom:0;left:0;padding:12px;overflow:auto;transition:transform .22s ease}
-nav#sidebar{width:220px;background:var(--panel);position:fixed;top:56px;bottom:0;left:0;padding:12px;overflow:auto;transition:transform .22s ease;box-shadow:2px 0 6px rgba(0,0,0,0.06);z-index:900}
-main#content{margin-left:240px;padding:20px;min-height:calc(100vh - 56px);transition:margin-left .22s ease}
-
-/* collapsed state (for mobile or explicit collapse) */
-.sidebar-collapsed nav#sidebar{transform:translateX(-260px)}
-.sidebar-collapsed main#content{margin-left:0}
-
-/* Ensure header above sidebar */
-header#topbar{position:relative;z-index:1000}
-
-/* hide layout pieces until authenticated to avoid showing layout over login */
-.auth-only{display:none}
-
-@media (max-width:720px){
-  nav#sidebar{position:fixed;left:0;top:56px;height:calc(100% - 56px);transform:translateX(-260px);z-index:900}
-  /* On small screens we overlay the sidebar; content remains full width */
-  main#content{margin-left:0;padding:12px}
+:root {
+  --topbar-height: 56px;
+  --sidebar-width: 240px;
+  --sidebar-mobile-width: min(84vw, 320px);
 }
 
-#notifications{position:fixed;right:16px;bottom:16px;z-index:1000}
+/* =========================================================
+   TOPBAR
+   ========================================================= */
+
+header#topbar {
+  height: calc(
+    var(--topbar-height) +
+    env(safe-area-inset-top, 0px)
+  );
+
+  padding:
+    env(safe-area-inset-top, 0px)
+    max(12px, env(safe-area-inset-right, 0px))
+    0
+    max(12px, env(safe-area-inset-left, 0px));
+
+  background: var(--panel);
+
+  display: flex;
+  align-items: center;
+
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.04);
+
+  position: sticky;
+  top: 0;
+
+  z-index: 1300;
+}
+
+.topbar-container {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.topbar-brand-group,
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-brand {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.topbar-welcome {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.sidebar-toggle,
+.topbar-alerts {
+  min-width: 44px;
+  min-height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 8px;
+
+  background: transparent;
+  border: 0;
+
+  cursor: pointer;
+}
+
+.topbar-alerts-count {
+  font-weight: 600;
+  color: var(--accent);
+  margin-left: 4px;
+}
+
+/* =========================================================
+   SIDEBAR - ESCRITORIO
+   ========================================================= */
+
+nav#sidebar {
+  width: var(--sidebar-width);
+
+  position: fixed;
+
+  top: calc(
+    var(--topbar-height) +
+    env(safe-area-inset-top, 0px)
+  );
+
+  bottom: 0;
+  left: 0;
+
+  padding: 12px;
+
+  background: var(--panel);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  box-shadow:
+    2px 0 6px rgba(0, 0, 0, 0.06);
+
+  transform: translateX(0);
+
+  transition:
+    transform 0.22s ease;
+
+  z-index: 1200;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-shell {
+  min-height: 100%;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-bottom: 8px;
+}
+
+.sidebar-collapse {
+  min-width: 44px;
+  min-height: 44px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: 0;
+
+  cursor: pointer;
+}
+
+.sidebar-menu,
+.sidebar-submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-submenu {
+  padding-left: 12px;
+  margin-top: 4px;
+}
+
+.sidebar-menu a,
+.sidebar-submenu a {
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 8px 10px;
+
+  border-radius: var(--radius);
+
+  touch-action: manipulation;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a:focus-visible,
+.sidebar-submenu a:hover,
+.sidebar-submenu a:focus-visible {
+  background: var(--bg);
+}
+
+.sidebar-admin-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Escritorio colapsado */
+
+.sidebar-collapsed nav#sidebar {
+  transform: translateX(
+    calc(-1 * var(--sidebar-width) - 24px)
+  );
+}
+
+/* =========================================================
+   CONTENIDO
+   ========================================================= */
+
+main#content {
+  margin-left:
+    calc(var(--sidebar-width) + 20px);
+
+  padding: 20px;
+
+  min-height:
+    calc(
+      100vh -
+      var(--topbar-height)
+    );
+
+  min-height:
+    calc(
+      100dvh -
+      var(--topbar-height)
+    );
+
+  transition:
+    margin-left 0.22s ease;
+}
+
+.sidebar-collapsed main#content {
+  margin-left: 0;
+}
+
+/* =========================================================
+   BACKDROP
+   ========================================================= */
+
+.sidebar-backdrop {
+  display: none;
+}
+
+/* =========================================================
+   AUTENTICACIÓN
+   ========================================================= */
+
+.auth-only {
+  display: none;
+}
+
+/* =========================================================
+   RESPONSIVE / MÓVIL
+   Honor, OPPO, iPhone y dispositivos táctiles
+   ========================================================= */
+
+@media
+  (max-width: 900px),
+  (hover: none) and (pointer: coarse) {
+
+  body {
+    overflow-x: hidden;
+  }
+
+  header#topbar {
+    width: 100%;
+  }
+
+  .topbar-container {
+    gap: 6px;
+  }
+
+  .topbar-brand-group,
+  .topbar-actions {
+    gap: 6px;
+  }
+
+  .topbar-welcome {
+    display: none;
+  }
+
+  nav#sidebar {
+    width: var(--sidebar-mobile-width);
+
+    transform: translateX(-105%);
+
+    box-shadow:
+      4px 0 16px rgba(0, 0, 0, 0.18);
+  }
+
+  /*
+   * Estado que realmente abre el
+   * menú en dispositivos móviles.
+   */
+  .sidebar-open nav#sidebar {
+    transform: translateX(0);
+  }
+
+  /*
+   * sidebar-collapsed pertenece al
+   * comportamiento de escritorio.
+   */
+  .sidebar-collapsed nav#sidebar {
+    transform: translateX(-105%);
+  }
+
+  main#content,
+  .sidebar-collapsed main#content,
+  .sidebar-open main#content {
+    margin-left: 0;
+    padding: 12px;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+
+    position: fixed;
+
+    top: calc(
+      var(--topbar-height) +
+      env(safe-area-inset-top, 0px)
+    );
+
+    right: 0;
+    bottom: 0;
+    left: 0;
+
+    background:
+      rgba(0, 0, 0, 0.42);
+
+    opacity: 0;
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease;
+
+    z-index: 1100;
+  }
+
+  .sidebar-open
+    .sidebar-backdrop {
+      opacity: 1;
+      visibility: visible;
+
+      pointer-events: auto;
+  }
+
+  /*
+   * Impide que el contenido detrás
+   * del menú se desplace.
+   */
+  .sidebar-open body {
+    overflow: hidden;
+  }
+
+  .sidebar-menu a,
+  .sidebar-submenu a {
+    min-height: 48px;
+  }
+
+  .desktop-sidebar-icon {
+    display: none;
+  }
+
+  .mobile-sidebar-icon {
+    display: inline;
+  }
+}
+
+/* Escritorio */
+
+@media
+  (min-width: 901px)
+  and (hover: hover) {
+
+  .mobile-sidebar-icon {
+    display: none;
+  }
+
+  .desktop-sidebar-icon {
+    display: inline;
+  }
+}
+
+/* Dispositivos muy estrechos */
+
+@media (max-width: 380px) {
+  .topbar-brand {
+    font-size: 0.95rem;
+  }
+
+  .topbar-actions {
+    gap: 2px;
+  }
+
+  .topbar-logout {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  nav#sidebar {
+    width: min(88vw, 300px);
+  }
+}
+
+/* Respeta preferencia del sistema */
+
+@media
+  (prefers-reduced-motion: reduce) {
+
+  nav#sidebar,
+  main#content,
+  .sidebar-backdrop {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   NOTIFICACIONES
+   ========================================================= */
+
+#notifications {
+  position: fixed;
+
+  right:
+    max(
+      16px,
+      env(safe-area-inset-right, 0px)
+    );
+
+  bottom:
+    max(
+      16px,
+      env(safe-area-inset-bottom, 0px)
+    );
+
+  z-index: 1400;
+}

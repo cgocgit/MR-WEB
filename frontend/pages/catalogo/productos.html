@@ -3,11 +3,12 @@
   <div id="productos" class="card mt-12"></div>
 
   <script type="module">
-    import { listProductos } from '../../js/api/catalogo.service.js';
-    import { renderTable } from '../../js/components/table.js';
+    import { listProductos } from './js/api/catalogo.service.js';
+    import { renderTable } from './js/components/table.js';
     (async ()=>{
       const datos = await listProductos();
       renderTable(document.getElementById('productos'), ['Nombre','Categoria','Precio'], datos.map(d=>({nombre:d.nombre,categoria:d.categoria,precio:d.precio})));
     })();
   </script>
 </section>
+

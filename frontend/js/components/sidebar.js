@@ -2,6 +2,52 @@ import {
   hasPermission
 } from '../shared/permissions.js';
 
+const MOBILE_LAYOUT_QUERY =
+  '(max-width: 900px), ' +
+  '(hover: none) and (pointer: coarse)';
+
+function isMobileLayout() {
+  return window.matchMedia(
+    MOBILE_LAYOUT_QUERY
+  ).matches;
+}
+
+function closeSidebar() {
+  const root =
+    document.documentElement;
+
+  if (isMobileLayout()) {
+    root.classList.remove(
+      'sidebar-open'
+    );
+  } else {
+    root.classList.add(
+      'sidebar-collapsed'
+    );
+  }
+
+  const toggle =
+    document.getElementById(
+      'sidebarToggle'
+    );
+
+  if (toggle) {
+    toggle.setAttribute(
+      'aria-expanded',
+      'false'
+    );
+
+    toggle.setAttribute(
+      'aria-label',
+      'Abrir menú de navegación'
+    );
+  }
+
+  window.dispatchEvent(
+    new Event('sidebar:changed')
+  );
+}
+
 export function renderSidebar(container, session){
   const hasSession = session && session.user;
   
@@ -81,15 +127,46 @@ export function renderSidebar(container, session){
       )
   );
 
-  container.innerHTML = `<div class="container"><div style="display:flex;justify-content:flex-end;margin-bottom:8px"><button id="sidebarCollapse" aria-label="Ocultar menú" title="Ocultar menú" style="background:transparent;border:none;cursor:pointer">«</button></div><ul style="list-style:none;display:flex;flex-direction:column;gap:8px"></ul></div>`;
+  container.innerHTML = `
+    <div class="sidebar-shell">
+      <div class="sidebar-header">
+        <button
+          id="sidebarCollapse"
+          class="sidebar-collapse"
+          type="button"
+          aria-label="Cerrar menú"
+          title="Cerrar menú"
+        >
+          <span
+            class="desktop-sidebar-icon"
+            aria-hidden="true"
+          >
+            «
+          </span>
+
+          <span
+            class="mobile-sidebar-icon"
+            aria-hidden="true"
+          >
+            ×
+          </span>
+        </button>
+      </div>
+
+      <ul
+        class="sidebar-menu"
+        aria-label="Opciones principales"
+      ></ul>
+    </div>
+  `;
+
   const ul = container.querySelector('ul');
   items.forEach(it=>{
     const li = document.createElement('li');
     // Render Administration with a sub-menu for its internal pages
     if(it.key === 'administracion'){
       const wrapper = document.createElement('div');
-      wrapper.style.display = 'flex';
-      wrapper.style.flexDirection = 'column';
+      wrapper.className = 'sidebar-admin-group';
       const a = document.createElement('a');
       a.href = it.href;
       a.textContent = it.label;
@@ -98,9 +175,7 @@ export function renderSidebar(container, session){
       a.setAttribute('aria-label', it.label);
       wrapper.appendChild(a);
       const sub = document.createElement('ul');
-      sub.style.listStyle = 'none';
-      sub.style.paddingLeft = '12px';
-      sub.style.marginTop = '6px';
+      sub.className = 'sidebar-submenu';
       const adminItems = [
         {
           href: '#/administracion/usuarios',
@@ -183,20 +258,52 @@ export function renderSidebar(container, session){
   // collapse button behaviour
   const collapse = container.querySelector('#sidebarCollapse');
   if(collapse){
-    collapse.addEventListener('click', ()=>{
-      document.documentElement.classList.add('sidebar-collapsed');
-      // focus content so keyboard users can continue
-      const main = document.querySelector('main#content'); if(main) main.focus();
-      // notify layout to adjust main content
-      window.dispatchEvent(new Event('sidebar:changed'));
-    });
+    collapse.addEventListener(
+      'click',
+      () => {
+        closeSidebar();
+
+        const main =
+          document.querySelector(
+            'main#content'
+          );
+
+        if (
+          main &&
+          !isMobileLayout()
+        ) {
+          main.focus();
+        }
+      }
+    );
   }
 
   // auto-collapse on small screens when a link is clicked
   ul.addEventListener('click', (e)=>{
     const a = e.target && (e.target.closest && e.target.closest('a')) || null;
     if(!a) return;
-    if(window.innerWidth <= 720) document.documentElement.classList.add('sidebar-collapsed');
+    if (isMobileLayout()) {
+      document.documentElement
+        .classList
+        .remove('sidebar-open');
+
+      const toggle =
+        document.getElementById(
+          'sidebarToggle'
+        );
+
+      if (toggle) {
+        toggle.setAttribute(
+          'aria-expanded',
+          'false'
+        );
+
+        toggle.setAttribute(
+          'aria-label',
+          'Abrir menú de navegación'
+        );
+      }
+    }
     // notify layout to adjust main content
     window.dispatchEvent(new Event('sidebar:changed'));
   });

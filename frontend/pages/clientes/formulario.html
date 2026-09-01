@@ -44,7 +44,82 @@
         type="text"
         autocomplete="family-name"
       >
+<section
+  id="cliente-form-page"
+  class="container clientes-page"
+  aria-labelledby="cliente-form-title"
+>
+  <header>
+  <h1 id="cliente-form-title">
+    Prospecto
+  </h1>
+
+  <p id="cliente-form-description">
+    Captura la información disponible del prospecto.
+  </p>
+</header>
+
+  <form
+    id="cliente-form"
+    class="card clientes-form"
+    novalidate
+  >
+    <div
+      id="cliente-form-errors"
+      class="clientes-errors"
+      role="alert"
+      aria-live="assertive"
+      hidden
+    ></div>
+
+    <label>
+      Nombres
+      <input
+        id="nombres"
+        name="nombres"
+        type="text"
+        autocomplete="given-name"
+      >
     </label>
+
+    <label>
+      Apellidos
+      <input
+        id="apellidos"
+        name="apellidos"
+        type="text"
+        autocomplete="family-name"
+      >
+    </label>
+
+    <fieldset>
+      <legend>
+        Contactos
+      </legend>
+
+      <p>
+        Puedes registrar más de un medio de contacto.
+      </p>
+
+      <div
+        id="contactos-container"
+      ></div>
+
+      <button
+        id="agregar-contacto"
+        type="button"
+      >
+        Agregar contacto
+      </button>
+    </fieldset>
+
+    <label>
+      Evento
+      <input
+        id="evento"
+        name="evento"
+        type="text"
+      >
 
     <fieldset>
       <legend>
@@ -96,7 +171,7 @@
   <script type="module">
     import {
       init
-    } from '../../js/modules/clientes/formulario.js';
+    } from './js/modules/clientes/formulario.js';
 
     init();
   </script>

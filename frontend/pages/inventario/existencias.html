@@ -2,11 +2,12 @@
   <h1>Existencias</h1>
   <div id="existencias" class="card mt-12"></div>
   <script type="module">
-    import { getExistencias } from '../../js/api/inventario.service.js';
-    import { renderTable } from '../../js/components/table.js';
+    import { getExistencias } from './js/api/inventario.service.js';
+    import { renderTable } from './js/components/table.js';
     (async ()=>{
       const datos = await getExistencias();
       renderTable(document.getElementById('existencias'), ['Producto','Almacen','Cantidad'], datos.map(d=>({producto:d.producto,almacen:d.almacen,cantidad:d.cantidad})));
     })();
   </script>
 </section>
+

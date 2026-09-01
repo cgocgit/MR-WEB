@@ -21,11 +21,34 @@
   >
     Cargando...
   </div>
+<section
+  id="cliente-detalle-page"
+  class="container clientes-page"
+  aria-labelledby="detalle-title"
+>
+  <header>
+    <h1 id="detalle-title">
+      Detalle de cliente o prospecto
+    </h1>
+
+    <p>
+      Consulta la información registrada,
+      contactos, cotizaciones y datos de control.
+    </p>
+  </header>
+
+  <div
+    id="cliente-detalle-content"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    Cargando...
+  </div>
 
   <script type="module">
     import {
       init
-    } from '../../js/modules/clientes/detalle.js';
+    } from './js/modules/clientes/detalle.js';
 
     init();
   </script>

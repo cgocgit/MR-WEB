@@ -2,11 +2,12 @@
   <h1>Servicios</h1>
   <div id="servicios" class="card mt-12"></div>
   <script type="module">
-    import { listServicios } from '../../js/api/catalogo.service.js';
-    import { renderTable } from '../../js/components/table.js';
+    import { listServicios } from './js/api/catalogo.service.js';
+    import { renderTable } from './js/components/table.js';
     (async ()=>{
       const datos = await listServicios();
       renderTable(document.getElementById('servicios'), ['Nombre','Duracion'], datos.map(d=>({nombre:d.nombre,duracion:d.duracion})));
     })();
   </script>
 </section>
+
