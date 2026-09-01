@@ -1,0 +1,176 @@
+<section class="catalogo-detail" id="paquete-detalle-page">
+  <div class="catalogo-header">
+    <h1>Detalle de Paquete</h1>
+    <button id="btn-volver" class="btn btn-secondary">← Volver</button>
+  </div>
+
+  <!-- Contenido principal -->
+  <div id="detalle-content" style="display: none;">
+    <!-- Encabezado con información general -->
+    <div class="catalogo-detail-info">
+      <h2 class="catalogo-detail-title" id="paquete-nombre"></h2>
+      <p class="catalogo-detail-code" id="paquete-codigo"></p>
+
+      <div class="catalogo-detail-meta">
+        <div class="catalogo-detail-meta-item">
+          <span class="catalogo-detail-meta-label">Precio Registrado</span>
+          <span class="catalogo-detail-meta-value catalogo-price-display" id="paquete-precio"></span>
+        </div>
+
+        <div class="catalogo-detail-meta-item">
+          <span class="catalogo-detail-meta-label">Total Informativo</span>
+          <span class="catalogo-detail-meta-value catalogo-price-display" id="paquete-total"></span>
+        </div>
+
+        <div class="catalogo-detail-meta-item">
+          <span class="catalogo-detail-meta-label">Estado</span>
+          <span class="catalogo-detail-meta-value" id="paquete-estado"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="catalogo-detail-section">
+      <h3>Descripción</h3>
+      <p id="paquete-descripcion"></p>
+    </div>
+
+    <!-- Advertencia de componentes inactivos -->
+    <div id="advertencia-inactivos" class="catalogo-warning" style="display: none;">
+      ⚠️ Este paquete contiene componentes que están desactivados. No podrá ser utilizado en nuevas operaciones hasta reactivarlos.
+    </div>
+
+    <!-- Productos Incluidos -->
+    <div class="catalogo-detail-section">
+      <h3>Productos Incluidos</h3>
+      <table class="catalogo-table" id="tabla-productos">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Cantidad</th>
+            <th>Precio Unit.</th>
+            <th>Subtotal</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem;">Cargando productos...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Servicios Incluidos -->
+    <div class="catalogo-detail-section">
+      <h3>Servicios Incluidos</h3>
+      <table class="catalogo-table" id="tabla-servicios">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Cantidad</th>
+            <th>Tarifa Unit.</th>
+            <th>Subtotal</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 2rem;">Cargando servicios...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Resumen -->
+    <div class="catalogo-detail-section">
+      <h3>Resumen</h3>
+      
+      <div class="catalogo-form-summary">
+        <div class="catalogo-form-summary-item">
+          <span class="catalogo-form-summary-label">Total Productos</span>
+          <span class="catalogo-form-summary-value" id="resumen-total-productos">0</span>
+        </div>
+
+        <div class="catalogo-form-summary-item">
+          <span class="catalogo-form-summary-label">Total Servicios</span>
+          <span class="catalogo-form-summary-value" id="resumen-total-servicios">0</span>
+        </div>
+
+        <div class="catalogo-form-summary-item">
+          <span class="catalogo-form-summary-label">Total Componentes</span>
+          <span class="catalogo-form-summary-value" id="resumen-total-componentes">0</span>
+        </div>
+
+        <div class="catalogo-form-summary-item">
+          <span class="catalogo-form-summary-label">Subtotal Informativo</span>
+          <span class="catalogo-form-summary-value" id="resumen-subtotal">$0.00</span>
+        </div>
+
+        <div class="catalogo-form-summary-item">
+          <span class="catalogo-form-summary-label">Precio Registrado</span>
+          <span class="catalogo-form-summary-value" id="resumen-precio-registrado">$0.00</span>
+        </div>
+
+        <div class="catalogo-form-summary-item">
+          <span class="catalogo-form-summary-label">Diferencia Informativa</span>
+          <span class="catalogo-form-summary-value" id="resumen-diferencia">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auditoría (solo para gestores) -->
+    <div class="catalogo-detail-section" id="seccion-auditoria" style="display: none;">
+      <h3>Auditoría</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.875rem;">
+        <div>
+          <p style="margin: 0 0 0.5rem 0; font-weight: 500; color: var(--color-text-secondary);">Registrado</p>
+          <p style="margin: 0;" id="paquete-registro"></p>
+        </div>
+
+        <div>
+          <p style="margin: 0 0 0.5rem 0; font-weight: 500; color: var(--color-text-secondary);">Última modificación</p>
+          <p style="margin: 0;" id="paquete-modificacion"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="catalogo-detail-actions">
+      <button id="btn-editar" class="btn btn-primary" style="display: none;">✎ Editar</button>
+      <button id="btn-estado" class="btn btn-secondary" style="display: none;"></button>
+    </div>
+  </div>
+
+  <!-- Estado: Cargando -->
+  <div id="estado-cargando" class="catalogo-loading">
+    <div class="catalogo-loading-spinner"></div>
+    <span>Cargando paquete...</span>
+  </div>
+
+  <!-- Estado: Error -->
+  <div id="estado-error" class="catalogo-error" style="display: none;">
+    <div class="catalogo-error-icon">⚠️</div>
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">Error al cargar</div>
+      <p id="error-mensaje" style="margin: 0; font-size: 0.875rem;"></p>
+    </div>
+  </div>
+
+  <!-- Estado: Acceso denegado -->
+  <div id="estado-acceso" class="catalogo-error" style="display: none;">
+    <div class="catalogo-error-icon">🔒</div>
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">Acceso denegado</div>
+      <p style="margin: 0; font-size: 0.875rem;">No tiene permisos para ver este contenido.</p>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  // El controlador será cargado desde js/modules/catalogo/paquete-detalle.js
+  // por el sistema de enrutamiento principal
+</script>

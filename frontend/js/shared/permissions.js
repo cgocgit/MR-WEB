@@ -28,8 +28,21 @@ export const ROLE_PERMISSIONS = {
     'clientes.consultar',
     'clientes.buscar',
 
+    // Catálogo - permisos granulares
     'catalogo.consultar',
-    'catalogo.gestionar',
+    'catalogo.productos.registrar',
+    'catalogo.productos.modificar',
+    'catalogo.productos.desactivar',
+    'catalogo.servicios.registrar',
+    'catalogo.servicios.modificar',
+    'catalogo.servicios.desactivar',
+    'catalogo.paquetes.registrar',
+    'catalogo.paquetes.modificar',
+    'catalogo.paquetes.desactivar',
+    'catalogo.auxiliares.gestionar',
+    'catalogo.abc.gestionar',
+    'catalogo.precios.gestionar',
+    'catalogo.costos.consultar',
 
     'inventario.consultar',
 
@@ -49,8 +62,18 @@ export const ROLE_PERMISSIONS = {
   INVENTARIO: [
     'dashboard.consultar',
 
+    // Catálogo - permisos granulares para Responsable de Inventario
     'catalogo.consultar',
-    'catalogo.gestionar',
+    'catalogo.productos.registrar',
+    'catalogo.productos.modificar',
+    'catalogo.productos.desactivar',
+    'catalogo.servicios.registrar',
+    'catalogo.servicios.modificar',
+    'catalogo.servicios.desactivar',
+    'catalogo.paquetes.registrar',
+    'catalogo.paquetes.modificar',
+    'catalogo.paquetes.desactivar',
+    'catalogo.auxiliares.gestionar',
 
     'inventario.consultar',
     'inventario.gestionar',

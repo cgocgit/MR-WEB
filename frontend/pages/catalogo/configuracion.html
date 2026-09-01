@@ -1,0 +1,114 @@
+<section class="catalogo-container" id="configuracion-page">
+  <div class="catalogo-header">
+    <h1>Configuración de Catálogos</h1>
+  </div>
+
+  <!-- Navegación entre auxiliares -->
+  <div class="catalogo-tabs" role="tablist">
+    <button role="tab" data-auxiliar="categorias" class="catalogo-tab-btn" aria-selected="true">
+      📁 Categorías
+    </button>
+    <button role="tab" data-auxiliar="tipos" class="catalogo-tab-btn">
+      🏷️ Tipos de Producto
+    </button>
+    <button role="tab" data-auxiliar="colores" class="catalogo-tab-btn">
+      🎨 Colores
+    </button>
+  </div>
+
+  <!-- Sección de Categorías -->
+  <div id="seccion-categorias" class="catalogo-auxiliar-tab" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 style="margin: 0;">Categorías</h2>
+      <button id="btn-nueva-categoria" class="btn btn-primary">+ Nueva Categoría</button>
+    </div>
+
+    <div id="categorias-lista" class="catalogo-cards">
+      <p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">Cargando categorías...</p>
+    </div>
+  </div>
+
+  <!-- Sección de Tipos de Producto -->
+  <div id="seccion-tipos" class="catalogo-auxiliar-tab" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 style="margin: 0;">Tipos de Producto</h2>
+      <button id="btn-nuevo-tipo" class="btn btn-primary">+ Nuevo Tipo</button>
+    </div>
+
+    <div id="tipos-lista" class="catalogo-cards">
+      <p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">Cargando tipos...</p>
+    </div>
+  </div>
+
+  <!-- Sección de Colores -->
+  <div id="seccion-colores" class="catalogo-auxiliar-tab" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+      <h2 style="margin: 0;">Colores</h2>
+      <button id="btn-nuevo-color" class="btn btn-primary">+ Nuevo Color</button>
+    </div>
+
+    <div id="colores-lista" class="catalogo-cards">
+      <p style="grid-column: 1 / -1; text-align: center; color: var(--color-text-secondary);">Cargando colores...</p>
+    </div>
+  </div>
+
+  <!-- Modal de formulario -->
+  <div class="catalogo-modal-overlay" id="modal-auxiliar" style="display: none;">
+    <div class="catalogo-modal-content">
+      <h2 id="modal-titulo">Nuevo Auxiliar</h2>
+
+      <form id="auxiliar-form" style="display: flex; flex-direction: column; gap: 1rem; margin: 1rem 0;">
+        <div class="catalogo-form-group">
+          <label for="aux-nombre" class="required">Nombre</label>
+          <input type="text" id="aux-nombre" name="nombre" maxlength="100" required>
+          <span class="catalogo-form-error" id="error-aux-nombre"></span>
+        </div>
+
+        <div id="campo-tipo-categoria" class="catalogo-form-group" style="display: none;">
+          <label for="aux-tipo" class="required">Tipo de Categoría</label>
+          <select id="aux-tipo" name="tipo" required>
+            <option value="">Seleccione un tipo</option>
+            <option value="Producto">Producto</option>
+            <option value="Servicio">Servicio</option>
+          </select>
+          <span class="catalogo-form-error" id="error-aux-tipo"></span>
+        </div>
+
+        <div id="campo-hexadecimal" class="catalogo-form-group" style="display: none;">
+          <label for="aux-hexadecimal">Color (Hexadecimal)</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="color" id="aux-color-picker" style="flex: 0 0 50px; height: 40px; border: 1px solid var(--color-border); cursor: pointer;">
+            <input type="text" id="aux-hexadecimal" name="hexadecimal" placeholder="#FFFFFF" maxlength="7" style="flex: 1;">
+          </div>
+          <span class="catalogo-form-error" id="error-aux-hexadecimal"></span>
+        </div>
+
+        <div class="catalogo-form-group">
+          <label for="aux-activo">
+            <input type="checkbox" id="aux-activo" name="activo" checked>
+            Activo
+          </label>
+        </div>
+      </form>
+
+      <div class="catalogo-modal-actions">
+        <button type="button" class="btn btn-secondary" id="btn-cerrar-modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btn-guardar-auxiliar">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estado: Acceso denegado -->
+  <div id="estado-acceso" class="catalogo-error" style="display: none;">
+    <div class="catalogo-error-icon">🔒</div>
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">Acceso denegado</div>
+      <p style="margin: 0; font-size: 0.875rem;">No tiene permisos para gestionar los catálogos auxiliares.</p>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  // El controlador será cargado desde js/modules/catalogo/configuracion.js
+  // por el sistema de enrutamiento principal
+</script>

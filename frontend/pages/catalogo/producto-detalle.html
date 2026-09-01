@@ -1,0 +1,128 @@
+<section class="catalogo-detail" id="producto-detalle-page">
+  <div class="catalogo-header">
+    <h1>Detalle de Producto</h1>
+    <button id="btn-volver" class="btn btn-secondary">← Volver</button>
+  </div>
+
+  <!-- Contenido principal -->
+  <div id="detalle-content" style="display: none;">
+    <!-- Encabezado con imagen e información general -->
+    <div class="catalogo-detail-header">
+      <div>
+        <img id="producto-imagen" class="catalogo-detail-image" src="" alt="Producto">
+      </div>
+
+      <div class="catalogo-detail-info">
+        <h2 class="catalogo-detail-title" id="producto-nombre"></h2>
+        <p class="catalogo-detail-code" id="producto-codigo"></p>
+
+        <div class="catalogo-detail-meta">
+          <div class="catalogo-detail-meta-item">
+            <span class="catalogo-detail-meta-label">Categoría</span>
+            <span class="catalogo-detail-meta-value" id="producto-categoria"></span>
+          </div>
+
+          <div class="catalogo-detail-meta-item">
+            <span class="catalogo-detail-meta-label">Tipo</span>
+            <span class="catalogo-detail-meta-value" id="producto-tipo"></span>
+          </div>
+
+          <div class="catalogo-detail-meta-item">
+            <span class="catalogo-detail-meta-label">Color</span>
+            <span class="catalogo-detail-meta-value" id="producto-color"></span>
+          </div>
+
+          <div class="catalogo-detail-meta-item">
+            <span class="catalogo-detail-meta-label">Unidad</span>
+            <span class="catalogo-detail-meta-value" id="producto-unidad"></span>
+          </div>
+
+          <div class="catalogo-detail-meta-item">
+            <span class="catalogo-detail-meta-label">Precio Base</span>
+            <span class="catalogo-detail-meta-value catalogo-price-display" id="producto-precio"></span>
+          </div>
+
+          <div class="catalogo-detail-meta-item">
+            <span class="catalogo-detail-meta-label">Estado</span>
+            <span class="catalogo-detail-meta-value" id="producto-estado"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="catalogo-detail-section">
+      <h3>Descripción</h3>
+      <p id="producto-descripcion"></p>
+    </div>
+
+    <!-- Disponibilidad -->
+    <div class="catalogo-detail-section">
+      <h3>Disponibilidad en Inventario</h3>
+      <div class="catalogo-availability" id="disponibilidad-info">
+        <span class="catalogo-availability-status available"></span>
+        <span id="disponibilidad-texto">Cargando información...</span>
+      </div>
+    </div>
+
+    <!-- Paquetes que contienen este producto -->
+    <div class="catalogo-detail-section">
+      <h3>Paquetes que Contienen este Producto</h3>
+      <div id="paquetes-lista">
+        <p>Cargando paquetes...</p>
+      </div>
+    </div>
+
+    <!-- Auditoría (solo para gestores) -->
+    <div class="catalogo-detail-section" id="seccion-auditoria" style="display: none;">
+      <h3>Auditoría</h3>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.875rem;">
+        <div>
+          <p style="margin: 0 0 0.5rem 0; font-weight: 500; color: var(--color-text-secondary);">Registrado</p>
+          <p style="margin: 0;" id="producto-registro"></p>
+        </div>
+
+        <div>
+          <p style="margin: 0 0 0.5rem 0; font-weight: 500; color: var(--color-text-secondary);">Última modificación</p>
+          <p style="margin: 0;" id="producto-modificacion"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="catalogo-detail-actions">
+      <button id="btn-editar" class="btn btn-primary" style="display: none;">✎ Editar</button>
+      <button id="btn-estado" class="btn btn-secondary" style="display: none;"></button>
+    </div>
+  </div>
+
+  <!-- Estado: Cargando -->
+  <div id="estado-cargando" class="catalogo-loading">
+    <div class="catalogo-loading-spinner"></div>
+    <span>Cargando producto...</span>
+  </div>
+
+  <!-- Estado: Error -->
+  <div id="estado-error" class="catalogo-error" style="display: none;">
+    <div class="catalogo-error-icon">⚠️</div>
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">Error al cargar</div>
+      <p id="error-mensaje" style="margin: 0; font-size: 0.875rem;"></p>
+    </div>
+  </div>
+
+  <!-- Estado: Acceso denegado -->
+  <div id="estado-acceso" class="catalogo-error" style="display: none;">
+    <div class="catalogo-error-icon">🔒</div>
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">Acceso denegado</div>
+      <p style="margin: 0; font-size: 0.875rem;">No tiene permisos para ver este contenido.</p>
+    </div>
+  </div>
+</section>
+
+<script type="module">
+  // El controlador será cargado desde js/modules/catalogo/producto-detalle.js
+  // por el sistema de enrutamiento principal
+</script>

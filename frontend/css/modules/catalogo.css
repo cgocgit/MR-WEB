@@ -1,1 +1,849 @@
-.catalogo-list .card{overflow:auto}
+/**
+ * Estilos del módulo Catálogo
+ * Mesa Regia - Control de Renta y Servicios
+ * 
+ * Estructura:
+ * 1. Layout y contenedores
+ * 2. Navegación secundaria
+ * 3. Filtros
+ * 4. Listas y tablas
+ * 5. Tarjetas (responsive)
+ * 6. Formularios
+ * 7. Detalles
+ * 8. Estados (carga, vacío, error)
+ * 9. Componentes específicos
+ * 10. Responsive (tablet, móvil)
+ */
+
+/* ===========================
+   1. LAYOUT Y CONTENEDORES
+   =========================== */
+
+.catalogo-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.catalogo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.catalogo-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.catalogo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.catalogo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+}
+
+.catalogo-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1000px;
+}
+
+/* ===========================
+   2. NAVEGACIÓN SECUNDARIA
+   =========================== */
+
+.catalogo-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--color-border);
+  overflow-x: auto;
+  padding: 0 1rem;
+  margin: -1rem -1rem 0 -1rem;
+  padding-bottom: 0;
+}
+
+.catalogo-tabs a,
+.catalogo-tabs button {
+  flex: 0 0 auto;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.catalogo-tabs a:hover,
+.catalogo-tabs button:hover {
+  color: var(--color-text-primary);
+}
+
+.catalogo-tabs a[aria-current="page"],
+.catalogo-tabs button[aria-current="page"] {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.catalogo-tabs a:disabled,
+.catalogo-tabs button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===========================
+   3. FILTROS
+   =========================== */
+
+.catalogo-filters {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.catalogo-filters-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.catalogo-filters-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.catalogo-filters-actions button {
+  flex: 1;
+  min-width: 120px;
+}
+
+.catalogo-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.catalogo-filter-group label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.catalogo-filter-group input,
+.catalogo-filter-group select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+/* ===========================
+   4. LISTAS Y TABLAS
+   =========================== */
+
+.catalogo-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.catalogo-table th {
+  background: var(--color-background);
+  font-weight: 600;
+  text-align: left;
+  padding: 1rem 0.75rem;
+  border-bottom: 2px solid var(--color-border);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.catalogo-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+
+.catalogo-table tbody tr:hover {
+  background: var(--color-background);
+}
+
+.catalogo-table img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--color-background);
+}
+
+.catalogo-table-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.catalogo-table-actions button {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+}
+
+/* ===========================
+   5. TARJETAS (RESPONSIVE)
+   =========================== */
+
+.catalogo-cards {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.catalogo-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.catalogo-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.catalogo-card-image {
+  width: 100%;
+  height: 200px;
+  background: var(--color-background);
+  object-fit: cover;
+  display: block;
+}
+
+.catalogo-card-content {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.catalogo-card-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.catalogo-card-subtitle {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.catalogo-card-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.catalogo-card-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.catalogo-card-info-label {
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.catalogo-card-info-value {
+  color: var(--color-text-primary);
+}
+
+.catalogo-card-actions {
+  padding: 0.75rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.catalogo-card-actions button {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.catalogo-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.catalogo-card-status.active {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.catalogo-card-status.inactive {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+/* ===========================
+   6. FORMULARIOS
+   =========================== */
+
+.catalogo-form-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.catalogo-form-section h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.75rem;
+}
+
+.catalogo-form-row {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.catalogo-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.catalogo-form-group label {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.catalogo-form-group label.required::after {
+  content: " *";
+  color: var(--color-error);
+}
+
+.catalogo-form-group input,
+.catalogo-form-group select,
+.catalogo-form-group textarea {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.catalogo-form-group input:focus,
+.catalogo-form-group select:focus,
+.catalogo-form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.1);
+}
+
+.catalogo-form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.catalogo-form-group.error input,
+.catalogo-form-group.error select,
+.catalogo-form-group.error textarea {
+  border-color: var(--color-error);
+  background: rgba(244, 67, 54, 0.05);
+}
+
+.catalogo-form-error {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  margin-top: 0.25rem;
+}
+
+.catalogo-form-helper {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.catalogo-form-image-preview {
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  background: var(--color-background);
+}
+
+.catalogo-form-image-preview img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
+}
+
+.catalogo-form-image-placeholder {
+  font-size: 1.5rem;
+  color: var(--color-text-secondary);
+  padding: 2rem 1rem;
+}
+
+.catalogo-form-components {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.catalogo-component-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  background: var(--color-background);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.catalogo-component-item input {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+
+.catalogo-component-item button {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.catalogo-form-summary {
+  background: var(--color-background);
+  border-left: 4px solid var(--color-primary);
+  padding: 1rem;
+  border-radius: 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.catalogo-form-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.catalogo-form-summary-label {
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.catalogo-form-summary-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* ===========================
+   7. DETALLES
+   =========================== */
+
+.catalogo-detail-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.catalogo-detail-image {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 8px;
+  background: var(--color-background);
+  object-fit: cover;
+}
+
+.catalogo-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.catalogo-detail-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.catalogo-detail-code {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-family: monospace;
+}
+
+.catalogo-detail-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.catalogo-detail-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.catalogo-detail-meta-label {
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+}
+
+.catalogo-detail-meta-value {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.catalogo-detail-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.catalogo-detail-section h3 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.75rem;
+}
+
+.catalogo-detail-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.catalogo-detail-actions button {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ===========================
+   8. ESTADOS
+   =========================== */
+
+.catalogo-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-secondary);
+}
+
+.catalogo-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.catalogo-empty-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.catalogo-empty-text {
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.catalogo-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  gap: 1rem;
+}
+
+.catalogo-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.catalogo-error {
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid var(--color-error);
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.catalogo-error-icon {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+}
+
+.catalogo-error-content {
+  flex: 1;
+}
+
+.catalogo-error-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.catalogo-success {
+  background: rgba(76, 175, 80, 0.1);
+  border: 1px solid #4caf50;
+  border-radius: 8px;
+  padding: 1.5rem;
+  color: #4caf50;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.catalogo-warning {
+  background: rgba(255, 152, 0, 0.1);
+  border: 1px solid #ff9800;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #f57c00;
+  font-size: 0.875rem;
+}
+
+/* ===========================
+   9. COMPONENTES ESPECÍFICOS
+   =========================== */
+
+.catalogo-price-display {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.catalogo-availability {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-background);
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.catalogo-availability-status {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.catalogo-availability-status.available {
+  background: #4caf50;
+}
+
+.catalogo-availability-status.unavailable {
+  background: #f44336;
+}
+
+.catalogo-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.catalogo-modal-overlay.active {
+  display: flex;
+}
+
+.catalogo-modal-content {
+  background: var(--color-surface);
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.catalogo-modal-content h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.catalogo-modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: flex-end;
+}
+
+.catalogo-modal-actions button {
+  flex: 1;
+  max-width: 150px;
+}
+
+/* ===========================
+   10. RESPONSIVE
+   =========================== */
+
+@media (max-width: 768px) {
+  .catalogo-container {
+    padding: 0.75rem;
+  }
+
+  .catalogo-filters-row {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-filters-actions {
+    flex-direction: column;
+  }
+
+  .catalogo-filters-actions button {
+    width: 100%;
+  }
+
+  .catalogo-cards {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+  .catalogo-table {
+    font-size: 0.75rem;
+  }
+
+  .catalogo-table-actions button {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.65rem;
+  }
+
+  .catalogo-detail-header {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-component-item {
+    grid-template-columns: 1fr auto;
+  }
+
+  .catalogo-detail-actions {
+    flex-direction: column;
+  }
+
+  .catalogo-detail-actions button {
+    width: 100%;
+  }
+
+  .catalogo-modal-content {
+    width: 95%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .catalogo-container {
+    padding: 0.5rem;
+  }
+
+  .catalogo-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-card-info {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-form-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .catalogo-tabs {
+    padding: 0 0.5rem;
+  }
+
+  .catalogo-tabs a,
+  .catalogo-tabs button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .catalogo-header h1 {
+    font-size: 1.25rem;
+  }
+}
