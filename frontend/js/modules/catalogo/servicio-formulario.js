@@ -368,11 +368,4 @@ export async function init() {
     });
   }
 
-  if (imagen) {
-    imagen.addEventListener('change', manejarCambioImagen);
-  }
-
-  if (urlImagen) {
-    urlImagen.addEventListener('input', manejarCambioUrlImagen);
-  }
 }

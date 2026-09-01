@@ -3,8 +3,6 @@
  * Maneja todas las operaciones CRUD de Productos, Servicios y Paquetes
  * Utilizará mocks en desarrollo y será reemplazado por llamadas REST en producción
  */
-
-import { request } from './client.js';
 import {
   PRODUCTOS_MOCK,
   SERVICIOS_MOCK,
