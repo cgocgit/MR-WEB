@@ -1,13 +1,110 @@
-<section class="container">
-  <h1>Servicios</h1>
-  <div id="servicios" class="card mt-12"></div>
-  <script type="module">
-    import { listServicios } from './js/api/catalogo.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await listServicios();
-      renderTable(document.getElementById('servicios'), ['Nombre','Duracion'], datos.map(d=>({nombre:d.nombre,duracion:d.duracion})));
-    })();
-  </script>
+<section class="catalogo-container" id="servicios-page">
+  <div class="catalogo-header">
+    <h1>Catálogo de Servicios</h1>
+    <button id="btn-nuevo-servicio" class="btn btn-primary">+ Nuevo Servicio</button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="catalogo-filters">
+    <div class="catalogo-filters-row">
+      <div class="catalogo-form-group">
+        <label for="filtro-codigo">Código</label>
+        <input type="text" id="filtro-codigo" placeholder="Buscar por código...">
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-nombre">Nombre</label>
+        <input type="text" id="filtro-nombre" placeholder="Buscar por nombre...">
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-tipo">Tipo de Servicio</label>
+        <select id="filtro-tipo">
+          <option value="">Todos los tipos</option>
+          <option value="Banquete">Banquete</option>
+          <option value="Decoración">Decoración</option>
+          <option value="Flete">Flete</option>
+          <option value="Meseros">Meseros</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="catalogo-filters-row">
+      <div class="catalogo-form-group">
+        <label for="filtro-estado">Estado</label>
+        <select id="filtro-estado">
+          <option value="">Todos los estados</option>
+          <option value="1">Activo</option>
+          <option value="0">Inactivo</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" id="btn-filtrar" class="btn btn-primary">🔍 Filtrar</button>
+      <button type="button" id="btn-limpiar-filtros" class="btn btn-secondary">✕ Limpiar</button>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div id="servicios-content" style="display: none;">
+    <table class="catalogo-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Tipo</th>
+          <th>Tarifa Base</th>
+          <th>Estado</th>
+          <th style="text-align: center;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Generado dinámicamente por servicios.js -->
+      </tbody>
+    </table>
+
+    <div id="paginacion" style="margin-top: 1rem; display: flex; justify-content: center;">
+      <!-- Generado dinámicamente por servicios.js -->
+    </div>
+  </div>
+
+  <!-- Estado: Cargando -->
+  <div id="estado-cargando" class="catalogo-loading">
+    <div class="catalogo-loading-spinner"></div>
+    <span>Cargando servicios...</span>
+  </div>
+
+  <!-- Estado: Vacío -->
+  <div id="estado-vacio" class="catalogo-empty" style="display: none;">
+    <div class="catalogo-empty-icon">🔧</div>
+    <div class="catalogo-empty-content">
+      <div class="catalogo-empty-title">No hay servicios</div>
+      <p style="margin: 0; font-size: 0.875rem;">No se encontraron servicios que coincidan con los filtros seleccionados.</p>
+    </div>
+  </div>
+
+  <!-- Estado: Error -->
+  <div id="estado-error" class="catalogo-error" style="display: none;">
+    <div class="catalogo-error-icon">⚠️</div>
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">Error al cargar</div>
+      <p id="error-mensaje" style="margin: 0; font-size: 0.875rem;"></p>
+    </div>
+  </div>
+
+  <!-- Estado: Acceso denegado -->
+  <div id="estado-acceso" class="catalogo-error" style="display: none;">
+    <div class="catalogo-error-icon">🔒</div>
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">Acceso denegado</div>
+      <p style="margin: 0; font-size: 0.875rem;">No tiene permisos para ver el catálogo de servicios.</p>
+    </div>
+  </div>
 </section>
+
+<script type="module">
+  import { init } from './js/modules/catalogo/servicios.js';
+  init();
+</script>
 
