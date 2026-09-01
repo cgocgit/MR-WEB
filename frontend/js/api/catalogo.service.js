@@ -269,12 +269,18 @@ export async function listarServicios(filtros = {}) {
  */
 export async function obtenerServicio(id) {
   await simularLatencia(150);
-  
-  const servicio = obtenerServicioPorId(id);
+
+  const idServicio = normalizarId(id, 'servicio');
+
+  const servicio = obtenerServicioPorId(idServicio);
+
   if (!servicio) {
-    throw crearError('SERVICIO_NO_ENCONTRADO', MENSAJES.SERVICIO_NO_ENCONTRADO);
+    throw crearError(
+      'SERVICIO_NO_ENCONTRADO',
+      MENSAJES.SERVICIO_NO_ENCONTRADO
+    );
   }
-  
+
   return servicio;
 }
 
@@ -316,34 +322,51 @@ export async function registrarServicio(datos) {
  */
 export async function actualizarServicio(id, datos) {
   await simularLatencia(300);
-  
-  const indice = SERVICIOS_MOCK.findIndex(s => s.idServicio === id);
+
+  const idServicio = normalizarId(id, 'servicio');
+
+  const indice = SERVICIOS_MOCK.findIndex(
+    servicio => servicio.idServicio === idServicio
+  );
+
   if (indice === -1) {
-    throw crearError('SERVICIO_NO_ENCONTRADO', MENSAJES.SERVICIO_NO_ENCONTRADO);
+    throw crearError(
+      'SERVICIO_NO_ENCONTRADO',
+      MENSAJES.SERVICIO_NO_ENCONTRADO
+    );
   }
-  
-  // Validaciones
-  const errores = validarServicio(datos, id);
+
+  const errores = validarServicio(datos, idServicio);
+
   if (errores.length > 0) {
-    throw crearError('VALIDACION_ERROR', MENSAJES.VALIDACION_ERROR, errores);
+    throw crearError(
+      'VALIDACION_ERROR',
+      MENSAJES.VALIDACION_ERROR,
+      errores
+    );
   }
-  
-  // Verificar código duplicado
-  if (datos.codigo !== SERVICIOS_MOCK[indice].codigo && existeCodigoServicio(datos.codigo, id)) {
-    throw crearError('CODIGO_DUPLICADO', MENSAJES.SERVICIO_CODIGO_DUPLICADO);
+
+  if (
+    datos.codigo !== SERVICIOS_MOCK[indice].codigo &&
+    existeCodigoServicio(datos.codigo, idServicio)
+  ) {
+    throw crearError(
+      'CODIGO_DUPLICADO',
+      MENSAJES.SERVICIO_CODIGO_DUPLICADO
+    );
   }
-  
-  // Actualizar
+
   const servicioActualizado = {
     ...SERVICIOS_MOCK[indice],
     ...datos,
-    idServicio: id,
+    idServicio,
     fechaModificacion: new Date(),
     modificadoPor: 'usuario@mesaregia.com',
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
   };
-  
+
   SERVICIOS_MOCK[indice] = servicioActualizado;
+
   return clonarDatos(servicioActualizado);
 }
 
@@ -352,16 +375,24 @@ export async function actualizarServicio(id, datos) {
  */
 export async function cambiarEstadoServicio(id, activo) {
   await simularLatencia(200);
-  
-  const indice = SERVICIOS_MOCK.findIndex(s => s.idServicio === id);
+
+  const idServicio = normalizarId(id, 'servicio');
+
+  const indice = SERVICIOS_MOCK.findIndex(
+    servicio => servicio.idServicio === idServicio
+  );
+
   if (indice === -1) {
-    throw crearError('SERVICIO_NO_ENCONTRADO', MENSAJES.SERVICIO_NO_ENCONTRADO);
+    throw crearError(
+      'SERVICIO_NO_ENCONTRADO',
+      MENSAJES.SERVICIO_NO_ENCONTRADO
+    );
   }
-  
+
   SERVICIOS_MOCK[indice].activo = activo ? 1 : 0;
   SERVICIOS_MOCK[indice].fechaModificacion = new Date();
   SERVICIOS_MOCK[indice].modificadoPor = 'usuario@mesaregia.com';
-  
+
   return clonarDatos(SERVICIOS_MOCK[indice]);
 }
 
@@ -413,12 +444,18 @@ export async function listarPaquetes(filtros = {}) {
  */
 export async function obtenerPaquete(id) {
   await simularLatencia(150);
-  
-  const paquete = obtenerPaquetePorId(id);
+
+  const idPaquete = normalizarId(id, 'paquete');
+
+  const paquete = obtenerPaquetePorId(idPaquete);
+
   if (!paquete) {
-    throw crearError('PAQUETE_NO_ENCONTRADO', MENSAJES.PAQUETE_NO_ENCONTRADO);
+    throw crearError(
+      'PAQUETE_NO_ENCONTRADO',
+      MENSAJES.PAQUETE_NO_ENCONTRADO
+    );
   }
-  
+
   return paquete;
 }
 
@@ -465,34 +502,51 @@ export async function registrarPaquete(datos) {
  */
 export async function actualizarPaquete(id, datos) {
   await simularLatencia(300);
-  
-  const indice = PAQUETES_MOCK.findIndex(p => p.idPaquete === id);
+
+  const idPaquete = normalizarId(id, 'paquete');
+
+  const indice = PAQUETES_MOCK.findIndex(
+    paquete => paquete.idPaquete === idPaquete
+  );
+
   if (indice === -1) {
-    throw crearError('PAQUETE_NO_ENCONTRADO', MENSAJES.PAQUETE_NO_ENCONTRADO);
+    throw crearError(
+      'PAQUETE_NO_ENCONTRADO',
+      MENSAJES.PAQUETE_NO_ENCONTRADO
+    );
   }
-  
-  // Validaciones
-  const errores = validarPaquete(datos, id);
+
+  const errores = validarPaquete(datos, idPaquete);
+
   if (errores.length > 0) {
-    throw crearError('VALIDACION_ERROR', MENSAJES.VALIDACION_ERROR, errores);
+    throw crearError(
+      'VALIDACION_ERROR',
+      MENSAJES.VALIDACION_ERROR,
+      errores
+    );
   }
-  
-  // Verificar código duplicado
-  if (datos.codigo !== PAQUETES_MOCK[indice].codigo && existeCodigoPaquete(datos.codigo, id)) {
-    throw crearError('CODIGO_DUPLICADO', MENSAJES.PAQUETE_CODIGO_DUPLICADO);
+
+  if (
+    datos.codigo !== PAQUETES_MOCK[indice].codigo &&
+    existeCodigoPaquete(datos.codigo, idPaquete)
+  ) {
+    throw crearError(
+      'CODIGO_DUPLICADO',
+      MENSAJES.PAQUETE_CODIGO_DUPLICADO
+    );
   }
-  
-  // Actualizar
+
   const paqueteActualizado = {
     ...PAQUETES_MOCK[indice],
     ...datos,
-    idPaquete: id,
+    idPaquete,
     fechaModificacion: new Date(),
     modificadoPor: 'usuario@mesaregia.com',
     estadoRegistro: ESTADO_REGISTRO.ACTIVO
   };
-  
+
   PAQUETES_MOCK[indice] = paqueteActualizado;
+
   return clonarDatos(paqueteActualizado);
 }
 
@@ -501,16 +555,24 @@ export async function actualizarPaquete(id, datos) {
  */
 export async function cambiarEstadoPaquete(id, activo) {
   await simularLatencia(200);
-  
-  const indice = PAQUETES_MOCK.findIndex(p => p.idPaquete === id);
+
+  const idPaquete = normalizarId(id, 'paquete');
+
+  const indice = PAQUETES_MOCK.findIndex(
+    paquete => paquete.idPaquete === idPaquete
+  );
+
   if (indice === -1) {
-    throw crearError('PAQUETE_NO_ENCONTRADO', MENSAJES.PAQUETE_NO_ENCONTRADO);
+    throw crearError(
+      'PAQUETE_NO_ENCONTRADO',
+      MENSAJES.PAQUETE_NO_ENCONTRADO
+    );
   }
-  
+
   PAQUETES_MOCK[indice].activo = activo ? 1 : 0;
   PAQUETES_MOCK[indice].fechaModificacion = new Date();
   PAQUETES_MOCK[indice].modificadoPor = 'usuario@mesaregia.com';
-  
+
   return clonarDatos(PAQUETES_MOCK[indice]);
 }
 

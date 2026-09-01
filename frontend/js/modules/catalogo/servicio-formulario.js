@@ -45,13 +45,10 @@ function obtenerElementos() {
     codigo: document.getElementById('codigo'),
     nombre: document.getElementById('nombre'),
     descripcion: document.getElementById('descripcion'),
+    idCategoria: document.getElementById('idCategoria'),
     tipoServicio: document.getElementById('tipoServicio'),
     tarifaBase: document.getElementById('tarifaBase'),
-    imagen: document.getElementById('imagen'),
-    urlImagen: document.getElementById('urlImagen'),
-    previewImagen: document.getElementById('preview-imagen'),
     activo: document.getElementById('activo'),
-    idCategoria: document.getElementById('idCategoria'),
 
     // Botones
     btnCancelar: document.getElementById('btn-cancelar'),
@@ -61,11 +58,9 @@ function obtenerElementos() {
     errorCodigo: document.getElementById('error-codigo'),
     errorNombre: document.getElementById('error-nombre'),
     errorDescripcion: document.getElementById('error-descripcion'),
+    errorIdCategoria: document.getElementById('error-idCategoria'),
     errorTipoServicio: document.getElementById('error-tipoServicio'),
-    errorTarifaBase: document.getElementById('error-tarifaBase'),
-    errorImagen: document.getElementById('error-imagen'),
-    errorUrlImagen: document.getElementById('error-urlImagen')
-    idCategoria: document.getElementById('idCategoria'),
+    errorTarifaBase: document.getElementById('error-tarifaBase')
   };
 }
 
@@ -83,22 +78,22 @@ function limpiarErrores() {
     errorCodigo,
     errorNombre,
     errorDescripcion,
+    errorIdCategoria,
     errorTipoServicio,
-    errorTarifaBase,
-    errorImagen,
-    errorUrlImagen
+    errorTarifaBase
   } = obtenerElementos();
 
   [
     errorCodigo,
     errorNombre,
     errorDescripcion,
+    errorIdCategoria,
     errorTipoServicio,
-    errorTarifaBase,
-    errorImagen,
-    errorUrlImagen
+    errorTarifaBase
   ].forEach(el => {
-    if (el) el.textContent = '';
+    if (el) {
+      el.textContent = '';
+    }
   });
 }
 
@@ -168,10 +163,10 @@ async function cargarServicio(id) {
     showLoader();
 
     const servicio = await obtenerServicio(id);
+
     servicioActual = servicio;
     esEdicion = true;
 
-    // Llenar formulario
     const {
       formTitle,
       codigo,
@@ -183,82 +178,56 @@ async function cargarServicio(id) {
       activo
     } = obtenerElementos();
 
-    if (formTitle) formTitle.textContent = 'Editar Servicio';
-    if (codigo) codigo.value = servicio.codigo;
-    if (nombre) nombre.value = servicio.nombre;
-    if (descripcion) descripcion.value = servicio.descripcion || '';
-    if (tipoServicio) tipoServicio.value = servicio.tipoServicio || '';
-    if (tarifaBase) tarifaBase.value = servicio.tarifaBase;
-    if (urlImagen) urlImagen.value = servicio.urlImagen || '';
-    if (activo) activo.checked = servicio.activo;
+    if (formTitle) {
+      formTitle.textContent = 'Editar Servicio';
+    }
+
+    if (codigo) {
+      codigo.value = servicio.codigo;
+      codigo.disabled = true;
+    }
+
+    if (nombre) {
+      nombre.value = servicio.nombre;
+    }
+
+    if (descripcion) {
+      descripcion.value = servicio.descripcion || '';
+    }
+
     if (idCategoria) {
       idCategoria.value = servicio.idCategoria || '';
     }
 
-    // Vista previa de imagen
-    if (servicio.urlImagen && previewImagen) {
-      previewImagen.src = servicio.urlImagen;
-      previewImagen.style.display = 'block';
+    if (tipoServicio) {
+      tipoServicio.value = servicio.tipoServicio || '';
     }
 
-    // Desactivar código (no se puede editar)
-    if (codigo) codigo.disabled = true;
+    if (tarifaBase) {
+      tarifaBase.value = servicio.tarifaBase;
+    }
+
+    if (activo) {
+      activo.checked = servicio.activo === 1;
+    }
 
   } catch (error) {
     console.error('Error cargando servicio:', error);
-    showNotification(error.message || 'Error cargando servicio', { type: 'error' });
+
+    showNotification(
+      error.message || 'Error cargando servicio',
+      { type: 'error' }
+    );
+
     setTimeout(() => {
       window.location.hash = '#/catalogo/servicios';
     }, 2000);
+
   } finally {
     hideLoader();
   }
 }
 
-// ============================================================================
-// MANEJO DE IMAGEN
-// ============================================================================
-
-function manejarCambioImagen(e) {
-  const archivo = e.target.files?.[0];
-  const { previewImagen, urlImagen } = obtenerElementos();
-
-  if (archivo) {
-    const lector = new FileReader();
-
-    lector.onload = (evento) => {
-      const dataUrl = evento.target?.result;
-      if (dataUrl && previewImagen) {
-        previewImagen.src = dataUrl;
-        previewImagen.style.display = 'block';
-
-        // Convertir a base64 o URL
-        if (urlImagen) {
-          urlImagen.value = dataUrl;
-        }
-      }
-    };
-
-    lector.readAsDataURL(archivo);
-  }
-}
-
-function manejarCambioUrlImagen(e) {
-  const url = e.target.value.trim();
-  const { previewImagen } = obtenerElementos();
-
-  if (url && previewImagen) {
-    previewImagen.src = url;
-    previewImagen.onerror = () => {
-      previewImagen.style.display = 'none';
-    };
-    previewImagen.onload = () => {
-      previewImagen.style.display = 'block';
-    };
-  } else if (previewImagen) {
-    previewImagen.style.display = 'none';
-  }
-}
 
 // ============================================================================
 // ENVÍO DEL FORMULARIO
@@ -386,9 +355,7 @@ export async function init() {
   // Configurar event listeners
   const {
     form,
-    btnCancelar,
-    imagen,
-    urlImagen
+    btnCancelar
   } = obtenerElementos();
 
   if (form) {

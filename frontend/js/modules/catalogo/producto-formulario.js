@@ -362,7 +362,7 @@ async function manejarEnvio(e) {
     // Guardar
     let resultado;
     if (esEdicion && productoActual) {
-      resultado = await actualizarProducto(productoActual.id, datos);
+      resultado = await actualizarProducto(productoActual.idProducto, datos);
       showNotification(MENSAJES.PRODUCTO_ACTUALIZADO, { type: 'success' });
     } else {
       resultado = await registrarProducto(datos);

@@ -253,43 +253,79 @@ function manejarAgregarProducto() {
 
 function manejarAgregarServicio() {
   const { buscarServicios } = obtenerElementos();
-  const valor = buscarServicios?.value.toLowerCase().trim();
+
+  const valor = buscarServicios?.value
+    .toLowerCase()
+    .trim();
 
   if (!valor) {
-    showNotification('Ingrese un código o nombre de servicio', { type: 'warning' });
+    showNotification(
+      'Ingrese un código o nombre de servicio',
+      { type: 'warning' }
+    );
     return;
   }
 
-  const servicio = serviciosDisponibles.find(s =>
-    s.codigo.toLowerCase().includes(valor) || s.nombre.toLowerCase().includes(valor)
+  const servicio = serviciosDisponibles.find(item =>
+    item.codigo.toLowerCase().includes(valor) ||
+    item.nombre.toLowerCase().includes(valor)
   );
 
   if (!servicio) {
-    showNotification('Servicio no encontrado', { type: 'error' });
+    showNotification(
+      'Servicio no encontrado',
+      { type: 'error' }
+    );
     return;
   }
 
-  // Verificar si ya está en el paquete
-  if (componentesServicios.some(c => c.idServicio === servicio.id)) {
-    showNotification('Este servicio ya está en el paquete', { type: 'warning' });
+  const existente = componentesServicios.find(
+    componente =>
+      componente.idServicio === servicio.idServicio
+  );
+
+  if (existente) {
+    existente.cantidad += 1;
+
+    existente.subtotal =
+      existente.cantidad * existente.tarifa;
+
+    renderizarComponentesServicios();
+    actualizarResumen();
+
+    if (buscarServicios) {
+      buscarServicios.value = '';
+    }
+
+    showNotification(
+      'Cantidad del servicio actualizada',
+      { type: 'success', timeout: 1500 }
+    );
+
     return;
   }
 
-  // Agregar componente
   componentesServicios.push({
-    idServicio: servicio.id,
+    idServicio: servicio.idServicio,
     codigo: servicio.codigo,
     nombre: servicio.nombre,
     cantidad: 1,
-    precioUnitario: servicio.tarifaBase,
+    tarifa: servicio.tarifaBase,
     subtotal: servicio.tarifaBase,
     activo: servicio.activo
   });
 
-  if (buscarServicios) buscarServicios.value = '';
+  if (buscarServicios) {
+    buscarServicios.value = '';
+  }
+
   renderizarComponentesServicios();
   actualizarResumen();
-  showNotification('Servicio agregado', { type: 'success', timeout: 1500 });
+
+  showNotification(
+    'Servicio agregado',
+    { type: 'success', timeout: 1500 }
+  );
 }
 
 function eliminarComponentoProducto(index) {
@@ -312,8 +348,18 @@ function actualizarCantidadProducto(index, cantidad) {
 }
 
 function actualizarCantidadServicio(index, cantidad) {
-  componentesServicios[index].cantidad = Math.max(1, parseInt(cantidad) || 1);
-  componentesServicios[index].subtotal = componentesServicios[index].cantidad * componentesServicios[index].precioUnitario;
+  const componente = componentesServicios[index];
+
+  if (!componente) {
+    return;
+  }
+
+  componente.cantidad =
+    Math.max(1, parseInt(cantidad, 10) || 1);
+
+  componente.subtotal =
+    componente.cantidad * componente.tarifa;
+
   renderizarComponentesServicios();
   actualizarResumen();
 }
@@ -504,7 +550,10 @@ async function manejarEnvio(e) {
 
     // Guardar
     if (esEdicion && paqueteActual) {
-      await actualizarPaquete(paqueteActual.id, datos);
+      await actualizarPaquete(
+        paqueteActual.idPaquete,
+        datos
+      );
       showNotification(MENSAJES.PAQUETE_ACTUALIZADO, { type: 'success' });
     } else {
       await registrarPaquete(datos);
