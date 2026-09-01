@@ -1,527 +1,742 @@
-/**
- * Módulo: Catálogo - Lista de Productos
- * Funcionalidad: Listar, filtrar y paginar productos del catálogo
- */
-
 import {
   listarProductos,
-  cambiarEstadoProducto
+  cambiarEstadoProducto,
+  listarCategoriasProducto,
+  listarTiposProducto,
+  listarColores
 } from '../../api/catalogo.service.js';
 
 import {
-  ESTADO_REGISTRO,
-  CATEGORIAS_PRODUCTO,
-  TIPOS_PRODUCTO,
-  COLORES,
   PERMISOS_CATALOGO,
-  MENSAJES
+  MENSAJES,
+  RUTAS_IMAGENES
 } from '../../api/catalogo.constants.js';
 
-import { getSession, requireAuth } from '../../shared/auth-guard.js';
-import { hasPermission } from '../../shared/permissions.js';
-import { showNotification } from '../../components/notification.js';
-import { showLoader, hideLoader } from '../../components/loader.js';
+import {
+  getSession,
+  requireAuth
+} from '../../shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../shared/permissions.js';
+
+import {
+  showNotification
+} from '../../components/notification.js';
 
 import {
   renderNavegacionCatalogo
 } from './catalogo-ui.js';
 
-// ============================================================================
-// ESTADO DEL MÓDULO
-// ============================================================================
+let categorias = [];
+let tipos = [];
+let colores = [];
 
-let filtroActual = {
-  codigo: '',
-  nombre: '',
-  descripcion: '',
+let paginaActual = 1;
+let totalProductos = 0;
+
+let puedeGestionar = false;
+
+let filtros = {
+  texto: '',
   categoria: '',
   tipo: '',
   color: '',
   estado: '',
+  disponibilidad: '',
   soloActivos: false,
   skip: 0,
   limit: 10
 };
 
-let paginaActual = 1;
-let totalProductos = 0;
-let productosActuales = [];
-
-// ============================================================================
-// REFERENCIAS AL DOM
-// ============================================================================
-
 function obtenerElementos() {
   return {
-    // Contenedores
-    contenedorPrincipal: document.getElementById('productos-content'),
-    contenedorCargando: document.getElementById('estado-cargando'),
-    contenedorError: document.getElementById('estado-error'),
-    contenedorAcceso: document.getElementById('estado-acceso'),
-    contenedorVacio: document.getElementById('estado-vacio'),
+    contenido:
+      document.getElementById('productos-content'),
 
-    // Filtros
-    filtrosCodigo: document.getElementById('filtro-codigo'),
-    filtrosNombre: document.getElementById('filtro-nombre'),
-    filtrosCategoria: document.getElementById('filtro-categoria'),
-    filtrosTipo: document.getElementById('filtro-tipo'),
-    filtrosColor: document.getElementById('filtro-color'),
-    filtrosEstado: document.getElementById('filtro-estado'),
-    btnLimpiar: document.getElementById('btn-limpiar-filtros'),
-    btnFiltrar: document.getElementById('btn-filtrar'),
+    cargando:
+      document.getElementById('estado-cargando'),
 
-    // Tabla
-    tablaCuerpo: document.querySelector('.catalogo-table tbody'),
-    tablaContenedor: document.querySelector('.catalogo-table'),
+    error:
+      document.getElementById('estado-error'),
 
-    // Acciones
-    btnNuevo: document.getElementById('btn-nuevo-producto'),
+    vacio:
+      document.getElementById('estado-vacio'),
 
-    // Paginación
-    paginacionContenedor: document.getElementById('paginacion'),
+    acceso:
+      document.getElementById('estado-acceso'),
 
-    // Mensajes
-    mensajeError: document.getElementById('error-mensaje')
+    errorMensaje:
+      document.getElementById('error-mensaje'),
+
+    tbody:
+      document.getElementById('productos-tbody'),
+
+    cards:
+      document.getElementById('productos-cards'),
+
+    paginacion:
+      document.getElementById('paginacion'),
+
+    filtroTexto:
+      document.getElementById('filtro-texto'),
+
+    filtroCategoria:
+      document.getElementById('filtro-categoria'),
+
+    filtroTipo:
+      document.getElementById('filtro-tipo'),
+
+    filtroColor:
+      document.getElementById('filtro-color'),
+
+    filtroEstado:
+      document.getElementById('filtro-estado'),
+
+    filtroDisponibilidad:
+      document.getElementById(
+        'filtro-disponibilidad'
+      ),
+
+    grupoEstado:
+      document.getElementById(
+        'grupo-filtro-estado'
+      ),
+
+    btnFiltrar:
+      document.getElementById('btn-filtrar'),
+
+    btnLimpiar:
+      document.getElementById(
+        'btn-limpiar-filtros'
+      ),
+
+    btnNuevo:
+      document.getElementById(
+        'btn-nuevo-producto'
+      ),
+
+    colUltimaModificacion:
+      document.getElementById(
+        'col-ultima-modificacion'
+      )
   };
 }
 
-// ============================================================================
-// CARGA DE DATOS INICIALES
-// ============================================================================
+function nombreAuxiliar(lista, id) {
+  return lista.find(
+    item => item.id === id
+  )?.nombre || '—';
+}
+
+function formatoMoneda(valor) {
+  return Number(valor || 0).toLocaleString(
+    'es-MX',
+    {
+      style: 'currency',
+      currency: 'MXN'
+    }
+  );
+}
+
+function formatoFecha(fecha) {
+  if (!fecha) return '—';
+
+  return new Date(fecha).toLocaleString(
+    'es-MX',
+    {
+      dateStyle: 'short',
+      timeStyle: 'short'
+    }
+  );
+}
+
+function imagenProducto(producto) {
+  return (
+    producto.imagenUrl ||
+    RUTAS_IMAGENES.PLACEHOLDER_PRODUCTO
+  );
+}
 
 async function cargarAuxiliares() {
+  [
+    categorias,
+    tipos,
+    colores
+  ] = await Promise.all([
+    listarCategoriasProducto(),
+    listarTiposProducto(),
+    listarColores()
+  ]);
+
   const {
-    filtrosCategoria,
-    filtrosTipo,
-    filtrosColor
+    filtroCategoria,
+    filtroTipo,
+    filtroColor
   } = obtenerElementos();
 
-  // Llenar categorías
-  if (filtrosCategoria) {
-    filtrosCategoria.innerHTML = '<option value="">Todas las categorías</option>';
-    CATEGORIAS_PRODUCTO.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat.id;
-      option.textContent = cat.nombre;
-      filtrosCategoria.appendChild(option);
-    });
-  }
+  filtroCategoria.innerHTML =
+    '<option value="">Todas</option>';
 
-  // Llenar tipos
-  if (filtrosTipo) {
-    filtrosTipo.innerHTML = '<option value="">Todos los tipos</option>';
-    TIPOS_PRODUCTO.forEach(tipo => {
-      const option = document.createElement('option');
-      option.value = tipo.id;
-      option.textContent = tipo.nombre;
-      filtrosTipo.appendChild(option);
-    });
-  }
+  categorias.forEach(item => {
+    filtroCategoria.insertAdjacentHTML(
+      'beforeend',
+      `<option value="${item.id}">
+        ${item.nombre}
+      </option>`
+    );
+  });
 
-  // Llenar colores
-  if (filtrosColor) {
-    filtrosColor.innerHTML = '<option value="">Todos los colores</option>';
-    COLORES.forEach(color => {
-      const option = document.createElement('option');
-      option.value = color.id;
-      option.textContent = color.nombre;
-      filtrosColor.appendChild(option);
-    });
-  }
+  filtroTipo.innerHTML =
+    '<option value="">Todos</option>';
+
+  tipos.forEach(item => {
+    filtroTipo.insertAdjacentHTML(
+      'beforeend',
+      `<option value="${item.id}">
+        ${item.nombre}
+      </option>`
+    );
+  });
+
+  filtroColor.innerHTML =
+    '<option value="">Todos</option>';
+
+  colores.forEach(item => {
+    filtroColor.insertAdjacentHTML(
+      'beforeend',
+      `<option value="${item.id}">
+        ${item.nombre}
+      </option>`
+    );
+  });
 }
 
-// ============================================================================
-// CARGA Y RENDERIZADO DE PRODUCTOS
-// ============================================================================
-
-async function cargarProductos() {
-  const {
-    contenedorPrincipal,
-    contenedorCargando,
-    contenedorError,
-    contenedorVacio,
-    tablaCuerpo,
-    mensajeError
-  } = obtenerElementos();
-
-  try {
-    // Mostrar cargando
-    if (contenedorCargando) contenedorCargando.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
-    if (contenedorError) contenedorError.style.display = 'none';
-    if (contenedorVacio) contenedorVacio.style.display = 'none';
-
-    // Calcular skip basado en página actual
-    filtroActual.skip = (paginaActual - 1) * filtroActual.limit;
-
-    // Cargar datos
-    const resultado = await listarProductos(filtroActual);
-    productosActuales = resultado.items;
-    totalProductos = resultado.total;
-
-    // Mostrar contenedor principal
-    if (contenedorCargando) contenedorCargando.style.display = 'none';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'block';
-
-    // Renderizar tabla
-    if (productosActuales.length === 0) {
-      if (contenedorVacio) contenedorVacio.style.display = 'flex';
-      if (tablaCuerpo) tablaCuerpo.innerHTML = '';
-    } else {
-      if (contenedorVacio) contenedorVacio.style.display = 'none';
-      renderizarTabla(productosActuales);
-    }
-
-    // Renderizar paginación
-    renderizarPaginacion();
-
-  } catch (error) {
-    console.error('Error cargando productos:', error);
-
-    if (contenedorCargando) contenedorCargando.style.display = 'none';
-    if (contenedorError) contenedorError.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
-
-    if (mensajeError) {
-      mensajeError.textContent = error.detalles || error.message || 'Error desconocido';
-    }
-  }
-}
-
-function renderizarTabla(productos) {
-  const { tablaCuerpo } = obtenerElementos();
+function accionesProducto(producto) {
   const session = getSession();
 
-  if (!tablaCuerpo) return;
+  const editar = hasPermission(
+    session,
+    PERMISOS_CATALOGO.PRODUCTOS_MODIFICAR
+  );
 
-  tablaCuerpo.innerHTML = productos.map(producto => {
-    const puedeBorrar = hasPermission(session, PERMISOS_CATALOGO.PRODUCTOS_DESACTIVAR);
-    const puedeEditar = hasPermission(session, PERMISOS_CATALOGO.PRODUCTOS_MODIFICAR);
-    const estadoTexto = producto.activo ? 'Activo' : 'Inactivo';
-    const estadoClase = producto.activo ? 'estado-activo' : 'estado-inactivo';
+  const cambiarEstado = hasPermission(
+    session,
+    PERMISOS_CATALOGO.PRODUCTOS_DESACTIVAR
+  );
 
-    // Obtener nombre de categoría
-    const categoria = CATEGORIAS_PRODUCTO.find(c => c.id === producto.idCategoria);
-    const categoriaNombre = categoria ? categoria.nombre : '—';
+  return `
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
+      data-action="ver"
+      data-id="${producto.idProducto}"
+    >
+      Ver
+    </button>
 
-    // Obtener nombre de tipo
-    const tipo = TIPOS_PRODUCTO.find(t => t.id === producto.idTipoProducto);
-    const tipoNombre = tipo ? tipo.nombre : '—';
+    ${editar ? `
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary"
+        data-action="editar"
+        data-id="${producto.idProducto}"
+      >
+        Editar
+      </button>
+    ` : ''}
 
-    return `
-      <tr class="catalogo-table-row">
-        <td class="catalogo-table-cell">
-          <strong>${producto.codigo}</strong>
+    ${cambiarEstado ? `
+      <button
+        type="button"
+        class="btn btn-sm btn-secondary"
+        data-action="estado"
+        data-id="${producto.idProducto}"
+        data-activo="${producto.activo}"
+      >
+        ${producto.activo ? 'Desactivar' : 'Activar'}
+      </button>
+    ` : ''}
+  `;
+}
+
+function renderTabla(productos) {
+  const { tbody } = obtenerElementos();
+
+  tbody.innerHTML = productos
+    .map(producto => `
+      <tr>
+        <td>
+          <img
+            src="${imagenProducto(producto)}"
+            alt="${producto.nombre}"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='${RUTAS_IMAGENES.PLACEHOLDER_PRODUCTO}'"
+          >
         </td>
-        <td class="catalogo-table-cell">
-          ${producto.nombre}
+
+        <td>${producto.codigo}</td>
+        <td>${producto.nombre}</td>
+
+        <td>
+          ${nombreAuxiliar(
+            categorias,
+            producto.idCategoria
+          )}
         </td>
-        <td class="catalogo-table-cell">
-          ${categoriaNombre}
+
+        <td>
+          ${nombreAuxiliar(
+            tipos,
+            producto.idTipoProducto
+          )}
         </td>
-        <td class="catalogo-table-cell">
-          ${tipoNombre}
+
+        <td>
+          ${nombreAuxiliar(
+            colores,
+            producto.idColor
+          )}
         </td>
-        <td class="catalogo-table-cell">
-          $${producto.precioBase.toFixed(2)}
+
+        <td>${producto.unidadMedida || '—'}</td>
+
+        <td>
+          ${formatoMoneda(producto.precioBase)}
         </td>
-        <td class="catalogo-table-cell">
-          <span class="catalogo-badge ${estadoClase}">
-            ${estadoTexto}
+
+        <td>
+          ${Number(producto.disponibilidad || 0)}
+        </td>
+
+        <td>
+          <span class="catalogo-badge ${
+            producto.activo
+              ? 'estado-activo'
+              : 'estado-inactivo'
+          }">
+            ${producto.activo ? 'Activo' : 'Inactivo'}
           </span>
         </td>
-        <td class="catalogo-table-cell">
+
+        ${puedeGestionar ? `
+          <td>
+            ${formatoFecha(
+              producto.fechaModificacion
+            )}
+          </td>
+        ` : ''}
+
+        <td>
           <div class="catalogo-table-actions">
-            <button
-              type="button"
-              class="btn btn-sm btn-primary"
-              data-action="ver"
-              data-id="${producto.idProducto}"
-              title="Ver detalle"
-            >
-              👁️
-            </button>
-            ${puedeEditar ? `
-              <button
-                type="button"
-                class="btn btn-sm btn-secondary"
-                data-action="editar"
-                data-id="${producto.idProducto}"
-                title="Editar"
-              >
-                ✎
-              </button>
-            ` : ''}
-            ${puedeBorrar ? `
-              <button
-                type="button"
-                class="btn btn-sm btn-danger"
-                data-action="cambiar-estado"
-                data-id="${producto.idProducto}"
-                data-estado="${!producto.activo}"
-                title="${producto.activo ? 'Desactivar' : 'Activar'}"
-              >
-                ${producto.activo ? '⊘' : '↻'}
-              </button>
-            ` : ''}
+            ${accionesProducto(producto)}
           </div>
         </td>
       </tr>
-    `;
-  }).join('');
-
-  // Agregar event listeners a los botones
-  tablaCuerpo.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', manejarAccionTabla);
-  });
+    `)
+    .join('');
 }
 
-function renderizarPaginacion() {
-  const { paginacionContenedor } = obtenerElementos();
+function renderCards(productos) {
+  const { cards } = obtenerElementos();
 
-  if (!paginacionContenedor) return;
+  cards.innerHTML = productos
+    .map(producto => `
+      <article class="catalogo-card">
 
-  const totalPaginas = Math.ceil(totalProductos / filtroActual.limit);
+        <img
+          class="catalogo-card-image"
+          src="${imagenProducto(producto)}"
+          alt="${producto.nombre}"
+          loading="lazy"
+          onerror="this.onerror=null;this.src='${RUTAS_IMAGENES.PLACEHOLDER_PRODUCTO}'"
+        >
+
+        <div class="catalogo-card-content">
+
+          <h3 class="catalogo-card-title">
+            ${producto.nombre}
+          </h3>
+
+          <p class="catalogo-card-subtitle">
+            ${producto.codigo}
+          </p>
+
+          <div class="catalogo-card-info">
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Precio
+              </span>
+              <span>
+                ${formatoMoneda(producto.precioBase)}
+              </span>
+            </div>
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Disponible
+              </span>
+              <span>
+                ${Number(
+                  producto.disponibilidad || 0
+                )}
+              </span>
+            </div>
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Estado
+              </span>
+              <span>
+                ${producto.activo
+                  ? 'Activo'
+                  : 'Inactivo'}
+              </span>
+            </div>
+
+            <div class="catalogo-card-info-item">
+              <span class="catalogo-card-info-label">
+                Categoría
+              </span>
+              <span>
+                ${nombreAuxiliar(
+                  categorias,
+                  producto.idCategoria
+                )}
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="catalogo-card-actions">
+          ${accionesProducto(producto)}
+        </div>
+
+      </article>
+    `)
+    .join('');
+}
+
+function registrarAcciones() {
+  document
+    .querySelectorAll('[data-action][data-id]')
+    .forEach(boton => {
+      boton.addEventListener(
+        'click',
+        manejarAccion
+      );
+    });
+}
+
+async function cargarProductos() {
+  const {
+    contenido,
+    cargando,
+    error,
+    vacio,
+    errorMensaje
+  } = obtenerElementos();
+
+  try {
+    cargando.style.display = 'flex';
+    contenido.style.display = 'none';
+    error.style.display = 'none';
+    vacio.style.display = 'none';
+
+    filtros.skip =
+      (paginaActual - 1) * filtros.limit;
+
+    const resultado =
+      await listarProductos(filtros);
+
+    totalProductos = resultado.total;
+
+    cargando.style.display = 'none';
+
+    if (!resultado.items.length) {
+      vacio.style.display = 'block';
+      return;
+    }
+
+    contenido.style.display = 'block';
+
+    renderTabla(resultado.items);
+    renderCards(resultado.items);
+    renderPaginacion();
+    registrarAcciones();
+
+  } catch (err) {
+    cargando.style.display = 'none';
+    error.style.display = 'flex';
+
+    errorMensaje.textContent =
+      err.message || 'Error desconocido';
+  }
+}
+
+function renderPaginacion() {
+  const { paginacion } = obtenerElementos();
+
+  const totalPaginas =
+    Math.ceil(
+      totalProductos / filtros.limit
+    );
 
   if (totalPaginas <= 1) {
-    paginacionContenedor.innerHTML = '';
+    paginacion.innerHTML = '';
     return;
   }
 
-  const paginas = [];
-  for (let i = 1; i <= totalPaginas; i++) {
-    paginas.push(i);
-  }
-
-  paginacionContenedor.innerHTML = `
+  paginacion.innerHTML = `
     <div class="catalogo-pagination">
+
       <button
         type="button"
-        class="btn btn-sm ${paginaActual === 1 ? 'disabled' : ''}"
-        id="btn-anterior"
+        id="pagina-anterior"
+        class="btn btn-secondary"
         ${paginaActual === 1 ? 'disabled' : ''}
       >
-        ← Anterior
+        Anterior
       </button>
 
-      <div class="catalogo-pagination-numbers">
-        ${paginas.map(p => `
-          <button
-            type="button"
-            class="btn btn-sm ${p === paginaActual ? 'active' : ''}"
-            data-page="${p}"
-          >
-            ${p}
-          </button>
-        `).join('')}
-      </div>
+      <span>
+        Página ${paginaActual} de ${totalPaginas}
+      </span>
 
       <button
         type="button"
-        class="btn btn-sm ${paginaActual === totalPaginas ? 'disabled' : ''}"
-        id="btn-siguiente"
-        ${paginaActual === totalPaginas ? 'disabled' : ''}
+        id="pagina-siguiente"
+        class="btn btn-secondary"
+        ${paginaActual === totalPaginas
+          ? 'disabled'
+          : ''}
       >
-        Siguiente →
+        Siguiente
       </button>
 
-      <span style="margin-left: 1rem; font-size: 0.875rem; color: var(--color-text-secondary);">
-        Página ${paginaActual} de ${totalPaginas} (${totalProductos} productos)
-      </span>
     </div>
   `;
 
-  // Event listeners de paginación
-  document.getElementById('btn-anterior')?.addEventListener('click', () => {
-    if (paginaActual > 1) {
+  document
+    .getElementById('pagina-anterior')
+    ?.addEventListener('click', () => {
       paginaActual--;
       cargarProductos();
-    }
-  });
+    });
 
-  document.getElementById('btn-siguiente')?.addEventListener('click', () => {
-    if (paginaActual < totalPaginas) {
+  document
+    .getElementById('pagina-siguiente')
+    ?.addEventListener('click', () => {
       paginaActual++;
       cargarProductos();
-    }
-  });
-
-  paginacionContenedor.querySelectorAll('[data-page]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      paginaActual = parseInt(e.target.dataset.page);
-      cargarProductos();
     });
-  });
 }
 
-// ============================================================================
-// MANEJO DE EVENTOS
-// ============================================================================
+async function manejarAccion(evento) {
+  const boton =
+    evento.currentTarget;
 
-function manejarAccionTabla(e) {
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
+  const id = boton.dataset.id;
 
-  const action = btn.dataset.action;
-  const id = btn.dataset.id;
-
-  switch (action) {
+  switch (boton.dataset.action) {
     case 'ver':
-      window.location.hash = `#/catalogo/productos/detalle?id=${id}`;
+      location.hash =
+        `#/catalogo/productos/detalle?id=${id}`;
       break;
 
     case 'editar':
-      window.location.hash = `#/catalogo/productos/formulario?id=${id}`;
+      location.hash =
+        `#/catalogo/productos/formulario?id=${id}`;
       break;
 
-    case 'cambiar-estado':
-      const nuevoEstado = btn.dataset.estado === 'true';
-      cambiarEstadoProductoUI(id, nuevoEstado);
+    case 'estado': {
+      const activo =
+        boton.dataset.activo === '1';
+
+      const confirmar = window.confirm(
+        activo
+          ? '¿Desactivar este producto?'
+          : '¿Activar este producto?'
+      );
+
+      if (!confirmar) return;
+
+      await cambiarEstadoProducto(
+        id,
+        !activo
+      );
+
+      showNotification(
+        activo
+          ? MENSAJES.PRODUCTO_DESACTIVADO
+          : MENSAJES.PRODUCTO_ACTIVADO,
+        { type: 'success' }
+      );
+
+      await cargarProductos();
       break;
+    }
   }
 }
 
-async function cambiarEstadoProductoUI(id, activo) {
-  try {
-    showLoader();
-
-    await cambiarEstadoProducto(id, activo);
-
-    showNotification(
-      activo
-        ? MENSAJES.PRODUCTO_ACTIVADO
-        : MENSAJES.PRODUCTO_DESACTIVADO,
-      { type: 'success', timeout: 2000 }
-    );
-
-    // Recargar lista
-    paginaActual = 1;
-    await cargarProductos();
-
-  } catch (error) {
-    console.error('Error cambiando estado:', error);
-    showNotification(error.message, { type: 'error' });
-  } finally {
-    hideLoader();
-  }
-}
-
-function manejarFiltros() {
+function aplicarFiltros() {
   const {
-    filtrosCodigo,
-    filtrosNombre,
-    filtrosCategoria,
-    filtrosTipo,
-    filtrosColor,
-    filtrosEstado
+    filtroTexto,
+    filtroCategoria,
+    filtroTipo,
+    filtroColor,
+    filtroEstado,
+    filtroDisponibilidad
   } = obtenerElementos();
 
-  filtroActual = {
-    codigo: filtrosCodigo?.value.trim() || '',
-    nombre: filtrosNombre?.value.trim() || '',
-    descripcion: '', // No está en el formulario de filtros de lista
-    categoria: filtrosCategoria?.value || '',
-    tipo: filtrosTipo?.value || '',
-    color: filtrosColor?.value || '',
-    estado: filtrosEstado?.value || '',
-    soloActivos: false,
-    skip: 0,
-    limit: filtroActual.limit
+  filtros = {
+    ...filtros,
+    texto:
+      filtroTexto.value.trim(),
+    categoria:
+      filtroCategoria.value,
+    tipo:
+      filtroTipo.value,
+    color:
+      filtroColor.value,
+    estado:
+      puedeGestionar
+        ? filtroEstado.value
+        : '',
+    disponibilidad:
+      filtroDisponibilidad.value,
+    soloActivos:
+      !puedeGestionar,
+    skip: 0
   };
 
   paginaActual = 1;
+
   cargarProductos();
 }
 
 function limpiarFiltros() {
   const {
-    filtrosCodigo,
-    filtrosNombre,
-    filtrosCategoria,
-    filtrosTipo,
-    filtrosColor,
-    filtrosEstado
+    filtroTexto,
+    filtroCategoria,
+    filtroTipo,
+    filtroColor,
+    filtroEstado,
+    filtroDisponibilidad
   } = obtenerElementos();
 
-  if (filtrosCodigo) filtrosCodigo.value = '';
-  if (filtrosNombre) filtrosNombre.value = '';
-  if (filtrosCategoria) filtrosCategoria.value = '';
-  if (filtrosTipo) filtrosTipo.value = '';
-  if (filtrosColor) filtrosColor.value = '';
-  if (filtrosEstado) filtrosEstado.value = '';
+  filtroTexto.value = '';
+  filtroCategoria.value = '';
+  filtroTipo.value = '';
+  filtroColor.value = '';
+  filtroEstado.value = '';
+  filtroDisponibilidad.value = '';
 
-  filtroActual = {
-    codigo: '',
-    nombre: '',
-    descripcion: '',
+  filtros = {
+    texto: '',
     categoria: '',
     tipo: '',
     color: '',
     estado: '',
-    soloActivos: false,
+    disponibilidad: '',
+    soloActivos: !puedeGestionar,
     skip: 0,
-    limit: filtroActual.limit
+    limit: 10
   };
 
   paginaActual = 1;
+
   cargarProductos();
 }
 
-function manejarNuevoProducto() {
-  window.location.hash = '#/catalogo/productos/formulario';
-}
-
-// ============================================================================
-// INICIALIZACIÓN
-// ============================================================================
-
 export async function init() {
-  // Validar autenticación y permisos
   if (!requireAuth()) return;
 
   renderNavegacionCatalogo();
 
   const session = getSession();
-  if (!hasPermission(session, PERMISOS_CATALOGO.CONSULTAR)) {
-    const { contenedorAcceso, contenedorPrincipal } = obtenerElementos();
-    if (contenedorAcceso) contenedorAcceso.style.display = 'flex';
-    if (contenedorPrincipal) contenedorPrincipal.style.display = 'none';
+
+  if (
+    !hasPermission(
+      session,
+      PERMISOS_CATALOGO.CONSULTAR
+    )
+  ) {
+    obtenerElementos().acceso.style.display =
+      'flex';
     return;
   }
 
-  // Verificar si el usuario puede crear productos
-  const puedeCrear = hasPermission(session, PERMISOS_CATALOGO.PRODUCTOS_REGISTRAR);
-  const { btnNuevo } = obtenerElementos();
-  if (btnNuevo && !puedeCrear) {
+  puedeGestionar =
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PRODUCTOS_REGISTRAR
+    ) ||
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PRODUCTOS_MODIFICAR
+    ) ||
+    hasPermission(
+      session,
+      PERMISOS_CATALOGO.PRODUCTOS_DESACTIVAR
+    );
+
+  filtros.soloActivos = !puedeGestionar;
+
+  const {
+    btnNuevo,
+    grupoEstado,
+    colUltimaModificacion,
+    btnFiltrar,
+    btnLimpiar,
+    filtroTexto
+  } = obtenerElementos();
+
+  if (
+    !hasPermission(
+      session,
+      PERMISOS_CATALOGO.PRODUCTOS_REGISTRAR
+    )
+  ) {
     btnNuevo.style.display = 'none';
   }
 
-  // Cargar auxiliares (categorías, tipos, colores)
-  await cargarAuxiliares();
+  if (!puedeGestionar) {
+    grupoEstado.style.display = 'none';
+    colUltimaModificacion.style.display =
+      'none';
+  }
 
-  // Cargar productos inicialmente
+  await cargarAuxiliares();
   await cargarProductos();
 
-  // Configurar event listeners
-  const {
-    btnFiltrar,
-    btnLimpiar,
-    btnNuevo
-  } = obtenerElementos();
+  btnFiltrar.addEventListener(
+    'click',
+    aplicarFiltros
+  );
 
-  if (btnFiltrar) btnFiltrar.addEventListener('click', manejarFiltros);
-  if (btnLimpiar) btnLimpiar.addEventListener('click', limpiarFiltros);
-  if (btnNuevo) btnNuevo.addEventListener('click', manejarNuevoProducto);
+  btnLimpiar.addEventListener(
+    'click',
+    limpiarFiltros
+  );
 
-  // Permitir filtrar con Enter en los campos de texto
-  const { filtrosCodigo, filtrosNombre } = obtenerElementos();
-  [filtrosCodigo, filtrosNombre].forEach(campo => {
-    if (campo) {
-      campo.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          manejarFiltros();
-        }
-      });
+  btnNuevo.addEventListener(
+    'click',
+    () => {
+      location.hash =
+        '#/catalogo/productos/formulario';
     }
-  });
+  );
+
+  filtroTexto.addEventListener(
+    'keydown',
+    evento => {
+      if (evento.key === 'Enter') {
+        aplicarFiltros();
+      }
+    }
+  );
 }

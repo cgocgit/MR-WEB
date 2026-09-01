@@ -13,14 +13,10 @@ import {
 } from '../../api/catalogo.service.js';
 
 import {
-  ESTADO_REGISTRO,
-  CATEGORIAS_PRODUCTO,
-  TIPOS_PRODUCTO,
-  COLORES,
   UNIDADES_MEDIDA,
   PERMISOS_CATALOGO,
   MENSAJES,
-  LIMITES_CAMPOS
+  RUTAS_IMAGENES
 } from '../../api/catalogo.constants.js';
 
 import { getSession, requireAuth } from '../../shared/auth-guard.js';
@@ -58,8 +54,6 @@ function obtenerElementos() {
     idColor: document.getElementById('idColor'),
     unidadMedida: document.getElementById('unidadMedida'),
     precioBase: document.getElementById('precioBase'),
-    imagen: document.getElementById('imagen'),
-    urlImagen: document.getElementById('urlImagen'),
     previewImagen: document.getElementById('preview-imagen'),
     activo: document.getElementById('activo'),
 
@@ -76,8 +70,7 @@ function obtenerElementos() {
     errorIdColor: document.getElementById('error-idColor'),
     errorUnidadMedida: document.getElementById('error-unidadMedida'),
     errorPrecioBase: document.getElementById('error-precioBase'),
-    errorImagen: document.getElementById('error-imagen'),
-    errorUrlImagen: document.getElementById('error-urlImagen')
+    
   };
 }
 
@@ -98,10 +91,8 @@ function limpiarErrores() {
     errorIdCategoria,
     errorIdTipoProducto,
     errorIdColor,
-    errorUnidad,
-    errorPrecioBase,
-    errorImagen,
-    errorUrlImagen
+    errorUnidadMedida,
+    errorPrecioBase
   } = obtenerElementos();
 
   [
@@ -111,12 +102,12 @@ function limpiarErrores() {
     errorIdCategoria,
     errorIdTipoProducto,
     errorIdColor,
-    errorUnidad,
-    errorPrecioBase,
-    errorImagen,
-    errorUrlImagen
-  ].forEach(el => {
-    if (el) el.textContent = '';
+    errorUnidadMedida,
+    errorPrecioBase
+  ].forEach(elemento => {
+    if (elemento) {
+      elemento.textContent = '';
+    }
   });
 }
 
@@ -150,60 +141,82 @@ async function cargarAuxiliares() {
   const {
     idCategoria,
     idTipoProducto,
-    idColor
+    idColor,
+    unidadMedida
   } = obtenerElementos();
 
-  try {
-    // Categorías
-    if (idCategoria) {
-      idCategoria.innerHTML = '<option value="">Seleccione una categoría</option>';
-      CATEGORIAS_PRODUCTO.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat.id;
-        option.textContent = cat.nombre;
-        idCategoria.appendChild(option);
-      });
-    }
+  const [
+    categorias,
+    tipos,
+    colores
+  ] = await Promise.all([
+    listarCategoriasProducto(),
+    listarTiposProducto(),
+    listarColores()
+  ]);
 
-    // Tipos
-    if (idTipoProducto) {
-      idTipoProducto.innerHTML = '<option value="">Seleccione un tipo</option>';
-      TIPOS_PRODUCTO.forEach(tipo => {
-        const option = document.createElement('option');
-        option.value = tipo.id;
-        option.textContent = tipo.nombre;
-        idTipoProducto.appendChild(option);
-      });
-    }
+  idCategoria.innerHTML =
+    '<option value="">Seleccione una categoría</option>';
 
-    // Colores
-    if (idColor) {
-      idColor.innerHTML = '<option value="">Sin color</option>';
-      COLORES.forEach(color => {
-        const option = document.createElement('option');
-        option.value = color.id;
-        option.textContent = color.nombre;
-        idColor.appendChild(option);
-      });
-    }
+  categorias.forEach(item => {
+    const option =
+      document.createElement('option');
 
-    const { unidadMedida } = obtenerElementos();
+    option.value = item.id;
+    option.textContent =
+      `${item.nombre}${item.activo ? '' : ' (Inactivo)'}`;
 
-    if (unidadMedida) {
-      unidadMedida.innerHTML =
-        '<option value="">Seleccione una unidad</option>';
+    option.disabled =
+      item.activo !== 1;
 
-      UNIDADES_MEDIDA.forEach(unidad => {
-        const option = document.createElement('option');
-        option.value = unidad;
-        option.textContent = unidad;
-        unidadMedida.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error cargando auxiliares:', error);
-    showNotification('Error cargando datos auxiliares', { type: 'error' });
-  }
+    idCategoria.appendChild(option);
+  });
+
+  idTipoProducto.innerHTML =
+    '<option value="">Seleccione un tipo</option>';
+
+  tipos.forEach(item => {
+    const option =
+      document.createElement('option');
+
+    option.value = item.id;
+    option.textContent =
+      `${item.nombre}${item.activo ? '' : ' (Inactivo)'}`;
+
+    option.disabled =
+      item.activo !== 1;
+
+    idTipoProducto.appendChild(option);
+  });
+
+  idColor.innerHTML =
+    '<option value="">Sin color</option>';
+
+  colores.forEach(item => {
+    const option =
+      document.createElement('option');
+
+    option.value = item.id;
+    option.textContent =
+      `${item.nombre}${item.activo ? '' : ' (Inactivo)'}`;
+
+    option.disabled =
+      item.activo !== 1;
+
+    idColor.appendChild(option);
+  });
+
+  unidadMedida.innerHTML =
+    '<option value="">Seleccione una unidad</option>';
+
+  UNIDADES_MEDIDA.forEach(unidad => {
+    unidadMedida.insertAdjacentHTML(
+      'beforeend',
+      `<option value="${unidad}">
+        ${unidad}
+      </option>`
+    );
+  });
 }
 
 // ============================================================================
@@ -245,15 +258,23 @@ async function cargarProducto(id) {
       unidadMedida.value = producto.unidadMedida || '';
     }
     if (precioBase) precioBase.value = producto.precioBase;
-    if (urlImagen) urlImagen.value = producto.urlImagen || '';
     if (activo) activo.checked = producto.activo;
 
     // Vista previa de imagen
-    if (producto.urlImagen && previewImagen) {
-      previewImagen.src = producto.urlImagen;
-      previewImagen.style.display = 'block';
-    }
+    if (previewImagen) {
+      previewImagen.src =
+        producto.imagenUrl ||
+        RUTAS_IMAGENES.PLACEHOLDER_PRODUCTO;
 
+      previewImagen.alt =
+        `Imagen de ${producto.nombre}`;
+
+      previewImagen.onerror = () => {
+        previewImagen.onerror = null;
+        previewImagen.src =
+          RUTAS_IMAGENES.PLACEHOLDER_PRODUCTO;
+      };
+    }
     // Desactivar código (no se puede editar)
     if (codigo) codigo.disabled = true;
 
@@ -265,51 +286,6 @@ async function cargarProducto(id) {
     }, 2000);
   } finally {
     hideLoader();
-  }
-}
-
-// ============================================================================
-// MANEJO DE IMAGEN
-// ============================================================================
-
-function manejarCambioImagen(e) {
-  const archivo = e.target.files?.[0];
-  const { previewImagen, urlImagen } = obtenerElementos();
-
-  if (archivo) {
-    const lector = new FileReader();
-
-    lector.onload = (evento) => {
-      const dataUrl = evento.target?.result;
-      if (dataUrl && previewImagen) {
-        previewImagen.src = dataUrl;
-        previewImagen.style.display = 'block';
-
-        // Convertir a base64 o URL
-        if (urlImagen) {
-          urlImagen.value = dataUrl;
-        }
-      }
-    };
-
-    lector.readAsDataURL(archivo);
-  }
-}
-
-function manejarCambioUrlImagen(e) {
-  const url = e.target.value.trim();
-  const { previewImagen } = obtenerElementos();
-
-  if (url && previewImagen) {
-    previewImagen.src = url;
-    previewImagen.onerror = () => {
-      previewImagen.style.display = 'none';
-    };
-    previewImagen.onload = () => {
-      previewImagen.style.display = 'block';
-    };
-  } else if (previewImagen) {
-    previewImagen.style.display = 'none';
   }
 }
 
@@ -339,27 +315,41 @@ async function manejarEnvio(e) {
 
     // Obtener datos
     const datos = {
-      codigo: codigo?.value.trim() || '',
-      nombre: nombre?.value.trim() || '',
-      descripcion: descripcion?.value.trim() || '',
+      codigo:
+        codigo?.value.trim() || '',
 
-      idCategoria: idCategoria?.value
-        ? Number(idCategoria.value)
-        : null,
+      nombre:
+        nombre?.value.trim() || '',
 
-      idTipoProducto: idTipoProducto?.value
-        ? Number(idTipoProducto.value)
-        : null,
+      descripcion:
+        descripcion?.value.trim() || '',
 
-      idColor: idColor?.value
-        ? Number(idColor.value)
-        : null,
+      idCategoria:
+        idCategoria?.value
+          ? Number(idCategoria.value)
+          : null,
 
-      unidadMedida: unidadMedida?.value.trim() || '',
+      idTipoProducto:
+        idTipoProducto?.value
+          ? Number(idTipoProducto.value)
+          : null,
 
-      precioBase: Number(precioBase?.value || 0),
+      idColor:
+        idColor?.value
+          ? Number(idColor.value)
+          : null,
 
-      activo: Boolean(activo?.checked)
+      unidadMedida:
+        unidadMedida?.value.trim() || '',
+
+      precioBase:
+        Number(precioBase?.value || 0),
+
+      activo:
+        Boolean(activo?.checked),
+
+      imagenUrl:
+        productoActual?.imagenUrl || null
     };
 
     // Guardar
@@ -374,8 +364,9 @@ async function manejarEnvio(e) {
 
     // Redirigir después de 1.5 segundos
     setTimeout(() => {
-      window.location.hash = '#/catalogo/productos';
-    }, 1500);
+      window.location.hash =
+        `#/catalogo/productos/detalle?id=${resultado.idProducto}`;
+    }, 500);
 
   } catch (error) {
     console.error('Error guardando producto:', error);
@@ -430,9 +421,7 @@ export async function init() {
   // Configurar event listeners
   const {
     form,
-    btnCancelar,
-    imagen,
-    urlImagen
+    btnCancelar
   } = obtenerElementos();
 
   if (form) {
@@ -443,13 +432,5 @@ export async function init() {
     btnCancelar.addEventListener('click', () => {
       window.location.hash = '#/catalogo/productos';
     });
-  }
-
-  if (imagen) {
-    imagen.addEventListener('change', manejarCambioImagen);
-  }
-
-  if (urlImagen) {
-    urlImagen.addEventListener('input', manejarCambioUrlImagen);
   }
 }

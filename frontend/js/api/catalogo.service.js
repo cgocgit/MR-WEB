@@ -38,56 +38,92 @@ import { getSession } from '../shared/auth-guard.js';
  */
 export async function listarProductos(filtros = {}) {
   await simularLatencia(200);
-  
+
   let resultado = clonarDatos(PRODUCTOS_MOCK);
-  
-  // Aplicar filtros
-  if (filtros.codigo) {
-    const codigo = filtros.codigo.toLowerCase();
-    resultado = resultado.filter(p => p.codigo.toLowerCase().includes(codigo));
+
+  if (filtros.texto) {
+    const texto = filtros.texto.toLowerCase().trim();
+
+    resultado = resultado.filter(producto =>
+      producto.codigo?.toLowerCase().includes(texto) ||
+      producto.nombre?.toLowerCase().includes(texto) ||
+      producto.descripcion?.toLowerCase().includes(texto)
+    );
   }
-  
-  if (filtros.nombre) {
-    const nombre = filtros.nombre.toLowerCase();
-    resultado = resultado.filter(p => p.nombre.toLowerCase().includes(nombre));
+
+  if (
+    filtros.categoria !== undefined &&
+    filtros.categoria !== null &&
+    filtros.categoria !== ''
+  ) {
+    resultado = resultado.filter(
+      producto =>
+        producto.idCategoria === Number(filtros.categoria)
+    );
   }
-  
-  if (filtros.descripcion) {
-    const desc = filtros.descripcion.toLowerCase();
-    resultado = resultado.filter(p => p.descripcion && p.descripcion.toLowerCase().includes(desc));
+
+  if (
+    filtros.tipo !== undefined &&
+    filtros.tipo !== null &&
+    filtros.tipo !== ''
+  ) {
+    resultado = resultado.filter(
+      producto =>
+        producto.idTipoProducto === Number(filtros.tipo)
+    );
   }
-  
-  if (filtros.categoria !== undefined && filtros.categoria !== null && filtros.categoria !== '') {
-    resultado = resultado.filter(p => p.idCategoria === parseInt(filtros.categoria));
+
+  if (
+    filtros.color !== undefined &&
+    filtros.color !== null &&
+    filtros.color !== ''
+  ) {
+    resultado = resultado.filter(
+      producto =>
+        producto.idColor === Number(filtros.color)
+    );
   }
-  
-  if (filtros.tipo !== undefined && filtros.tipo !== null && filtros.tipo !== '') {
-    resultado = resultado.filter(p => p.idTipoProducto === parseInt(filtros.tipo));
+
+  if (
+    filtros.estado !== undefined &&
+    filtros.estado !== null &&
+    filtros.estado !== ''
+  ) {
+    resultado = resultado.filter(
+      producto =>
+        producto.activo === Number(filtros.estado)
+    );
   }
-  
-  if (filtros.color !== undefined && filtros.color !== null && filtros.color !== '') {
-    resultado = resultado.filter(p => p.idColor === parseInt(filtros.color));
-  }
-  
-  if (filtros.estado !== undefined && filtros.estado !== null && filtros.estado !== '') {
-    resultado = resultado.filter(p => p.activo === parseInt(filtros.estado));
-  }
-  
-  // Si no es admin/gestor, mostrar solo activos por defecto
+
   if (filtros.soloActivos === true) {
-    resultado = resultado.filter(p => p.activo === 1);
+    resultado = resultado.filter(
+      producto => producto.activo === 1
+    );
   }
-  
-  // Ordenar por nombre
-  resultado.sort((a, b) => a.nombre.localeCompare(b.nombre));
-  
-  // Paginar
-  const skip = filtros.skip || 0;
-  const limit = filtros.limit || 10;
+
+  if (filtros.disponibilidad === 'disponible') {
+    resultado = resultado.filter(
+      producto => Number(producto.disponibilidad || 0) > 0
+    );
+  }
+
+  if (filtros.disponibilidad === 'sin-disponibilidad') {
+    resultado = resultado.filter(
+      producto => Number(producto.disponibilidad || 0) <= 0
+    );
+  }
+
   const total = resultado.length;
-  const items = resultado.slice(skip, skip + limit);
-  
-  return { items, total, skip, limit };
+
+  const skip = Number(filtros.skip || 0);
+  const limit = Number(filtros.limit || 10);
+
+  return {
+    items: resultado.slice(skip, skip + limit),
+    total,
+    skip,
+    limit
+  };
 }
 
 /**
@@ -130,7 +166,7 @@ export async function registrarProducto(datos) {
   const nuevoProducto = {
     idProducto: Math.max(...PRODUCTOS_MOCK.map(p => p.idProducto), 0) + 1,
     ...datos,
-    activo: ESTADO_REGISTRO.ACTIVO,
+    activo: datos.activo ? 1 : 0,
     fechaRegistro: new Date(),
     creadoPor: obtenerUsuarioActual(),
     fechaModificacion: new Date(),
@@ -611,6 +647,243 @@ export async function listarColores() {
   return clonarDatos(COLORES);
 }
 
+export async function listarCategoriasConfiguracion() {
+  await simularLatencia(100);
+
+  return clonarDatos([
+    ...CATEGORIAS_PRODUCTO,
+    ...CATEGORIAS_SERVICIO
+  ]);
+}
+
+export async function registrarCategoria(datos) {
+  await simularLatencia(150);
+
+  const todas = [
+    ...CATEGORIAS_PRODUCTO,
+    ...CATEGORIAS_SERVICIO
+  ];
+
+  const id =
+    Math.max(...todas.map(item => item.id), 0) + 1;
+
+  const nueva = {
+    id,
+    nombre: datos.nombre.trim(),
+    tipo: datos.tipo,
+    activo: datos.activo ? 1 : 0
+  };
+
+  const destino =
+    datos.tipo === 'Servicio'
+      ? CATEGORIAS_SERVICIO
+      : CATEGORIAS_PRODUCTO;
+
+  destino.push(nueva);
+
+  return clonarDatos(nueva);
+}
+
+export async function actualizarCategoria(id, datos) {
+  await simularLatencia(150);
+
+  const idCategoria = normalizarId(id, 'categoría');
+
+  let origen = CATEGORIAS_PRODUCTO;
+  let indice = origen.findIndex(
+    item => item.id === idCategoria
+  );
+
+  if (indice === -1) {
+    origen = CATEGORIAS_SERVICIO;
+    indice = origen.findIndex(
+      item => item.id === idCategoria
+    );
+  }
+
+  if (indice === -1) {
+    throw crearError(
+      'CATEGORIA_NO_ENCONTRADA',
+      'Categoría no encontrada.'
+    );
+  }
+
+  const actualizado = {
+    ...origen[indice],
+    nombre: datos.nombre.trim(),
+    tipo: datos.tipo,
+    activo: datos.activo ? 1 : 0
+  };
+
+  const destino =
+    datos.tipo === 'Servicio'
+      ? CATEGORIAS_SERVICIO
+      : CATEGORIAS_PRODUCTO;
+
+  if (destino !== origen) {
+    origen.splice(indice, 1);
+    destino.push(actualizado);
+  } else {
+    origen[indice] = actualizado;
+  }
+
+  return clonarDatos(actualizado);
+}
+
+export async function cambiarEstadoCategoria(id, activo) {
+  const categorias =
+    await listarCategoriasConfiguracion();
+
+  const categoria = categorias.find(
+    item => item.id === Number(id)
+  );
+
+  if (!categoria) {
+    throw crearError(
+      'CATEGORIA_NO_ENCONTRADA',
+      'Categoría no encontrada.'
+    );
+  }
+
+  return actualizarCategoria(id, {
+    ...categoria,
+    activo
+  });
+}
+
+export async function registrarTipoProducto(datos) {
+  await simularLatencia(150);
+
+  const nuevo = {
+    id:
+      Math.max(
+        ...TIPOS_PRODUCTO.map(item => item.id),
+        0
+      ) + 1,
+    nombre: datos.nombre.trim(),
+    activo: datos.activo ? 1 : 0
+  };
+
+  TIPOS_PRODUCTO.push(nuevo);
+
+  return clonarDatos(nuevo);
+}
+
+export async function actualizarTipoProducto(id, datos) {
+  await simularLatencia(150);
+
+  const idTipo = normalizarId(id, 'tipo de producto');
+
+  const indice = TIPOS_PRODUCTO.findIndex(
+    item => item.id === idTipo
+  );
+
+  if (indice === -1) {
+    throw crearError(
+      'TIPO_NO_ENCONTRADO',
+      'Tipo de producto no encontrado.'
+    );
+  }
+
+  TIPOS_PRODUCTO[indice] = {
+    ...TIPOS_PRODUCTO[indice],
+    nombre: datos.nombre.trim(),
+    activo: datos.activo ? 1 : 0
+  };
+
+  return clonarDatos(TIPOS_PRODUCTO[indice]);
+}
+
+export async function cambiarEstadoTipoProducto(
+  id,
+  activo
+) {
+  const tipos = await listarTiposProducto();
+
+  const tipo = tipos.find(
+    item => item.id === Number(id)
+  );
+
+  if (!tipo) {
+    throw crearError(
+      'TIPO_NO_ENCONTRADO',
+      'Tipo de producto no encontrado.'
+    );
+  }
+
+  return actualizarTipoProducto(id, {
+    ...tipo,
+    activo
+  });
+}
+
+export async function registrarColor(datos) {
+  await simularLatencia(150);
+
+  const nuevo = {
+    id:
+      Math.max(
+        ...COLORES.map(item => item.id),
+        0
+      ) + 1,
+    nombre: datos.nombre.trim(),
+    hexadecimal:
+      datos.hexadecimal.toUpperCase(),
+    activo: datos.activo ? 1 : 0
+  };
+
+  COLORES.push(nuevo);
+
+  return clonarDatos(nuevo);
+}
+
+export async function actualizarColor(id, datos) {
+  await simularLatencia(150);
+
+  const idColor = normalizarId(id, 'color');
+
+  const indice = COLORES.findIndex(
+    item => item.id === idColor
+  );
+
+  if (indice === -1) {
+    throw crearError(
+      'COLOR_NO_ENCONTRADO',
+      'Color no encontrado.'
+    );
+  }
+
+  COLORES[indice] = {
+    ...COLORES[indice],
+    nombre: datos.nombre.trim(),
+    hexadecimal:
+      datos.hexadecimal.toUpperCase(),
+    activo: datos.activo ? 1 : 0
+  };
+
+  return clonarDatos(COLORES[indice]);
+}
+
+export async function cambiarEstadoColor(id, activo) {
+  const colores = await listarColores();
+
+  const color = colores.find(
+    item => item.id === Number(id)
+  );
+
+  if (!color) {
+    throw crearError(
+      'COLOR_NO_ENCONTRADO',
+      'Color no encontrado.'
+    );
+  }
+
+  return actualizarColor(id, {
+    ...color,
+    activo
+  });
+}
+
 /**
  * Consultar disponibilidad de un producto.
  */
@@ -648,54 +921,131 @@ export async function consultarDisponibilidad(id) {
  */
 function validarProducto(datos, idActual) {
   const errores = [];
-  
+
   if (!datos.codigo || datos.codigo.trim() === '') {
-    errores.push('Código es requerido');
-  } else if (datos.codigo.length > LIMITES_CAMPOS.CODIGO_PRODUCTO.max) {
-    errores.push(`Código máximo ${LIMITES_CAMPOS.CODIGO_PRODUCTO.max} caracteres`);
+    errores.push({
+      campo: 'codigo',
+      mensaje: 'Código es requerido'
+    });
+  } else if (
+    datos.codigo.length >
+    LIMITES_CAMPOS.CODIGO_PRODUCTO.max
+  ) {
+    errores.push({
+      campo: 'codigo',
+      mensaje:
+        `Código máximo ${LIMITES_CAMPOS.CODIGO_PRODUCTO.max} caracteres`
+    });
   }
-  
+
   if (!datos.nombre || datos.nombre.trim() === '') {
-    errores.push('Nombre es requerido');
-  } else if (datos.nombre.length > LIMITES_CAMPOS.NOMBRE.max) {
-    errores.push(`Nombre máximo ${LIMITES_CAMPOS.NOMBRE.max} caracteres`);
+    errores.push({
+      campo: 'nombre',
+      mensaje: 'Nombre es requerido'
+    });
+  } else if (
+    datos.nombre.length >
+    LIMITES_CAMPOS.NOMBRE.max
+  ) {
+    errores.push({
+      campo: 'nombre',
+      mensaje:
+        `Nombre máximo ${LIMITES_CAMPOS.NOMBRE.max} caracteres`
+    });
   }
-  
-  if (datos.descripcion && datos.descripcion.length > LIMITES_CAMPOS.DESCRIPCION.max) {
-    errores.push(`Descripción máximo ${LIMITES_CAMPOS.DESCRIPCION.max} caracteres`);
+
+  if (
+    datos.descripcion &&
+    datos.descripcion.length >
+    LIMITES_CAMPOS.DESCRIPCION.max
+  ) {
+    errores.push({
+      campo: 'descripcion',
+      mensaje:
+        `Descripción máximo ${LIMITES_CAMPOS.DESCRIPCION.max} caracteres`
+    });
   }
-  
-  if (datos.idTipoProducto !== null && datos.idTipoProducto !== undefined) {
-    const tipoValido = TIPOS_PRODUCTO.some(t => t.id === datos.idTipoProducto && t.activo === 1);
-    if (!tipoValido) {
-      errores.push('Tipo de producto inválido o inactivo');
-    }
-  }
-  
-  if (!datos.idCategoria) {
-    errores.push('Categoría es requerida');
+
+  if (!datos.idTipoProducto) {
+    errores.push({
+      campo: 'idTipoProducto',
+      mensaje: 'Tipo de producto es requerido'
+    });
   } else {
-    const catValida = CATEGORIAS_PRODUCTO.some(c => c.id === datos.idCategoria && c.activo === 1);
-    if (!catValida) {
-      errores.push('Categoría inválida o inactiva');
+    const tipoValido = TIPOS_PRODUCTO.some(
+      tipo =>
+        tipo.id === datos.idTipoProducto &&
+        tipo.activo === 1
+    );
+
+    if (!tipoValido) {
+      errores.push({
+        campo: 'idTipoProducto',
+        mensaje: 'Tipo de producto inválido o inactivo'
+      });
     }
   }
-  
-  if (datos.idColor !== null && datos.idColor !== undefined) {
-    const colorValido = COLORES.some(c => c.id === datos.idColor && c.activo === 1);
+
+  if (!datos.idCategoria) {
+    errores.push({
+      campo: 'idCategoria',
+      mensaje: 'Categoría es requerida'
+    });
+  } else {
+    const categoriaValida = CATEGORIAS_PRODUCTO.some(
+      categoria =>
+        categoria.id === datos.idCategoria &&
+        categoria.activo === 1
+    );
+
+    if (!categoriaValida) {
+      errores.push({
+        campo: 'idCategoria',
+        mensaje: 'Categoría inválida o inactiva'
+      });
+    }
+  }
+
+  if (
+    datos.idColor !== null &&
+    datos.idColor !== undefined
+  ) {
+    const colorValido = COLORES.some(
+      color =>
+        color.id === datos.idColor &&
+        color.activo === 1
+    );
+
     if (!colorValido) {
-      errores.push('Color inválido o inactivo');
+      errores.push({
+        campo: 'idColor',
+        mensaje: 'Color inválido o inactivo'
+      });
     }
   }
-  
-  if (!datos.unidadMedida || datos.unidadMedida.trim() === '') {
-    errores.push('Unidad de medida es requerida');
+
+  if (
+    !datos.unidadMedida ||
+    datos.unidadMedida.trim() === ''
+  ) {
+    errores.push({
+      campo: 'unidadMedida',
+      mensaje: 'Unidad de medida es requerida'
+    });
   }
-  
-  if (typeof datos.precioBase !== 'number' || datos.precioBase < 0) {
-    errores.push('Precio base debe ser un número mayor o igual a cero');
+
+  if (
+    typeof datos.precioBase !== 'number' ||
+    Number.isNaN(datos.precioBase) ||
+    datos.precioBase < 0
+  ) {
+    errores.push({
+      campo: 'precioBase',
+      mensaje:
+        'Precio base debe ser un número mayor o igual a cero'
+    });
   }
-  
+
   return errores;
 }
 

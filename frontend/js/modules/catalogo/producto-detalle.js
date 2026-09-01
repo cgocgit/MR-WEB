@@ -5,22 +5,32 @@
 
 import {
   obtenerProducto,
-  cambiarEstadoProducto
+  cambiarEstadoProducto,
+  consultarDisponibilidad,
+  listarPaquetes,
+  listarCategoriasProducto,
+  listarTiposProducto,
+  listarColores
 } from '../../api/catalogo.service.js';
 
 import {
-  ESTADO_REGISTRO,
-  CATEGORIAS_PRODUCTO,
-  TIPOS_PRODUCTO,
-  COLORES,
   PERMISOS_CATALOGO,
-  MENSAJES
+  MENSAJES,
+  RUTAS_IMAGENES
 } from '../../api/catalogo.constants.js';
 
-import { getSession, requireAuth } from '../../shared/auth-guard.js';
-import { hasPermission } from '../../shared/permissions.js';
-import { showNotification } from '../../components/notification.js';
-import { showLoader, hideLoader } from '../../components/loader.js';
+import {
+  getSession,
+  requireAuth
+} from '../../shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../shared/permissions.js';
+
+import {
+  showNotification
+} from '../../components/notification.js';
 
 import {
   renderNavegacionCatalogo
@@ -67,8 +77,20 @@ function obtenerElementos() {
     btnEditar: document.getElementById('btn-editar'),
     btnEstado: document.getElementById('btn-estado'),
 
+    productoDisponibilidad:
+      document.getElementById(
+        'producto-disponibilidad'
+      ),
+
+    paquetesLista:
+      document.getElementById(
+        'paquetes-lista'
+      ),
+
     // Mensajes
     errorMensaje: document.getElementById('error-mensaje')
+
+    
   };
 }
 
@@ -98,108 +120,186 @@ function formatearFecha(fecha) {
 // ============================================================================
 
 async function cargarProducto(id) {
-  const {
-    detalleContent,
-    estadoCargando,
-    estadoError,
-    productoNombre,
-    productoCodigo,
-    productoImagen,
-    productoCategoria,
-    productoTipo,
-    productoColor,
-    productoUnidad,
-    productoPrecio,
-    productoEstado,
-    productoDescripcion,
-    seccionAuditoria,
-    productoRegistro,
-    productoModificacion,
-    btnEditar,
-    btnEstado,
-    errorMensaje
-  } = obtenerElementos();
+  const elementos = obtenerElementos();
 
   try {
-    if (estadoCargando) estadoCargando.style.display = 'flex';
-    if (detalleContent) detalleContent.style.display = 'none';
-    if (estadoError) estadoError.style.display = 'none';
+    elementos.estadoCargando.style.display =
+      'flex';
 
-    productoActual = await obtenerProducto(id);
+    elementos.detalleContent.style.display =
+      'none';
 
-    // Llenar datos
-    if (productoNombre) productoNombre.textContent = productoActual.nombre;
-    if (productoCodigo) productoCodigo.textContent = productoActual.codigo;
+    elementos.estadoError.style.display =
+      'none';
 
-    // Imagen
-    if (productoImagen && productoActual.urlImagen) {
-      productoImagen.src = productoActual.urlImagen;
-      productoImagen.style.display = 'block';
-    }
+    productoActual =
+      await obtenerProducto(id);
 
-    // Metadata
-    const categoria = CATEGORIAS_PRODUCTO.find(c => c.id === productoActual.idCategoria);
-    const tipo = TIPOS_PRODUCTO.find(t => t.id === productoActual.idTipoProducto);
-    const color = COLORES.find(c => c.id === productoActual.idColor);
+    const [
+      categorias,
+      tipos,
+      colores,
+      disponibilidad,
+      resultadoPaquetes
+    ] = await Promise.all([
+      listarCategoriasProducto(),
+      listarTiposProducto(),
+      listarColores(),
+      consultarDisponibilidad(id),
+      listarPaquetes({
+        skip: 0,
+        limit: 100
+      })
+    ]);
 
-    if (productoCategoria) productoCategoria.textContent = categoria?.nombre || '—';
-    if (productoTipo) productoTipo.textContent = tipo?.nombre || '—';
-    if (productoColor) productoColor.textContent = color?.nombre || '—';
-    if (productoUnidad) productoUnidad.textContent = productoActual.unidad || '—';
-    if (productoPrecio) productoPrecio.textContent = `$${productoActual.precioBase.toFixed(2)}`;
+    elementos.productoNombre.textContent =
+      productoActual.nombre;
 
-    const estadoTexto = productoActual.activo ? 'Activo' : 'Inactivo';
-    if (productoEstado) {
-      productoEstado.textContent = estadoTexto;
-      productoEstado.className = productoActual.activo ? 'estado-activo' : 'estado-inactivo';
-    }
+    elementos.productoCodigo.textContent =
+      productoActual.codigo;
 
-    // Descripción
-    if (productoDescripcion) {
-      productoDescripcion.textContent = productoActual.descripcion || 'Sin descripción';
-    }
+    elementos.productoImagen.src =
+      productoActual.imagenUrl ||
+      RUTAS_IMAGENES.PLACEHOLDER_PRODUCTO;
 
-    // Auditoría
+    elementos.productoImagen.alt =
+      `Imagen de ${productoActual.nombre}`;
+
+    elementos.productoImagen.onerror = () => {
+      elementos.productoImagen.onerror = null;
+      elementos.productoImagen.src =
+        RUTAS_IMAGENES.PLACEHOLDER_PRODUCTO;
+    };
+
+    elementos.productoCategoria.textContent =
+      categorias.find(
+        item =>
+          item.id === productoActual.idCategoria
+      )?.nombre || '—';
+
+    elementos.productoTipo.textContent =
+      tipos.find(
+        item =>
+          item.id === productoActual.idTipoProducto
+      )?.nombre || '—';
+
+    elementos.productoColor.textContent =
+      colores.find(
+        item =>
+          item.id === productoActual.idColor
+      )?.nombre || '—';
+
+    elementos.productoUnidad.textContent =
+      productoActual.unidadMedida || '—';
+
+    elementos.productoPrecio.textContent =
+      Number(
+        productoActual.precioBase || 0
+      ).toLocaleString(
+        'es-MX',
+        {
+          style: 'currency',
+          currency: 'MXN'
+        }
+      );
+
+    elementos.productoEstado.textContent =
+      productoActual.activo
+        ? 'Activo'
+        : 'Inactivo';
+
+    elementos.productoDisponibilidad.textContent =
+      `${disponibilidad.cantidadDisponible} unidades`;
+
+    elementos.productoDescripcion.textContent =
+      productoActual.descripcion ||
+      'Sin descripción';
+
+    const paquetes =
+      resultadoPaquetes.items.filter(
+        paquete =>
+          paquete.activo === 1 &&
+          paquete.detalleProductos?.some(
+            detalle =>
+              detalle.idProducto ===
+              productoActual.idProducto
+          )
+      );
+
+    elementos.paquetesLista.innerHTML =
+      paquetes.length
+        ? paquetes
+            .map(paquete => `
+              <a
+                href="#/catalogo/paquetes/detalle?id=${paquete.idPaquete}"
+              >
+                ${paquete.codigo} - ${paquete.nombre}
+              </a>
+            `)
+            .join('<br>')
+        : '<p>No participa en paquetes activos.</p>';
+
     const session = getSession();
-    const esGestor = hasPermission(session, PERMISOS_CATALOGO.AUXILIARES_GESTIONAR);
 
-    if (seccionAuditoria && esGestor) {
-      seccionAuditoria.style.display = 'block';
-      if (productoRegistro) {
-        productoRegistro.textContent = `${productoActual.creadoPor || 'Sistema'} • ${formatearFecha(productoActual.fechaCreacion)}`;
-      }
-      if (productoModificacion) {
-        productoModificacion.textContent = `${productoActual.modificadoPor || 'Sistema'} • ${formatearFecha(productoActual.fechaModificacion)}`;
-      }
+    const esGestor =
+      hasPermission(
+        session,
+        PERMISOS_CATALOGO.PRODUCTOS_MODIFICAR
+      ) ||
+      hasPermission(
+        session,
+        PERMISOS_CATALOGO.PRODUCTOS_DESACTIVAR
+      );
+
+    if (esGestor) {
+      elementos.seccionAuditoria.style.display =
+        'block';
+
+      elementos.productoRegistro.textContent =
+        `${productoActual.creadoPor || 'Sistema'} • ` +
+        `${formatearFecha(productoActual.fechaRegistro)}`;
+
+      elementos.productoModificacion.textContent =
+        `${productoActual.modificadoPor || 'Sistema'} • ` +
+        `${formatearFecha(productoActual.fechaModificacion)}`;
     }
 
-    // Botones de acción
-    const puedeEditar = hasPermission(session, PERMISOS_CATALOGO.PRODUCTOS_MODIFICAR);
-    const puedeCambiarEstado = hasPermission(session, PERMISOS_CATALOGO.PRODUCTOS_DESACTIVAR);
+    elementos.btnEditar.style.display =
+      hasPermission(
+        session,
+        PERMISOS_CATALOGO.PRODUCTOS_MODIFICAR
+      )
+        ? 'inline-block'
+        : 'none';
 
-    if (btnEditar) {
-      btnEditar.style.display = puedeEditar ? 'inline-block' : 'none';
-    }
+    elementos.btnEstado.style.display =
+      hasPermission(
+        session,
+        PERMISOS_CATALOGO.PRODUCTOS_DESACTIVAR
+      )
+        ? 'inline-block'
+        : 'none';
 
-    if (btnEstado) {
-      btnEstado.style.display = puedeCambiarEstado ? 'inline-block' : 'none';
-      btnEstado.textContent = productoActual.activo ? '⊘ Desactivar' : '↻ Activar';
-    }
+    elementos.btnEstado.textContent =
+      productoActual.activo
+        ? 'Desactivar'
+        : 'Activar';
 
-    // Mostrar contenido
-    if (estadoCargando) estadoCargando.style.display = 'none';
-    if (detalleContent) detalleContent.style.display = 'block';
+    elementos.estadoCargando.style.display =
+      'none';
+
+    elementos.detalleContent.style.display =
+      'block';
 
   } catch (error) {
-    console.error('Error cargando producto:', error);
+    elementos.estadoCargando.style.display =
+      'none';
 
-    if (estadoCargando) estadoCargando.style.display = 'none';
-    if (estadoError) estadoError.style.display = 'flex';
-    if (detalleContent) detalleContent.style.display = 'none';
+    elementos.estadoError.style.display =
+      'flex';
 
-    if (errorMensaje) {
-      errorMensaje.textContent = error.message || 'Error desconocido';
-    }
+    elementos.errorMensaje.textContent =
+      error.message || 'Error desconocido';
   }
 }
 
@@ -208,28 +308,32 @@ async function cargarProducto(id) {
 // ============================================================================
 
 async function manejarCambioEstado() {
-  try {
-    showLoader();
+  const nuevoEstado =
+    !Boolean(productoActual.activo);
 
-    const nuevoEstado = !productoActual.activo;
-    await cambiarEstadoProducto(productoActual.id, nuevoEstado);
+  const confirmar = window.confirm(
+    nuevoEstado
+      ? '¿Activar este producto?'
+      : '¿Desactivar este producto?'
+  );
 
-    showNotification(
-      nuevoEstado
-        ? MENSAJES.PRODUCTO_ACTIVADO
-        : MENSAJES.PRODUCTO_DESACTIVADO,
-      { type: 'success', timeout: 2000 }
-    );
+  if (!confirmar) return;
 
-    // Recargar producto
-    await cargarProducto(productoActual.id);
+  await cambiarEstadoProducto(
+    productoActual.idProducto,
+    nuevoEstado
+  );
 
-  } catch (error) {
-    console.error('Error cambiando estado:', error);
-    showNotification(error.message, { type: 'error' });
-  } finally {
-    hideLoader();
-  }
+  showNotification(
+    nuevoEstado
+      ? MENSAJES.PRODUCTO_ACTIVADO
+      : MENSAJES.PRODUCTO_DESACTIVADO,
+    { type: 'success' }
+  );
+
+  await cargarProducto(
+    productoActual.idProducto
+  );
 }
 
 // ============================================================================
@@ -256,7 +360,8 @@ export async function init() {
   if (!idProducto) {
     showNotification('ID de producto no especificado', { type: 'error' });
     setTimeout(() => {
-      window.location.hash = '#/catalogo/productos';
+      window.location.hash =
+        `#/catalogo/productos/formulario?id=${productoActual.idProducto}`;
     }, 2000);
     return;
   }

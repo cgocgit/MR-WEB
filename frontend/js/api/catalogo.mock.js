@@ -32,7 +32,7 @@ export const PRODUCTOS_MOCK = [
     unidadMedida: 'Unidad',
     precioBase: 45.00,
     activo: 1,
-    imagenUrl: './assets/images/catalogo/productos/silla-windsor.jpg',
+    imagenUrl: './assets/images/catalogo/productos/silla-windsor.svg',
     fechaRegistro: new Date('2024-01-15'),
     creadoPor: 'admin@mesaregia.com',
     fechaModificacion: new Date('2024-01-15'),
@@ -456,9 +456,23 @@ export function obtenerPaquetePorId(id) {
 /**
  * Función para validar duplicado de código
  */
-export function existeCodigoProducto(codigo, excluyendoId = null) {
-  return PRODUCTOS_MOCK.some(p => 
-    p.codigo === codigo && (excluyendoId === null || p.idProducto !== excluyendoId)
+export function existeCodigoProducto(
+  codigo,
+  excluyendoId = null
+) {
+  const codigoNormalizado =
+    String(codigo || '')
+      .trim()
+      .toUpperCase();
+
+  return PRODUCTOS_MOCK.some(producto =>
+    String(producto.codigo || '')
+      .trim()
+      .toUpperCase() === codigoNormalizado &&
+    (
+      excluyendoId === null ||
+      producto.idProducto !== Number(excluyendoId)
+    )
   );
 }
 

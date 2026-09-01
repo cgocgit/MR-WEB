@@ -847,3 +847,28 @@
     font-size: 1.25rem;
   }
 }
+
+.catalogo-mobile-only {
+  display: none;
+}
+
+.catalogo-desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .catalogo-desktop-only {
+    display: none;
+  }
+
+  .catalogo-mobile-only {
+    display: grid;
+  }
+
+  .catalogo-card-actions button,
+  .catalogo-filters-actions button,
+  .catalogo-detail-actions button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

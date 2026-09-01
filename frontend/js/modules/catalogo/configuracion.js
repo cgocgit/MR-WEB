@@ -4,17 +4,25 @@
  */
 
 import {
-  listarCategoriasProducto,
+  listarCategoriasConfiguracion,
   listarTiposProducto,
-  listarColores
+  listarColores,
+
+  registrarCategoria,
+  actualizarCategoria,
+  cambiarEstadoCategoria,
+
+  registrarTipoProducto,
+  actualizarTipoProducto,
+  cambiarEstadoTipoProducto,
+
+  registrarColor,
+  actualizarColor,
+  cambiarEstadoColor
 } from '../../api/catalogo.service.js';
 
 import {
-  CATEGORIAS_PRODUCTO,
-  TIPOS_PRODUCTO,
-  COLORES,
-  PERMISOS_CATALOGO,
-  MENSAJES
+  PERMISOS_CATALOGO
 } from '../../api/catalogo.constants.js';
 
 import { getSession, requireAuth } from '../../shared/auth-guard.js';
@@ -32,6 +40,11 @@ import {
 
 let auxiliarActual = null;
 let tipoAuxiliarActual = null;
+let datosAuxiliares = {
+  categorias: [],
+  tipos: [],
+  colores: []
+};
 
 // ============================================================================
 // REFERENCIAS AL DOM
@@ -83,7 +96,16 @@ function obtenerElementos() {
     // Errores
     errorAuxNombre: document.getElementById('error-aux-nombre'),
     errorAuxTipo: document.getElementById('error-aux-tipo'),
-    errorAuxHexadecimal: document.getElementById('error-aux-hexadecimal')
+    errorAuxHexadecimal: document.getElementById('error-aux-hexadecimal'),
+
+    buscarCategorias:
+      document.getElementById('buscar-categorias'),
+
+    buscarTipos:
+      document.getElementById('buscar-tipos'),
+
+    buscarColores:
+      document.getElementById('buscar-colores'),
   };
 }
 
@@ -148,88 +170,128 @@ function actualizarVisibilidadCampos() {
 // CARGA Y RENDERIZADO DE AUXILIARES
 // ============================================================================
 
-async function cargarYRenderizar(tipo) {
+async function cargarYRenderizar(
+  tipo,
+  texto = ''
+) {
   try {
     showLoader();
 
-    let datos;
+    let datos = [];
     let contenedor;
-    const { listaCategoriasDiv, listaTiposDiv, listaColoresDiv } = obtenerElementos();
 
-    switch (tipo) {
-      case 'categorias':
-        datos = CATEGORIAS_PRODUCTO;
-        contenedor = listaCategoriasDiv;
-        break;
-      case 'tipos':
-        datos = TIPOS_PRODUCTO;
-        contenedor = listaTiposDiv;
-        break;
-      case 'colores':
-        datos = COLORES;
-        contenedor = listaColoresDiv;
-        break;
+    const {
+      listaCategoriasDiv,
+      listaTiposDiv,
+      listaColoresDiv
+    } = obtenerElementos();
+
+    if (tipo === 'categorias') {
+      datos =
+        await listarCategoriasConfiguracion();
+
+      contenedor =
+        listaCategoriasDiv;
     }
 
-    if (!contenedor) return;
+    if (tipo === 'tipos') {
+      datos =
+        await listarTiposProducto();
 
-    // Renderizar como cards
-    contenedor.innerHTML = datos.map(item => {
-      const estado = item.activo ? 'Activo' : 'Inactivo';
-      const estadoClase = item.activo ? 'estado-activo' : 'estado-inactivo';
+      contenedor =
+        listaTiposDiv;
+    }
 
-      let contenidoExtra = '';
-      if (tipo === 'categorias') {
-        const tipoNombre = item.tipo === 'Producto' ? 'Producto' : 'Servicio';
-        contenidoExtra = `<p style="font-size: 0.875rem; color: var(--color-text-secondary); margin: 0.5rem 0 0 0;">Tipo: ${tipoNombre}</p>`;
-      } else if (tipo === 'colores') {
-        contenidoExtra = `
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-            <div style="width: 30px; height: 30px; background-color: ${item.hexadecimal}; border: 1px solid var(--color-border); border-radius: 4px;"></div>
-            <span style="font-size: 0.875rem; font-family: monospace; color: var(--color-text-secondary);">${item.hexadecimal}</span>
-          </div>
-        `;
-      }
+    if (tipo === 'colores') {
+      datos =
+        await listarColores();
 
-      return `
-        <div class="catalogo-card" style="padding: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
-            <div>
-              <h3 style="margin: 0; font-size: 1rem;">${item.nombre}</h3>
-              ${contenidoExtra}
-            </div>
-            <span class="catalogo-badge ${estadoClase}" style="white-space: nowrap;">
-              ${estado}
-            </span>
-          </div>
+      contenedor =
+        listaColoresDiv;
+    }
 
-          <div style="display: flex; gap: 0.5rem; margin-top: 1rem; justify-content: flex-end;">
-            <button
-              type="button"
-              class="btn btn-sm btn-secondary"
-              data-action="editar"
-              data-id="${item.id}"
-              data-tipo="${tipo}"
-            >
-              ✎ Editar
-            </button>
-          </div>
-        </div>
-      `;
-    }).join('');
+    datosAuxiliares[tipo] = datos;
 
-    // Event listeners
-    contenedor.querySelectorAll('[data-action="editar"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.dataset.id;
-        const tipo = e.currentTarget.dataset.tipo;
-        abrirEditarAuxiliar(tipo, id);
+    const filtro =
+      texto.toLowerCase().trim();
+
+    const filtrados =
+      filtro
+        ? datos.filter(item =>
+            item.nombre
+              .toLowerCase()
+              .includes(filtro)
+          )
+        : datos;
+
+    contenedor.innerHTML =
+      filtrados
+        .map(item => {
+          const extra =
+            tipo === 'categorias'
+              ? `<p>Tipo: ${item.tipo}</p>`
+              : tipo === 'colores'
+                ? `<p>${item.hexadecimal}</p>`
+                : '';
+
+          return `
+            <article class="catalogo-card">
+              <div class="catalogo-card-content">
+
+                <h3 class="catalogo-card-title">
+                  ${item.nombre}
+                </h3>
+
+                ${extra}
+
+                <p>
+                  ${item.activo
+                    ? 'Activo'
+                    : 'Inactivo'}
+                </p>
+
+              </div>
+
+              <div class="catalogo-card-actions">
+
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-action="editar"
+                  data-id="${item.id}"
+                  data-tipo="${tipo}"
+                >
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-action="estado"
+                  data-id="${item.id}"
+                  data-tipo="${tipo}"
+                  data-activo="${item.activo}"
+                >
+                  ${item.activo
+                    ? 'Desactivar'
+                    : 'Activar'}
+                </button>
+
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+
+    contenedor
+      .querySelectorAll('[data-action]')
+      .forEach(boton => {
+        boton.addEventListener(
+          'click',
+          manejarAccionAuxiliar
+        );
       });
-    });
 
-  } catch (error) {
-    console.error('Error cargando auxiliares:', error);
-    showNotification('Error cargando auxiliares', { type: 'error' });
   } finally {
     hideLoader();
   }
@@ -266,21 +328,12 @@ function abrirNuevoAuxiliar(tipo) {
 function abrirEditarAuxiliar(tipo, id) {
   tipoAuxiliarActual = tipo;
 
-  let datos;
-  switch (tipo) {
-    case 'categorias':
-      datos = CATEGORIAS_PRODUCTO.find(c => c.id === parseInt(id));
-      auxiliarActual = JSON.parse(JSON.stringify(datos));
-      break;
-    case 'tipos':
-      datos = TIPOS_PRODUCTO.find(t => t.id === parseInt(id));
-      auxiliarActual = JSON.parse(JSON.stringify(datos));
-      break;
-    case 'colores':
-      datos = COLORES.find(c => c.id === parseInt(id));
-      auxiliarActual = JSON.parse(JSON.stringify(datos));
-      break;
-  }
+  auxiliarActual =
+    datosAuxiliares[tipo].find(
+      item => item.id === Number(id)
+    );
+
+  if (!auxiliarActual) return;
 
   const {
     modalTitulo,
@@ -291,25 +344,25 @@ function abrirEditarAuxiliar(tipo, id) {
     auxActivo
   } = obtenerElementos();
 
-  if (modalTitulo) {
-    switch (tipo) {
-      case 'categorias':
-        modalTitulo.textContent = 'Editar Categoría';
-        break;
-      case 'tipos':
-        modalTitulo.textContent = 'Editar Tipo de Producto';
-        break;
-      case 'colores':
-        modalTitulo.textContent = 'Editar Color';
-        break;
-    }
+  modalTitulo.textContent =
+    'Editar auxiliar';
+
+  auxNombre.value =
+    auxiliarActual.nombre || '';
+
+  auxTipo.value =
+    auxiliarActual.tipo || '';
+
+  auxHexadecimal.value =
+    auxiliarActual.hexadecimal || '';
+
+  if (auxiliarActual.hexadecimal) {
+    auxColorPicker.value =
+      auxiliarActual.hexadecimal;
   }
 
-  if (auxNombre) auxNombre.value = auxiliarActual?.nombre || '';
-  if (auxTipo && auxiliarActual?.tipo) auxTipo.value = auxiliarActual.tipo;
-  if (auxHexadecimal && auxiliarActual?.hexadecimal) auxHexadecimal.value = auxiliarActual.hexadecimal;
-  if (auxColorPicker && auxiliarActual?.hexadecimal) auxColorPicker.value = auxiliarActual.hexadecimal;
-  if (auxActivo) auxActivo.checked = auxiliarActual?.activo ?? true;
+  auxActivo.checked =
+    auxiliarActual.activo === 1;
 
   actualizarVisibilidadCampos();
   mostrarModal();
@@ -330,97 +383,158 @@ async function manejarGuardarAuxiliar() {
     errorAuxHexadecimal
   } = obtenerElementos();
 
-  // Validaciones básicas
-  if (errorAuxNombre) errorAuxNombre.textContent = '';
-  if (errorAuxTipo) errorAuxTipo.textContent = '';
-  if (errorAuxHexadecimal) errorAuxHexadecimal.textContent = '';
+  errorAuxNombre.textContent = '';
+  errorAuxTipo.textContent = '';
+  errorAuxHexadecimal.textContent = '';
 
-  if (!auxNombre?.value.trim()) {
-    if (errorAuxNombre) errorAuxNombre.textContent = 'El nombre es requerido';
-    return;
-  }
+  const nombre =
+    auxNombre.value.trim();
 
-  if (tipoAuxiliarActual === 'categorias' && !auxTipo?.value) {
-    if (errorAuxTipo) errorAuxTipo.textContent = 'El tipo es requerido';
-    return;
-  }
-
-  if (tipoAuxiliarActual === 'colores' && !auxHexadecimal?.value) {
-    if (errorAuxHexadecimal) errorAuxHexadecimal.textContent = 'El color es requerido';
+  if (!nombre) {
+    errorAuxNombre.textContent =
+      'El nombre es requerido';
     return;
   }
 
   try {
     showLoader();
 
-    // Datos a guardar
-    const datos = {
-      nombre: auxNombre?.value.trim() || '',
-      activo: auxActivo?.checked || false
-    };
-
     if (tipoAuxiliarActual === 'categorias') {
-      datos.tipo = auxTipo?.value || '';
+      if (!auxTipo.value) {
+        errorAuxTipo.textContent =
+          'El tipo es requerido';
+        return;
+      }
+
+      const datos = {
+        nombre,
+        tipo: auxTipo.value,
+        activo: auxActivo.checked
+      };
+
+      if (auxiliarActual) {
+        await actualizarCategoria(
+          auxiliarActual.id,
+          datos
+        );
+      } else {
+        await registrarCategoria(datos);
+      }
+    }
+
+    if (tipoAuxiliarActual === 'tipos') {
+      const datos = {
+        nombre,
+        activo: auxActivo.checked
+      };
+
+      if (auxiliarActual) {
+        await actualizarTipoProducto(
+          auxiliarActual.id,
+          datos
+        );
+      } else {
+        await registrarTipoProducto(datos);
+      }
     }
 
     if (tipoAuxiliarActual === 'colores') {
-      datos.hexadecimal = auxHexadecimal?.value || '#FFFFFF';
-    }
+      const hexadecimal =
+        auxHexadecimal.value.trim();
 
-    // Simulación de guardado (sin servidor)
-    // En producción, aquí iría el llamado al servicio
-
-    if (auxiliarActual) {
-      // Edición: actualizar en mock data
-      if (tipoAuxiliarActual === 'categorias') {
-        const idx = CATEGORIAS_PRODUCTO.findIndex(c => c.id === auxiliarActual.id);
-        if (idx >= 0) Object.assign(CATEGORIAS_PRODUCTO[idx], datos);
-      } else if (tipoAuxiliarActual === 'tipos') {
-        const idx = TIPOS_PRODUCTO.findIndex(t => t.id === auxiliarActual.id);
-        if (idx >= 0) Object.assign(TIPOS_PRODUCTO[idx], datos);
-      } else if (tipoAuxiliarActual === 'colores') {
-        const idx = COLORES.findIndex(c => c.id === auxiliarActual.id);
-        if (idx >= 0) Object.assign(COLORES[idx], datos);
+      if (
+        !/^#[0-9A-F]{6}$/i.test(hexadecimal)
+      ) {
+        errorAuxHexadecimal.textContent =
+          'Formato: #RRGGBB';
+        return;
       }
 
-      showNotification('Auxiliar actualizado correctamente', { type: 'success' });
-    } else {
-      // Creación: agregar al mock data
-      const nuevoId = Math.max(
-        ...(tipoAuxiliarActual === 'categorias' 
-          ? CATEGORIAS_PRODUCTO.map(c => c.id)
-          : tipoAuxiliarActual === 'tipos'
-          ? TIPOS_PRODUCTO.map(t => t.id)
-          : COLORES.map(c => c.id)
-        ),
-        0
-      ) + 1;
-
-      const nuevoAuxiliar = {
-        id: nuevoId,
-        ...datos
+      const datos = {
+        nombre,
+        hexadecimal,
+        activo: auxActivo.checked
       };
 
-      if (tipoAuxiliarActual === 'categorias') {
-        CATEGORIAS_PRODUCTO.push(nuevoAuxiliar);
-      } else if (tipoAuxiliarActual === 'tipos') {
-        TIPOS_PRODUCTO.push(nuevoAuxiliar);
-      } else if (tipoAuxiliarActual === 'colores') {
-        COLORES.push(nuevoAuxiliar);
+      if (auxiliarActual) {
+        await actualizarColor(
+          auxiliarActual.id,
+          datos
+        );
+      } else {
+        await registrarColor(datos);
       }
-
-      showNotification('Auxiliar creado correctamente', { type: 'success' });
     }
 
-    // Cerrar modal y recargar
+    showNotification(
+      auxiliarActual
+        ? 'Auxiliar actualizado correctamente'
+        : 'Auxiliar creado correctamente',
+      { type: 'success' }
+    );
+
     cerrarModal();
-    await cargarYRenderizar(tipoAuxiliarActual);
+
+    await cargarYRenderizar(
+      tipoAuxiliarActual
+    );
 
   } catch (error) {
-    console.error('Error guardando auxiliar:', error);
-    showNotification(error.message || 'Error guardando auxiliar', { type: 'error' });
+    showNotification(
+      error.message ||
+        'Error guardando auxiliar',
+      { type: 'error' }
+    );
+
   } finally {
     hideLoader();
+  }
+}
+
+async function manejarAccionAuxiliar(evento) {
+  const boton =
+    evento.currentTarget;
+
+  const tipo =
+    boton.dataset.tipo;
+
+  const id =
+    Number(boton.dataset.id);
+
+  if (boton.dataset.action === 'editar') {
+    abrirEditarAuxiliar(tipo, id);
+    return;
+  }
+
+  if (boton.dataset.action === 'estado') {
+    const activo =
+      boton.dataset.activo === '1';
+
+    const nuevoEstado =
+      !activo;
+
+    if (tipo === 'categorias') {
+      await cambiarEstadoCategoria(
+        id,
+        nuevoEstado
+      );
+    }
+
+    if (tipo === 'tipos') {
+      await cambiarEstadoTipoProducto(
+        id,
+        nuevoEstado
+      );
+    }
+
+    if (tipo === 'colores') {
+      await cambiarEstadoColor(
+        id,
+        nuevoEstado
+      );
+    }
+
+    await cargarYRenderizar(tipo);
   }
 }
 
@@ -533,4 +647,37 @@ export async function init() {
   // Color picker y hexadecimal
   if (auxColorPicker) auxColorPicker.addEventListener('input', manejarCambioColorPicker);
   if (auxHexadecimal) auxHexadecimal.addEventListener('input', manejarCambioHexadecimal);
+
+  const {
+    buscarCategorias,
+    buscarTipos,
+    buscarColores
+  } = obtenerElementos();
+
+  buscarCategorias?.addEventListener(
+    'input',
+    evento =>
+      cargarYRenderizar(
+        'categorias',
+        evento.target.value
+      )
+  );
+
+  buscarTipos?.addEventListener(
+    'input',
+    evento =>
+      cargarYRenderizar(
+        'tipos',
+        evento.target.value
+      )
+  );
+
+  buscarColores?.addEventListener(
+    'input',
+    evento =>
+      cargarYRenderizar(
+        'colores',
+        evento.target.value
+      )
+  );
 }
