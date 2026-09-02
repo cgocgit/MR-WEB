@@ -1,1 +1,174 @@
-.inventario-list .card{overflow:auto}
+.inventario-list .card {
+  overflow: auto;
+}
+
+.inventario-limites {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventario-limites-header h1 {
+  margin-bottom: 4px;
+}
+
+.inventario-limites-header p {
+  color: var(--muted);
+}
+
+.inventario-limites-form,
+.inventario-limites-almacenes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventario-limites-form h2,
+.inventario-limites-almacenes h2 {
+  font-size: 1.15rem;
+}
+
+.inventario-limites-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.inventario-limites-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inventario-limites-field label {
+  font-weight: 600;
+}
+
+.inventario-limites-field label span {
+  color: var(--danger);
+}
+
+.inventario-limites-field input,
+.inventario-limites-field select {
+  width: 100%;
+}
+
+.inventario-limites-field input[readonly] {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.inventario-limites-field small,
+.inventario-limites-data span,
+.inventario-limites-auditoria span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.inventario-limites-data {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  padding-bottom: 8px;
+}
+
+.campo-completo {
+  grid-column: span 1;
+}
+
+.inventario-limites-error,
+.inventario-limites-feedback {
+  min-height: 18px;
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+
+.inventario-limites-advertencia {
+  padding: 12px;
+  border-left: 4px solid var(--accent);
+  background: #fff8e6;
+  border-radius: var(--radius);
+}
+
+.inventario-limites-auditoria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-top: 12px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.inventario-limites-auditoria div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inventario-limites-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.inventario-limites .btn-secondary {
+  color: var(--text);
+  background: #e5e7eb;
+}
+
+.inventario-limites button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.inventario-limites-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.inventario-limites table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventario-limites th,
+.inventario-limites td {
+  padding: 12px;
+  border-bottom: 1px solid #e6e6e6;
+  text-align: left;
+}
+
+.inventario-limites thead th {
+  background: var(--bg);
+}
+
+.inventario-limites-total {
+  font-weight: 700;
+}
+
+.inventario-limites-estado {
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .inventario-limites-grid {
+    grid-template-columns:
+      repeat(2, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .inventario-limites-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-limites-actions {
+    flex-direction: column-reverse;
+  }
+
+  .inventario-limites-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+}

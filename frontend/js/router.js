@@ -83,6 +83,9 @@ const routes = {
   '#/inventario/alertas':
     'pages/inventario/alertas.html',
 
+  '#/inventario/limites':
+    'pages/inventario/limites.html',
+
   // Cotizaciones
   '#/cotizaciones':
     'pages/cotizaciones/lista.html',
@@ -246,6 +249,9 @@ const routePermissions = {
   '#/inventario/alertas':
     'alertas.consultar',
 
+  '#/inventario/limites':
+    'inventario.gestionar',
+  
   // Cotizaciones
   '#/cotizaciones':
     'cotizaciones.consultar',

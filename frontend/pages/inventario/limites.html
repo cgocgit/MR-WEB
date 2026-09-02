@@ -1,0 +1,205 @@
+<section
+  class="container inventario-limites"
+  id="limites-page"
+>
+  <header class="inventario-limites-header">
+    <h1>Configuración de mínimos y máximos</h1>
+
+    <p>
+      Define los límites globales por producto y consulta
+      su disponibilidad por almacén.
+    </p>
+  </header>
+
+  <div
+    id="estado-cargando"
+    class="inventario-limites-estado"
+  >
+    Cargando información...
+  </div>
+
+  <form
+    id="limites-form"
+    class="card inventario-limites-form"
+    novalidate
+  >
+    <h2>Configuración</h2>
+
+    <div class="inventario-limites-grid">
+      <div class="inventario-limites-field campo-completo">
+        <label for="idProducto">
+          Producto <span aria-hidden="true">*</span>
+        </label>
+
+        <select id="idProducto" required>
+          <option value="">Seleccione un producto</option>
+        </select>
+      </div>
+
+      <div class="inventario-limites-data">
+        <span>Código</span>
+        <strong id="producto-codigo">—</strong>
+      </div>
+
+      <div class="inventario-limites-data">
+        <span>Unidad</span>
+        <strong id="producto-unidad">—</strong>
+      </div>
+
+      <div class="inventario-limites-field">
+        <label for="cantidad-actual">
+          Cantidad actual global
+        </label>
+
+        <input
+          id="cantidad-actual"
+          type="text"
+          readonly
+        >
+      </div>
+
+      <div class="inventario-limites-field">
+        <label for="cantidad-reservada">
+          Cantidad reservada
+        </label>
+
+        <input
+          id="cantidad-reservada"
+          type="text"
+          readonly
+        >
+      </div>
+
+      <div class="inventario-limites-field">
+        <label for="disponibilidad-global">
+          Disponibilidad global
+        </label>
+
+        <input
+          id="disponibilidad-global"
+          type="text"
+          readonly
+        >
+      </div>
+
+      <div class="inventario-limites-field">
+        <label for="minimo">
+          Mínimo <span aria-hidden="true">*</span>
+        </label>
+
+        <input
+          id="minimo"
+          name="minimo"
+          type="number"
+          min="1"
+          step="1"
+          required
+        >
+
+        <small>
+          Solo números enteros mayores que cero.
+        </small>
+
+        <span
+          id="error-minimo"
+          class="inventario-limites-error"
+        ></span>
+      </div>
+
+      <div class="inventario-limites-field">
+        <label for="maximo">
+          Máximo <span aria-hidden="true">*</span>
+        </label>
+
+        <input
+          id="maximo"
+          name="maximo"
+          type="number"
+          min="1"
+          step="1"
+          required
+        >
+
+        <small>
+          Solo números enteros mayores que cero.
+        </small>
+
+        <span
+          id="error-maximo"
+          class="inventario-limites-error"
+        ></span>
+      </div>
+    </div>
+
+    <div
+      id="limites-advertencia"
+      class="inventario-limites-advertencia"
+      role="status"
+      hidden
+    ></div>
+
+    <div class="inventario-limites-auditoria">
+      <div>
+        <span>Última modificación</span>
+        <strong id="ultima-modificacion">—</strong>
+      </div>
+
+      <div>
+        <span>Usuario</span>
+        <strong id="usuario-modificacion">—</strong>
+      </div>
+    </div>
+
+    <div
+      id="form-feedback"
+      class="inventario-limites-feedback"
+      role="alert"
+    ></div>
+
+    <div class="inventario-limites-actions">
+      <button
+        id="btn-cancelar"
+        type="button"
+        class="btn-secondary"
+        disabled
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="btn-guardar"
+        type="submit"
+        disabled
+      >
+        Guardar
+      </button>
+    </div>
+  </form>
+
+  <section class="card inventario-limites-almacenes">
+    <h2>Disponibilidad por almacén</h2>
+
+    <div class="inventario-limites-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Almacén</th>
+            <th>Existencia</th>
+            <th>Reservado</th>
+            <th>Disponible</th>
+          </tr>
+        </thead>
+
+        <tbody id="almacenes-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/limites.js';
+
+  init();
+</script>

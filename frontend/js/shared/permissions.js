@@ -43,6 +43,7 @@ export const ROLE_PERMISSIONS = {
     'catalogo.precios.gestionar',
 
     'inventario.consultar',
+    'inventario.gestionar',
 
     'cotizaciones.consultar',
 
