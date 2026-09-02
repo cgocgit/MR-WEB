@@ -84,12 +84,18 @@ const routes = {
     'pages/inventario/alertas.html',
 
   '#/inventario/limites':
-    'pages/inventario/limites.html',
+  'pages/inventario/limites.html',
 
   '#/inventario/disponibilidad-futura':
     'pages/inventario/disponibilidad-futura.html',
 
-  // Cotizaciones
+  '#/inventario/cortes-fisicos':
+    'pages/inventario/cortes-fisicos.html',
+
+  '#/inventario/cortes-fisicos/detalle':
+    'pages/inventario/corte-fisico-detalle.html',
+
+   // Cotizaciones
   '#/cotizaciones':
     'pages/cotizaciones/lista.html',
 
@@ -253,10 +259,16 @@ const routePermissions = {
     'alertas.consultar',
 
   '#/inventario/limites':
-    'inventario.gestionar',
+  'inventario.gestionar',
 
   '#/inventario/disponibilidad-futura':
     'inventario.disponibilidad.consultar',
+
+  '#/inventario/cortes-fisicos':
+    'inventario.cortes.consultar',
+
+  '#/inventario/cortes-fisicos/detalle':
+    'inventario.cortes.consultar',
   
   // Cotizaciones
   '#/cotizaciones':

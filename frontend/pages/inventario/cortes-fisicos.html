@@ -1,0 +1,32 @@
+<section
+  id="cortes-fisicos-root"
+  class="inventario-container"
+  aria-busy="true"
+>
+  <header class="inventario-page-header">
+    <div>
+      <h1>Cortes físicos de Inventario</h1>
+
+      <p class="inventario-page-description">
+        Consulta los cortes físicos existentes
+        e inicia un nuevo conteo en el
+        Almacén Central.
+      </p>
+    </div>
+  </header>
+
+  <div
+    class="inventario-state"
+    role="status"
+  >
+    Cargando pantalla...
+  </div>
+</section>
+
+<script type="module">
+  import {
+    initCortesFisicos
+  } from './js/modules/inventario/cortes-fisicos.js';
+
+  initCortesFisicos();
+</script>

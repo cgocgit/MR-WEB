@@ -42,8 +42,10 @@ export const ROLE_PERMISSIONS = {
     'catalogo.auxiliares.gestionar',
     'catalogo.precios.gestionar',
 
+    //Inventario
     'inventario.consultar',
     'inventario.gestionar',
+    'inventario.cortes.consultar',
 
     'cotizaciones.consultar',
 
@@ -77,6 +79,8 @@ export const ROLE_PERMISSIONS = {
 
     'inventario.consultar',
     'inventario.gestionar',
+    'inventario.cortes.consultar',
+    'inventario.cortes.gestionar',
     'inventario.disponibilidad.consultar',
     'inventario.reservas.consultar',
 
@@ -177,6 +181,7 @@ export const ROLE_PERMISSIONS = {
     'catalogo.consultar',
 
     'inventario.consultar',
+    'inventario.cortes.consultar',
     'inventario.disponibilidad.consultar',
     'inventario.reservas.consultar',
 
