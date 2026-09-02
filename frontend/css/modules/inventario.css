@@ -172,3 +172,156 @@
     min-height: 44px;
   }
 }
+
+.inventario-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap);
+  margin-bottom: 16px;
+}
+
+.inventario-page-header h1 {
+  margin: 0;
+}
+
+.inventario-page-description {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.inventario-form {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  padding: 16px;
+}
+
+.inventario-form-grid {
+  display: grid;
+  gap: var(--gap);
+}
+
+.inventario-form-grid-four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-weight: 600;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+}
+
+.inventario-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gap);
+  margin-top: 16px;
+}
+
+.button-secondary {
+  background: var(--panel);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.inventario-message {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius);
+}
+
+.inventario-message-error {
+  background: #fef2f2;
+  color: var(--danger);
+}
+
+.inventario-result-card {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--gap);
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+}
+
+.inventario-result-state,
+.inventario-result-value {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inventario-result-state strong,
+.inventario-result-value strong {
+  font-size: 1.25rem;
+}
+
+.inventario-result-disponible strong {
+  color: #15803d;
+}
+
+.inventario-result-no-disponible strong {
+  color: var(--danger);
+}
+
+.inventario-list {
+  margin-top: 16px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.inventario-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventario-list th,
+.inventario-list td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+@media (max-width: 900px) {
+  .inventario-form-grid-four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .inventario-result-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .inventario-page-header {
+    flex-direction: column;
+  }
+
+  .inventario-form-grid-four,
+  .inventario-result-card {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-page-header .button-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .inventario-form-actions button {
+    width: 100%;
+  }
+}
