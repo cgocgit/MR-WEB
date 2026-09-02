@@ -83,6 +83,12 @@ const routes = {
   '#/inventario/alertas':
     'pages/inventario/alertas.html',
 
+  '#/inventario/limites':
+    'pages/inventario/limites.html',
+
+  '#/inventario/disponibilidad-futura':
+    'pages/inventario/disponibilidad-futura.html',
+
   // Cotizaciones
   '#/cotizaciones':
     'pages/cotizaciones/lista.html',
@@ -246,6 +252,12 @@ const routePermissions = {
   '#/inventario/alertas':
     'alertas.consultar',
 
+  '#/inventario/limites':
+    'inventario.gestionar',
+
+  '#/inventario/disponibilidad-futura':
+    'inventario.disponibilidad.consultar',
+  
   // Cotizaciones
   '#/cotizaciones':
     'cotizaciones.consultar',

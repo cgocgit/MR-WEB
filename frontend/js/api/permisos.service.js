@@ -195,6 +195,16 @@ const PERMISSION_METADATA = {
     accion: 'Administrar'
   },
 
+  'inventario.disponibilidad.consultar': {
+    modulo: 'Inventario',
+    accion: 'Consultar disponibilidad futura'
+  },
+
+  'inventario.reservas.consultar': {
+    modulo: 'Inventario',
+    accion: 'Consultar reservas por Orden'
+  },
+
   'cotizaciones.consultar': {
     modulo: 'Cotizaciones',
     accion: 'Consultar'

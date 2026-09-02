@@ -1,0 +1,35 @@
+<section
+  id="disponibilidad-futura-root"
+  class="inventario-container inventario-disponibilidad-futura"
+  aria-busy="true"
+>
+  <header class="inventario-page-header">
+    <div>
+      <h1>Consulta de disponibilidad futura</h1>
+      <p class="inventario-page-description">
+        Consulta la disponibilidad de un producto para el periodo de un evento.
+        Esta consulta no genera reservas.
+      </p>
+    </div>
+
+    <a
+      class="button button-secondary"
+      href="#/inventario/existencias"
+    >
+      Volver a existencias
+    </a>
+  </header>
+
+  <div
+    class="inventario-state"
+    role="status"
+  >
+    Cargando pantalla...
+  </div>
+</section>
+
+<script type="module">
+  import { initDisponibilidadFutura } from './js/modules/inventario/disponibilidad-futura.js';
+
+  initDisponibilidadFutura();
+</script>
