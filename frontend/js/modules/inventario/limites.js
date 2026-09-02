@@ -258,24 +258,6 @@ async function cargarProducto(idProducto) {
   }
 }
 
-  elemento('estado-cargando').hidden = false;
-
-  try {
-    const datos =
-      await obtenerConfiguracionLimites(idProducto);
-
-    aplicarConfiguracion(datos);
-  } catch (error) {
-    texto(
-      'form-feedback',
-      error.message ||
-        'No fue posible consultar el producto.'
-    );
-  } finally {
-    elemento('estado-cargando').hidden = true;
-  }
-}
-
 async function cargarProductos() {
   const selector = elemento('idProducto');
 
