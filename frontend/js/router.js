@@ -256,7 +256,7 @@ const routePermissions = {
     'inventario.consultar',
 
   '#/inventario/alertas':
-    'alertas.consultar',
+    'inventario.alertas.consultar',
 
   '#/inventario/limites':
   'inventario.gestionar',

@@ -1,4 +1,308 @@
-<section class="container">
-  <h1>Alertas de inventario</h1>
-  <div class="card mt-12">Placeholder: alertas de m�nimo</div>
+<section
+  id="alertas-page"
+  class="container inventario-alertas"
+>
+  <header class="inventario-page-header">
+    <div>
+      <h1>Alertas de mínimos y máximos</h1>
+
+      <p class="inventario-page-description">
+        Consulta existencias que requieren atención
+        por sus límites configurados.
+      </p>
+    </div>
+
+    <div class="inventario-alertas-header-actions">
+      <div class="inventario-alertas-actualizacion">
+        <span>Última actualización</span>
+
+        <strong id="alertas-ultima-actualizacion">
+          —
+        </strong>
+      </div>
+
+      <button
+        id="btn-alertas-actualizar"
+        type="button"
+      >
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  <div
+    id="alertas-estado-cargando"
+    class="inventario-alertas-estado"
+    role="status"
+    hidden
+  >
+    Actualizando alertas...
+  </div>
+
+  <!-- Resumen -->
+  <section
+    class="inventario-alertas-resumen"
+    aria-label="Resumen de alertas"
+  >
+    <button
+      type="button"
+      class="card inventario-alertas-resumen-card"
+      data-alertas-tipo=""
+    >
+      <span>Total de alertas</span>
+
+      <strong id="alertas-total">
+        0
+      </strong>
+    </button>
+
+    <button
+      type="button"
+      class="
+        card
+        inventario-alertas-resumen-card
+        inventario-alertas-resumen-minimo
+      "
+      data-alertas-tipo="MINIMO"
+    >
+      <span>Mínimos</span>
+
+      <strong id="alertas-total-minimos">
+        0
+      </strong>
+    </button>
+
+    <button
+      type="button"
+      class="
+        card
+        inventario-alertas-resumen-card
+        inventario-alertas-resumen-maximo
+      "
+      data-alertas-tipo="MAXIMO"
+    >
+      <span>Máximos</span>
+
+      <strong id="alertas-total-maximos">
+        0
+      </strong>
+    </button>
+
+    <button
+      type="button"
+      class="
+        card
+        inventario-alertas-resumen-card
+        inventario-alertas-resumen-inconsistente
+      "
+      data-alertas-tipo="CONFIGURACION_INCONSISTENTE"
+    >
+      <span>Configuración inconsistente</span>
+
+      <strong id="alertas-total-inconsistentes">
+        0
+      </strong>
+    </button>
+  </section>
+
+  <!-- Filtros -->
+  <section
+    class="inventario-form inventario-alertas-filtros"
+    aria-label="Filtros de alertas"
+  >
+    <div class="inventario-alertas-filtros-grid">
+      <div class="form-field">
+        <label for="alertas-busqueda">
+          Buscar producto
+        </label>
+
+        <input
+          id="alertas-busqueda"
+          type="search"
+          autocomplete="off"
+          placeholder="Código, nombre o descripción"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="alertas-tipo">
+          Tipo de alerta
+        </label>
+
+        <select id="alertas-tipo">
+          <option value="">
+            Todas
+          </option>
+
+          <option value="MINIMO">
+            Mínimo
+          </option>
+
+          <option value="MAXIMO">
+            Máximo
+          </option>
+
+          <option value="CONFIGURACION_INCONSISTENTE">
+            Configuración inconsistente
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="inventario-form-actions">
+      <button
+        id="btn-alertas-limpiar"
+        type="button"
+        class="button-secondary"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+  </section>
+
+  <!-- Error -->
+  <div
+    id="alertas-estado-error"
+    class="
+      inventario-message
+      inventario-message-error
+    "
+    role="alert"
+    hidden
+  >
+    <span id="alertas-error-mensaje">
+      No fue posible obtener las alertas de inventario.
+    </span>
+
+    <button
+      id="btn-alertas-reintentar"
+      type="button"
+      class="inventario-alertas-reintentar"
+    >
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Sin resultados -->
+  <div
+    id="alertas-estado-vacio"
+    class="card inventario-alertas-vacio"
+    role="status"
+    hidden
+  >
+    No hay alertas de inventario con los filtros
+    seleccionados.
+  </div>
+
+  <!-- Resultados -->
+  <section
+    id="alertas-resultados-contenido"
+    class="inventario-list inventario-alertas-resultados"
+  >
+    <!-- Escritorio -->
+    <div class="card inventario-alertas-tabla">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <button
+                  type="button"
+                  class="inventario-alertas-sort"
+                  data-alertas-sort="tipo"
+                >
+                  Alerta
+                </button>
+              </th>
+
+              <th>
+                <button
+                  type="button"
+                  class="inventario-alertas-sort"
+                  data-alertas-sort="producto"
+                >
+                  Producto
+                </button>
+              </th>
+
+              <th>Alcance</th>
+
+              <th>
+                <button
+                  type="button"
+                  class="inventario-alertas-sort"
+                  data-alertas-sort="cantidadActual"
+                >
+                  Existencia
+                </button>
+              </th>
+
+              <th>Mínimo</th>
+
+              <th>Máximo</th>
+
+              <th>
+                <button
+                  type="button"
+                  class="inventario-alertas-sort"
+                  data-alertas-sort="diferencia"
+                >
+                  Diferencia
+                </button>
+              </th>
+
+              <th>Actualización</th>
+
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="alertas-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Móvil -->
+    <div
+      id="alertas-cards"
+      class="inventario-alertas-cards"
+    ></div>
+
+    <!-- Paginación -->
+    <footer class="inventario-alertas-paginacion">
+      <span id="alertas-resultados">
+        0 resultados
+      </span>
+
+      <div class="inventario-alertas-paginacion-controles">
+        <button
+          id="btn-alertas-anterior"
+          type="button"
+          class="button-secondary"
+        >
+          Anterior
+        </button>
+
+        <span id="alertas-pagina">
+          1 de 1
+        </span>
+
+        <button
+          id="btn-alertas-siguiente"
+          type="button"
+          class="button-secondary"
+        >
+          Siguiente
+        </button>
+      </div>
+    </footer>
+  </section>
 </section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/alertas.js';
+
+  init();
+</script>
