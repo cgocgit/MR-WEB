@@ -218,7 +218,7 @@ const routePermissions = {
         ? 'catalogo.paquetes.modificar'
         : 'catalogo.paquetes.registrar',
 
-    '#/catalogo/paquetes/detalle':
+      '#/catalogo/paquetes/detalle':
     'catalogo.consultar',
 
   '#/catalogo/precios':
