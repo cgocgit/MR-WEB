@@ -1,0 +1,126 @@
+<section class="catalogo-form" id="producto-formulario-page">
+  <div class="catalogo-header">
+    <h1 id="form-title">Nuevo Producto</h1>
+  </div>
+
+  <form id="producto-form" class="catalogo-form" novalidate>
+    <!-- Información General -->
+    <div class="catalogo-form-section">
+      <h2>Información General</h2>
+      
+      <div class="catalogo-form-row">
+        <div class="catalogo-form-group">
+          <label for="codigo" class="required">Código</label>
+          <input type="text" id="codigo" name="codigo" maxlength="20" required>
+          <span class="catalogo-form-error" id="error-codigo"></span>
+        </div>
+        
+        <div class="catalogo-form-group">
+          <label for="nombre" class="required">Nombre</label>
+          <input type="text" id="nombre" name="nombre" maxlength="150" required>
+          <span class="catalogo-form-error" id="error-nombre"></span>
+        </div>
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" name="descripcion" maxlength="255"></textarea>
+        <span class="catalogo-form-error" id="error-descripcion"></span>
+      </div>
+    </div>
+
+    <!-- Clasificación -->
+    <div class="catalogo-form-section">
+      <h2>Clasificación</h2>
+      
+      <div class="catalogo-form-row">
+        <div class="catalogo-form-group">
+          <label for="idCategoria" class="required">Categoría</label>
+          <select id="idCategoria" name="idCategoria" required>
+            <option value="">Seleccione una categoría</option>
+          </select>
+          <span class="catalogo-form-error" id="error-idCategoria"></span>
+        </div>
+        
+        <div class="catalogo-form-group">
+          <label for="idTipoProducto">Tipo de Producto</label>
+          <select id="idTipoProducto" name="idTipoProducto">
+            <option value="">Seleccione un tipo</option>
+          </select>
+          <span class="catalogo-form-error" id="error-idTipoProducto"></span>
+        </div>
+
+        <div class="catalogo-form-group">
+          <label for="idColor">Color</label>
+          <select id="idColor" name="idColor">
+            <option value="">Seleccione un color</option>
+          </select>
+          <span class="catalogo-form-error" id="error-idColor"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Especificaciones -->
+    <div class="catalogo-form-section">
+      <h2>Especificaciones</h2>
+      
+      <div class="catalogo-form-row">
+        <div class="catalogo-form-group">
+          <label for="unidadMedida" class="required">Unidad de Medida</label>
+          <select id="unidadMedida" name="unidadMedida" required>
+            <option value="">Seleccione una unidad</option>
+          </select>
+          <span class="catalogo-form-error" id="error-unidadMedida"></span>
+        </div>
+        
+        <div class="catalogo-form-group">
+          <label for="precioBase" class="required">Precio Base</label>
+          <input type="number" id="precioBase" name="precioBase" min="0" step="0.01" required>
+          <span class="catalogo-form-error" id="error-precioBase"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Imagen -->
+    <div class="catalogo-form-section">
+      <h2>Imagen</h2>
+      <div
+        class="catalogo-form-image-preview"
+        id="imagen-preview"
+      >
+        <img
+          id="preview-imagen"
+          src="./assets/images/catalogo/placeholder-producto.svg"
+          alt="Imagen del producto"
+        >
+      </div>
+      <p class="catalogo-form-helper">La imagen se mostrará como referencia durante esta iteración.</p>
+    </div>
+
+    <!-- Estado -->
+    <div class="catalogo-form-section">
+      <h2>Estado</h2>
+      
+      <div class="catalogo-form-group">
+        <label for="activo">
+          <input type="checkbox" id="activo" name="activo" checked>
+          Producto Activo
+        </label>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+      <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar</button>
+      <button type="button" class="btn btn-secondary" id="btn-cancelar" style="flex: 1;">Cancelar</button>
+    </div>
+
+    <!-- Mensajes -->
+    <div id="form-message" style="display: none;"></div>
+  </form>
+</section>
+
+<script type="module">
+  import { init } from './js/modules/catalogo/producto-formulario.js';
+  init();
+</script>

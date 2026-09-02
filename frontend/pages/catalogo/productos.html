@@ -1,14 +1,182 @@
-<section class="container catalogo-list">
-  <h1>Productos</h1>
-  <div id="productos" class="card mt-12"></div>
+<section class="catalogo-container" id="productos-page">
 
-  <script type="module">
-    import { listProductos } from './js/api/catalogo.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await listProductos();
-      renderTable(document.getElementById('productos'), ['Nombre','Categoria','Precio'], datos.map(d=>({nombre:d.nombre,categoria:d.categoria,precio:d.precio})));
-    })();
-  </script>
+  <div class="catalogo-header">
+    <h1>Catálogo de Productos</h1>
+
+    <button
+      id="btn-nuevo-producto"
+      class="btn btn-primary"
+      type="button"
+    >
+      + Nuevo Producto
+    </button>
+  </div>
+
+  <div class="catalogo-filters">
+
+    <div class="catalogo-filters-row">
+
+      <div class="catalogo-form-group">
+        <label for="filtro-texto">Buscar</label>
+        <input
+          type="text"
+          id="filtro-texto"
+          placeholder="Código, nombre o descripción"
+        >
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-categoria">Categoría</label>
+        <select id="filtro-categoria">
+          <option value="">Todas</option>
+        </select>
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-tipo">Tipo</label>
+        <select id="filtro-tipo">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-color">Color</label>
+        <select id="filtro-color">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div
+        class="catalogo-form-group"
+        id="grupo-filtro-estado"
+      >
+        <label for="filtro-estado">Estado</label>
+        <select id="filtro-estado">
+          <option value="">Todos</option>
+          <option value="1">Activo</option>
+          <option value="0">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-disponibilidad">
+          Disponibilidad
+        </label>
+
+        <select id="filtro-disponibilidad">
+          <option value="">Todas</option>
+          <option value="disponible">
+            Con disponibilidad
+          </option>
+          <option value="sin-disponibilidad">
+            Sin disponibilidad
+          </option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="catalogo-filters-actions">
+      <button
+        type="button"
+        id="btn-filtrar"
+        class="btn btn-primary"
+      >
+        Buscar
+      </button>
+
+      <button
+        type="button"
+        id="btn-limpiar-filtros"
+        class="btn btn-secondary"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+
+  </div>
+
+  <div id="estado-cargando" class="catalogo-loading">
+    <div class="catalogo-loading-spinner"></div>
+    <span>Cargando productos...</span>
+  </div>
+
+  <div
+    id="estado-error"
+    class="catalogo-error"
+    style="display:none"
+  >
+    <div class="catalogo-error-icon">⚠️</div>
+
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">
+        Error al consultar productos
+      </div>
+      <p id="error-mensaje"></p>
+    </div>
+  </div>
+
+  <div
+    id="estado-acceso"
+    class="catalogo-error"
+    style="display:none"
+  >
+    <div class="catalogo-error-icon">🔒</div>
+    <div>No tiene acceso al Catálogo.</div>
+  </div>
+
+  <div
+    id="estado-vacio"
+    class="catalogo-empty"
+    style="display:none"
+  >
+    <div class="catalogo-empty-title">
+      Sin resultados
+    </div>
+    <p>No existen productos para los filtros aplicados.</p>
+  </div>
+
+  <div
+    id="productos-content"
+    style="display:none"
+  >
+
+    <div class="catalogo-desktop-only">
+      <table class="catalogo-table">
+        <thead>
+          <tr>
+            <th>Imagen</th>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Tipo</th>
+            <th>Color</th>
+            <th>Unidad</th>
+            <th>Precio</th>
+            <th>Disponible</th>
+            <th>Estado</th>
+            <th id="col-ultima-modificacion">
+              Última modificación
+            </th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody id="productos-tbody"></tbody>
+      </table>
+    </div>
+
+    <div
+      id="productos-cards"
+      class="catalogo-cards catalogo-mobile-only"
+    ></div>
+
+    <div id="paginacion"></div>
+  </div>
+
 </section>
 
+<script type="module">
+  import { init } from './js/modules/catalogo/productos.js';
+  init();
+</script>

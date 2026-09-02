@@ -1,4 +1,258 @@
-<section class="container">
-  <h1>Paquetes</h1>
-  <div class="card mt-12">Placeholder para gesti�n de paquetes</div>
+<section class="catalogo-container" id="paquetes-page">
+
+  <div class="catalogo-header">
+    <h1>Catálogo de Paquetes</h1>
+
+    <button
+      id="btn-nuevo-paquete"
+      class="btn btn-primary"
+      type="button"
+    >
+      + Nuevo Paquete
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="catalogo-filters">
+
+    <div class="catalogo-filters-row">
+
+      <div class="catalogo-form-group">
+        <label for="filtro-texto">
+          Buscar
+        </label>
+
+        <input
+          type="text"
+          id="filtro-texto"
+          placeholder="Código, nombre o descripción"
+        >
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-componente">
+          Composición
+        </label>
+
+        <select id="filtro-componente">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="productos">
+            Solo productos
+          </option>
+
+          <option value="servicios">
+            Solo servicios
+          </option>
+
+          <option value="ambos">
+            Productos y servicios
+          </option>
+        </select>
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-precio-min">
+          Precio mínimo
+        </label>
+
+        <input
+          type="number"
+          id="filtro-precio-min"
+          min="0"
+          step="0.01"
+        >
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-precio-max">
+          Precio máximo
+        </label>
+
+        <input
+          type="number"
+          id="filtro-precio-max"
+          min="0"
+          step="0.01"
+        >
+      </div>
+
+      <div
+        class="catalogo-form-group"
+        id="grupo-filtro-estado"
+      >
+        <label for="filtro-estado">
+          Estado
+        </label>
+
+        <select id="filtro-estado">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="1">
+            Activo
+          </option>
+
+          <option value="0">
+            Inactivo
+          </option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="catalogo-filters-actions">
+
+      <button
+        type="button"
+        id="btn-filtrar"
+        class="btn btn-primary"
+      >
+        Buscar
+      </button>
+
+      <button
+        type="button"
+        id="btn-limpiar-filtros"
+        class="btn btn-secondary"
+      >
+        Limpiar filtros
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Cargando -->
+  <div
+    id="estado-cargando"
+    class="catalogo-loading"
+  >
+    <div class="catalogo-loading-spinner"></div>
+
+    <span>
+      Cargando paquetes...
+    </span>
+  </div>
+
+  <!-- Error -->
+  <div
+    id="estado-error"
+    class="catalogo-error"
+    style="display:none"
+  >
+    <div class="catalogo-error-icon">
+      ⚠️
+    </div>
+
+    <div class="catalogo-error-content">
+
+      <div class="catalogo-error-title">
+        Error al consultar paquetes
+      </div>
+
+      <p id="error-mensaje"></p>
+
+    </div>
+  </div>
+
+  <!-- Acceso -->
+  <div
+    id="estado-acceso"
+    class="catalogo-error"
+    style="display:none"
+  >
+    <div class="catalogo-error-icon">
+      🔒
+    </div>
+
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">
+        Acceso denegado
+      </div>
+
+      <p>
+        No tiene permisos para consultar paquetes.
+      </p>
+    </div>
+  </div>
+
+  <!-- Vacío -->
+  <div
+    id="estado-vacio"
+    class="catalogo-empty"
+    style="display:none"
+  >
+    <div class="catalogo-empty-content">
+
+      <div class="catalogo-empty-title">
+        Sin resultados
+      </div>
+
+      <p>
+        No existen paquetes para los filtros aplicados.
+      </p>
+
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  <div
+    id="paquetes-content"
+    style="display:none"
+  >
+
+    <!-- Escritorio -->
+    <div class="catalogo-desktop-only">
+
+      <table class="catalogo-table">
+
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Productos</th>
+            <th>Servicios</th>
+            <th>Componentes</th>
+            <th>Precio</th>
+            <th>Estado</th>
+
+            <th id="col-ultima-modificacion">
+              Última modificación
+            </th>
+
+            <th>
+              Acciones
+            </th>
+          </tr>
+        </thead>
+
+        <tbody id="paquetes-tbody"></tbody>
+
+      </table>
+
+    </div>
+
+    <!-- Móvil -->
+    <div
+      id="paquetes-cards"
+      class="catalogo-cards catalogo-mobile-only"
+    ></div>
+
+    <!-- Paginación -->
+    <div id="paginacion"></div>
+
+  </div>
+
 </section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/catalogo/paquetes.js';
+
+  init();
+</script>

@@ -1,0 +1,407 @@
+<section
+  class="catalogo-container"
+  id="paquete-formulario-page"
+>
+
+  <div class="catalogo-header">
+    <h1 id="form-title">
+      Nuevo Paquete
+    </h1>
+  </div>
+
+  <form
+    id="paquete-form"
+    class="catalogo-form"
+    novalidate
+  >
+
+    <!-- Información general -->
+    <div class="catalogo-form-section">
+
+      <h2>
+        Información General
+      </h2>
+
+      <div class="catalogo-form-row">
+
+        <div class="catalogo-form-group">
+
+          <label
+            for="codigo"
+            class="required"
+          >
+            Código
+          </label>
+
+          <input
+            type="text"
+            id="codigo"
+            name="codigo"
+            maxlength="20"
+            required
+          >
+
+          <span
+            class="catalogo-form-error"
+            id="error-codigo"
+          ></span>
+
+        </div>
+
+        <div class="catalogo-form-group">
+
+          <label
+            for="nombre"
+            class="required"
+          >
+            Nombre
+          </label>
+
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            maxlength="150"
+            required
+          >
+
+          <span
+            class="catalogo-form-error"
+            id="error-nombre"
+          ></span>
+
+        </div>
+
+      </div>
+
+      <div class="catalogo-form-group">
+
+        <label for="descripcion">
+          Descripción
+        </label>
+
+        <textarea
+          id="descripcion"
+          name="descripcion"
+          maxlength="255"
+          rows="4"
+        ></textarea>
+
+        <span
+          class="catalogo-form-error"
+          id="error-descripcion"
+        ></span>
+
+      </div>
+
+      <div class="catalogo-form-row">
+
+        <div class="catalogo-form-group">
+
+          <label
+            for="precio"
+            class="required"
+          >
+            Precio Registrado
+          </label>
+
+          <input
+            type="number"
+            id="precio"
+            name="precio"
+            min="0"
+            step="0.01"
+            required
+          >
+
+          <span
+            class="catalogo-form-error"
+            id="error-precio"
+          ></span>
+
+          <p class="catalogo-form-helper">
+            El precio registrado es independiente del
+            total informativo de componentes.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Productos -->
+    <div class="catalogo-form-section">
+
+      <h2>
+        Productos Incluidos
+      </h2>
+
+      <div class="catalogo-form-group">
+
+        <label for="buscar-productos">
+          Buscar y agregar producto
+        </label>
+
+        <div class="catalogo-form-row">
+
+          <input
+            type="text"
+            id="buscar-productos"
+            placeholder="Código o nombre del producto"
+          >
+
+          <button
+            type="button"
+            id="btn-agregar-producto"
+            class="btn btn-primary"
+          >
+            + Agregar
+          </button>
+
+        </div>
+
+      </div>
+
+      <div
+        id="productos-componentes"
+        class="catalogo-form-components"
+      >
+        <p class="catalogo-empty-text">
+          No hay productos agregados.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Servicios -->
+    <div class="catalogo-form-section">
+
+      <h2>
+        Servicios Incluidos
+      </h2>
+
+      <div class="catalogo-form-group">
+
+        <label for="buscar-servicios">
+          Buscar y agregar servicio
+        </label>
+
+        <div class="catalogo-form-row">
+
+          <input
+            type="text"
+            id="buscar-servicios"
+            placeholder="Código o nombre del servicio"
+          >
+
+          <button
+            type="button"
+            id="btn-agregar-servicio"
+            class="btn btn-primary"
+          >
+            + Agregar
+          </button>
+
+        </div>
+
+      </div>
+
+      <div
+        id="servicios-componentes"
+        class="catalogo-form-components"
+      >
+        <p class="catalogo-empty-text">
+          No hay servicios agregados.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Errores de componentes -->
+    <span
+      id="error-componentes"
+      class="catalogo-form-error"
+    ></span>
+
+    <!-- Advertencia -->
+    <div
+      id="advertencia-componentes-inactivos"
+      class="catalogo-warning"
+      style="display:none"
+    >
+      ⚠️ El paquete contiene productos o servicios
+      inactivos. El paquete no puede activarse mientras
+      existan componentes inactivos.
+    </div>
+
+    <!-- Resumen -->
+    <div class="catalogo-form-section">
+
+      <h2>
+        Resumen del Paquete
+      </h2>
+
+      <div class="catalogo-form-summary">
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Productos
+          </span>
+
+          <span
+            class="catalogo-form-summary-value"
+            id="resumen-total-productos"
+          >
+            0
+          </span>
+
+        </div>
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Servicios
+          </span>
+
+          <span
+            class="catalogo-form-summary-value"
+            id="resumen-total-servicios"
+          >
+            0
+          </span>
+
+        </div>
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Total Componentes
+          </span>
+
+          <span
+            class="catalogo-form-summary-value"
+            id="resumen-total-componentes"
+          >
+            0
+          </span>
+
+        </div>
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Total Informativo
+          </span>
+
+          <span
+            class="catalogo-form-summary-value"
+            id="resumen-subtotal"
+          >
+            $0.00
+          </span>
+
+        </div>
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Precio Registrado
+          </span>
+
+          <span
+            class="catalogo-form-summary-value"
+            id="resumen-precio-registrado"
+          >
+            $0.00
+          </span>
+
+        </div>
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Diferencia
+          </span>
+
+          <span
+            class="catalogo-form-summary-value"
+            id="resumen-diferencia"
+          >
+            $0.00
+          </span>
+
+        </div>
+
+      </div>
+
+      <p class="catalogo-form-helper">
+        La diferencia es informativa. El precio
+        registrado no se sustituye automáticamente.
+      </p>
+
+    </div>
+
+    <!-- Estado -->
+    <div class="catalogo-form-section">
+
+      <h2>
+        Estado
+      </h2>
+
+      <div class="catalogo-form-group">
+
+        <label for="activo">
+
+          <input
+            type="checkbox"
+            id="activo"
+            name="activo"
+            checked
+          >
+
+          Paquete activo
+
+        </label>
+
+        <span
+          id="error-activo"
+          class="catalogo-form-error"
+        ></span>
+
+      </div>
+
+    </div>
+
+    <!-- Acciones -->
+    <div class="catalogo-form-actions">
+
+      <button
+        type="button"
+        class="btn btn-secondary"
+        id="btn-cancelar"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+      >
+        Guardar
+      </button>
+
+    </div>
+
+  </form>
+
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/catalogo/paquete-formulario.js';
+
+  init();
+</script>

@@ -1,13 +1,212 @@
-<section class="container">
-  <h1>Servicios</h1>
-  <div id="servicios" class="card mt-12"></div>
-  <script type="module">
-    import { listServicios } from './js/api/catalogo.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await listServicios();
-      renderTable(document.getElementById('servicios'), ['Nombre','Duracion'], datos.map(d=>({nombre:d.nombre,duracion:d.duracion})));
-    })();
-  </script>
+<section class="catalogo-container" id="servicios-page">
+
+  <div class="catalogo-header">
+    <h1>Catálogo de Servicios</h1>
+
+    <button
+      id="btn-nuevo-servicio"
+      class="btn btn-primary"
+      type="button"
+    >
+      + Nuevo Servicio
+    </button>
+  </div>
+
+  <div class="catalogo-filters">
+
+    <div class="catalogo-filters-row">
+
+      <div class="catalogo-form-group">
+        <label for="filtro-texto">
+          Buscar
+        </label>
+
+        <input
+          id="filtro-texto"
+          type="text"
+          placeholder="Código, nombre o descripción"
+        >
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-categoria">
+          Categoría
+        </label>
+
+        <select id="filtro-categoria">
+          <option value="">Todas</option>
+        </select>
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-tipo">
+          Tipo de Servicio
+        </label>
+
+        <select id="filtro-tipo">
+          <option value="">Todos</option>
+          <option value="Banquete">Banquete</option>
+          <option value="Decoración">Decoración</option>
+          <option value="Flete">Flete</option>
+          <option value="Meseros">Meseros</option>
+        </select>
+      </div>
+
+      <div
+        class="catalogo-form-group"
+        id="grupo-filtro-estado"
+      >
+        <label for="filtro-estado">
+          Estado
+        </label>
+
+        <select id="filtro-estado">
+          <option value="">Todos</option>
+          <option value="1">Activo</option>
+          <option value="0">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-tarifa-min">
+          Tarifa mínima
+        </label>
+
+        <input
+          id="filtro-tarifa-min"
+          type="number"
+          min="0"
+          step="0.01"
+        >
+      </div>
+
+      <div class="catalogo-form-group">
+        <label for="filtro-tarifa-max">
+          Tarifa máxima
+        </label>
+
+        <input
+          id="filtro-tarifa-max"
+          type="number"
+          min="0"
+          step="0.01"
+        >
+      </div>
+
+    </div>
+
+    <div class="catalogo-filters-actions">
+      <button
+        id="btn-filtrar"
+        type="button"
+        class="btn btn-primary"
+      >
+        Buscar
+      </button>
+
+      <button
+        id="btn-limpiar-filtros"
+        type="button"
+        class="btn btn-secondary"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+
+  </div>
+
+  <div
+    id="estado-cargando"
+    class="catalogo-loading"
+  >
+    <div class="catalogo-loading-spinner"></div>
+    <span>Cargando servicios...</span>
+  </div>
+
+  <div
+    id="estado-error"
+    class="catalogo-error"
+    style="display:none"
+  >
+    <div class="catalogo-error-icon">⚠️</div>
+
+    <div class="catalogo-error-content">
+      <div class="catalogo-error-title">
+        Error al consultar servicios
+      </div>
+
+      <p id="error-mensaje"></p>
+    </div>
+  </div>
+
+  <div
+    id="estado-acceso"
+    class="catalogo-error"
+    style="display:none"
+  >
+    <div class="catalogo-error-icon">🔒</div>
+    <div>No tiene acceso al Catálogo.</div>
+  </div>
+
+  <div
+    id="estado-vacio"
+    class="catalogo-empty"
+    style="display:none"
+  >
+    <div class="catalogo-empty-title">
+      Sin resultados
+    </div>
+
+    <p>
+      No existen servicios para los filtros aplicados.
+    </p>
+  </div>
+
+  <div
+    id="servicios-content"
+    style="display:none"
+  >
+
+    <div class="catalogo-desktop-only">
+
+      <table class="catalogo-table">
+
+        <thead>
+          <tr>
+            <th>Imagen</th>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Tipo</th>
+            <th>Tarifa Base</th>
+            <th>Estado</th>
+
+            <th id="col-ultima-modificacion">
+              Última modificación
+            </th>
+
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody id="servicios-tbody"></tbody>
+
+      </table>
+
+    </div>
+
+    <div
+      id="servicios-cards"
+      class="catalogo-cards catalogo-mobile-only"
+    ></div>
+
+    <div id="paginacion"></div>
+
+  </div>
+
 </section>
 
+<script type="module">
+  import { init } from './js/modules/catalogo/servicios.js';
+  init();
+</script>

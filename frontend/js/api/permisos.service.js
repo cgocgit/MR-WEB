@@ -114,6 +114,72 @@ const PERMISSION_METADATA = {
     accion: 'Consultar'
   },
 
+  'catalogo.productos.registrar': {
+    modulo: 'Catálogo',
+    accion: 'Registrar productos'
+  },
+
+  'catalogo.productos.modificar': {
+    modulo: 'Catálogo',
+    accion: 'Modificar productos'
+  },
+
+  'catalogo.productos.desactivar': {
+    modulo: 'Catálogo',
+    accion: 'Activar o desactivar productos'
+  },
+
+  'catalogo.servicios.registrar': {
+    modulo: 'Catálogo',
+    accion: 'Registrar servicios'
+  },
+
+  'catalogo.servicios.modificar': {
+    modulo: 'Catálogo',
+    accion: 'Modificar servicios'
+  },
+
+  'catalogo.servicios.desactivar': {
+    modulo: 'Catálogo',
+    accion: 'Activar o desactivar servicios'
+  },
+
+  'catalogo.paquetes.registrar': {
+    modulo: 'Catálogo',
+    accion: 'Registrar paquetes'
+  },
+
+  'catalogo.paquetes.modificar': {
+    modulo: 'Catálogo',
+    accion: 'Modificar paquetes'
+  },
+
+  'catalogo.paquetes.desactivar': {
+    modulo: 'Catálogo',
+    accion: 'Activar o desactivar paquetes'
+  },
+
+  'catalogo.auxiliares.gestionar': {
+    modulo: 'Catálogo',
+    accion: 'Gestionar catálogos auxiliares'
+  },
+
+  
+  'catalogo.abc.gestionar': {
+    modulo: 'Catálogo',
+    accion: 'Gestionar altas, bajas y cambios'
+  },
+
+  'catalogo.precios.gestionar': {
+    modulo: 'Catálogo',
+    accion: 'Gestionar listas de precios'
+  },
+
+  'catalogo.costos.consultar': {
+    modulo: 'Catálogo',
+    accion: 'Consultar costos internos'
+  },
+
   'catalogo.gestionar': {
     modulo: 'Catálogo',
     accion: 'Administrar'

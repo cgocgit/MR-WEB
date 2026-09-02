@@ -34,14 +34,41 @@ const routes = {
   '#/catalogo/productos':
     'pages/catalogo/productos.html',
 
+  '#/catalogo/productos/formulario':
+    'pages/catalogo/producto-formulario.html',
+
+  '#/catalogo/productos/detalle':
+    'pages/catalogo/producto-detalle.html',
+
   '#/catalogo/servicios':
     'pages/catalogo/servicios.html',
+
+  '#/catalogo/servicios/formulario':
+    'pages/catalogo/servicio-formulario.html',
+
+  '#/catalogo/servicios/detalle':
+    'pages/catalogo/servicio-detalle.html',
 
   '#/catalogo/paquetes':
     'pages/catalogo/paquetes.html',
 
-  '#/catalogo/precios':
+  '#/catalogo/paquetes/formulario':
+    'pages/catalogo/paquete-formulario.html',
+
+  '#/catalogo/paquetes/detalle':
+    'pages/catalogo/paquete-detalle.html',
+
+    '#/catalogo/precios':
     'pages/catalogo/precios.html',
+
+  '#/catalogo/precios/formulario':
+    'pages/catalogo/precio-formulario.html',
+
+  '#/catalogo/precios/detalle':
+    'pages/catalogo/precio-detalle.html',
+
+  '#/catalogo/configuracion':
+    'pages/catalogo/configuracion.html',
 
   // Inventario
   '#/inventario':
@@ -161,14 +188,50 @@ const routePermissions = {
   '#/catalogo/productos':
     'catalogo.consultar',
 
+  '#/catalogo/productos/formulario':
+    ({ query }) =>
+      query.get('id')
+        ? 'catalogo.productos.modificar'
+        : 'catalogo.productos.registrar',
+
+  '#/catalogo/productos/detalle':
+    'catalogo.consultar',
+
   '#/catalogo/servicios':
+    'catalogo.consultar',
+
+  '#/catalogo/servicios/formulario':
+    ({ query }) =>
+      query.get('id')
+        ? 'catalogo.servicios.modificar'
+        : 'catalogo.servicios.registrar',
+
+  '#/catalogo/servicios/detalle':
     'catalogo.consultar',
 
   '#/catalogo/paquetes':
     'catalogo.consultar',
 
+  '#/catalogo/paquetes/formulario':
+    ({ query }) =>
+      query.get('id')
+        ? 'catalogo.paquetes.modificar'
+        : 'catalogo.paquetes.registrar',
+
+      '#/catalogo/paquetes/detalle':
+    'catalogo.consultar',
+
   '#/catalogo/precios':
     'catalogo.consultar',
+
+  '#/catalogo/precios/formulario':
+    'catalogo.precios.gestionar',
+
+  '#/catalogo/precios/detalle':
+    'catalogo.consultar',
+
+  '#/catalogo/configuracion':
+    'catalogo.auxiliares.gestionar',
 
   // Inventario
   '#/inventario':
