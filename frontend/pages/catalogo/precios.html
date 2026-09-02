@@ -1,25 +1,217 @@
-<section class="catalogo-container" id="precios-page">
+<section
+  class="catalogo-container"
+  id="precios-page"
+>
 
   <div class="catalogo-header">
-    <h1>Listas de precios</h1>
+
+    <h1>
+      Listas de Precios
+    </h1>
+
+    <button
+      id="btn-nueva-lista"
+      type="button"
+      class="btn btn-primary"
+    >
+      + Nueva Lista
+    </button>
+
   </div>
 
-  <div class="catalogo-empty">
+  <!-- Filtros -->
+  <div class="catalogo-filters">
+
+    <div class="catalogo-filters-row">
+
+      <div class="catalogo-form-group">
+
+        <label for="filtro-texto">
+          Buscar
+        </label>
+
+        <input
+          id="filtro-texto"
+          type="text"
+          placeholder="Nombre o descripción"
+        >
+
+      </div>
+
+      <div
+        class="catalogo-form-group"
+        id="grupo-filtro-estado"
+      >
+
+        <label for="filtro-estado">
+          Estado
+        </label>
+
+        <select id="filtro-estado">
+
+          <option value="">
+            Todos
+          </option>
+
+          <option value="1">
+            Activo
+          </option>
+
+          <option value="0">
+            Inactivo
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+    <div class="catalogo-filters-actions">
+
+      <button
+        id="btn-filtrar"
+        type="button"
+        class="btn btn-primary"
+      >
+        Buscar
+      </button>
+
+      <button
+        id="btn-limpiar-filtros"
+        type="button"
+        class="btn btn-secondary"
+      >
+        Limpiar filtros
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Cargando -->
+  <div
+    id="estado-cargando"
+    class="catalogo-loading"
+  >
+
+    <div class="catalogo-loading-spinner"></div>
+
+    <span>
+      Cargando listas de precios...
+    </span>
+
+  </div>
+
+  <!-- Error -->
+  <div
+    id="estado-error"
+    class="catalogo-error"
+    style="display:none"
+  >
+
+    <div class="catalogo-error-icon">
+      ⚠️
+    </div>
+
+    <div class="catalogo-error-content">
+
+      <div class="catalogo-error-title">
+        Error al consultar listas de precios
+      </div>
+
+      <p id="error-mensaje"></p>
+
+    </div>
+
+  </div>
+
+  <!-- Vacío -->
+  <div
+    id="estado-vacio"
+    class="catalogo-empty"
+    style="display:none"
+  >
+
     <div class="catalogo-empty-content">
+
       <div class="catalogo-empty-title">
-        Funcionalidad pendiente
+        Sin resultados
       </div>
 
       <p>
-        La administración de Listas de precios
-        permanece pendiente de definición.
+        No existen listas de precios para
+        los filtros aplicados.
       </p>
+
     </div>
+
+  </div>
+
+  <!-- Contenido -->
+  <div
+    id="precios-content"
+    style="display:none"
+  >
+
+    <!-- Escritorio -->
+    <div class="catalogo-desktop-only">
+
+      <table class="catalogo-table">
+
+        <thead>
+          <tr>
+
+            <th>
+              Nombre
+            </th>
+
+            <th>
+              Inicio de vigencia
+            </th>
+
+            <th>
+              Fin de vigencia
+            </th>
+
+            <th>
+              Estado
+            </th>
+
+            <th id="col-ultima-modificacion">
+              Última modificación
+            </th>
+
+            <th>
+              Acciones
+            </th>
+
+          </tr>
+        </thead>
+
+        <tbody id="precios-tbody"></tbody>
+
+      </table>
+
+    </div>
+
+    <!-- Móvil -->
+    <div
+      id="precios-cards"
+      class="catalogo-cards catalogo-mobile-only"
+    ></div>
+
+    <!-- Paginación -->
+    <div id="paginacion"></div>
+
   </div>
 
 </section>
 
 <script type="module">
-  import { init } from './js/modules/catalogo/precios.js';
+  import {
+    init
+  } from './js/modules/catalogo/precios.js';
+
   init();
 </script>
