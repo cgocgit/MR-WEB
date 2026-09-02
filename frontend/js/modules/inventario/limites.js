@@ -9,6 +9,17 @@ import {
 } from '../../components/notification.js';
 
 let configuracionCargada = null;
+let secuenciaCargaProducto = 0;
+
+function bloquearInteraccion(bloqueada) {
+  elemento('idProducto').disabled = bloqueada;
+
+  elemento('btn-guardar').disabled =
+    bloqueada || !configuracionCargada;
+
+  elemento('btn-cancelar').disabled =
+    bloqueada || !configuracionCargada;
+}
 
 function elemento(id) {
   return document.getElementById(id);
@@ -204,14 +215,48 @@ function aplicarConfiguracion(datos) {
   renderizarAlmacenes(datos);
   limpiarErrores();
 
-  elemento('btn-guardar').disabled = false;
-  elemento('btn-cancelar').disabled = false;
+  bloquearInteraccion(false);
 }
 
 async function cargarProducto(idProducto) {
   if (!idProducto) {
+    configuracionCargada = null;
+    bloquearInteraccion(false);
     return;
   }
+
+  const solicitudActual = ++secuenciaCargaProducto;
+
+  configuracionCargada = null;
+  bloquearInteraccion(true);
+  elemento('estado-cargando').hidden = false;
+
+  try {
+    const datos =
+      await obtenerConfiguracionLimites(idProducto);
+
+    if (solicitudActual !== secuenciaCargaProducto) {
+      return;
+    }
+
+    aplicarConfiguracion(datos);
+  } catch (error) {
+    if (solicitudActual !== secuenciaCargaProducto) {
+      return;
+    }
+
+    texto(
+      'form-feedback',
+      error.message ||
+        'No fue posible consultar el producto.'
+    );
+  } finally {
+    if (solicitudActual === secuenciaCargaProducto) {
+      elemento('estado-cargando').hidden = true;
+      bloquearInteraccion(false);
+    }
+  }
+}
 
   elemento('estado-cargando').hidden = false;
 
@@ -268,12 +313,16 @@ async function guardar(evento) {
   }
 
   const boton = elemento('btn-guardar');
+  const idProductoSeleccionado =
+  elemento('idProducto').value;
+
+  bloquearInteraccion(true);
   boton.disabled = true;
 
   try {
     const actualizado =
       await guardarConfiguracionLimites({
-        idProducto: elemento('idProducto').value,
+        idProducto: idProductoSeleccionado,
         ...limites
       });
 
@@ -294,7 +343,7 @@ async function guardar(evento) {
         'No fue posible guardar los límites.'
     );
   } finally {
-    boton.disabled = false;
+    bloquearInteraccion(false);
   }
 }
 
