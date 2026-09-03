@@ -759,8 +759,11 @@ export async function consultarDisponibilidadFutura({
 
   const reservas = RESERVAS_FUTURAS_MOCK
     .filter(reserva =>
-      reserva.idProducto === id &&
-      reserva.estado === 'CONFIRMADA' &&
+    reserva.idProducto === id &&
+      (
+        reserva.estado === 'CONFIRMADA' ||
+        reserva.estado === 'ACTIVA'
+      ) &&
       periodosSeTraslapan(
         inicio,
         fin,

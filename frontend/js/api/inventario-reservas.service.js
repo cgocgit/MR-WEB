@@ -585,6 +585,11 @@ export async function consultarReservasInventario(
       filtros.idAlmacen
     );
 
+  const idProducto =
+  validarProducto(
+    filtros.idProducto
+  );
+
   const {
     skip,
     limit
@@ -640,6 +645,11 @@ export async function consultarReservasInventario(
         coincideProducto(
           reserva,
           producto
+        ) &&
+        (
+          idProducto === null ||
+          reserva.idProducto ===
+            idProducto
         ) &&
         coincidePeriodo(
           reserva,

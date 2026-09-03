@@ -1257,7 +1257,7 @@ async function cargarReservas(
                     <td>
                       <span
                         class="
-                          inventario-reservas-estado
+                          inventario-reservas-estado-badge
                           ${claseReserva(
                             item.estado
                           )}
