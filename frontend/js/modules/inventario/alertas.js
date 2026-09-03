@@ -462,14 +462,30 @@ function crearAcciones(alerta) {
       'inventario.consultar'
     )
   ) {
-    contenedor.appendChild(
+    acciones.appendChild(
       crearAccion(
         'Ver existencia',
-        '#/inventario/existencias' +
+        '#/inventario/existencias/detalle' +
+          `?idProducto=${alerta.idProducto}`
+      )
+    );
+  }
+
+  if (
+    hasPermission(
+      session,
+      'inventario.movimientos.consultar'
+    )
+  ) {
+    acciones.appendChild(
+      crearAccion(
+        'Ver movimientos',
+        '#/inventario/movimientos' +
           `?idProducto=${alerta.idProducto}` +
           '&origen=alertas'
       )
     );
+  }
 
     contenedor.appendChild(
       crearAccion(
