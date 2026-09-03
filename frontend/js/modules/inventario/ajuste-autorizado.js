@@ -90,10 +90,14 @@ function obtenerUsuario() {
 }
 
 function limpiarFeedback() {
-  texto(
-    'ajuste-feedback',
-    ''
-  );
+  const feedback =
+    elemento(
+      'ajuste-feedback'
+    );
+
+  if (feedback) {
+    feedback.textContent = '';
+  }
 }
 
 function mostrarError(mensaje) {
