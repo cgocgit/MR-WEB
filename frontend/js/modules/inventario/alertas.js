@@ -462,7 +462,7 @@ function crearAcciones(alerta) {
       'inventario.consultar'
     )
   ) {
-    acciones.appendChild(
+    contenedor.appendChild(
       crearAccion(
         'Ver existencia',
         '#/inventario/existencias/detalle' +
@@ -477,16 +477,6 @@ function crearAcciones(alerta) {
       'inventario.movimientos.consultar'
     )
   ) {
-    acciones.appendChild(
-      crearAccion(
-        'Ver movimientos',
-        '#/inventario/movimientos' +
-          `?idProducto=${alerta.idProducto}` +
-          '&origen=alertas'
-      )
-    );
-  }
-
     contenedor.appendChild(
       crearAccion(
         'Ver movimientos',
@@ -499,7 +489,6 @@ function crearAcciones(alerta) {
 
   return contenedor;
 }
-
 /**
  * Renderiza tabla para escritorio.
  *
