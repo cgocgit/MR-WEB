@@ -77,6 +77,9 @@ const routes = {
   '#/inventario/existencias':
     'pages/inventario/existencias.html',
 
+  '#/inventario/existencias/detalle':
+    'pages/inventario/existencia-detalle.html',
+
   '#/inventario/movimientos':
     'pages/inventario/movimientos.html',
 
@@ -250,6 +253,9 @@ const routePermissions = {
     'inventario.consultar',
 
   '#/inventario/existencias':
+    'inventario.consultar',
+
+  '#/inventario/existencias/detalle':
     'inventario.consultar',
 
   '#/inventario/movimientos':

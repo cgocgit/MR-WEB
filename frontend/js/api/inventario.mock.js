@@ -8,32 +8,44 @@
 
 export const DISPONIBILIDAD_ALMACEN_MOCK = [
   {
+    idInventario: 5001,
     idProducto: 1001,
     idAlmacen: 1,
     almacen: 'Almacén Central',
     existenciaFisica: 80,
-    cantidadReservada: 0
+    cantidadReservada: 0,
+    fechaActualizacion:
+      '2026-09-02T15:10:00'
   },
   {
+    idInventario: 5002,
     idProducto: 1002,
     idAlmacen: 1,
     almacen: 'Almacén Central',
     existenciaFisica: 45,
-    cantidadReservada: 0
+    cantidadReservada: 0,
+    fechaActualizacion:
+      '2026-09-02T14:45:00'
   },
   {
+    idInventario: 5003,
     idProducto: 1003,
     idAlmacen: 1,
     almacen: 'Almacén Central',
     existenciaFisica: 200,
-    cantidadReservada: 0
+    cantidadReservada: 0,
+    fechaActualizacion:
+      '2026-09-02T13:30:00'
   },
   {
+    idInventario: 5005,
     idProducto: 1005,
     idAlmacen: 1,
     almacen: 'Almacén Central',
     existenciaFisica: 75,
-    cantidadReservada: 0
+    cantidadReservada: 0,
+    fechaActualizacion:
+      '2026-09-02T12:50:00'
   }
 ];
 

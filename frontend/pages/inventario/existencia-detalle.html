@@ -1,0 +1,42 @@
+<section
+  id="existencia-detalle-root"
+  class="
+    inventario-container
+    inventario-existencia-detalle
+  "
+  aria-busy="true"
+>
+  <header
+    class="inventario-page-header"
+  >
+    <div>
+      <h1>
+        Detalle de existencia
+      </h1>
+
+      <p
+        class="
+          inventario-page-description
+        "
+      >
+        Cargando información
+        del producto seleccionado.
+      </p>
+    </div>
+  </header>
+
+  <div
+    class="inventario-state"
+    role="status"
+  >
+    Cargando detalle...
+  </div>
+</section>
+
+<script type="module">
+  import {
+    initExistenciaDetalle
+  } from './js/modules/inventario/existencia-detalle.js';
+
+  initExistenciaDetalle();
+</script>

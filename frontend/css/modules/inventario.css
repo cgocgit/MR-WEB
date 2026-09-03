@@ -670,3 +670,488 @@
     min-height: 44px;
   }
 }
+
+/* ============================================
+   Consulta de existencias
+   ============================================ */
+
+.inventario-existencias {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventario-existencias [hidden] {
+  display: none !important;
+}
+
+/* Encabezado */
+
+.inventario-existencias-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.inventario-existencias-actualizacion {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.inventario-existencias-actualizacion span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.inventario-existencias-actualizacion strong {
+  font-size: 0.9rem;
+}
+
+/* Accesos */
+
+.inventario-existencias-accesos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Filtros */
+
+.inventario-existencias-filtros-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(240px, 2fr)
+    minmax(170px, 1fr)
+    minmax(170px, 1fr)
+    minmax(190px, 1fr);
+  gap: var(--gap);
+  align-items: end;
+}
+
+.inventario-existencias-filtro-check {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+}
+
+.inventario-existencias-filtro-check label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.inventario-existencias-filtro-check input {
+  width: auto;
+}
+
+/* Estados */
+
+.inventario-existencias-estado {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.inventario-existencias-reintentar {
+  margin-left: 12px;
+}
+
+.inventario-existencias-vacio {
+  padding: 20px;
+
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Tabla */
+
+.inventario-existencias-tabla {
+  padding: 0;
+  overflow: hidden;
+}
+
+.inventario-existencias-tabla table {
+  min-width: 1180px;
+}
+
+.inventario-existencias-tabla th {
+  white-space: nowrap;
+}
+
+/* Producto */
+
+.inventario-existencias-producto {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  min-width: 200px;
+}
+
+.inventario-existencias-producto img {
+  width: 44px;
+  height: 44px;
+
+  flex: 0 0 44px;
+
+  border-radius: var(--radius);
+
+  object-fit: cover;
+}
+
+.inventario-existencias-producto > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inventario-existencias-producto strong {
+  font-size: 0.9rem;
+}
+
+.inventario-existencias-producto span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.inventario-existencias-inactivo {
+  display: inline-flex;
+
+  width: fit-content;
+
+  margin-top: 3px;
+  padding: 2px 6px;
+
+  border-radius: 999px;
+
+  background: #f3f4f6;
+
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+/* Disponibilidad */
+
+.inventario-existencias-disponibilidad {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.inventario-existencias-disponible {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.inventario-existencias-no-disponible {
+  background: #fef2f2;
+  color: var(--danger);
+}
+
+/* Nivel */
+
+.inventario-existencias-nivel {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.inventario-existencias-nivel-bajo {
+  background: #fef2f2;
+  color: var(--danger);
+}
+
+.inventario-existencias-nivel-rango {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.inventario-existencias-nivel-alto {
+  background: #eff6ff;
+  color: var(--primary);
+}
+
+.inventario-existencias-nivel-sin-configurar {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+/* Acciones */
+
+.inventario-existencias-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inventario-existencias-accion {
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* Tarjetas móviles */
+
+.inventario-existencias-cards {
+  display: none;
+}
+
+.inventario-existencias-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inventario-existencias-card-indicadores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inventario-existencias-card-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.inventario-existencias-card-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.inventario-existencias-card-dato span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.inventario-existencias-card-dato strong {
+  font-size: 0.9rem;
+}
+
+/* Paginación */
+
+.inventario-existencias-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-top: 12px;
+
+  gap: 12px;
+
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.inventario-existencias-paginacion-controles {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inventario-existencias-paginacion
+  button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+
+/* ============================================
+   Detalle provisional de existencia
+   ============================================ */
+
+.inventario-existencia-detalle {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventario-existencia-detalle-producto {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.inventario-existencia-detalle-imagen {
+  width: 120px;
+  height: 120px;
+
+  flex: 0 0 120px;
+
+  border-radius: var(--radius);
+
+  object-fit: cover;
+}
+
+.inventario-existencia-detalle-codigo {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.inventario-existencia-detalle-producto h2 {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+.inventario-existencia-detalle-producto p {
+  margin: 0;
+
+  color: var(--muted);
+}
+
+.inventario-existencia-detalle-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventario-existencia-detalle-seccion h2 {
+  margin: 0;
+
+  font-size: 1.1rem;
+}
+
+.inventario-existencia-detalle-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.inventario-existencia-detalle-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inventario-existencia-detalle-dato span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.inventario-existencia-detalle-acciones {
+  justify-content: flex-end;
+}
+
+
+/* ============================================
+   Responsive Consulta de existencias
+   ============================================ */
+
+@media (max-width: 1000px) {
+  .inventario-existencias-filtros-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .inventario-existencia-detalle-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .inventario-existencias-header-actions {
+    width: 100%;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .inventario-existencias-actualizacion {
+    align-items: flex-start;
+  }
+
+  .inventario-existencias-header-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .inventario-existencias-accesos {
+    flex-direction: column;
+  }
+
+  .inventario-existencias-accesos .button {
+    width: 100%;
+    min-height: 44px;
+
+    text-align: center;
+  }
+
+  .inventario-existencias-filtros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-existencias-tabla {
+    display: none;
+  }
+
+  .inventario-existencias-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .inventario-existencias-paginacion {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .inventario-existencias-paginacion-controles {
+    justify-content: space-between;
+  }
+
+  .inventario-existencias-paginacion-controles
+    button {
+    min-height: 44px;
+  }
+
+  .inventario-existencia-detalle-producto {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inventario-existencia-detalle-imagen {
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+  }
+
+  .inventario-existencia-detalle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-existencia-detalle-acciones {
+    flex-direction: column;
+  }
+
+  .inventario-existencia-detalle-acciones
+    .button {
+    width: 100%;
+    min-height: 44px;
+
+    text-align: center;
+  }
+}
