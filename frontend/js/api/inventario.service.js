@@ -193,24 +193,6 @@ function esLimiteInventarioValido(valor) {
 function obtenerExistenciaConsolidada(
   idProducto
 ) {
-  const cantidadReservada =
-  RESERVAS_FUTURAS_MOCK
-    .filter(
-      reserva =>
-        reserva.idProducto === idProducto &&
-        reserva.estado === 'CONFIRMADA'
-    )
-    .reduce(
-      (total, reserva) =>
-        total +
-        Number(
-          reserva.cantidad ||
-          reserva.cantidadReservada ||
-          0
-        ),
-      0
-    );
-
   const registros =
     DISPONIBILIDAD_ALMACEN_MOCK
       .filter(
@@ -219,35 +201,42 @@ function obtenerExistenciaConsolidada(
           idProducto
       );
 
-  const consolidado =
+  const cantidadRegistrada =
     registros.reduce(
-      (total, item) => ({
-        cantidadRegistrada:
-          total.cantidadRegistrada +
-          Number(
-            item.existenciaFisica ||
-            0
-          ),
-
-        cantidadReservada:
-          total.cantidadReservada +
-          Number(
-            item.cantidadReservada ||
-            0
-          )
-      }),
-      {
-        cantidadRegistrada: 0,
-        cantidadReservada: 0
-      }
+      (total, item) =>
+        total +
+        Number(
+          item.existenciaFisica ||
+          0
+        ),
+      0
     );
 
+  const cantidadReservada =
+    RESERVAS_FUTURAS_MOCK
+      .filter(
+        reserva =>
+          reserva.idProducto ===
+            idProducto &&
+          reserva.estado ===
+            'CONFIRMADA'
+      )
+      .reduce(
+        (total, reserva) =>
+          total +
+          Number(
+            reserva.cantidadReservada ||
+            0
+          ),
+        0
+      );
+
   const cantidadDisponible =
-  Math.max(
-    0,
-    consolidado.cantidadRegistrada -
-    cantidadReservada
-  );
+    Math.max(
+      0,
+      cantidadRegistrada -
+      cantidadReservada
+    );
 
   const fechas =
     registros
@@ -261,18 +250,9 @@ function obtenerExistenciaConsolidada(
   return {
     idInventario:
       registros.length === 1
-        ? registros[0]
-            .idInventario ??
+        ? registros[0].idInventario ??
           null
         : null,
-
-    cantidadRegistrada:
-      consolidado.cantidadRegistrada,
-
-    cantidadReservada:
-      consolidado.cantidadReservada,
-
-    cantidadDisponible,
 
     idAlmacen:
       registros.length > 0
@@ -283,6 +263,12 @@ function obtenerExistenciaConsolidada(
       registros.length > 0
         ? registros[0].almacen
         : null,
+
+    cantidadRegistrada,
+
+    cantidadReservada,
+
+    cantidadDisponible,
 
     fechaActualizacion:
       fechas.length > 0
@@ -549,7 +535,28 @@ export async function consultarExistenciasInventario(
    * Por defecto no se presentan
    * productos inactivos.
    */
+  const estadoProducto =
+    filtros.estadoProducto || '';
+
   if (
+    estadoProducto ===
+    'ACTIVO'
+  ) {
+    resultado =
+      resultado.filter(
+        item =>
+          item.activo === true
+      );
+  } else if (
+    estadoProducto ===
+    'INACTIVO'
+  ) {
+    resultado =
+      resultado.filter(
+        item =>
+          item.activo === false
+      );
+  } else if (
     filtros.mostrarInactivos !== true
   ) {
     resultado =

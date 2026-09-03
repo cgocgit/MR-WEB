@@ -261,12 +261,25 @@ function sincronizarControles() {
  * según permisos efectivos.
  */
 function configurarVisibilidadPermisos() {
-  ocultar(
-    'existencias-filtro-inactivos-contenedor',
-    !puede(
-      PERMISOS.INACTIVOS
-    )
-  );
+  const opcionInactivo =
+    elemento(
+      'existencias-estado'
+    )?.querySelector(
+      'option[value="INACTIVO"]'
+    );
+
+  if (opcionInactivo) {
+    const autorizado =
+      puede(
+        PERMISOS.INACTIVOS
+      );
+
+    opcionInactivo.hidden =
+      !autorizado;
+
+    opcionInactivo.disabled =
+      !autorizado;
+  }
 
   document
     .querySelectorAll(
@@ -504,27 +517,47 @@ function crearProducto(item) {
   );
 
   if (
-    item.activo === false
-  ) {
-    const inactivo =
-      document.createElement(
-        'small'
-      );
-
-    inactivo.textContent =
-      'Inactivo';
-
-    inactivo.className =
-      'inventario-existencias-inactivo';
-
-    datos.appendChild(
-      inactivo
+  item.activo === false
+) {
+  const inactivo =
+    document.createElement(
+      'small'
     );
-  }
 
-  contenedor.appendChild(
-    datos
+  inactivo.textContent =
+    'Inactivo';
+
+  inactivo.className =
+    'inventario-existencias-inactivo';
+
+  datos.appendChild(
+    inactivo
   );
+}
+
+if (
+  item.reservaInconsistente ===
+  true
+) {
+  const advertencia =
+    document.createElement(
+      'small'
+    );
+
+  advertencia.className =
+    'inventario-existencias-advertencia';
+
+  advertencia.textContent =
+    'Reserva mayor a existencia registrada';
+
+  datos.appendChild(
+    advertencia
+  );
+}
+
+contenedor.appendChild(
+  datos
+);
 
   return contenedor;
 }
@@ -611,17 +644,11 @@ function crearAcciones(item) {
   contenedor.className =
     'inventario-existencias-acciones';
 
-  /*
-   * Ruta provisional.
-   * Se ajustará cuando se defina
-   * definitivamente Detalle de existencia.
-   */
   contenedor.appendChild(
     crearAccion(
       'Ver detalle',
       '#/inventario/existencias/detalle' +
-        `?idProducto=${item.idProducto}` +
-        '&origen=existencias'
+        `?idProducto=${item.idProducto}`
     )
   );
 
@@ -634,8 +661,7 @@ function crearAcciones(item) {
       crearAccion(
         'Disponibilidad futura',
         '#/inventario/disponibilidad-futura' +
-          `?idProducto=${item.idProducto}` +
-          '&origen=existencias'
+          `?idProducto=${item.idProducto}`
       )
     );
   }
@@ -650,8 +676,21 @@ function crearAcciones(item) {
       crearAccion(
         'Ver alerta',
         '#/inventario/alertas' +
-          `?idProducto=${item.idProducto}` +
-          '&origen=existencias'
+          `?idProducto=${item.idProducto}`
+      )
+    );
+  }
+
+  if (
+    puede(
+      PERMISOS.GESTIONAR
+    )
+  ) {
+    contenedor.appendChild(
+      crearAccion(
+        'Configurar límites',
+        '#/inventario/limites' +
+          `?idProducto=${item.idProducto}`
       )
     );
   }
@@ -1122,10 +1161,9 @@ function filtrosConsulta() {
       estado.nivel,
 
     mostrarInactivos:
-      puede(
-        PERMISOS.INACTIVOS
-      ) &&
-      estado.mostrarInactivos,
+    puede(
+      PERMISOS.INACTIVOS
+    ),
 
     idProducto:
       estado.idProducto,
@@ -1280,7 +1318,7 @@ function limpiarFiltros() {
     nivel: '',
     mostrarInactivos: false,
     idProducto: null,
-    estadoProducto: '',
+    estadoProducto: 'ACTIVO',
     skip: 0
   };
 

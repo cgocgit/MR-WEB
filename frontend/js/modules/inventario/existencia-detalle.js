@@ -24,6 +24,9 @@ const PERMISOS = {
   OPERATIVO:
     'inventario.existencias.operativas.consultar',
 
+  INACTIVOS:
+    'inventario.existencias.inactivos.consultar',
+
   DISPONIBILIDAD:
     'inventario.disponibilidad.consultar',
 
@@ -550,12 +553,15 @@ export async function initExistenciaDetalle() {
      * mock de Consulta de existencias.
      */
     const resultado =
-      await consultarExistenciasInventario({
-        idProducto,
-        mostrarInactivos: true,
-        skip: 0,
-        limit: 1
-      });
+    await consultarExistenciasInventario({
+      idProducto,
+      mostrarInactivos:
+        puede(
+          PERMISOS.INACTIVOS
+        ),
+      skip: 0,
+      limit: 1
+    });
 
     const item =
       resultado.items?.[0];
