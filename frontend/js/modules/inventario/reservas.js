@@ -3,6 +3,13 @@ import {
   obtenerReservaInventario,
   ESTADOS_RESERVA
 } from '../../api/inventario-reservas.service.js';
+import {
+  getSession
+} from '../../shared/auth-guard.js';
+
+import {
+  hasPermission
+} from '../../shared/permissions.js';
 
 const LIMIT_PAGINA = 10;
 
@@ -830,6 +837,53 @@ function llenarDetalle(reserva) {
       )
   );
 
+  const session =
+    getSession();
+
+  const btnVerOrden =
+    el(
+      'btn-reservas-ver-orden'
+    );
+
+  if (btnVerOrden) {
+    const disponibleOrden =
+      reserva.idOrden &&
+      hasPermission(
+        session,
+        'ordenes.consultar'
+      );
+
+    btnVerOrden.hidden =
+      !disponibleOrden;
+
+    btnVerOrden.dataset.idOrden =
+      disponibleOrden
+        ? String(reserva.idOrden)
+        : '';
+  }
+
+  const btnVerProducto =
+    el(
+      'btn-reservas-ver-producto'
+    );
+
+  if (btnVerProducto) {
+    const disponibleProducto =
+      reserva.idProducto &&
+      hasPermission(
+        session,
+        'catalogo.consultar'
+      );
+
+    btnVerProducto.hidden =
+      !disponibleProducto;
+
+    btnVerProducto.dataset.idProducto =
+      disponibleProducto
+        ? String(reserva.idProducto)
+        : '';
+  }
+
   const imagen =
     el(
       'reservas-detalle-producto-imagen'
@@ -1054,6 +1108,48 @@ function registrarEventos() {
       }
     }
   );
+
+  el(
+  'btn-reservas-ver-producto'
+)?.addEventListener(
+  'click',
+  event => {
+    const idProducto =
+      event.currentTarget
+        .dataset
+        .idProducto;
+
+    if (!idProducto) {
+      return;
+    }
+
+    dialog?.close();
+
+    window.location.hash =
+      `#/catalogo/productos/detalle?id=${encodeURIComponent(idProducto)}`;
+  }
+);
+
+el(
+  'btn-reservas-ver-orden'
+)?.addEventListener(
+  'click',
+  event => {
+    const idOrden =
+      event.currentTarget
+        .dataset
+        .idOrden;
+
+    if (!idOrden) {
+      return;
+    }
+
+    dialog?.close();
+
+    window.location.hash =
+      `#/ordenes/detalle?id=${encodeURIComponent(idOrden)}`;
+  }
+);
 
   dialog?.addEventListener(
     'close',
