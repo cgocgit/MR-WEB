@@ -47,6 +47,7 @@ let estado = {
   texto: '',
   disponibilidad: '',
   nivel: '',
+  estadoProducto: 'ACTIVO',
   mostrarInactivos: false,
   idProducto: null,
   skip: 0,
