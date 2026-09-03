@@ -2500,3 +2500,559 @@
     text-align: center;
   }
 }
+
+/* =========================================================
+   Reservas por Orden de servicio
+   ========================================================= */
+
+.inventario-reservas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inventario-reservas-header-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.inventario-reservas-header-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 150px;
+}
+
+.inventario-reservas-header-dato span,
+.inventario-reservas-secundario,
+.inventario-reservas-card-dato span,
+.inventario-reservas-dialog-header p,
+.inventario-reservas-detalle-grid dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.inventario-reservas-estado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow:
+    0 1px 3px
+    rgba(0, 0, 0, 0.06);
+}
+
+.inventario-reservas-resumen {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      5,
+      minmax(0, 1fr)
+    );
+  gap: 12px;
+}
+
+.inventario-reservas-resumen-card {
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.inventario-reservas-resumen-card span {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.inventario-reservas-resumen-card strong {
+  font-size: 1.6rem;
+}
+
+.inventario-reservas-resumen-confirmadas strong {
+  color: #b45309;
+}
+
+.inventario-reservas-resumen-activas strong {
+  color: #15803d;
+}
+
+.inventario-reservas-resumen-liberadas strong {
+  color: var(--primary);
+}
+
+.inventario-reservas-resumen-canceladas strong {
+  color: var(--danger);
+}
+
+.inventario-reservas-filtros-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(160px, 1fr)
+    );
+  gap: 16px;
+}
+
+.inventario-reservas-filtros
+  .inventario-form-actions {
+  justify-content: flex-end;
+}
+
+.inventario-reservas-reintentar {
+  margin-left: 12px;
+}
+
+.inventario-reservas-vacio {
+  text-align: center;
+}
+
+.inventario-reservas-vacio p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+.inventario-reservas-tabla {
+  padding: 0;
+  overflow: hidden;
+}
+
+.inventario-reservas-tabla-wrap table {
+  min-width: 980px;
+}
+
+.inventario-reservas-tabla-wrap th,
+.inventario-reservas-tabla-wrap td {
+  vertical-align: middle;
+}
+
+.inventario-reservas-tabla-wrap td:nth-child(2),
+.inventario-reservas-tabla-wrap td:nth-child(5) {
+  min-width: 150px;
+}
+
+.inventario-reservas-tabla-wrap td:nth-child(2),
+.inventario-reservas-tabla-wrap td:nth-child(5),
+.inventario-reservas-producto > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.inventario-reservas-producto {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.inventario-reservas-producto img {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid #e6e6e6;
+  background: var(--bg);
+}
+
+.inventario-reservas-estado-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.inventario-reservas-estado-confirmada {
+  color: #92400e;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.inventario-reservas-estado-activa {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.inventario-reservas-estado-liberada {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.inventario-reservas-estado-cancelada {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.inventario-reservas-accion {
+  white-space: nowrap;
+}
+
+.inventario-reservas-cards {
+  display: none;
+}
+
+.inventario-reservas-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.inventario-reservas-paginacion > span {
+  color: var(--muted);
+}
+
+.inventario-reservas-paginacion-controles {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inventario-reservas-paginacion button:disabled,
+.inventario-reservas button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.inventario-reservas-dialog {
+  width:
+    min(
+      760px,
+      calc(100vw - 32px)
+    );
+  max-height:
+    calc(
+      100vh - 48px
+    );
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text);
+  box-shadow:
+    0 18px 50px
+    rgba(0, 0, 0, 0.22);
+}
+
+.inventario-reservas-dialog::backdrop {
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.45
+    );
+}
+
+.inventario-reservas-dialog-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom:
+    1px solid
+    #e6e6e6;
+  background: var(--panel);
+}
+
+.inventario-reservas-dialog-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.inventario-reservas-dialog-header p {
+  margin-top: 4px;
+}
+
+.inventario-reservas-dialog-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding:
+    0 20px 20px;
+}
+
+.inventario-reservas-detalle-seccion {
+  padding: 18px 0;
+  border-bottom:
+    1px solid
+    #e6e6e6;
+}
+
+.inventario-reservas-detalle-seccion:last-child {
+  border-bottom: 0;
+}
+
+.inventario-reservas-detalle-seccion h3 {
+  margin:
+    0 0 14px;
+  font-size: 1rem;
+}
+
+.inventario-reservas-detalle-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+  gap:
+    14px 20px;
+  margin: 0;
+}
+
+.inventario-reservas-detalle-grid div {
+  min-width: 0;
+}
+
+.inventario-reservas-detalle-grid dt {
+  margin-bottom: 4px;
+}
+
+.inventario-reservas-detalle-grid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.inventario-reservas-detalle-ancho {
+  grid-column:
+    1 / -1;
+}
+
+.inventario-reservas-detalle-producto {
+  display: grid;
+  grid-template-columns:
+    92px
+    minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.inventario-reservas-detalle-imagen {
+  width: 92px;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border:
+    1px solid
+    #e6e6e6;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.inventario-reservas-detalle-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.inventario-reservas-detalle-imagen span {
+  padding: 8px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .inventario-reservas-resumen {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (max-width: 1000px) {
+  .inventario-reservas-filtros-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(160px, 1fr)
+      );
+  }
+}
+
+@media (max-width: 720px) {
+  .inventario-reservas-header-info {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .inventario-reservas-header-dato {
+    min-width: 0;
+  }
+
+  .inventario-reservas-resumen,
+  .inventario-reservas-filtros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-reservas-resumen-card {
+    min-height: 82px;
+  }
+
+  .inventario-reservas-filtros
+    .inventario-form-actions button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .inventario-reservas-tabla-wrap {
+    display: none;
+  }
+
+  .inventario-reservas-cards {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg);
+  }
+
+  .inventario-reservas-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .inventario-reservas-card header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .inventario-reservas-card header > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .inventario-reservas-card header span {
+    color: var(--muted);
+    font-size: 0.8rem;
+  }
+
+  .inventario-reservas-card-grid {
+    display: grid;
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+    gap: 12px;
+  }
+
+  .inventario-reservas-card-dato {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .inventario-reservas-card-dato strong {
+    overflow-wrap: anywhere;
+  }
+
+  .inventario-reservas-card
+    .inventario-reservas-accion {
+    width: 100%;
+  }
+
+  .inventario-reservas-paginacion {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inventario-reservas-paginacion-controles {
+    display: grid;
+    grid-template-columns:
+      1fr auto 1fr;
+  }
+
+  .inventario-reservas-paginacion-controles button {
+    width: 100%;
+  }
+
+  .inventario-reservas-dialog {
+    width:
+      calc(
+        100vw - 24px
+      );
+
+    max-height:
+      calc(
+        100vh - 24px
+      );
+  }
+
+  .inventario-reservas-dialog-header {
+    padding: 16px;
+  }
+
+  .inventario-reservas-dialog-contenido {
+    padding:
+      0 16px 16px;
+  }
+
+  .inventario-reservas-detalle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-reservas-detalle-ancho {
+    grid-column: auto;
+  }
+
+  .inventario-reservas-detalle-producto {
+    grid-template-columns:
+      72px
+      minmax(0, 1fr);
+  }
+
+  .inventario-reservas-detalle-imagen {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+@media (max-width: 420px) {
+  .inventario-reservas-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-reservas-paginacion-controles {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .inventario-reservas-paginacion-controles > span {
+    grid-column:
+      1 / -1;
+    grid-row: 1;
+    text-align: center;
+  }
+}

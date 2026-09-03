@@ -1,0 +1,458 @@
+<section
+  id="reservas-page"
+  class="container inventario-reservas"
+  aria-busy="false"
+>
+  <header class="inventario-page-header">
+    <div>
+      <h1>Reservas por Orden de servicio</h1>
+      <p class="inventario-page-description">
+        Consulta los productos comprometidos por Órdenes de Servicio y el periodo asociado a cada reserva.
+      </p>
+    </div>
+
+    <div class="inventario-reservas-header-info">
+      <div class="inventario-reservas-header-dato">
+        <span>Almacén actual</span>
+        <strong>Almacén Central</strong>
+      </div>
+
+      <div class="inventario-reservas-header-dato">
+        <span>Última consulta</span>
+        <strong id="reservas-ultima-consulta">—</strong>
+      </div>
+    </div>
+  </header>
+
+  <div
+    id="reservas-estado-cargando"
+    class="inventario-reservas-estado"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Consultando reservas...
+  </div>
+
+  <section
+    class="inventario-reservas-resumen"
+    aria-label="Resumen de reservas"
+  >
+    <article class="card inventario-reservas-resumen-card">
+      <span>Total de reservas</span>
+      <strong id="reservas-total">0</strong>
+    </article>
+
+    <article class="card inventario-reservas-resumen-card inventario-reservas-resumen-confirmadas">
+      <span>Confirmadas</span>
+      <strong id="reservas-total-confirmadas">0</strong>
+    </article>
+
+    <article class="card inventario-reservas-resumen-card inventario-reservas-resumen-activas">
+      <span>Activas</span>
+      <strong id="reservas-total-activas">0</strong>
+    </article>
+
+    <article class="card inventario-reservas-resumen-card inventario-reservas-resumen-liberadas">
+      <span>Liberadas</span>
+      <strong id="reservas-total-liberadas">0</strong>
+    </article>
+
+    <article class="card inventario-reservas-resumen-card inventario-reservas-resumen-canceladas">
+      <span>Canceladas</span>
+      <strong id="reservas-total-canceladas">0</strong>
+    </article>
+  </section>
+
+  <form
+    id="reservas-form-filtros"
+    class="inventario-form inventario-reservas-filtros"
+    novalidate
+  >
+    <div class="inventario-reservas-filtros-grid">
+      <div class="form-field">
+        <label for="reservas-orden">Orden de Servicio</label>
+        <input
+          id="reservas-orden"
+          type="search"
+          autocomplete="off"
+          placeholder="Folio de Orden"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="reservas-cliente">Cliente</label>
+        <input
+          id="reservas-cliente"
+          type="search"
+          autocomplete="off"
+          placeholder="Nombre del cliente"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="reservas-evento">Evento</label>
+        <input
+          id="reservas-evento"
+          type="search"
+          autocomplete="off"
+          placeholder="Nombre del evento"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="reservas-producto">Producto</label>
+        <input
+          id="reservas-producto"
+          type="search"
+          autocomplete="off"
+          placeholder="Código o nombre"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="reservas-fecha-desde">Fecha desde</label>
+        <input
+          id="reservas-fecha-desde"
+          type="date"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="reservas-fecha-hasta">Fecha hasta</label>
+        <input
+          id="reservas-fecha-hasta"
+          type="date"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="reservas-estado">Estado</label>
+        <select id="reservas-estado">
+          <option value="">Todas</option>
+          <option value="CONFIRMADA">Confirmada</option>
+          <option value="ACTIVA">Activa</option>
+          <option value="LIBERADA">Liberada</option>
+          <option value="CANCELADA">Cancelada</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="reservas-almacen">Almacén</label>
+        <select id="reservas-almacen">
+          <option value="1">Almacén Central</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="inventario-form-actions">
+      <button
+        id="btn-reservas-limpiar"
+        type="button"
+        class="button-secondary"
+      >
+        Limpiar
+      </button>
+
+      <button
+        id="btn-reservas-buscar"
+        type="submit"
+      >
+        Buscar
+      </button>
+    </div>
+  </form>
+
+  <section
+    id="reservas-estado-error"
+    class="inventario-message inventario-message-error"
+    role="alert"
+    hidden
+  >
+    <span id="reservas-error-mensaje">
+      No fue posible consultar las reservas.
+    </span>
+
+    <button
+      id="btn-reservas-reintentar"
+      type="button"
+      class="inventario-reservas-reintentar"
+    >
+      Reintentar
+    </button>
+  </section>
+
+  <section
+    id="reservas-estado-vacio"
+    class="card inventario-reservas-vacio"
+    role="status"
+    hidden
+  >
+    <strong>Sin resultados</strong>
+    <p id="reservas-vacio-mensaje">
+      No hay reservas con los filtros seleccionados.
+    </p>
+  </section>
+
+  <section
+    id="reservas-resultados-contenido"
+    class="inventario-list inventario-reservas-resultados"
+  >
+    <div class="card inventario-reservas-tabla">
+      <div class="table-responsive inventario-reservas-tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Orden</th>
+              <th scope="col">Cliente / evento</th>
+              <th scope="col">Producto</th>
+              <th scope="col">Cantidad</th>
+              <th scope="col">Periodo</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="reservas-tbody"></tbody>
+        </table>
+      </div>
+
+      <div
+        id="reservas-cards"
+        class="inventario-reservas-cards"
+        aria-label="Reservas"
+      ></div>
+    </div>
+
+    <footer class="inventario-reservas-paginacion">
+      <span id="reservas-resultados">0 reservas</span>
+
+      <div class="inventario-reservas-paginacion-controles">
+        <button
+          id="btn-reservas-anterior"
+          type="button"
+          class="button-secondary"
+          disabled
+        >
+          Anterior
+        </button>
+
+        <span id="reservas-pagina">1 de 1</span>
+
+        <button
+          id="btn-reservas-siguiente"
+          type="button"
+          class="button-secondary"
+          disabled
+        >
+          Siguiente
+        </button>
+      </div>
+    </footer>
+  </section>
+
+  <dialog
+    id="reservas-dialog"
+    class="inventario-reservas-dialog"
+    aria-labelledby="reservas-dialog-titulo"
+  >
+    <header class="inventario-reservas-dialog-header">
+      <div>
+        <h2 id="reservas-dialog-titulo">
+          Detalle de la reserva
+        </h2>
+        <p>Información de solo lectura.</p>
+      </div>
+
+      <button
+        id="btn-reservas-cerrar-detalle"
+        type="button"
+        class="button-secondary"
+        aria-label="Cerrar detalle de la reserva"
+      >
+        Cerrar
+      </button>
+    </header>
+
+    <div class="inventario-reservas-dialog-contenido">
+      <section class="inventario-reservas-detalle-seccion">
+        <h3>Identificación</h3>
+
+        <dl class="inventario-reservas-detalle-grid">
+          <div>
+            <dt>Identificador</dt>
+            <dd id="reservas-detalle-id">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Folio de reserva</dt>
+            <dd id="reservas-detalle-folio">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Estado</dt>
+            <dd id="reservas-detalle-estado">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Fecha de generación</dt>
+            <dd id="reservas-detalle-generacion">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Última actualización</dt>
+            <dd id="reservas-detalle-actualizacion">No disponible</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="inventario-reservas-detalle-seccion">
+        <h3>Orden de Servicio</h3>
+
+        <dl class="inventario-reservas-detalle-grid">
+          <div>
+            <dt>Identificador</dt>
+            <dd id="reservas-detalle-orden-id">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Folio</dt>
+            <dd id="reservas-detalle-orden-folio">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Estado de la Orden</dt>
+            <dd id="reservas-detalle-orden-estado">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Cliente</dt>
+            <dd id="reservas-detalle-cliente">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Evento</dt>
+            <dd id="reservas-detalle-evento">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Dirección del evento</dt>
+            <dd id="reservas-detalle-direccion">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Fecha de entrega</dt>
+            <dd id="reservas-detalle-entrega">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Fecha de recolección</dt>
+            <dd id="reservas-detalle-recoleccion">No disponible</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="inventario-reservas-detalle-seccion">
+        <h3>Producto</h3>
+
+        <div class="inventario-reservas-detalle-producto">
+          <div class="inventario-reservas-detalle-imagen">
+            <img
+              id="reservas-detalle-producto-imagen"
+              alt=""
+              hidden
+            >
+
+            <span
+              id="reservas-detalle-producto-placeholder"
+              aria-hidden="true"
+            >
+              Sin imagen
+            </span>
+          </div>
+
+          <dl class="inventario-reservas-detalle-grid">
+            <div>
+              <dt>Identificador</dt>
+              <dd id="reservas-detalle-producto-id">No disponible</dd>
+            </div>
+
+            <div>
+              <dt>Código</dt>
+              <dd id="reservas-detalle-producto-codigo">No disponible</dd>
+            </div>
+
+            <div>
+              <dt>Nombre</dt>
+              <dd id="reservas-detalle-producto-nombre">No disponible</dd>
+            </div>
+
+            <div>
+              <dt>Unidad de medida</dt>
+              <dd id="reservas-detalle-producto-unidad">No disponible</dd>
+            </div>
+
+            <div>
+              <dt>Cantidad reservada</dt>
+              <dd id="reservas-detalle-cantidad">No disponible</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="inventario-reservas-detalle-seccion">
+        <h3>Almacén</h3>
+
+        <dl class="inventario-reservas-detalle-grid">
+          <div>
+            <dt>Identificador</dt>
+            <dd id="reservas-detalle-almacen-id">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Nombre</dt>
+            <dd id="reservas-detalle-almacen">No disponible</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="inventario-reservas-detalle-seccion">
+        <h3>Trazabilidad</h3>
+
+        <dl class="inventario-reservas-detalle-grid">
+          <div>
+            <dt>Usuario de generación</dt>
+            <dd id="reservas-detalle-usuario-generacion">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Usuario de última modificación</dt>
+            <dd id="reservas-detalle-usuario-modificacion">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Referencia de salida</dt>
+            <dd id="reservas-detalle-salida">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Referencia de retorno</dt>
+            <dd id="reservas-detalle-retorno">No disponible</dd>
+          </div>
+
+          <div class="inventario-reservas-detalle-ancho">
+            <dt>Motivo de cancelación</dt>
+            <dd id="reservas-detalle-cancelacion">No disponible</dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/reservas.js';
+
+  init();
+</script>

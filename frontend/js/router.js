@@ -101,8 +101,11 @@ const routes = {
   '#/inventario/cortes-fisicos/detalle':
     'pages/inventario/corte-fisico-detalle.html',
 
-  '#/inventario/ajuste-autorizado':
+    '#/inventario/ajuste-autorizado':
     'pages/inventario/ajuste-autorizado.html',
+
+  '#/inventario/reservas':
+    'pages/inventario/reservas.html',
 
    // Cotizaciones
   '#/cotizaciones':
@@ -287,6 +290,10 @@ const routePermissions = {
   
   '#/inventario/ajuste-autorizado':
     'inventario.gestionar',
+
+  '#/inventario/reservas':
+    'inventario.reservas.consultar',
+
   // Cotizaciones
   '#/cotizaciones':
     'cotizaciones.consultar',
