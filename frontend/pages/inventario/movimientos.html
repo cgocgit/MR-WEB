@@ -1,13 +1,509 @@
-<section class="container">
-  <h1>Movimientos</h1>
-  <div id="movimientos" class="card mt-12"></div>
-  <script type="module">
-    import { getMovimientos } from './js/api/inventario.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await getMovimientos();
-      renderTable(document.getElementById('movimientos'), ['Producto','Tipo','Cantidad','Fecha'], datos.map(d=>({producto:d.producto,tipo:d.tipo,cantidad:d.cantidad,fecha:d.fecha})));
-    })();
-  </script>
+<section
+  id="movimientos-page"
+  class="container inventario-movimientos"
+  aria-busy="false"
+>
+  <header class="inventario-page-header">
+    <div>
+      <h1>Historial de movimientos</h1>
+
+      <p class="inventario-page-description">
+        Consulta cronológica y de solo lectura de los movimientos
+        que han modificado la existencia física del Inventario.
+      </p>
+    </div>
+
+    <div class="inventario-movimientos-header-info">
+      <div class="inventario-movimientos-header-dato">
+        <span>Almacén actual</span>
+        <strong>Almacén Central</strong>
+      </div>
+
+      <div class="inventario-movimientos-header-dato">
+        <span>Última consulta</span>
+        <strong id="movimientos-ultima-consulta">—</strong>
+      </div>
+    </div>
+  </header>
+
+  <div
+    id="movimientos-estado-cargando"
+    class="inventario-movimientos-estado"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Consultando movimientos...
+  </div>
+
+  <section
+    class="inventario-movimientos-resumen"
+    aria-label="Resumen de movimientos"
+  >
+    <article class="card inventario-movimientos-resumen-card">
+      <span>Total de movimientos</span>
+      <strong id="movimientos-total">0</strong>
+    </article>
+
+    <article
+      class="card inventario-movimientos-resumen-card inventario-movimientos-resumen-entradas"
+    >
+      <span>Entradas</span>
+      <strong id="movimientos-total-entradas">0</strong>
+    </article>
+
+    <article
+      class="card inventario-movimientos-resumen-card inventario-movimientos-resumen-salidas"
+    >
+      <span>Salidas</span>
+      <strong id="movimientos-total-salidas">0</strong>
+    </article>
+
+    <article
+      class="card inventario-movimientos-resumen-card inventario-movimientos-resumen-ajustes"
+    >
+      <span>Ajustes</span>
+      <strong id="movimientos-total-ajustes">0</strong>
+    </article>
+  </section>
+
+  <form
+    id="movimientos-form-filtros"
+    class="inventario-form inventario-movimientos-filtros"
+    novalidate
+  >
+    <div class="inventario-movimientos-filtros-grid">
+      <div class="form-field">
+        <label for="movimientos-fecha-desde">
+          Fecha desde
+        </label>
+        <input
+          id="movimientos-fecha-desde"
+          type="date"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="movimientos-fecha-hasta">
+          Fecha hasta
+        </label>
+        <input
+          id="movimientos-fecha-hasta"
+          type="date"
+        >
+      </div>
+
+      <div class="form-field inventario-movimientos-busqueda">
+        <label for="movimientos-busqueda">
+          Buscar
+        </label>
+        <input
+          id="movimientos-busqueda"
+          type="search"
+          autocomplete="off"
+          placeholder="Folio, código o nombre del producto"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="movimientos-tipo">
+          Tipo de movimiento
+        </label>
+        <select id="movimientos-tipo">
+          <option value="">Todos</option>
+          <option value="ENTRADA">Entrada</option>
+          <option value="SALIDA">Salida</option>
+          <option value="AJUSTE">Ajuste</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="movimientos-origen">
+          Origen
+        </label>
+        <select id="movimientos-origen">
+          <option value="">Todos</option>
+          <option value="CARGA_INICIAL">Carga inicial</option>
+          <option value="REINGRESO">Reingreso</option>
+          <option value="ORDEN_SERVICIO">Orden de Servicio</option>
+          <option value="CORTE_FISICO">Corte físico</option>
+          <option value="SOPORTE_ADMINISTRADOR">
+            Soporte del Administrador
+          </option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="movimientos-usuario">
+          Usuario responsable
+        </label>
+        <select id="movimientos-usuario">
+          <option value="">Todos</option>
+        </select>
+      </div>
+
+      <div class="form-field inventario-movimientos-referencia">
+        <label for="movimientos-referencia">
+          Referencia
+        </label>
+        <input
+          id="movimientos-referencia"
+          type="search"
+          autocomplete="off"
+          placeholder="Orden de Servicio o Corte físico"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="movimientos-sentido">
+          Sentido
+        </label>
+        <select id="movimientos-sentido">
+          <option value="">Todos</option>
+          <option value="INCREMENTO">Incremento</option>
+          <option value="DECREMENTO">Decremento</option>
+        </select>
+      </div>
+    </div>
+
+    <p
+      id="movimientos-filtro-contexto"
+      class="inventario-movimientos-contexto"
+      role="status"
+      hidden
+    ></p>
+
+    <div class="inventario-form-actions">
+      <button
+        id="btn-movimientos-limpiar"
+        type="button"
+        class="button-secondary"
+      >
+        Limpiar
+      </button>
+
+      <button
+        id="btn-movimientos-buscar"
+        type="submit"
+      >
+        Buscar
+      </button>
+    </div>
+  </form>
+
+  <section
+    id="movimientos-estado-error"
+    class="inventario-message inventario-message-error"
+    role="alert"
+    hidden
+  >
+    <span id="movimientos-error-mensaje">
+      No fue posible consultar el historial de movimientos.
+    </span>
+
+    <button
+      id="btn-movimientos-reintentar"
+      type="button"
+      class="inventario-movimientos-reintentar"
+    >
+      Reintentar
+    </button>
+  </section>
+
+  <section
+    id="movimientos-estado-vacio"
+    class="card inventario-movimientos-vacio"
+    role="status"
+    hidden
+  >
+    <strong>Sin resultados</strong>
+    <p id="movimientos-vacio-mensaje">
+      No hay movimientos con los filtros seleccionados.
+    </p>
+  </section>
+
+  <section
+    id="movimientos-resultados-contenido"
+    class="inventario-list inventario-movimientos-resultados"
+  >
+    <div class="card inventario-movimientos-tabla">
+      <div class="table-responsive inventario-movimientos-tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Fecha y hora</th>
+              <th scope="col">Folio</th>
+              <th scope="col">Producto</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Origen</th>
+              <th scope="col">Cantidad / sentido</th>
+              <th scope="col">Existencia resultante</th>
+              <th scope="col">Referencia</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Acción</th>
+            </tr>
+          </thead>
+
+          <tbody id="movimientos-tbody"></tbody>
+        </table>
+      </div>
+
+      <div
+        id="movimientos-cards"
+        class="inventario-movimientos-cards"
+        aria-label="Movimientos"
+      ></div>
+    </div>
+
+    <footer class="inventario-movimientos-paginacion">
+      <span id="movimientos-resultados">0 movimientos</span>
+
+      <div class="inventario-movimientos-paginacion-controles">
+        <button
+          id="btn-movimientos-anterior"
+          type="button"
+          class="button-secondary"
+          disabled
+        >
+          Anterior
+        </button>
+
+        <span id="movimientos-pagina">1 de 1</span>
+
+        <button
+          id="btn-movimientos-siguiente"
+          type="button"
+          class="button-secondary"
+          disabled
+        >
+          Siguiente
+        </button>
+      </div>
+    </footer>
+  </section>
+
+  <dialog
+    id="movimientos-dialog"
+    class="inventario-movimientos-dialog"
+    aria-labelledby="movimientos-dialog-titulo"
+  >
+    <header class="inventario-movimientos-dialog-header">
+      <div>
+        <h2 id="movimientos-dialog-titulo">
+          Detalle del movimiento
+        </h2>
+        <p>Información histórica de solo lectura.</p>
+      </div>
+
+      <button
+        id="btn-movimientos-cerrar-detalle"
+        type="button"
+        class="button-secondary"
+        aria-label="Cerrar detalle del movimiento"
+      >
+        Cerrar
+      </button>
+    </header>
+
+    <div class="inventario-movimientos-dialog-contenido">
+      <section class="inventario-movimientos-detalle-seccion">
+        <h3>Identificación</h3>
+
+        <dl class="inventario-movimientos-detalle-grid">
+          <div>
+            <dt>Identificador</dt>
+            <dd id="movimientos-detalle-id">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Folio</dt>
+            <dd id="movimientos-detalle-folio">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Tipo</dt>
+            <dd id="movimientos-detalle-tipo">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Fecha y hora</dt>
+            <dd id="movimientos-detalle-fecha">No disponible</dd>
+          </div>
+
+          <div>
+            <dt>Usuario responsable</dt>
+            <dd id="movimientos-detalle-usuario">No disponible</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="inventario-movimientos-detalle-seccion">
+        <h3>Producto</h3>
+
+        <div class="inventario-movimientos-detalle-producto">
+          <div class="inventario-movimientos-detalle-imagen">
+            <img
+              id="movimientos-detalle-producto-imagen"
+              alt=""
+              hidden
+            >
+
+            <span
+              id="movimientos-detalle-producto-placeholder"
+              aria-hidden="true"
+            >
+              Sin imagen
+            </span>
+          </div>
+
+          <dl class="inventario-movimientos-detalle-grid">
+            <div>
+              <dt>Identificador</dt>
+              <dd id="movimientos-detalle-producto-id">
+                No disponible
+              </dd>
+            </div>
+
+            <div>
+              <dt>Código</dt>
+              <dd id="movimientos-detalle-producto-codigo">
+                No disponible
+              </dd>
+            </div>
+
+            <div>
+              <dt>Nombre</dt>
+              <dd id="movimientos-detalle-producto-nombre">
+                No disponible
+              </dd>
+            </div>
+
+            <div>
+              <dt>Unidad de medida</dt>
+              <dd id="movimientos-detalle-producto-unidad">
+                No disponible
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="inventario-movimientos-detalle-seccion">
+        <h3>Almacén</h3>
+
+        <dl class="inventario-movimientos-detalle-grid">
+          <div>
+            <dt>Identificador</dt>
+            <dd id="movimientos-detalle-almacen-id">
+              No disponible
+            </dd>
+          </div>
+
+          <div>
+            <dt>Nombre</dt>
+            <dd id="movimientos-detalle-almacen">
+              No disponible
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="inventario-movimientos-detalle-seccion">
+        <h3>Cantidades</h3>
+
+        <dl class="inventario-movimientos-detalle-grid">
+          <div>
+            <dt>Cantidad del movimiento</dt>
+            <dd id="movimientos-detalle-cantidad">
+              No disponible
+            </dd>
+          </div>
+
+          <div>
+            <dt>Sentido</dt>
+            <dd id="movimientos-detalle-sentido">
+              No disponible
+            </dd>
+          </div>
+
+          <div>
+            <dt>Existencia anterior</dt>
+            <dd id="movimientos-detalle-existencia-anterior">
+              No disponible
+            </dd>
+          </div>
+
+          <div>
+            <dt>Existencia resultante</dt>
+            <dd id="movimientos-detalle-existencia-resultante">
+              No disponible
+            </dd>
+          </div>
+
+          <div>
+            <dt>Cantidad reservada</dt>
+            <dd id="movimientos-detalle-reservada">
+              No disponible
+            </dd>
+          </div>
+
+          <div>
+            <dt>Disponibilidad resultante</dt>
+            <dd id="movimientos-detalle-disponibilidad">
+              No disponible
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="inventario-movimientos-detalle-seccion">
+        <h3>Origen y referencia</h3>
+
+        <dl class="inventario-movimientos-detalle-grid">
+          <div>
+            <dt>Origen o motivo</dt>
+            <dd id="movimientos-detalle-origen">
+              No disponible
+            </dd>
+          </div>
+
+          <div>
+            <dt>Orden de Servicio</dt>
+            <dd id="movimientos-detalle-orden">
+              Sin referencia
+            </dd>
+          </div>
+
+          <div>
+            <dt>Corte físico</dt>
+            <dd id="movimientos-detalle-corte">
+              Sin referencia
+            </dd>
+          </div>
+
+          <div class="inventario-movimientos-detalle-ancho">
+            <dt>Comentario</dt>
+            <dd id="movimientos-detalle-comentario">
+              No disponible
+            </dd>
+          </div>
+
+          <div class="inventario-movimientos-detalle-ancho">
+            <dt>Observaciones</dt>
+            <dd id="movimientos-detalle-observaciones">
+              No disponible
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </div>
+  </dialog>
 </section>
 
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/movimientos.js';
+
+  init();
+</script>

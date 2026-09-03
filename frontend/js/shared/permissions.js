@@ -94,6 +94,7 @@ export const ROLE_PERMISSIONS = {
     'inventario.disponibilidad.consultar',
     'inventario.reservas.consultar',
     'inventario.alertas.consultar',
+    'inventario.movimientos.consultar',
 
     'ordenes.consultar',
 
@@ -146,6 +147,7 @@ export const ROLE_PERMISSIONS = {
     'inventario.disponibilidad.consultar',
     'inventario.reservas.consultar',
     'inventario.alertas.consultar',
+    'inventario.movimientos.consultar',
 
     'cotizaciones.consultar',
     'cotizaciones.gestionar',
@@ -221,6 +223,7 @@ export const ROLE_PERMISSIONS = {
 
     'inventario.consultar',
     'inventario.alertas.consultar',
+    'inventario.movimientos.consultar',
 
     'cotizaciones.consultar',
 

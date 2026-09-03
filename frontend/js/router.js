@@ -265,7 +265,7 @@ const routePermissions = {
     'inventario.consultar',
 
   '#/inventario/movimientos':
-    'inventario.consultar',
+  'inventario.movimientos.consultar',
 
   '#/inventario/registro-entrada':
     'inventario.gestionar',
