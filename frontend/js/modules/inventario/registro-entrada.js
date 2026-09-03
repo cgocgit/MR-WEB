@@ -16,6 +16,7 @@ let ordenActual = null;
 
 let secuenciaProducto = 0;
 let secuenciaOrden = 0;
+let secuenciaMotivo = 0;
 
 let procesandoRegistro = false;
 
@@ -549,6 +550,9 @@ async function cargarReingresos() {
 async function cambiarMotivo() {
   limpiarFeedback();
 
+  const solicitudActual =
+    ++secuenciaMotivo;
+
   const motivo =
     elemento(
       'entrada-motivo'
@@ -568,8 +572,31 @@ async function cambiarMotivo() {
     seccionOrden.hidden = true;
 
     try {
-      await cargarCargaInicial();
+      const productos =
+        await listarProductosEntrada();
+
+      if (
+        solicitudActual !==
+        secuenciaMotivo
+      ) {
+        return;
+      }
+
+      llenarProductos(productos);
+
+      if (productos.length === 0) {
+        mostrarError(
+          'No existen productos activos disponibles.'
+        );
+      }
     } catch (error) {
+      if (
+        solicitudActual !==
+        secuenciaMotivo
+      ) {
+        return;
+      }
+
       mostrarError(
         error.message ||
           'No fue posible cargar los productos.'
@@ -583,8 +610,31 @@ async function cambiarMotivo() {
     seccionOrden.hidden = false;
 
     try {
-      await cargarReingresos();
+      const ordenes =
+        await listarOrdenesReingreso();
+
+      if (
+        solicitudActual !==
+        secuenciaMotivo
+      ) {
+        return;
+      }
+
+      llenarOrdenes(ordenes);
+
+      if (ordenes.length === 0) {
+        mostrarError(
+          'No existen recolecciones disponibles para reingreso.'
+        );
+      }
     } catch (error) {
+      if (
+        solicitudActual !==
+        secuenciaMotivo
+      ) {
+        return;
+      }
+
       mostrarError(
         error.message ||
           'No fue posible cargar las órdenes.'
@@ -835,6 +885,7 @@ function solicitarRegistro(evento) {
 }
 
 function limpiarPantalla() {
+  ++secuenciaMotivo;
   ++secuenciaOrden;
   ++secuenciaProducto;
 
