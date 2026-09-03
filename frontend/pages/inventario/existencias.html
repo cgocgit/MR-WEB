@@ -77,6 +77,25 @@
   >
     <div class="inventario-existencias-filtros-grid">
       <div class="form-field">
+        <label for="existencias-estado">
+          Estado
+        </label>
+
+        <select id="existencias-estado">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="ACTIVO">
+            Activo
+          </option>
+
+          <option value="INACTIVO">
+            Inactivo
+          </option>
+        </select>
+      </div>
+      <div class="form-field">
         <label for="existencias-busqueda">
           Buscar producto
         </label>
@@ -152,6 +171,13 @@
         </label>
       </div>
     </div>
+
+    <button
+      id="btn-existencias-buscar"
+      type="button"
+    >
+      Buscar
+    </button>
 
     <div class="inventario-form-actions">
       <button

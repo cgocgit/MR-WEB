@@ -193,6 +193,24 @@ function esLimiteInventarioValido(valor) {
 function obtenerExistenciaConsolidada(
   idProducto
 ) {
+  const cantidadReservada =
+  RESERVAS_FUTURAS_MOCK
+    .filter(
+      reserva =>
+        reserva.idProducto === idProducto &&
+        reserva.estado === 'CONFIRMADA'
+    )
+    .reduce(
+      (total, reserva) =>
+        total +
+        Number(
+          reserva.cantidad ||
+          reserva.cantidadReservada ||
+          0
+        ),
+      0
+    );
+
   const registros =
     DISPONIBILIDAD_ALMACEN_MOCK
       .filter(
@@ -225,11 +243,11 @@ function obtenerExistenciaConsolidada(
     );
 
   const cantidadDisponible =
-    Math.max(
-      0,
-      consolidado.cantidadRegistrada -
-      consolidado.cantidadReservada
-    );
+  Math.max(
+    0,
+    consolidado.cantidadRegistrada -
+    cantidadReservada
+  );
 
   const fechas =
     registros
@@ -255,6 +273,16 @@ function obtenerExistenciaConsolidada(
       consolidado.cantidadReservada,
 
     cantidadDisponible,
+
+    idAlmacen:
+      registros.length > 0
+        ? registros[0].idAlmacen
+        : null,
+
+    almacen:
+      registros.length > 0
+        ? registros[0].almacen
+        : null,
 
     fechaActualizacion:
       fechas.length > 0
@@ -474,6 +502,16 @@ function construirExistenciaProducto(
       nivel.nivel ===
         'SOBRE_MAXIMO',
 
+    idAlmacen:
+      existencia.idAlmacen,
+
+    almacen:
+      existencia.almacen,
+
+    reservaInconsistente:
+      existencia.cantidadReservada >
+      existencia.cantidadRegistrada,
+
     fechaActualizacion:
       existencia.fechaActualizacion
   };
@@ -569,6 +607,9 @@ export async function consultarExistenciasInventario(
         ).includes(texto) ||
         normalizarTextoExistencias(
           item.nombre
+        ).includes(texto) ||
+        normalizarTextoExistencias(
+          item.descripcion
         ).includes(texto)
       );
   }

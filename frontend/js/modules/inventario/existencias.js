@@ -205,6 +205,16 @@ function cargarContextoInicial() {
  * con el estado interno.
  */
 function sincronizarControles() {
+  const estadoProducto =
+  elemento(
+    'existencias-estado'
+  );
+
+  if (estadoProducto) {
+    estadoProducto.value =
+      estado.estadoProducto;
+  }
+
   const busqueda =
     elemento(
       'existencias-busqueda'
@@ -1123,6 +1133,9 @@ function filtrosConsulta() {
     skip:
       estado.skip,
 
+    estadoProducto:
+      estado.estadoProducto,
+
     limit:
       estado.limit
   };
@@ -1205,6 +1218,12 @@ async function cargarExistencias() {
  * Recupera filtros capturados.
  */
 function leerFiltros() {
+  estado.estadoProducto =
+  elemento(
+    'existencias-estado'
+  )?.value ||
+  '';
+
   estado.texto =
     elemento(
       'existencias-busqueda'
@@ -1261,6 +1280,7 @@ function limpiarFiltros() {
     nivel: '',
     mostrarInactivos: false,
     idProducto: null,
+    estadoProducto: '',
     skip: 0
   };
 
@@ -1272,6 +1292,13 @@ function limpiarFiltros() {
  * Registra los eventos de pantalla.
  */
 function registrarEventos() {
+  elemento(
+    'btn-existencias-buscar'
+  )?.addEventListener(
+    'click',
+    aplicarFiltros
+  );
+  
   elemento(
     'btn-existencias-actualizar'
   )?.addEventListener(
