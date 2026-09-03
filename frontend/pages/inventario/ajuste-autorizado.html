@@ -1,0 +1,594 @@
+<section
+  id="ajuste-autorizado-page"
+  class="container inventario-ajuste"
+  aria-busy="false"
+>
+  <header class="inventario-ajuste-header">
+    <h1>Registro de ajuste autorizado</h1>
+
+    <p>
+      Corrige de forma excepcional la existencia física registrada
+      y conserva la trazabilidad del movimiento.
+    </p>
+  </header>
+
+  <div
+    id="ajuste-feedback"
+    class="inventario-ajuste-feedback"
+    role="alert"
+    aria-live="polite"
+  ></div>
+
+  <form
+    id="ajuste-form"
+    class="inventario-ajuste-form"
+    novalidate
+  >
+    <!-- DATOS DEL AJUSTE -->
+    <section class="card inventario-ajuste-card">
+      <h2>Datos del ajuste</h2>
+
+      <div class="inventario-ajuste-grid">
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-tipo">
+            Tipo de operación
+          </label>
+
+          <input
+            id="ajuste-tipo"
+            type="text"
+            value="Ajuste"
+            readonly
+          >
+        </div>
+
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-origen">
+            Origen del ajuste
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <select
+            id="ajuste-origen"
+            required
+          >
+            <option value="CORTE_FISICO">
+              Corte físico
+            </option>
+
+            <option
+              id="ajuste-origen-soporte"
+              value="SOPORTE_ADMINISTRADOR"
+              hidden
+            >
+              Soporte del Administrador
+            </option>
+          </select>
+        </div>
+
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-almacen">
+            Almacén
+          </label>
+
+          <input
+            id="ajuste-almacen"
+            type="text"
+            value="Almacén Central"
+            readonly
+          >
+        </div>
+
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-fecha">
+            Fecha y hora
+          </label>
+
+          <input
+            id="ajuste-fecha"
+            type="text"
+            readonly
+          >
+        </div>
+
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-usuario">
+            Usuario
+          </label>
+
+          <input
+            id="ajuste-usuario"
+            type="text"
+            readonly
+          >
+        </div>
+      </div>
+
+      <p class="inventario-ajuste-helper">
+        Los datos de trazabilidad no son editables.
+      </p>
+    </section>
+
+    <!-- CORTE FÍSICO -->
+    <section
+      id="ajuste-corte-section"
+      class="card inventario-ajuste-card"
+    >
+      <h2>Corte físico</h2>
+
+      <div class="inventario-ajuste-field">
+        <label for="ajuste-corte">
+          Corte físico
+          <span aria-hidden="true">*</span>
+        </label>
+
+        <select id="ajuste-corte">
+          <option value="">
+            Seleccione un corte
+          </option>
+        </select>
+      </div>
+
+      <div
+        id="ajuste-corte-resumen"
+        class="inventario-ajuste-corte-resumen"
+        hidden
+      >
+        <div>
+          <span>Folio</span>
+          <strong id="ajuste-corte-folio">—</strong>
+        </div>
+
+        <div>
+          <span>Fecha de realización</span>
+          <strong id="ajuste-corte-fecha">—</strong>
+        </div>
+
+        <div>
+          <span>Responsable</span>
+          <strong id="ajuste-corte-responsable">—</strong>
+        </div>
+
+        <div>
+          <span>Observaciones</span>
+          <strong id="ajuste-corte-observaciones">—</strong>
+        </div>
+      </div>
+
+      <div
+        id="ajuste-corte-producto-field"
+        class="inventario-ajuste-field"
+        hidden
+      >
+        <label for="ajuste-corte-producto">
+          Producto con diferencia
+          <span aria-hidden="true">*</span>
+        </label>
+
+        <select id="ajuste-corte-producto">
+          <option value="">
+            Seleccione un producto
+          </option>
+        </select>
+      </div>
+
+      <div
+        id="ajuste-corte-cantidades"
+        class="inventario-ajuste-metricas"
+        hidden
+      >
+        <div>
+          <span>Cantidad registrada</span>
+          <strong id="ajuste-corte-registrada">—</strong>
+        </div>
+
+        <div>
+          <span>Cantidad física</span>
+          <strong id="ajuste-corte-fisica">—</strong>
+        </div>
+
+        <div>
+          <span>Diferencia</span>
+          <strong id="ajuste-corte-diferencia">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOPORTE -->
+    <section
+      id="ajuste-soporte-section"
+      class="card inventario-ajuste-card"
+      hidden
+    >
+      <h2>Soporte del Administrador</h2>
+
+      <div class="inventario-ajuste-field">
+        <label for="ajuste-soporte-producto">
+          Producto
+          <span aria-hidden="true">*</span>
+        </label>
+
+        <select id="ajuste-soporte-producto">
+          <option value="">
+            Seleccione un producto
+          </option>
+        </select>
+      </div>
+
+      <p class="inventario-ajuste-helper">
+        Este origen está disponible exclusivamente para el
+        Administrador.
+      </p>
+    </section>
+
+    <!-- PRODUCTO -->
+    <section
+      id="ajuste-producto-section"
+      class="card inventario-ajuste-card"
+      hidden
+    >
+      <h2>Producto</h2>
+
+      <div class="inventario-ajuste-producto">
+        <div class="inventario-ajuste-producto-imagen">
+          <img
+            id="ajuste-producto-imagen"
+            alt=""
+            hidden
+          >
+
+          <span
+            id="ajuste-producto-placeholder"
+            aria-hidden="true"
+          >
+            Sin imagen
+          </span>
+        </div>
+
+        <dl class="inventario-ajuste-producto-datos">
+          <div>
+            <dt>Código</dt>
+            <dd id="ajuste-producto-codigo">—</dd>
+          </div>
+
+          <div>
+            <dt>Nombre</dt>
+            <dd id="ajuste-producto-nombre">—</dd>
+          </div>
+
+          <div>
+            <dt>Unidad de medida</dt>
+            <dd id="ajuste-producto-unidad">—</dd>
+          </div>
+
+          <div>
+            <dt>Estado</dt>
+            <dd id="ajuste-producto-estado">—</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- EXISTENCIA -->
+    <section
+      id="ajuste-existencia-section"
+      class="card inventario-ajuste-card"
+      hidden
+    >
+      <h2>Existencia actual</h2>
+
+      <div class="inventario-ajuste-metricas">
+        <div>
+          <span>Existencia física vigente</span>
+          <strong id="ajuste-existencia">—</strong>
+        </div>
+
+        <div>
+          <span>Cantidad reservada</span>
+          <strong id="ajuste-reservada">—</strong>
+        </div>
+
+        <div>
+          <span>Disponibilidad</span>
+          <strong id="ajuste-disponible">—</strong>
+        </div>
+
+        <div>
+          <span>Mínimo</span>
+          <strong id="ajuste-minimo">—</strong>
+        </div>
+
+        <div>
+          <span>Máximo</span>
+          <strong id="ajuste-maximo">—</strong>
+        </div>
+
+        <div>
+          <span>Última actualización</span>
+          <strong id="ajuste-actualizacion">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- AJUSTE -->
+    <section
+      id="ajuste-captura-section"
+      class="card inventario-ajuste-card"
+      hidden
+    >
+      <h2>Ajuste</h2>
+
+      <div class="inventario-ajuste-grid">
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-cantidad">
+            Cantidad física corregida
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <input
+            id="ajuste-cantidad"
+            type="number"
+            min="0"
+            step="1"
+            inputmode="numeric"
+          >
+        </div>
+
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-diferencia">
+            Diferencia calculada
+          </label>
+
+          <input
+            id="ajuste-diferencia"
+            type="text"
+            readonly
+          >
+        </div>
+
+        <div class="inventario-ajuste-field">
+          <label for="ajuste-sentido">
+            Sentido del ajuste
+          </label>
+
+          <input
+            id="ajuste-sentido"
+            type="text"
+            readonly
+          >
+        </div>
+      </div>
+
+      <div class="inventario-ajuste-field">
+        <label for="ajuste-comentario">
+          Comentario
+          <span aria-hidden="true">*</span>
+        </label>
+
+        <textarea
+          id="ajuste-comentario"
+          rows="4"
+          required
+        ></textarea>
+      </div>
+    </section>
+
+    <!-- PROYECCIÓN -->
+    <section
+      id="ajuste-proyeccion-section"
+      class="card inventario-ajuste-card"
+      hidden
+    >
+      <h2>Proyección del ajuste</h2>
+
+      <div class="inventario-ajuste-proyeccion">
+        <div>
+          <span>Existencia anterior</span>
+          <strong id="ajuste-proyeccion-anterior">—</strong>
+        </div>
+
+        <span
+          class="inventario-ajuste-operador"
+          aria-hidden="true"
+        >
+          +
+        </span>
+
+        <div>
+          <span>Diferencia</span>
+          <strong id="ajuste-proyeccion-diferencia">—</strong>
+        </div>
+
+        <span
+          class="inventario-ajuste-operador"
+          aria-hidden="true"
+        >
+          =
+        </span>
+
+        <div>
+          <span>Existencia resultante</span>
+          <strong id="ajuste-proyeccion-resultante">—</strong>
+        </div>
+
+        <div>
+          <span>Reserva vigente</span>
+          <strong id="ajuste-proyeccion-reserva">—</strong>
+        </div>
+
+        <div>
+          <span>Disponibilidad resultante</span>
+          <strong id="ajuste-proyeccion-disponible">—</strong>
+        </div>
+      </div>
+
+      <div
+        id="ajuste-advertencia-minimo"
+        class="inventario-ajuste-advertencia"
+        role="status"
+        hidden
+      ></div>
+
+      <div
+        id="ajuste-advertencia-maximo"
+        class="inventario-ajuste-advertencia"
+        role="status"
+        hidden
+      ></div>
+
+      <div
+        id="ajuste-advertencia-reserva"
+        class="
+          inventario-ajuste-advertencia
+          inventario-ajuste-advertencia-critica
+        "
+        role="alert"
+        hidden
+      ></div>
+    </section>
+
+    <!-- RESULTADO -->
+    <section
+      id="ajuste-resultado"
+      class="
+        card
+        inventario-ajuste-resultado
+      "
+      aria-live="polite"
+      hidden
+    >
+      <h2>Ajuste registrado</h2>
+
+      <div class="inventario-ajuste-metricas">
+        <div>
+          <span>Folio del movimiento</span>
+          <strong id="ajuste-resultado-folio">—</strong>
+        </div>
+
+        <div>
+          <span>Existencia anterior</span>
+          <strong id="ajuste-resultado-anterior">—</strong>
+        </div>
+
+        <div>
+          <span>Diferencia</span>
+          <strong id="ajuste-resultado-diferencia">—</strong>
+        </div>
+
+        <div>
+          <span>Existencia resultante</span>
+          <strong id="ajuste-resultado-existencia">—</strong>
+        </div>
+
+        <div>
+          <span>Reserva conservada</span>
+          <strong id="ajuste-resultado-reserva">—</strong>
+        </div>
+
+        <div>
+          <span>Disponibilidad resultante</span>
+          <strong id="ajuste-resultado-disponible">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACCIONES -->
+    <div class="inventario-ajuste-actions">
+      <button
+        id="ajuste-limpiar"
+        type="button"
+        class="btn-secondary"
+      >
+        Limpiar
+      </button>
+
+      <button
+        id="ajuste-cancelar"
+        type="button"
+        class="btn-secondary"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="ajuste-registrar"
+        type="submit"
+        disabled
+      >
+        Registrar ajuste
+      </button>
+    </div>
+  </form>
+
+  <!-- CONFIRMACIÓN -->
+  <dialog
+    id="ajuste-confirmacion"
+    class="inventario-ajuste-dialog"
+  >
+    <form method="dialog">
+      <h2>Confirmar ajuste</h2>
+
+      <p>
+        Revise la información antes de registrar
+        definitivamente el ajuste.
+      </p>
+
+      <dl class="inventario-ajuste-confirmacion-datos">
+        <div>
+          <dt>Origen</dt>
+          <dd id="ajuste-confirmacion-origen">—</dd>
+        </div>
+
+        <div>
+          <dt>Producto</dt>
+          <dd id="ajuste-confirmacion-producto">—</dd>
+        </div>
+
+        <div>
+          <dt>Existencia anterior</dt>
+          <dd id="ajuste-confirmacion-anterior">—</dd>
+        </div>
+
+        <div>
+          <dt>Cantidad física corregida</dt>
+          <dd id="ajuste-confirmacion-cantidad">—</dd>
+        </div>
+
+        <div>
+          <dt>Diferencia</dt>
+          <dd id="ajuste-confirmacion-diferencia">—</dd>
+        </div>
+
+        <div>
+          <dt>Disponibilidad resultante</dt>
+          <dd id="ajuste-confirmacion-disponible">—</dd>
+        </div>
+      </dl>
+
+      <div class="inventario-ajuste-dialog-actions">
+        <button
+          id="ajuste-confirmacion-cancelar"
+          type="button"
+          class="btn-secondary"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="ajuste-confirmacion-aceptar"
+          type="button"
+        >
+          Confirmar ajuste
+        </button>
+      </div>
+    </form>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/ajuste-autorizado.js';
+
+  init();
+</script>
