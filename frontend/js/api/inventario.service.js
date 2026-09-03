@@ -218,8 +218,12 @@ function obtenerExistenciaConsolidada(
         reserva =>
           reserva.idProducto ===
             idProducto &&
-          reserva.estado ===
-            'CONFIRMADA'
+          (
+            reserva.estado ===
+              'CONFIRMADA' ||
+            reserva.estado ===
+              'ACTIVA'
+          )
       )
       .reduce(
         (total, reserva) =>

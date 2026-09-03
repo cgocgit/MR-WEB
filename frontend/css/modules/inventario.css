@@ -997,7 +997,7 @@
 
 
 /* ============================================
-   Detalle provisional de existencia
+   Detalle de existencia por producto
    ============================================ */
 
 .inventario-existencia-detalle {
@@ -1006,9 +1006,34 @@
   gap: 16px;
 }
 
-.inventario-existencia-detalle-producto {
+.inventario-existencia-detalle-actualizacion {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.inventario-existencia-detalle-actualizacion strong {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.inventario-existencia-detalle-superior {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(280px, 1fr);
+  gap: 16px;
+}
+
+.inventario-existencia-detalle-producto {
+  display: grid;
+  grid-template-columns:
+    120px minmax(0, 1fr);
+  align-items: start;
   gap: 20px;
 }
 
@@ -1016,16 +1041,39 @@
   width: 120px;
   height: 120px;
 
-  flex: 0 0 120px;
-
+  border: 1px solid #e6e6e6;
   border-radius: var(--radius);
+
+  background: var(--bg);
 
   object-fit: cover;
 }
 
-.inventario-existencia-detalle-codigo {
+.inventario-existencia-detalle-imagen-vacia {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   color: var(--muted);
   font-size: 0.8rem;
+  text-align: center;
+}
+
+.inventario-existencia-detalle-producto-info {
+  min-width: 0;
+}
+
+.inventario-existencia-detalle-producto-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inventario-existencia-detalle-codigo {
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 .inventario-existencia-detalle-producto h2 {
@@ -1035,44 +1083,265 @@
 
 .inventario-existencia-detalle-producto p {
   margin: 0;
-
   color: var(--muted);
+}
+
+.inventario-existencia-detalle-producto-datos {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+
+  margin-top: 16px;
+}
+
+.inventario-existencia-detalle-producto-datos div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.inventario-existencia-detalle-producto-datos dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.inventario-existencia-detalle-producto-datos dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.inventario-existencia-detalle-estado-producto,
+.inventario-existencia-detalle-condicion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.inventario-existencia-detalle-estado-activo,
+.inventario-existencia-detalle-condicion-correcta {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.inventario-existencia-detalle-estado-inactivo,
+.inventario-existencia-detalle-condicion-neutra {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+.inventario-existencia-detalle-condicion-peligro {
+  background: #fef2f2;
+  color: var(--danger);
+}
+
+.inventario-existencia-detalle-condicion-advertencia {
+  background: #fff8e6;
+  color: #92400e;
 }
 
 .inventario-existencia-detalle-seccion {
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  min-width: 0;
 }
 
 .inventario-existencia-detalle-seccion h2 {
   margin: 0;
-
   font-size: 1.1rem;
 }
 
-.inventario-existencia-detalle-grid {
+.inventario-existencia-detalle-seccion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.inventario-existencia-detalle-link {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.inventario-existencia-detalle-link:hover,
+.inventario-existencia-detalle-link:focus-visible {
+  text-decoration: underline;
+}
+
+.inventario-existencia-detalle-lista-datos {
+  display: flex;
+  flex-direction: column;
+}
+
+.inventario-existencia-detalle-lista-datos > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.inventario-existencia-detalle-lista-datos > div:last-child {
+  border-bottom: 0;
+}
+
+.inventario-existencia-detalle-lista-datos span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.inventario-existencia-detalle-resumen {
   display: grid;
   grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+    repeat(
+      auto-fit,
+      minmax(150px, 1fr)
+    );
+  gap: 12px;
+}
+
+.inventario-existencia-detalle-resumen-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 92px;
+}
+
+.inventario-existencia-detalle-resumen-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.inventario-existencia-detalle-resumen-card > strong {
+  font-size: 1.4rem;
+}
+
+.inventario-existencia-detalle-resumen-comprometida > strong {
+  color: #b45309;
+}
+
+.inventario-existencia-detalle-resumen-disponible > strong {
+  color: #15803d;
+}
+
+.inventario-existencia-detalle-contenido {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(280px, 1fr);
+  gap: 16px;
+
+  align-items: start;
+}
+
+.inventario-existencia-detalle-lateral {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-.inventario-existencia-detalle-dato {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.inventario-existencia-detalle-seccion-contenido {
+  min-width: 0;
 }
 
-.inventario-existencia-detalle-dato span {
+.inventario-existencia-detalle-tabla-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.inventario-existencia-detalle-tabla-wrap table {
+  width: 100%;
+  min-width: 620px;
+
+  border-collapse: collapse;
+}
+
+.inventario-existencia-detalle-tabla-wrap th,
+.inventario-existencia-detalle-tabla-wrap td {
+  padding: 10px;
+
+  border-bottom: 1px solid #e6e6e6;
+
+  text-align: left;
+  vertical-align: middle;
+}
+
+.inventario-existencia-detalle-tabla-wrap thead th {
+  background: var(--bg);
+
   color: var(--muted);
   font-size: 0.8rem;
 }
 
-.inventario-existencia-detalle-acciones {
-  justify-content: flex-end;
+.inventario-existencia-detalle-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding-top: 12px;
+
+  font-weight: 700;
 }
 
+.inventario-existencia-detalle-total span {
+  color: var(--muted);
+}
+
+.inventario-existencia-detalle-nota {
+  margin-bottom: 0;
+
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.inventario-existencia-detalle-alerta-vacia {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 12px;
+
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius);
+
+  background: #ecfdf5;
+}
+
+.inventario-existencia-detalle-alerta-vacia span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.inventario-existencia-detalle-alerta-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inventario-existencia-detalle-acciones {
+  justify-content: flex-start;
+  margin-top: 0;
+}
 
 /* ============================================
    Responsive Consulta de existencias
@@ -1084,9 +1353,9 @@
       repeat(2, minmax(0, 1fr));
   }
 
-  .inventario-existencia-detalle-grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+  .inventario-existencia-detalle-superior,
+  .inventario-existencia-detalle-contenido {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1145,9 +1414,13 @@
     min-height: 44px;
   }
 
-  .inventario-existencia-detalle-producto {
+  .inventario-existencia-detalle-actualizacion {
+    width: 100%;
     align-items: flex-start;
-    flex-direction: column;
+  }
+
+  .inventario-existencia-detalle-producto {
+    grid-template-columns: 1fr;
   }
 
   .inventario-existencia-detalle-imagen {
@@ -1156,8 +1429,22 @@
     max-height: 240px;
   }
 
-  .inventario-existencia-detalle-grid {
+  .inventario-existencia-detalle-producto-cabecera {
+    flex-direction: column;
+  }
+
+  .inventario-existencia-detalle-producto-datos {
     grid-template-columns: 1fr;
+  }
+
+  .inventario-existencia-detalle-resumen {
+    grid-template-columns: 1fr;
+  }
+
+  .inventario-existencia-detalle-lista-datos > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
   }
 
   .inventario-existencia-detalle-acciones {

@@ -4,6 +4,7 @@ import {
 } from './shared/auth-guard.js';
 
 import {
+  hasAnyRole,
   hasPermission
 } from './shared/permissions.js';
 
@@ -265,7 +266,39 @@ const routePermissions = {
     'inventario.consultar',
 
   '#/inventario/existencias/detalle':
-    'inventario.consultar',
+  ({ query }) => {
+    const idProducto =
+      Number(
+        query.get(
+          'idProducto'
+        )
+      );
+
+    const idOrden =
+      Number(
+        query.get(
+          'idOrden'
+        )
+      );
+
+    const accesoTecnico =
+      Number.isInteger(
+        idProducto
+      ) &&
+      idProducto > 0 &&
+      Number.isInteger(
+        idOrden
+      ) &&
+      idOrden > 0 &&
+      hasAnyRole(
+        getSession(),
+        ['TECH']
+      );
+
+    return accesoTecnico
+      ? null
+      : 'inventario.consultar';
+  },
 
   '#/inventario/movimientos':
   'inventario.movimientos.consultar',

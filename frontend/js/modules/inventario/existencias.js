@@ -183,6 +183,18 @@ function cargarContextoInicial() {
   const parametros =
     parametrosHash();
 
+  estado = {
+    texto: '',
+    disponibilidad: '',
+    nivel: '',
+    estadoProducto: 'ACTIVO',
+    mostrarInactivos: false,
+    idProducto: null,
+    skip: 0,
+    limit: LIMITE_PAGINA,
+    datos: null
+  };
+
   const idProducto =
     Number(
       parametros.get(
@@ -198,6 +210,97 @@ function cargarContextoInicial() {
   ) {
     estado.idProducto =
       idProducto;
+  }
+
+  const texto =
+    parametros.get(
+      'texto'
+    );
+
+  if (texto !== null) {
+    estado.texto =
+      texto;
+  }
+
+  const disponibilidad =
+    parametros.get(
+      'disponibilidad'
+    );
+
+  if (
+    [
+      '',
+      'DISPONIBLE',
+      'NO_DISPONIBLE'
+    ].includes(
+      disponibilidad
+    )
+  ) {
+    estado.disponibilidad =
+      disponibilidad;
+  }
+
+  const nivel =
+    parametros.get(
+      'nivel'
+    );
+
+  if (
+    [
+      '',
+      'BAJO_MINIMO',
+      'EN_RANGO',
+      'SOBRE_MAXIMO',
+      'SIN_CONFIGURAR'
+    ].includes(nivel)
+  ) {
+    estado.nivel =
+      nivel;
+  }
+
+  const estadoProducto =
+    parametros.get(
+      'estadoProducto'
+    );
+
+  if (
+    [
+      'ACTIVO',
+      'INACTIVO'
+    ].includes(
+      estadoProducto
+    )
+  ) {
+    estado.estadoProducto =
+      estadoProducto;
+  }
+
+  const mostrarInactivos =
+    parametros.get(
+      'mostrarInactivos'
+    );
+
+  if (
+    mostrarInactivos !==
+    null
+  ) {
+    estado.mostrarInactivos =
+      mostrarInactivos ===
+      'true';
+  }
+
+  const skip =
+    Number(
+      parametros.get(
+        'skip'
+      )
+    );
+
+  if (
+    Number.isInteger(skip) &&
+    skip >= 0
+  ) {
+    estado.skip = skip;
   }
 }
 
@@ -648,8 +751,7 @@ function crearAcciones(item) {
   contenedor.appendChild(
     crearAccion(
       'Ver detalle',
-      '#/inventario/existencias/detalle' +
-        `?idProducto=${item.idProducto}`
+      construirRutaDetalle(item)
     )
   );
 
@@ -697,6 +799,74 @@ function crearAcciones(item) {
   }
 
   return contenedor;
+}
+
+function construirRutaDetalle(
+  item
+) {
+  const parametros =
+    new URLSearchParams();
+
+  parametros.set(
+    'idProducto',
+    String(
+      item.idProducto
+    )
+  );
+
+  if (estado.texto) {
+    parametros.set(
+      'texto',
+      estado.texto
+    );
+  }
+
+  if (
+    estado.disponibilidad
+  ) {
+    parametros.set(
+      'disponibilidad',
+      estado.disponibilidad
+    );
+  }
+
+  if (estado.nivel) {
+    parametros.set(
+      'nivel',
+      estado.nivel
+    );
+  }
+
+  if (
+    estado.estadoProducto
+  ) {
+    parametros.set(
+      'estadoProducto',
+      estado.estadoProducto
+    );
+  }
+
+  parametros.set(
+    'mostrarInactivos',
+    String(
+      estado.mostrarInactivos ===
+      true
+    )
+  );
+
+  if (estado.skip > 0) {
+    parametros.set(
+      'skip',
+      String(
+        estado.skip
+      )
+    );
+  }
+
+  return (
+    '#/inventario/existencias/detalle?' +
+    parametros.toString()
+  );
 }
 
 /**

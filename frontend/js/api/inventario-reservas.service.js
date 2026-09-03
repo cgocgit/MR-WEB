@@ -202,6 +202,32 @@ function validarAlmacen(valor) {
   return id;
 }
 
+function validarProducto(valor) {
+  if (
+    valor === '' ||
+    valor === null ||
+    valor === undefined
+  ) {
+    return null;
+  }
+
+  const id =
+    Number(valor);
+
+  if (
+    !Number.isInteger(id) ||
+    id <= 0
+  ) {
+    throw error(
+      'PRODUCTO_INVALIDO',
+      'El producto seleccionado no es válido.',
+      'idProducto'
+    );
+  }
+
+  return id;
+}
+
 function almacenesPorProducto() {
   const mapa =
     new Map();

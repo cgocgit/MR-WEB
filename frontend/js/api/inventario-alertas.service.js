@@ -263,7 +263,9 @@ function evaluarProducto(
  *
  * @returns {Promise<Object[]>}
  */
-async function obtenerAlertasBase() {
+async function obtenerAlertasBase(
+  idProducto = null
+) {
   const resultadoProductos =
     await listarProductos({
       soloActivos: true,
@@ -271,8 +273,25 @@ async function obtenerAlertasBase() {
       limit: 1000
     });
 
+  const idProductoFiltro =
+  Number(idProducto);
+
+  const filtrarProducto =
+    Number.isInteger(
+      idProductoFiltro
+    ) &&
+    idProductoFiltro > 0;
+
   const productos =
-    resultadoProductos.items ?? [];
+    (
+      resultadoProductos.items ??
+      []
+    ).filter(
+      producto =>
+        !filtrarProducto ||
+        producto.idProducto ===
+          idProductoFiltro
+    );
 
   const fechaEvaluacion =
     new Date().toISOString();
@@ -526,7 +545,9 @@ export async function consultarAlertasInventario(
   filtros = {}
 ) {
   const alertasBase =
-    await obtenerAlertasBase();
+    await obtenerAlertasBase(
+      filtros.idProducto
+    );
 
   /*
    * El resumen representa todas las alertas
