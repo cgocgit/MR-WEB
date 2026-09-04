@@ -345,6 +345,12 @@ const routePermissions = {
   '#/inventario/reservas':
     'inventario.reservas.consultar',
 
+  '#/inventario/limites':
+    'inventario.gestionar',
+
+  '#/inventario/disponibilidad-futura':
+    'inventario.disponibilidad.consultar',
+  
   // Cotizaciones
   '#/cotizaciones':
     'cotizaciones.consultar',
