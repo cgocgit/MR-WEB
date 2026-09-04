@@ -74,23 +74,20 @@ function puedeAbrirRetorno(
   session
 ) {
   if (
-    puede(
-      session,
-      PERMISOS.GESTIONAR
-    )
-  ) {
-    return true;
-  }
-
-  return (
     hasAnyRole(
       session,
       ['DIRECCION']
-    ) &&
-    puede(
+    )
+  ) {
+    return puede(
       session,
       PERMISOS.CONSULTAR
-    )
+    );
+  }
+
+  return puede(
+    session,
+    PERMISOS.GESTIONAR
   );
 }
 
