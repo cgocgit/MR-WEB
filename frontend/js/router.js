@@ -4,6 +4,7 @@ import {
 } from './shared/auth-guard.js';
 
 import {
+  hasAnyRole,
   hasPermission
 } from './shared/permissions.js';
 
@@ -72,24 +73,48 @@ const routes = {
 
   // Inventario
   '#/inventario':
-    'pages/inventario/existencias.html',
+    'pages/inventario/inicio.html',
 
   '#/inventario/existencias':
     'pages/inventario/existencias.html',
 
+  '#/inventario/existencias/detalle':
+    'pages/inventario/existencia-detalle.html',
+
   '#/inventario/movimientos':
     'pages/inventario/movimientos.html',
+
+  '#/inventario/registro-entrada':
+    'pages/inventario/registro-entrada.html',
+
+  '#/inventario/registro-salida':
+    'pages/inventario/registro-salida.html',
+
+  '#/inventario/registro-retorno':
+    'pages/inventario/registro-retorno.html',
 
   '#/inventario/alertas':
     'pages/inventario/alertas.html',
 
   '#/inventario/limites':
-    'pages/inventario/limites.html',
+  'pages/inventario/limites.html',
 
   '#/inventario/disponibilidad-futura':
     'pages/inventario/disponibilidad-futura.html',
 
-  // Cotizaciones
+  '#/inventario/cortes-fisicos':
+    'pages/inventario/cortes-fisicos.html',
+
+  '#/inventario/cortes-fisicos/detalle':
+    'pages/inventario/corte-fisico-detalle.html',
+
+    '#/inventario/ajuste-autorizado':
+    'pages/inventario/ajuste-autorizado.html',
+
+  '#/inventario/reservas':
+    'pages/inventario/reservas.html',
+
+   // Cotizaciones
   '#/cotizaciones':
     'pages/cotizaciones/lista.html',
 
@@ -246,11 +271,79 @@ const routePermissions = {
   '#/inventario/existencias':
     'inventario.consultar',
 
+  '#/inventario/existencias/detalle':
+  ({ query }) => {
+    const idProducto =
+      Number(
+        query.get(
+          'idProducto'
+        )
+      );
+
+    const idOrden =
+      Number(
+        query.get(
+          'idOrden'
+        )
+      );
+
+    const accesoTecnico =
+      Number.isInteger(
+        idProducto
+      ) &&
+      idProducto > 0 &&
+      Number.isInteger(
+        idOrden
+      ) &&
+      idOrden > 0 &&
+      hasAnyRole(
+        getSession(),
+        ['TECH']
+      );
+
+    return accesoTecnico
+      ? null
+      : 'inventario.consultar';
+  },
+
   '#/inventario/movimientos':
-    'inventario.consultar',
+  'inventario.movimientos.consultar',
+
+  '#/inventario/registro-entrada':
+    'inventario.gestionar',
+
+  '#/inventario/registro-salida':
+    'inventario.gestionar',
+
+  '#/inventario/registro-retorno':
+  () =>
+    hasAnyRole(
+      getSession(),
+      ['DIRECCION']
+    )
+      ? 'inventario.consultar'
+      : 'inventario.gestionar',
 
   '#/inventario/alertas':
-    'alertas.consultar',
+    'inventario.alertas.consultar',
+
+  '#/inventario/limites':
+  'inventario.gestionar',
+
+  '#/inventario/disponibilidad-futura':
+    'inventario.disponibilidad.consultar',
+
+  '#/inventario/cortes-fisicos':
+    'inventario.cortes.consultar',
+
+  '#/inventario/cortes-fisicos/detalle':
+    'inventario.cortes.consultar',
+  
+  '#/inventario/ajuste-autorizado':
+    'inventario.gestionar',
+
+  '#/inventario/reservas':
+    'inventario.reservas.consultar',
 
   '#/inventario/limites':
     'inventario.gestionar',

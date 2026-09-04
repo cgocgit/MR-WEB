@@ -1,13 +1,317 @@
-<section class="container inventario-list">
-  <h1>Existencias</h1>
-  <div id="existencias" class="card mt-12"></div>
-  <script type="module">
-    import { getExistencias } from './js/api/inventario.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await getExistencias();
-      renderTable(document.getElementById('existencias'), ['Producto','Almacen','Cantidad'], datos.map(d=>({producto:d.producto,almacen:d.almacen,cantidad:d.cantidad})));
-    })();
-  </script>
+<section
+  id="existencias-root"
+  class="container inventario-existencias"
+  aria-busy="true"
+>
+  <header class="inventario-page-header">
+    <div>
+      <h1>Consulta de existencias</h1>
+
+      <p class="inventario-page-description">
+        Consulta la existencia registrada, reservada,
+        disponible y los niveles configurados de los
+        productos inventariables.
+      </p>
+    </div>
+
+    <div class="inventario-existencias-header-actions">
+      <div class="inventario-existencias-actualizacion">
+        <span>Última actualización</span>
+
+        <strong id="existencias-ultima-actualizacion">
+          —
+        </strong>
+      </div>
+
+      <button
+        id="btn-existencias-actualizar"
+        type="button"
+      >
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  <!-- Accesos directos del módulo -->
+  <nav
+    class="inventario-existencias-accesos"
+    aria-label="Accesos de Inventario"
+  >
+    <a
+      href="#/inventario/disponibilidad-futura"
+      class="button button-secondary"
+      data-existencias-requiere-permiso="inventario.disponibilidad.consultar"
+    >
+      Disponibilidad futura
+    </a>
+
+    <a
+      href="#/inventario/cortes-fisicos"
+      class="button button-secondary"
+      data-existencias-requiere-permiso="inventario.cortes.consultar"
+    >
+      Cortes físicos
+    </a>
+
+    <a
+      href="#/inventario/alertas"
+      class="button button-secondary"
+      data-existencias-requiere-permiso="inventario.alertas.consultar"
+    >
+      Alertas
+    </a>
+
+    <a
+      href="#/inventario/limites"
+      class="button button-secondary"
+      data-existencias-requiere-permiso="inventario.gestionar"
+    >
+      Mínimos y máximos
+    </a>
+  </nav>
+
+  <!-- Filtros -->
+  <section
+    class="inventario-form inventario-existencias-filtros"
+    aria-label="Filtros de existencias"
+  >
+    <div class="inventario-existencias-filtros-grid">
+      <div class="form-field">
+        <label for="existencias-estado">
+          Estado
+        </label>
+
+        <select id="existencias-estado">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="ACTIVO">
+            Activo
+          </option>
+
+          <option value="INACTIVO">
+            Inactivo
+          </option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="existencias-busqueda">
+          Buscar producto
+        </label>
+
+        <input
+          id="existencias-busqueda"
+          type="search"
+          autocomplete="off"
+          placeholder="Código, nombre o descripción"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="existencias-disponibilidad">
+          Disponibilidad
+        </label>
+
+        <select id="existencias-disponibilidad">
+          <option value="">
+            Todas
+          </option>
+
+          <option value="DISPONIBLE">
+            Disponible
+          </option>
+
+          <option value="NO_DISPONIBLE">
+            No disponible
+          </option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="existencias-nivel">
+          Nivel
+        </label>
+
+        <select id="existencias-nivel">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="BAJO_MINIMO">
+            Bajo mínimo
+          </option>
+
+          <option value="EN_RANGO">
+            En rango
+          </option>
+
+          <option value="SOBRE_MAXIMO">
+            Sobre máximo
+          </option>
+
+          <option value="SIN_CONFIGURAR">
+            Sin configurar
+          </option>
+        </select>
+      </div>
+
+    <button
+      id="btn-existencias-buscar"
+      type="button"
+    >
+      Buscar
+    </button>
+
+    <div class="inventario-form-actions">
+      <button
+        id="btn-existencias-limpiar"
+        type="button"
+        class="button-secondary"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+  </section>
+
+  <!-- Estado de carga -->
+  <div
+    id="existencias-estado-cargando"
+    class="inventario-existencias-estado"
+    role="status"
+    hidden
+  >
+    Actualizando existencias...
+  </div>
+
+  <!-- Error -->
+  <div
+    id="existencias-estado-error"
+    class="
+      inventario-message
+      inventario-message-error
+    "
+    role="alert"
+    hidden
+  >
+    <span id="existencias-error-mensaje">
+      No fue posible consultar las existencias.
+    </span>
+
+    <button
+      id="btn-existencias-reintentar"
+      type="button"
+      class="inventario-existencias-reintentar"
+    >
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Sin resultados -->
+  <div
+    id="existencias-estado-vacio"
+    class="card inventario-existencias-vacio"
+    role="status"
+    hidden
+  >
+    No existen productos que coincidan con
+    los criterios seleccionados.
+  </div>
+
+  <!-- Resultados -->
+  <section
+    id="existencias-resultados-contenido"
+    class="
+      inventario-list
+      inventario-existencias-resultados
+    "
+  >
+    <!-- Tabla escritorio -->
+    <div class="card inventario-existencias-tabla">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+
+              <th>Unidad</th>
+
+              <th data-existencias-operativo>
+                Registrada
+              </th>
+
+              <th data-existencias-operativo>
+                Reservada
+              </th>
+
+              <th>Disponible</th>
+
+              <th data-existencias-operativo>
+                Mínimo
+              </th>
+
+              <th data-existencias-operativo>
+                Máximo
+              </th>
+
+              <th>Disponibilidad</th>
+
+              <th>Nivel</th>
+
+              <th data-existencias-operativo>
+                Actualización
+              </th>
+
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="existencias-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tarjetas móvil -->
+    <div
+      id="existencias-cards"
+      class="inventario-existencias-cards"
+    ></div>
+
+    <!-- Paginación -->
+    <footer class="inventario-existencias-paginacion">
+      <span id="existencias-resultados">
+        0 resultados
+      </span>
+
+      <div class="inventario-existencias-paginacion-controles">
+        <button
+          id="btn-existencias-anterior"
+          type="button"
+          class="button-secondary"
+        >
+          Anterior
+        </button>
+
+        <span id="existencias-pagina">
+          1 de 1
+        </span>
+
+        <button
+          id="btn-existencias-siguiente"
+          type="button"
+          class="button-secondary"
+        >
+          Siguiente
+        </button>
+      </div>
+    </footer>
+  </section>
 </section>
 
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/existencias.js';
+
+  init();
+</script>

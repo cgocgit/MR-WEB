@@ -1,0 +1,490 @@
+<section
+  id="registro-entrada-page"
+  class="container inventario-entrada"
+  aria-busy="false"
+>
+  <header class="inventario-entrada-header">
+    <h1>Registro de entrada</h1>
+    <p>
+      Registra la entrada física de productos al Almacén Central
+      y conserva la trazabilidad del movimiento.
+    </p>
+  </header>
+
+  <div
+    id="entrada-feedback"
+    class="inventario-entrada-feedback"
+    role="alert"
+    aria-live="polite"
+  ></div>
+
+  <form
+    id="entrada-form"
+    class="inventario-entrada-form"
+    novalidate
+  >
+    <!-- DATOS DE LA ENTRADA -->
+    <section class="card inventario-entrada-card">
+      <h2>Datos de la entrada</h2>
+
+      <div class="inventario-entrada-grid">
+        <div class="inventario-entrada-field">
+          <label for="entrada-motivo">
+            Motivo de entrada
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <select
+            id="entrada-motivo"
+            name="motivoEntrada"
+            required
+          >
+            <option value="">
+              Seleccione un motivo
+            </option>
+            <option value="CARGA_INICIAL">
+              Carga inicial
+            </option>
+            <option value="REINGRESO">
+              Reingreso
+            </option>
+          </select>
+        </div>
+
+        <div class="inventario-entrada-field">
+          <label for="entrada-tipo">
+            Tipo de movimiento
+          </label>
+
+          <input
+            id="entrada-tipo"
+            type="text"
+            value="Entrada"
+            readonly
+          >
+        </div>
+
+        <div class="inventario-entrada-field">
+          <label for="entrada-almacen">
+            Almacén
+          </label>
+
+          <input
+            id="entrada-almacen"
+            type="text"
+            value="Almacén Central"
+            readonly
+          >
+        </div>
+
+        <div class="inventario-entrada-field">
+          <label for="entrada-fecha">
+            Fecha y hora
+          </label>
+
+          <input
+            id="entrada-fecha"
+            type="text"
+            readonly
+          >
+        </div>
+
+        <div class="inventario-entrada-field">
+          <label for="entrada-usuario">
+            Usuario
+          </label>
+
+          <input
+            id="entrada-usuario"
+            type="text"
+            readonly
+          >
+        </div>
+      </div>
+
+      <p class="inventario-entrada-helper">
+        Los datos de trazabilidad no son editables.
+      </p>
+    </section>
+
+    <!-- ORDEN DE SERVICIO -->
+    <section
+      id="entrada-orden-section"
+      class="card inventario-entrada-card"
+      hidden
+    >
+      <h2>Orden de Servicio</h2>
+
+      <div class="inventario-entrada-field">
+        <label for="entrada-orden">
+          Orden de Servicio
+          <span aria-hidden="true">*</span>
+        </label>
+
+        <select id="entrada-orden">
+          <option value="">
+            Seleccione una orden
+          </option>
+        </select>
+      </div>
+
+      <div
+        id="entrada-orden-resumen"
+        class="inventario-entrada-orden-resumen"
+        hidden
+      >
+        <div>
+          <span>Folio</span>
+          <strong id="entrada-orden-folio">—</strong>
+        </div>
+
+        <div>
+          <span>Cliente</span>
+          <strong id="entrada-orden-cliente">—</strong>
+        </div>
+
+        <div>
+          <span>Fecha del evento</span>
+          <strong id="entrada-orden-fecha">—</strong>
+        </div>
+
+        <div>
+          <span>Recolección</span>
+          <strong
+            id="entrada-orden-estado"
+            class="inventario-entrada-badge"
+          >
+            —
+          </strong>
+        </div>
+      </div>
+
+      <p class="inventario-entrada-helper">
+        Solo pueden reingresar productos asociados con
+        una recolección en estado RECOLECTADO.
+      </p>
+    </section>
+
+    <!-- PRODUCTO -->
+    <section class="card inventario-entrada-card">
+      <h2>Producto</h2>
+
+      <div class="inventario-entrada-field">
+        <label for="entrada-producto">
+          Producto
+          <span aria-hidden="true">*</span>
+        </label>
+
+        <select
+          id="entrada-producto"
+          disabled
+        >
+          <option value="">
+            Seleccione un producto
+          </option>
+        </select>
+      </div>
+
+      <div
+        id="entrada-producto-detalle"
+        class="inventario-entrada-producto"
+        hidden
+      >
+        <div class="inventario-entrada-producto-imagen">
+          <img
+            id="entrada-producto-imagen"
+            alt=""
+            hidden
+          >
+
+          <span
+            id="entrada-producto-placeholder"
+            aria-hidden="true"
+          >
+            Sin imagen
+          </span>
+        </div>
+
+        <dl class="inventario-entrada-producto-datos">
+          <div>
+            <dt>Código</dt>
+            <dd id="entrada-producto-codigo">—</dd>
+          </div>
+
+          <div>
+            <dt>Nombre</dt>
+            <dd id="entrada-producto-nombre">—</dd>
+          </div>
+
+          <div>
+            <dt>Unidad de medida</dt>
+            <dd id="entrada-producto-unidad">—</dd>
+          </div>
+
+          <div>
+            <dt>Estado</dt>
+            <dd id="entrada-producto-estado">—</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- EXISTENCIA -->
+    <section
+      id="entrada-existencia-section"
+      class="card inventario-entrada-card"
+      hidden
+    >
+      <h2>Existencia actual</h2>
+
+      <div class="inventario-entrada-metricas">
+        <div>
+          <span>Existencia física actual</span>
+          <strong id="entrada-existencia">0</strong>
+        </div>
+
+        <div>
+          <span>Cantidad reservada</span>
+          <strong id="entrada-reservada">0</strong>
+        </div>
+
+        <div>
+          <span>Disponibilidad actual</span>
+          <strong id="entrada-disponible">0</strong>
+        </div>
+
+        <div>
+          <span>Mínimo</span>
+          <strong id="entrada-minimo">—</strong>
+        </div>
+
+        <div>
+          <span>Máximo</span>
+          <strong id="entrada-maximo">—</strong>
+        </div>
+
+        <div>
+          <span>Última actualización</span>
+          <strong id="entrada-actualizacion">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAPTURA -->
+    <section class="card inventario-entrada-card">
+      <h2>Captura</h2>
+
+      <div class="inventario-entrada-field">
+        <label for="entrada-cantidad">
+          Cantidad de entrada
+          <span aria-hidden="true">*</span>
+        </label>
+
+        <input
+          id="entrada-cantidad"
+          name="cantidad"
+          type="number"
+          min="1"
+          step="1"
+          inputmode="numeric"
+          disabled
+        >
+
+        <small>
+          Solo números enteros mayores que cero.
+        </small>
+      </div>
+
+      <div class="inventario-entrada-field">
+        <label for="entrada-observaciones">
+          Observaciones
+        </label>
+
+        <textarea
+          id="entrada-observaciones"
+          name="observaciones"
+          rows="3"
+          disabled
+        ></textarea>
+      </div>
+    </section>
+
+    <!-- PROYECCIÓN -->
+    <section
+      id="entrada-proyeccion-section"
+      class="card inventario-entrada-card"
+      hidden
+    >
+      <h2>Proyección</h2>
+
+      <div class="inventario-entrada-proyeccion">
+        <div>
+          <span>Existencia actual</span>
+          <strong id="proyeccion-actual">0</strong>
+        </div>
+
+        <span
+          class="inventario-entrada-operador"
+          aria-hidden="true"
+        >
+          +
+        </span>
+
+        <div>
+          <span>Cantidad que ingresa</span>
+          <strong id="proyeccion-cantidad">0</strong>
+        </div>
+
+        <span
+          class="inventario-entrada-operador"
+          aria-hidden="true"
+        >
+          =
+        </span>
+
+        <div>
+          <span>Existencia proyectada</span>
+          <strong id="proyeccion-existencia">0</strong>
+        </div>
+
+        <div>
+          <span>Disponibilidad proyectada</span>
+          <strong id="proyeccion-disponible">0</strong>
+        </div>
+      </div>
+
+      <div
+        id="entrada-advertencia-maximo"
+        class="inventario-entrada-advertencia"
+        role="status"
+        hidden
+      ></div>
+    </section>
+
+    <!-- RESULTADO -->
+    <section
+      id="entrada-resultado"
+      class="card inventario-entrada-resultado"
+      aria-live="polite"
+      hidden
+    >
+      <h2>Entrada registrada</h2>
+
+      <div class="inventario-entrada-metricas">
+        <div>
+          <span>Folio del movimiento</span>
+          <strong id="resultado-folio">—</strong>
+        </div>
+
+        <div>
+          <span>Existencia anterior</span>
+          <strong id="resultado-anterior">—</strong>
+        </div>
+
+        <div>
+          <span>Cantidad ingresada</span>
+          <strong id="resultado-cantidad">—</strong>
+        </div>
+
+        <div>
+          <span>Existencia resultante</span>
+          <strong id="resultado-existencia">—</strong>
+        </div>
+
+        <div>
+          <span>Disponibilidad resultante</span>
+          <strong id="resultado-disponible">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACCIONES -->
+    <div class="inventario-entrada-actions">
+      <button
+        id="entrada-limpiar"
+        type="button"
+        class="btn-secondary"
+      >
+        Limpiar
+      </button>
+
+      <button
+        id="entrada-cancelar"
+        type="button"
+        class="btn-secondary"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="entrada-registrar"
+        type="submit"
+        disabled
+      >
+        Registrar entrada
+      </button>
+    </div>
+  </form>
+
+  <!-- CONFIRMACIÓN -->
+  <dialog
+    id="entrada-confirmacion"
+    class="inventario-entrada-dialog"
+  >
+    <form method="dialog">
+      <h2>Confirmar entrada</h2>
+
+      <p>
+        Revise la información antes de registrar
+        definitivamente la entrada.
+      </p>
+
+      <dl class="inventario-entrada-confirmacion-datos">
+        <div>
+          <dt>Motivo</dt>
+          <dd id="confirmacion-motivo">—</dd>
+        </div>
+
+        <div>
+          <dt>Producto</dt>
+          <dd id="confirmacion-producto">—</dd>
+        </div>
+
+        <div>
+          <dt>Cantidad</dt>
+          <dd id="confirmacion-cantidad">—</dd>
+        </div>
+
+        <div>
+          <dt>Existencia resultante</dt>
+          <dd id="confirmacion-existencia">—</dd>
+        </div>
+      </dl>
+
+      <div class="inventario-entrada-dialog-actions">
+        <button
+          id="confirmacion-cancelar"
+          type="button"
+          class="btn-secondary"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="confirmacion-aceptar"
+          type="button"
+        >
+          Confirmar entrada
+        </button>
+      </div>
+    </form>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/registro-entrada.js';
+
+  init();
+</script>
