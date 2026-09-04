@@ -316,7 +316,13 @@ const routePermissions = {
     'inventario.gestionar',
 
   '#/inventario/registro-retorno':
-    'inventario.consultar',
+  () =>
+    hasAnyRole(
+      getSession(),
+      ['DIRECCION']
+    )
+      ? 'inventario.consultar'
+      : 'inventario.gestionar',
 
   '#/inventario/alertas':
     'inventario.alertas.consultar',

@@ -8,6 +8,10 @@ import {
   getSession
 } from '../../shared/auth-guard.js';
 
+import {
+  hasPermission
+} from '../../shared/permissions.js';
+
 let ordenActual =
   null;
 
@@ -116,6 +120,13 @@ function obtenerUsuario() {
     session?.user?.name ||
     session?.user?.username ||
     'Usuario'
+  );
+}
+
+function puedeGestionarRetorno() {
+  return hasPermission(
+    getSession(),
+    'inventario.gestionar'
   );
 }
 
@@ -481,6 +492,9 @@ function crearInputCantidad(
 
   input.inputMode =
     'numeric';
+
+  input.disabled =
+  !puedeGestionarRetorno();
 
   input.dataset.idReserva =
     String(
@@ -986,6 +1000,7 @@ function actualizarResumen() {
   elemento(
     'retorno-registrar'
   ).disabled =
+    !puedeGestionarRetorno() ||
     procesandoRegistro ||
     !resumen.validas;
 }
@@ -1295,6 +1310,16 @@ function procesarCantidad(
 }
 
 function prepararConfirmacion() {
+  if (
+    !puedeGestionarRetorno()
+  ) {
+    mostrarFeedback(
+      'La pantalla se encuentra disponible únicamente para consulta.'
+    );
+
+    return false;
+  }
+
   const resumen =
     resumenCaptura();
 
@@ -1773,6 +1798,44 @@ function registrarEventos() {
   );
 }
 
+function aplicarModoConsulta() {
+  if (
+    puedeGestionarRetorno()
+  ) {
+    return;
+  }
+
+  const observaciones =
+    elemento(
+      'retorno-observaciones'
+    );
+
+  const cerrarCiclo =
+    elemento(
+      'retorno-cerrar-ciclo'
+    );
+
+  const registrar =
+    elemento(
+      'retorno-registrar'
+    );
+
+  if (observaciones) {
+    observaciones.disabled =
+      true;
+  }
+
+  if (cerrarCiclo) {
+    cerrarCiclo.disabled =
+      true;
+  }
+
+  if (registrar) {
+    registrar.hidden =
+      true;
+  }
+}
+
 export async function init() {
   const pagina =
     elemento(
@@ -1799,6 +1862,8 @@ export async function init() {
   );
 
   registrarEventos();
+
+  aplicarModoConsulta();
 
   establecerBusy(
     true

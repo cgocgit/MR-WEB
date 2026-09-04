@@ -24,6 +24,7 @@ import {
 } from '../shared/auth-guard.js';
 
 import {
+  hasAnyRole,
   hasPermission
 } from '../shared/permissions.js';
 
@@ -62,11 +63,24 @@ function crearError(
 }
 
 function validarPermisoConsulta() {
+  const session =
+    getSession();
+
+  const puedeGestionar =
+    hasPermission(
+      session,
+      PERMISO_GESTION
+    );
+
+  const esDireccion =
+    hasAnyRole(
+      session,
+      ['DIRECCION']
+    );
+
   if (
-    !hasPermission(
-      getSession(),
-      PERMISO_CONSULTA
-    )
+    !puedeGestionar &&
+    !esDireccion
   ) {
     throw crearError(
       'ACCESO_DENEGADO',
