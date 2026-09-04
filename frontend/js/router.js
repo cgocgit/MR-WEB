@@ -73,7 +73,7 @@ const routes = {
 
   // Inventario
   '#/inventario':
-    'pages/inventario/existencias.html',
+    'pages/inventario/inicio.html',
 
   '#/inventario/existencias':
     'pages/inventario/existencias.html',

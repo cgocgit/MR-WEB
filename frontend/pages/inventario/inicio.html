@@ -1,0 +1,533 @@
+<section
+  id="inventario-inicio-root"
+  class="container inventario-inicio"
+>
+  <header
+    class="
+      inventario-page-header
+      inventario-inicio-header
+    "
+  >
+    <div>
+      <h1>Inicio de Inventario</h1>
+
+      <p class="inventario-page-description">
+        Accede a las consultas, operaciones y
+        configuraciones del módulo de Inventario
+        según tus permisos.
+      </p>
+    </div>
+
+    <div
+      class="inventario-inicio-permisos"
+      aria-label="Información de permisos"
+    >
+      Funciones visibles según permisos
+    </div>
+  </header>
+
+  <!-- ======================================
+       CONSULTAS
+       ====================================== -->
+  <section
+    class="inventario-inicio-seccion"
+    data-inventario-inicio-seccion="consultas"
+    aria-labelledby="inventario-inicio-consultas"
+  >
+    <h2 id="inventario-inicio-consultas">
+      Consultas
+    </h2>
+
+    <div class="inventario-inicio-grid">
+      <!-- Consulta de existencias -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.consultar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-consulta
+          "
+          aria-hidden="true"
+        >
+          ○
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>Consulta de existencias</h3>
+
+          <p>
+            Consulta la existencia registrada,
+            reservada y disponible de los
+            productos inventariables.
+          </p>
+
+          <a
+            href="#/inventario/existencias"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Detalle de existencia -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.consultar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-consulta
+          "
+          aria-hidden="true"
+        >
+          ≡
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Detalle de existencia por producto
+          </h3>
+
+          <p>
+            Selecciona un producto desde Consulta
+            de existencias para revisar su detalle.
+          </p>
+
+          <a
+            href="#/inventario/existencias"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Disponibilidad futura -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.disponibilidad.consultar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-consulta
+          "
+          aria-hidden="true"
+        >
+          ◫
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Consulta de disponibilidad futura
+          </h3>
+
+          <p>
+            Visualiza la disponibilidad considerando
+            reservas y compromisos futuros.
+          </p>
+
+          <a
+            href="#/inventario/disponibilidad-futura"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Historial -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.movimientos.consultar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-consulta
+          "
+          aria-hidden="true"
+        >
+          ↶
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>Historial de movimientos</h3>
+
+          <p>
+            Consulta entradas, salidas, ajustes
+            y movimientos registrados.
+          </p>
+
+          <a
+            href="#/inventario/movimientos"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Reservas -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.reservas.consultar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-consulta
+          "
+          aria-hidden="true"
+        >
+          ▣
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Reservas por Orden de Servicio
+          </h3>
+
+          <p>
+            Da seguimiento a las reservas
+            vinculadas con órdenes de servicio.
+          </p>
+
+          <a
+            href="#/inventario/reservas"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Alertas -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.alertas.consultar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-consulta
+          "
+          aria-hidden="true"
+        >
+          !
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Alertas de mínimos y máximos
+          </h3>
+
+          <p>
+            Consulta productos en mínimo, máximo
+            o con configuración inconsistente.
+          </p>
+
+          <a
+            href="#/inventario/alertas"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ======================================
+       OPERACIONES
+       ====================================== -->
+  <section
+    class="inventario-inicio-seccion"
+    data-inventario-inicio-seccion="operaciones"
+    aria-labelledby="inventario-inicio-operaciones"
+  >
+    <h2 id="inventario-inicio-operaciones">
+      Operaciones
+    </h2>
+
+    <div class="inventario-inicio-grid">
+      <!-- Entrada -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.gestionar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-operacion
+          "
+          aria-hidden="true"
+        >
+          ↓
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Registro de entrada de inventario
+          </h3>
+
+          <p>
+            Registra incorporaciones físicas
+            al inventario.
+          </p>
+
+          <a
+            href="#/inventario/registro-entrada"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Salida -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.gestionar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-operacion
+          "
+          aria-hidden="true"
+        >
+          ↑
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Registro de salida asociada a Orden
+          </h3>
+
+          <p>
+            Registra la salida de productos
+            vinculados con una Orden de Servicio.
+          </p>
+
+          <a
+            href="#/inventario/registro-salida"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Retorno -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-retorno
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-operacion
+          "
+          aria-hidden="true"
+        >
+          ↩
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Registro de retorno asociado a Orden
+          </h3>
+
+          <p>
+            Registra o consulta el retorno de
+            productos asociados a una Orden
+            de Servicio.
+          </p>
+
+          <a
+            href="#/inventario/registro-retorno"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Ajuste -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.gestionar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-operacion
+          "
+          aria-hidden="true"
+        >
+          ±
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Registro de ajuste autorizado
+          </h3>
+
+          <p>
+            Captura ajustes autorizados
+            sobre las existencias.
+          </p>
+
+          <a
+            href="#/inventario/ajuste-autorizado"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Corte físico -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.cortes.consultar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-operacion
+          "
+          aria-hidden="true"
+        >
+          ✓
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>Corte físico de Inventario</h3>
+
+          <p>
+            Accede al proceso de verificación
+            física del inventario.
+          </p>
+
+          <a
+            href="#/inventario/cortes-fisicos"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ======================================
+       CONFIGURACIÓN
+       ====================================== -->
+  <section
+    class="inventario-inicio-seccion"
+    data-inventario-inicio-seccion="configuracion"
+    aria-labelledby="inventario-inicio-configuracion"
+  >
+    <h2 id="inventario-inicio-configuracion">
+      Configuración
+    </h2>
+
+    <div class="inventario-inicio-grid">
+      <!-- Mínimos y máximos -->
+      <article
+        class="card inventario-inicio-card"
+        data-inventario-inicio-permiso="inventario.gestionar"
+      >
+        <div
+          class="
+            inventario-inicio-icono
+            inventario-inicio-icono-configuracion
+          "
+          aria-hidden="true"
+        >
+          ⚙
+        </div>
+
+        <div class="inventario-inicio-card-contenido">
+          <h3>
+            Configuración de mínimos y máximos
+          </h3>
+
+          <p>
+            Administra los niveles mínimos y
+            máximos de control operativo.
+          </p>
+
+          <a
+            href="#/inventario/limites"
+            class="
+              button-secondary
+              inventario-inicio-accion
+            "
+          >
+            Abrir
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
+    </div>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/inicio.js';
+
+  init();
+</script>
