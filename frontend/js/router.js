@@ -316,7 +316,7 @@ const routePermissions = {
     'inventario.gestionar',
 
   '#/inventario/registro-retorno':
-    'inventario.gestionar',
+    'inventario.consultar',
 
   '#/inventario/alertas':
     'inventario.alertas.consultar',

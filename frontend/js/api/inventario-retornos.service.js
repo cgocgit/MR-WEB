@@ -27,7 +27,11 @@ import {
   hasPermission
 } from '../shared/permissions.js';
 
-const PERMISO_GESTION = 'inventario.gestionar';
+const PERMISO_CONSULTA =
+  'inventario.consultar';
+
+const PERMISO_GESTION =
+  'inventario.gestionar';
 
 const ID_ALMACEN_CENTRAL = 1;
 
@@ -57,7 +61,21 @@ function crearError(
   return error;
 }
 
-function validarPermiso() {
+function validarPermisoConsulta() {
+  if (
+    !hasPermission(
+      getSession(),
+      PERMISO_CONSULTA
+    )
+  ) {
+    throw crearError(
+      'ACCESO_DENEGADO',
+      'No dispone de permisos para consultar retornos de inventario.'
+    );
+  }
+}
+
+function validarPermisoGestion() {
   if (
     !hasPermission(
       getSession(),
@@ -372,7 +390,7 @@ async function construirProductoRetorno(
 export async function listarOrdenesRetorno(
   texto = ''
 ) {
-  validarPermiso();
+  validarPermisoConsulta();
 
   await simularLatenciaInventario();
 
@@ -415,7 +433,7 @@ export async function listarOrdenesRetorno(
 export async function obtenerOrdenRetorno(
   idOrden
 ) {
-  validarPermiso();
+  validarPermisoConsulta();
 
   const ordenId =
     normalizarId(
@@ -661,7 +679,7 @@ export async function registrarRetorno({
   cerrarCiclo = false,
   idSolicitud = ''
 }) {
-  validarPermiso();
+  validarPermisoGestion();
 
   const ordenId =
     normalizarId(
