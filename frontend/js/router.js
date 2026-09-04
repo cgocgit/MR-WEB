@@ -90,6 +90,9 @@ const routes = {
   '#/inventario/registro-salida':
     'pages/inventario/registro-salida.html',
 
+  '#/inventario/registro-retorno':
+    'pages/inventario/registro-retorno.html',
+
   '#/inventario/alertas':
     'pages/inventario/alertas.html',
 
@@ -310,6 +313,9 @@ const routePermissions = {
     'inventario.gestionar',
 
   '#/inventario/registro-salida':
+    'inventario.gestionar',
+
+  '#/inventario/registro-retorno':
     'inventario.gestionar',
 
   '#/inventario/alertas':

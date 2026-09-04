@@ -1,0 +1,434 @@
+<section
+  id="registro-retorno-page"
+  class="container inventario-salida inventario-retorno"
+  aria-busy="false"
+>
+  <header class="inventario-page-header inventario-salida-header">
+    <div>
+      <h1>Registro de retorno asociado a Orden</h1>
+      <p class="inventario-page-description">
+        Registra el retorno físico de productos previamente salidos por Orden de
+        Servicio, reincorpora existencias por lo efectivamente recibido y conserva
+        la trazabilidad de la operación.
+      </p>
+    </div>
+
+    <div
+      class="inventario-salida-header-info"
+      aria-label="Datos de operación"
+    >
+      <div class="inventario-salida-header-dato">
+        <span>Almacén actual</span>
+        <strong>Almacén Central</strong>
+      </div>
+
+      <div class="inventario-salida-header-dato">
+        <span>Fecha y hora</span>
+        <strong id="retorno-fecha-hora">—</strong>
+      </div>
+    </div>
+  </header>
+
+  <div
+    class="inventario-retorno-nota-principal"
+    role="note"
+  >
+    El estado logístico es solo de consulta. La reserva puede liberarse aun
+    cuando existan faltantes físicos.
+  </div>
+
+  <div
+    id="retorno-feedback"
+    class="inventario-salida-feedback"
+    role="alert"
+    aria-live="polite"
+    hidden
+  ></div>
+
+  <form id="retorno-form" novalidate>
+    <section class="card inventario-salida-card">
+      <h2>Selección de Orden</h2>
+
+      <div class="inventario-salida-seleccion-grid">
+        <div class="form-field">
+          <label for="retorno-buscar-folio">
+            Buscar por folio, cliente o evento
+          </label>
+          <input
+            id="retorno-buscar-folio"
+            type="search"
+            autocomplete="off"
+            placeholder="Buscar Orden con salida registrada"
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="retorno-orden">
+            Orden con salida registrada
+          </label>
+          <select id="retorno-orden" disabled>
+            <option value="">Seleccione una Orden</option>
+          </select>
+        </div>
+      </div>
+
+      <dl
+        id="retorno-orden-resumen"
+        class="inventario-salida-datos-grid"
+        hidden
+      >
+        <div>
+          <dt>Folio de Orden</dt>
+          <dd id="retorno-orden-folio">—</dd>
+        </div>
+
+        <div>
+          <dt>Cliente</dt>
+          <dd id="retorno-orden-cliente">—</dd>
+        </div>
+
+        <div>
+          <dt>Evento / Servicio</dt>
+          <dd id="retorno-orden-evento">—</dd>
+        </div>
+
+        <div>
+          <dt>Fecha del servicio</dt>
+          <dd id="retorno-orden-fecha-servicio">—</dd>
+        </div>
+
+        <div>
+          <dt>Estado de Orden</dt>
+          <dd id="retorno-orden-estado">—</dd>
+        </div>
+
+        <div>
+          <dt>Estado logístico (consulta)</dt>
+          <dd id="retorno-orden-logistica">—</dd>
+        </div>
+
+        <div>
+          <dt>Fecha prevista de retorno</dt>
+          <dd id="retorno-orden-fecha-retorno">—</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section
+      id="retorno-productos"
+      class="
+        card
+        inventario-salida-card
+        inventario-salida-productos
+      "
+      hidden
+    >
+      <div class="inventario-salida-section-header">
+        <div>
+          <h2>Productos con salida registrada</h2>
+          <p>
+            Capture únicamente la cantidad físicamente recibida en esta operación.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="
+          inventario-salida-table-wrap
+          inventario-retorno-table-wrap
+        "
+      >
+        <table
+          class="
+            inventario-salida-table
+            inventario-retorno-table
+          "
+        >
+          <thead>
+            <tr>
+              <th scope="col">Producto</th>
+              <th scope="col">Código</th>
+              <th scope="col">Unidad</th>
+              <th scope="col">Cantidad solicitada</th>
+              <th scope="col">Cantidad salida</th>
+              <th scope="col">Retornado acumulado</th>
+              <th scope="col">Pendiente</th>
+              <th scope="col">Retorno actual</th>
+              <th scope="col">Resultado</th>
+            </tr>
+          </thead>
+
+          <tbody id="retorno-productos-tbody"></tbody>
+        </table>
+      </div>
+
+      <div
+        id="retorno-productos-cards"
+        class="inventario-salida-productos-cards"
+        aria-label="Productos con salida registrada"
+      ></div>
+
+      <div
+        class="inventario-salida-nota"
+        role="note"
+      >
+        Solo se incrementa la existencia por las cantidades efectivamente
+        recibidas. La operación mantiene trazabilidad por Orden, salida,
+        producto, retorno y usuario.
+      </div>
+    </section>
+
+    <div
+      id="retorno-captura-complementaria"
+      class="inventario-salida-inferior"
+      hidden
+    >
+      <section class="card inventario-salida-card">
+        <h2>Observaciones</h2>
+
+        <div class="form-field">
+          <label for="retorno-observaciones">
+            Observaciones del retorno actual
+          </label>
+
+          <textarea
+            id="retorno-observaciones"
+            rows="5"
+            maxlength="500"
+            placeholder="Observaciones opcionales"
+          ></textarea>
+
+          <small id="retorno-observaciones-contador">
+            0 / 500 caracteres
+          </small>
+        </div>
+      </section>
+
+      <section
+        id="retorno-resumen"
+        class="card inventario-salida-card"
+        aria-live="polite"
+      >
+        <h2>Resumen previo a confirmar</h2>
+
+        <dl class="inventario-salida-resumen-grid">
+          <div>
+            <dt>Orden</dt>
+            <dd id="retorno-resumen-orden">—</dd>
+          </div>
+
+          <div>
+            <dt>Cliente / Evento</dt>
+            <dd id="retorno-resumen-cliente">—</dd>
+          </div>
+
+          <div>
+            <dt>Productos incluidos</dt>
+            <dd id="retorno-resumen-productos">0</dd>
+          </div>
+
+          <div>
+            <dt>Total de piezas a retornar</dt>
+            <dd id="retorno-resumen-cantidad">0</dd>
+          </div>
+
+          <div>
+            <dt>Existencia a incrementar</dt>
+            <dd id="retorno-resumen-existencia">0</dd>
+          </div>
+
+          <div>
+            <dt>Movimiento</dt>
+            <dd>Retorno asociado a Orden</dd>
+          </div>
+
+          <div>
+            <dt>Estado resultante de reserva</dt>
+            <dd id="retorno-resumen-reserva">ACTIVA</dd>
+          </div>
+
+          <div>
+            <dt>Estado logístico (consulta)</dt>
+            <dd id="retorno-resumen-logistica">—</dd>
+          </div>
+
+          <div>
+            <dt>Usuario responsable</dt>
+            <dd id="retorno-resumen-usuario">—</dd>
+          </div>
+        </dl>
+
+        <label class="inventario-retorno-cierre">
+          <input
+            id="retorno-cerrar-ciclo"
+            type="checkbox"
+          >
+          <span>
+            Concluir ciclo de retorno y liberar reserva. Si quedan cantidades
+            pendientes, se conservarán como faltante físico trazable.
+          </span>
+        </label>
+      </section>
+    </div>
+
+    <section
+      id="retorno-resultado"
+      class="card inventario-salida-resultado"
+      role="status"
+      aria-live="polite"
+      hidden
+    >
+      <h2>Retorno registrado</h2>
+
+      <dl class="inventario-salida-resultado-grid">
+        <div>
+          <dt>Folio de retorno</dt>
+          <dd id="retorno-resultado-folio">—</dd>
+        </div>
+
+        <div>
+          <dt>Orden</dt>
+          <dd id="retorno-resultado-orden">—</dd>
+        </div>
+
+        <div>
+          <dt>Fecha y hora</dt>
+          <dd id="retorno-resultado-fecha">—</dd>
+        </div>
+
+        <div>
+          <dt>Total retornado</dt>
+          <dd id="retorno-resultado-total">—</dd>
+        </div>
+
+        <div>
+          <dt>Reserva</dt>
+          <dd id="retorno-resultado-reserva">—</dd>
+        </div>
+
+        <div>
+          <dt>Tipo de movimiento</dt>
+          <dd>Retorno asociado a Orden</dd>
+        </div>
+      </dl>
+
+      <div class="inventario-salida-nota">
+        El inventario se actualizó únicamente con las cantidades recibidas.
+      </div>
+    </section>
+
+    <div class="inventario-salida-actions">
+      <button
+        id="retorno-limpiar"
+        type="button"
+        class="button-secondary"
+      >
+        Limpiar
+      </button>
+
+      <button
+        id="retorno-registrar"
+        type="submit"
+        disabled
+      >
+        Registrar retorno
+      </button>
+    </div>
+  </form>
+
+  <dialog
+    id="retorno-confirmacion"
+    class="inventario-salida-dialog"
+    aria-labelledby="retorno-confirmacion-titulo"
+  >
+    <header class="inventario-salida-dialog-header">
+      <div>
+        <h2 id="retorno-confirmacion-titulo">
+          Confirmar retorno
+        </h2>
+
+        <p>
+          Revise la operación antes de registrarla.
+        </p>
+      </div>
+
+      <button
+        id="retorno-confirmacion-cerrar"
+        type="button"
+        class="button-secondary"
+        aria-label="Cerrar confirmación"
+      >
+        Cerrar
+      </button>
+    </header>
+
+    <dl class="inventario-salida-confirmacion-grid">
+      <div>
+        <dt>Orden</dt>
+        <dd id="retorno-confirmacion-orden">—</dd>
+      </div>
+
+      <div>
+        <dt>Cliente / Evento</dt>
+        <dd id="retorno-confirmacion-cliente">—</dd>
+      </div>
+
+      <div>
+        <dt>Productos</dt>
+        <dd id="retorno-confirmacion-productos">0</dd>
+      </div>
+
+      <div>
+        <dt>Total de piezas</dt>
+        <dd id="retorno-confirmacion-cantidad">0</dd>
+      </div>
+
+      <div>
+        <dt>Reserva resultante</dt>
+        <dd id="retorno-confirmacion-reserva">
+          ACTIVA
+        </dd>
+      </div>
+
+      <div>
+        <dt>Estado logístico (consulta)</dt>
+        <dd id="retorno-confirmacion-logistica">—</dd>
+      </div>
+    </dl>
+
+    <div
+      class="
+        inventario-salida-nota
+        inventario-salida-nota-dialog
+      "
+    >
+      La existencia física se incrementará únicamente con las cantidades
+      confirmadas. El estado logístico no será modificado.
+    </div>
+
+    <div class="inventario-salida-dialog-actions">
+      <button
+        id="retorno-confirmacion-cancelar"
+        type="button"
+        class="button-secondary"
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="retorno-confirmacion-aceptar"
+        type="button"
+      >
+        Confirmar retorno
+      </button>
+    </div>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/inventario/registro-retorno.js';
+
+  init();
+</script>
