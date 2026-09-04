@@ -96,30 +96,241 @@ export const MOVIMIENTOS_INVENTARIO_MOCK = [
 export const RESERVAS_FUTURAS_MOCK = [
   {
     idReserva: 1,
-    folioOrden: 'ORD-2026-001',
+    folioReserva:
+      'RES-2026-001',
+
+    idOrden: 5001,
+    folioOrden:
+      'ORD-2026-001',
+
+    estadoOrden:
+      'CONFIRMADA',
+
+    cliente:
+      'Cliente A',
+
+    evento:
+      'Evento A',
+
+    direccionEvento:
+      'Evento A',
+
     idProducto: 1001,
+    idAlmacen: 1,
+
     cantidadReservada: 20,
-    fechaInicio: '2026-09-12',
-    fechaFin: '2026-09-14',
-    estado: 'CONFIRMADA'
+
+    fechaInicio:
+      '2026-09-12',
+
+    fechaFin:
+      '2026-09-14',
+
+    estado:
+      'CONFIRMADA',
+
+    fechaGeneracion:
+      '2026-09-02T10:00:00',
+
+    usuarioGeneracion:
+      'Responsable de Inventario',
+
+    fechaUltimaModificacion:
+      '2026-09-02T10:00:00',
+
+    usuarioUltimaModificacion:
+      'Responsable de Inventario',
+
+    referenciaSalida:
+      null
   },
   {
     idReserva: 2,
-    folioOrden: 'ORD-2026-002',
+    folioReserva:
+      'RES-2026-002',
+
+    idOrden: 5002,
+    folioOrden:
+      'ORD-2026-002',
+
+    estadoOrden:
+      'CONFIRMADA',
+
+    cliente:
+      'Cliente B',
+
+    evento:
+      'Evento B',
+
+    direccionEvento:
+      'Evento B',
+
     idProducto: 1001,
+    idAlmacen: 1,
+
     cantidadReservada: 15,
-    fechaInicio: '2026-09-13',
-    fechaFin: '2026-09-15',
-    estado: 'CONFIRMADA'
+
+    fechaInicio:
+      '2026-09-13',
+
+    fechaFin:
+      '2026-09-15',
+
+    estado:
+      'CONFIRMADA',
+
+    fechaGeneracion:
+      '2026-09-02T10:15:00',
+
+    usuarioGeneracion:
+      'Responsable de Inventario',
+
+    fechaUltimaModificacion:
+      '2026-09-02T10:15:00',
+
+    usuarioUltimaModificacion:
+      'Responsable de Inventario',
+
+    referenciaSalida:
+      null
   },
   {
     idReserva: 3,
-    folioOrden: 'ORD-2026-003',
+    folioReserva:
+      'RES-2026-003',
+
+    idOrden: 5003,
+    folioOrden:
+      'ORD-2026-003',
+
+    estadoOrden:
+      'CANCELADA',
+
+    cliente:
+      'Cliente C',
+
+    evento:
+      'Evento C',
+
+    direccionEvento:
+      'Evento C',
+
     idProducto: 1002,
+    idAlmacen: 1,
+
     cantidadReservada: 8,
-    fechaInicio: '2026-09-12',
-    fechaFin: '2026-09-13',
-    estado: 'CANCELADA'
+
+    fechaInicio:
+      '2026-09-12',
+
+    fechaFin:
+      '2026-09-13',
+
+    estado:
+      'CANCELADA',
+
+    motivoCancelacion:
+      'Reserva cancelada'
+  },
+  {
+    idReserva: 4,
+    folioReserva:
+      'RES-2026-004',
+
+    idOrden: 5001,
+    folioOrden:
+      'ORD-2026-001',
+
+    estadoOrden:
+      'CONFIRMADA',
+
+    cliente:
+      'Cliente A',
+
+    evento:
+      'Evento A',
+
+    direccionEvento:
+      'Evento A',
+
+    idProducto: 1002,
+    idAlmacen: 1,
+
+    cantidadReservada: 8,
+
+    fechaInicio:
+      '2026-09-12',
+
+    fechaFin:
+      '2026-09-14',
+
+    estado:
+      'CONFIRMADA',
+
+    fechaGeneracion:
+      '2026-09-02T10:20:00',
+
+    usuarioGeneracion:
+      'Responsable de Inventario',
+
+    fechaUltimaModificacion:
+      '2026-09-02T10:20:00',
+
+    usuarioUltimaModificacion:
+      'Responsable de Inventario',
+
+    referenciaSalida:
+      null
+  },
+  {
+    idReserva: 5,
+    folioReserva:
+      'RES-2026-005',
+
+    idOrden: 5001,
+    folioOrden:
+      'ORD-2026-001',
+
+    estadoOrden:
+      'CONFIRMADA',
+
+    cliente:
+      'Cliente A',
+
+    evento:
+      'Evento A',
+
+    direccionEvento:
+      'Evento A',
+
+    idProducto: 1005,
+    idAlmacen: 1,
+
+    cantidadReservada: 5,
+
+    fechaInicio:
+      '2026-09-12',
+
+    fechaFin:
+      '2026-09-14',
+
+    estado:
+      'CONFIRMADA',
+
+    fechaGeneracion:
+      '2026-09-02T10:25:00',
+
+    usuarioGeneracion:
+      'Responsable de Inventario',
+
+    fechaUltimaModificacion:
+      '2026-09-02T10:25:00',
+
+    usuarioUltimaModificacion:
+      'Responsable de Inventario',
+
+    referenciaSalida:
+      null
   }
 ];
 

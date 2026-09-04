@@ -87,6 +87,9 @@ const routes = {
   '#/inventario/registro-entrada':
     'pages/inventario/registro-entrada.html',
 
+  '#/inventario/registro-salida':
+    'pages/inventario/registro-salida.html',
+
   '#/inventario/alertas':
     'pages/inventario/alertas.html',
 
@@ -304,6 +307,9 @@ const routePermissions = {
   'inventario.movimientos.consultar',
 
   '#/inventario/registro-entrada':
+    'inventario.gestionar',
+
+  '#/inventario/registro-salida':
     'inventario.gestionar',
 
   '#/inventario/alertas':
