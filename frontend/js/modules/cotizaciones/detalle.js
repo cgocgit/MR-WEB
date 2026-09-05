@@ -1567,5 +1567,16 @@ function registrarEventos() {
   );
 }
 
-registrarEventos();
-recargar();
+export function init() {
+  cotizacion = null;
+  clienteProspecto = null;
+
+  listasPorId =
+    new Map();
+
+  seleccionComparacion =
+    new Set();
+
+  registrarEventos();
+  recargar();
+}

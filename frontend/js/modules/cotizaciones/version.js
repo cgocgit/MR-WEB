@@ -2105,5 +2105,35 @@ async function inicializar() {
   }
 }
 
-registrarEventos();
-inicializar();
+export function init() {
+  cotizacion = null;
+  version = null;
+  clienteProspecto = null;
+
+  listasDisponibles = [];
+  configuracionLista = null;
+  detalleLocal = [];
+
+  tipoBusqueda =
+    TIPOS_CONCEPTO_COTIZACION
+      .PRODUCTO;
+
+  /*
+   * Invalida respuestas de búsquedas
+   * y Listas de Precios anteriores.
+   */
+  secuenciaBusqueda += 1;
+  secuenciaLista += 1;
+
+  clearTimeout(
+    temporizadorBusqueda
+  );
+
+  temporizadorBusqueda = null;
+
+  soloConsulta = false;
+  siguienteIdTemporal = -1;
+
+  registrarEventos();
+  inicializar();
+}

@@ -1197,6 +1197,18 @@ function inicializarFiltros() {
   }
 }
 
-inicializarFiltros();
-registrarEventos();
-cargarCotizaciones();
+export function init() {
+  paginaActual = 1;
+  resultadosActuales = [];
+  clientesPorId = new Map();
+
+  /*
+   * Invalida cualquier consulta iniciada
+   * por una instancia anterior de la vista.
+   */
+  secuenciaCarga += 1;
+
+  inicializarFiltros();
+  registrarEventos();
+  cargarCotizaciones();
+}

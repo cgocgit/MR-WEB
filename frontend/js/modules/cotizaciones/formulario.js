@@ -957,7 +957,26 @@ function registrarEventos() {
   );
 }
 
-function inicializar() {
+export function init() {
+  /*
+   * Cada apertura de Nueva Cotización
+   * comienza con contexto independiente.
+   */
+  clienteSeleccionado = null;
+  guardando = false;
+
+  clearTimeout(
+    temporizadorBusqueda
+  );
+
+  temporizadorBusqueda = null;
+
+  /*
+   * Invalida búsquedas pendientes de una
+   * instancia anterior de la pantalla.
+   */
+  secuenciaBusqueda += 1;
+
   if (
     !tieneGestionCotizaciones()
   ) {
@@ -978,5 +997,3 @@ function inicializar() {
   limpiarResultadosBusqueda();
   registrarEventos();
 }
-
-inicializar();

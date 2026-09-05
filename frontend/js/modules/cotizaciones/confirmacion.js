@@ -675,5 +675,11 @@ async function inicializar() {
   }
 }
 
-registrarEventos();
-inicializar();
+export function init() {
+  cotizacion = null;
+  versionElegida = null;
+  clienteProspecto = null;
+
+  registrarEventos();
+  inicializar();
+}

@@ -485,7 +485,10 @@
   <div id="cotizacionesModalHost"></div>
 </section>
 
-<script
-  type="module"
-  src="./js/modules/cotizaciones/version.js"
-></script>
+<script type="module">
+  import {
+    init
+  } from './js/modules/cotizaciones/version.js';
+
+  init();
+</script>

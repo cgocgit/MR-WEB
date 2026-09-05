@@ -322,7 +322,10 @@
   <div id="cotizacionesModalHost"></div>
 </section>
 
-<script
-  type="module"
-  src="./js/modules/cotizaciones/detalle.js"
-></script>
+<script type="module">
+  import {
+    init
+  } from './js/modules/cotizaciones/detalle.js';
+
+  init();
+</script>
