@@ -424,6 +424,9 @@ export const PAQUETES_MOCK = [
 /**
  * Listas de precios Mock
  */
+/**
+ * Listas de precios Mock
+ */
 export const LISTAS_PRECIOS_MOCK = [
   {
     idListaPrecio: 6001,
@@ -432,6 +435,24 @@ export const LISTAS_PRECIOS_MOCK = [
     vigenciaInicio: '2026-01-01',
     vigenciaFin: '2026-12-31',
     activo: 1,
+
+    porcentajeAdicionalFueraLista: 15,
+
+    detalleProductos: [
+      {
+        idProducto: 1001,
+        precio: 40.00
+      },
+      {
+        idProducto: 1002,
+        precio: 115.00
+      },
+      {
+        idProducto: 1005,
+        precio: 30.00
+      }
+    ],
+
     fechaRegistro: new Date('2026-01-01'),
     creadoPor: 'admin@mesaregia.com',
     fechaModificacion: new Date('2026-01-01'),
@@ -445,6 +466,20 @@ export const LISTAS_PRECIOS_MOCK = [
     vigenciaInicio: '2026-06-01',
     vigenciaFin: '2026-08-31',
     activo: 0,
+
+    porcentajeAdicionalFueraLista: 20,
+
+    detalleProductos: [
+      {
+        idProducto: 1001,
+        precio: 42.00
+      },
+      {
+        idProducto: 1003,
+        precio: 95.00
+      }
+    ],
+
     fechaRegistro: new Date('2026-05-15'),
     creadoPor: 'admin@mesaregia.com',
     fechaModificacion: new Date('2026-08-31'),

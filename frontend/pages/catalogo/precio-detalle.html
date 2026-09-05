@@ -8,6 +8,7 @@
     class="catalogo-loading"
   >
     <div class="catalogo-loading-spinner"></div>
+
     <span>
       Cargando lista de precios...
     </span>
@@ -18,16 +19,19 @@
     class="catalogo-error"
     style="display:none"
   >
+
     <div class="catalogo-error-icon">
       ⚠️
     </div>
 
     <div class="catalogo-error-content">
+
       <div class="catalogo-error-title">
         Error al consultar la lista de precios
       </div>
 
       <p id="error-mensaje"></p>
+
     </div>
   </div>
 
@@ -130,6 +134,63 @@
       <p id="lista-descripcion">
         Sin descripción
       </p>
+
+    </div>
+
+    <div class="catalogo-detail-section">
+
+      <h2>Configuración comercial</h2>
+
+      <div class="catalogo-form-summary">
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Adicional fuera de lista
+          </span>
+
+          <span
+            id="lista-porcentaje-adicional"
+            class="catalogo-form-summary-value"
+          >
+            0%
+          </span>
+
+        </div>
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Productos configurados
+          </span>
+
+          <span
+            id="lista-total-productos"
+            class="catalogo-form-summary-value"
+          >
+            0
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="catalogo-detail-section">
+
+      <h2>Productos incluidos</h2>
+
+      <div
+        id="lista-productos"
+        class="catalogo-form-components"
+      >
+
+        <p class="catalogo-empty-text">
+          No hay productos configurados en esta lista.
+        </p>
+
+      </div>
 
     </div>
 

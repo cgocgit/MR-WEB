@@ -16,14 +16,16 @@
   >
 
     <div class="catalogo-form-section">
-
       <h2>Información general</h2>
 
-      <div class="catalogo-form-grid">
+      <div class="catalogo-form-row">
 
         <div class="catalogo-form-group">
-          <label for="nombre">
-            Nombre *
+          <label
+            for="nombre"
+            class="required"
+          >
+            Nombre
           </label>
 
           <input
@@ -41,8 +43,11 @@
         </div>
 
         <div class="catalogo-form-group">
-          <label for="vigenciaInicio">
-            Inicio de vigencia *
+          <label
+            for="vigenciaInicio"
+            class="required"
+          >
+            Inicio de vigencia
           </label>
 
           <input
@@ -59,8 +64,11 @@
         </div>
 
         <div class="catalogo-form-group">
-          <label for="vigenciaFin">
-            Fin de vigencia *
+          <label
+            for="vigenciaFin"
+            class="required"
+          >
+            Fin de vigencia
           </label>
 
           <input
@@ -95,25 +103,138 @@
           class="catalogo-form-error"
         ></span>
       </div>
+    </div>
+
+    <div class="catalogo-form-section">
+      <h2>Configuración comercial</h2>
+
+      <div class="catalogo-form-row">
+
+        <div class="catalogo-form-group">
+          <label
+            for="porcentajeAdicionalFueraLista"
+            class="required"
+          >
+            Porcentaje adicional para productos fuera de lista
+          </label>
+
+          <input
+            id="porcentajeAdicionalFueraLista"
+            name="porcentajeAdicionalFueraLista"
+            type="number"
+            min="0"
+            step="0.01"
+            value="0"
+            required
+          >
+
+          <span
+            id="error-porcentajeAdicionalFueraLista"
+            class="catalogo-form-error"
+          ></span>
+
+          <p class="catalogo-form-helper">
+            Se aplica sobre el precio base cuando un producto
+            no forma parte de esta lista de precios.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="catalogo-form-section">
+      <h2>Productos incluidos</h2>
+
+      <div class="catalogo-form-group">
+
+        <label for="buscar-productos">
+          Buscar y agregar producto
+        </label>
+
+        <div class="catalogo-form-row">
+
+          <input
+            type="text"
+            id="buscar-productos"
+            list="productos-opciones"
+            autocomplete="off"
+            placeholder="Código o nombre del producto"
+          >
+
+          <datalist id="productos-opciones"></datalist>
+
+          <button
+            type="button"
+            id="btn-agregar-producto"
+            class="btn btn-primary"
+          >
+            + Agregar
+          </button>
+
+        </div>
+
+        <p class="catalogo-form-helper">
+          El precio configurado aquí será el precio aplicable
+          cuando el producto forme parte de la lista.
+        </p>
+
+      </div>
+
+      <div
+        id="productos-componentes"
+        class="catalogo-form-components"
+      >
+        <p class="catalogo-empty-text">
+          No hay productos agregados.
+        </p>
+      </div>
+
+      <span
+        id="error-detalleProductos"
+        class="catalogo-form-error"
+      ></span>
 
     </div>
 
     <div class="catalogo-form-section">
+      <h2>Resumen</h2>
 
+      <div class="catalogo-form-summary">
+
+        <div class="catalogo-form-summary-item">
+
+          <span class="catalogo-form-summary-label">
+            Productos configurados
+          </span>
+
+          <span
+            id="resumen-total-productos"
+            class="catalogo-form-summary-value"
+          >
+            0
+          </span>
+
+        </div>
+
+      </div>
+    </div>
+
+    <div class="catalogo-form-section">
       <h2>Estado</h2>
 
       <div class="catalogo-form-group">
-        <label>
+        <label for="activo">
+
           <input
             id="activo"
             name="activo"
             type="checkbox"
             checked
           >
+
           Lista activa
         </label>
       </div>
-
     </div>
 
     <div class="catalogo-form-actions">
