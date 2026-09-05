@@ -1,0 +1,328 @@
+<section
+  id="cotizacionDetallePage"
+  class="container cotizaciones-page"
+>
+  <!-- Encabezado -->
+  <header class="cotizaciones-page-header">
+    <div class="cotizaciones-page-heading">
+      <nav
+        class="cotizaciones-breadcrumb"
+        aria-label="Navegación de cotización"
+      >
+        <a href="#/cotizaciones">Inicio</a>
+        <span>/</span>
+        <a href="#/cotizaciones">Cotizaciones</a>
+        <span>/</span>
+        <span aria-current="page">Detalle</span>
+      </nav>
+
+      <h1 id="cotizacionDetalleTitulo">
+        Cotización
+      </h1>
+
+      <p class="cotizaciones-subtitle">
+        Centro de seguimiento de la cotización general.
+      </p>
+    </div>
+
+    <div class="cotizaciones-actions">
+      <button
+        id="btnVolverCotizaciones"
+        class="cotizaciones-btn cotizaciones-btn--secondary"
+        type="button"
+      >
+        Volver
+      </button>
+
+      <button
+        id="btnNuevaVersion"
+        class="cotizaciones-btn cotizaciones-btn--secondary"
+        type="button"
+        hidden
+      >
+        Nueva versión
+      </button>
+
+      <button
+        id="btnRechazarCotizacion"
+        class="cotizaciones-btn cotizaciones-btn--warning"
+        type="button"
+        hidden
+      >
+        Rechazar
+      </button>
+
+      <button
+        id="btnCancelarCotizacion"
+        class="cotizaciones-btn cotizaciones-btn--danger"
+        type="button"
+        hidden
+      >
+        Cancelar
+      </button>
+
+      <button
+        id="btnConfirmarCotizacion"
+        class="cotizaciones-btn cotizaciones-btn--primary"
+        type="button"
+        hidden
+      >
+        Confirmar
+      </button>
+    </div>
+  </header>
+
+  <!-- Estado de carga / error -->
+  <div
+    id="detalleCotizacionEstado"
+    class="cotizaciones-loading"
+    aria-live="polite"
+  >
+    <strong>Cargando cotización...</strong>
+    <p>
+      Consultando información y versiones.
+    </p>
+  </div>
+
+  <!-- Contenido -->
+  <div
+    id="detalleCotizacionContenido"
+    hidden
+  >
+    <!-- Resumen general -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="resumenCotizacionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="resumenCotizacionTitulo">
+            Resumen
+          </h2>
+        </div>
+      </div>
+
+      <div
+        id="cotizacionResumen"
+        class="cotizaciones-summary-grid"
+      >
+        <div class="cotizaciones-summary-item">
+          <span>Cliente / Prospecto</span>
+          <strong id="resumenCliente">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Evento</span>
+          <strong id="resumenEvento">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Fecha y hora</span>
+          <strong id="resumenFechaHora">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Estado general</span>
+          <strong id="resumenEstadoGeneral">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Responsable</span>
+          <strong id="resumenResponsable">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Porcentaje de confirmación</span>
+          <strong id="resumenPorcentajeConfirmacion">
+            —
+          </strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Versión elegida</span>
+          <strong id="resumenVersionElegida">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Disponibilidad global</span>
+          <strong id="resumenDisponibilidad">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Total elegido</span>
+          <strong
+            id="resumenTotalElegido"
+            class="cotizaciones-money"
+          >
+            —
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Versiones -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="versionesCotizacionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="versionesCotizacionTitulo">
+            Versiones
+          </h2>
+        </div>
+
+        <span
+          id="cantidadVersiones"
+          class="cotizaciones-badge cotizaciones-badge--neutral"
+        >
+          0 versiones
+        </span>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <!-- Escritorio -->
+        <div
+          class="cotizaciones-table-wrapper cotizaciones-desktop-table"
+        >
+          <table class="cotizaciones-table">
+            <thead>
+              <tr>
+                <th scope="col">Versión</th>
+                <th scope="col">Folio</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Lista de precios</th>
+                <th scope="col">Total</th>
+                <th scope="col">Disponibilidad</th>
+                <th scope="col">Elegida</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody id="versionesCotizacionBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Móvil -->
+        <div
+          id="versionesCotizacionMobile"
+          class="cotizaciones-mobile-list"
+        >
+        </div>
+
+        <!-- Sin versiones -->
+        <div
+          id="versionesCotizacionEmpty"
+          class="cotizaciones-empty"
+          hidden
+        >
+          <strong>
+            No existen versiones para esta cotización.
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparación + historial -->
+    <div class="cotizaciones-grid cotizaciones-grid--2">
+      <!-- Comparación -->
+      <section
+        id="comparacionVersionesCard"
+        class="cotizaciones-card"
+        aria-labelledby="comparacionVersionesTitulo"
+      >
+        <div class="cotizaciones-card-header">
+          <div class="cotizaciones-card-title">
+            <h2 id="comparacionVersionesTitulo">
+              Comparación de versiones
+            </h2>
+          </div>
+        </div>
+
+        <div class="cotizaciones-card-body">
+          <div
+            id="comparacionVersionesControles"
+            class="cotizaciones-toolbar"
+          >
+            <div>
+              <p class="cotizaciones-subtitle">
+                Selecciona las versiones que deseas comparar.
+              </p>
+            </div>
+
+            <button
+              id="btnCompararVersiones"
+              class="cotizaciones-btn cotizaciones-btn--secondary"
+              type="button"
+              disabled
+            >
+              Comparar
+            </button>
+          </div>
+
+          <div
+            id="comparacionVersionesResultado"
+            class="cotizaciones-table-wrapper"
+            hidden
+          >
+          </div>
+
+          <div
+            id="comparacionVersionesEmpty"
+            class="cotizaciones-empty"
+          >
+            <strong>
+              Selecciona dos o más versiones.
+            </strong>
+
+            <p>
+              La comparación se mostrará dentro de esta
+              cotización.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Historial -->
+      <section
+        class="cotizaciones-card"
+        aria-labelledby="historialCotizacionTitulo"
+      >
+        <div class="cotizaciones-card-header">
+          <div class="cotizaciones-card-title">
+            <h2 id="historialCotizacionTitulo">
+              Historial
+            </h2>
+          </div>
+        </div>
+
+        <div class="cotizaciones-card-body">
+          <div
+            id="historialCotizacion"
+            aria-live="polite"
+          >
+          </div>
+
+          <div
+            id="historialCotizacionEmpty"
+            class="cotizaciones-empty"
+            hidden
+          >
+            <strong>
+              Sin movimientos registrados.
+            </strong>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Host único para diálogos -->
+  <div id="cotizacionesModalHost"></div>
+</section>
+
+<script
+  type="module"
+  src="./js/modules/cotizaciones/detalle.js"
+></script>

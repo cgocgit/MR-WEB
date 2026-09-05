@@ -1,0 +1,2109 @@
+import {
+  getCotizacion,
+  getCotizacionVersion,
+  updateCotizacionVersion,
+  deleteCotizacionVersion,
+  sendCotizacionVersion
+} from '../../api/cotizaciones.service.js';
+
+import {
+  getClienteProspecto
+} from '../../api/clientes.service.js';
+
+import {
+  listarProductos,
+  listarServicios,
+  listarPaquetes
+} from '../../api/catalogo.service.js';
+
+import {
+  listarListasPrecioDisponibles,
+  obtenerConfiguracionListaPrecio,
+  resolverPrecioProducto
+} from '../../api/listas-precios.service.js';
+
+import {
+  ESTADOS_VERSION_COTIZACION,
+  TIPOS_CONCEPTO_COTIZACION
+} from '../../api/cotizaciones.constants.js';
+
+import {
+  construirFolioCotizacion,
+  construirFolioVersion,
+  crearBadge,
+  escaparHtml,
+  formatearFecha,
+  formatearMoneda,
+  obtenerClaseDisponibilidad,
+  obtenerClaseEstadoVersion,
+  obtenerEtiquetaDisponibilidad,
+  obtenerEtiquetaEstadoVersion
+} from './cotizaciones-ui.js';
+
+import {
+  openModal
+} from '../../components/modal.js';
+
+import {
+  showNotification
+} from '../../components/notification.js';
+
+const el =
+  id =>
+    document.getElementById(id);
+
+let cotizacion = null;
+let version = null;
+let clienteProspecto = null;
+
+let listasDisponibles = [];
+let configuracionLista = null;
+let detalleLocal = [];
+
+let tipoBusqueda =
+  TIPOS_CONCEPTO_COTIZACION
+    .PRODUCTO;
+
+let secuenciaBusqueda = 0;
+let secuenciaLista = 0;
+
+let temporizadorBusqueda =
+  null;
+
+let soloConsulta = false;
+
+let siguienteIdTemporal =
+  -1;
+
+function obtenerParametrosHash() {
+  const [
+    ,
+    queryString = ''
+  ] =
+    String(
+      location.hash || ''
+    ).split('?');
+
+  return new URLSearchParams(
+    queryString
+  );
+}
+
+function obtenerEnteroParametro(
+  nombre
+) {
+  const valor =
+    Number(
+      obtenerParametrosHash()
+        .get(nombre)
+    );
+
+  return (
+    Number.isInteger(valor) &&
+    valor > 0
+  )
+    ? valor
+    : null;
+}
+
+function nombreCliente(
+  registro
+) {
+  if (!registro) {
+    return 'No disponible';
+  }
+
+  return [
+    registro.nombres,
+    registro.apellidos
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .trim() ||
+    'No disponible';
+}
+
+function mostrarError(
+  mensaje
+) {
+  const estado =
+    el('versionEstadoCarga');
+
+  const contenido =
+    el('versionContenido');
+
+  if (
+    !estado ||
+    !contenido
+  ) {
+    return;
+  }
+
+  estado.className =
+    'cotizaciones-error';
+
+  estado.innerHTML = `
+    <strong>
+      No fue posible cargar la versión.
+    </strong>
+
+    <p>
+      ${escaparHtml(mensaje)}
+    </p>
+  `;
+
+  estado.hidden = false;
+  contenido.hidden = true;
+}
+
+function renderEncabezado() {
+  const folioCotizacion =
+    construirFolioCotizacion(
+      cotizacion.ejercicio,
+      cotizacion.consecutivo
+    );
+
+  const folioVersion =
+    construirFolioVersion(
+      cotizacion.ejercicio,
+      cotizacion.consecutivo,
+      version.numeroVersion
+    );
+
+  const titulo =
+    el('versionTitulo');
+
+  const breadcrumbCotizacion =
+    el(
+      'breadcrumbCotizacion'
+    );
+
+  const breadcrumbVersion =
+    el(
+      'breadcrumbVersion'
+    );
+
+  const badge =
+    el('versionEstadoBadge');
+
+  if (titulo) {
+    titulo.textContent =
+      soloConsulta
+        ? `Versión ${folioVersion}`
+        : `Editar versión ${folioVersion}`;
+  }
+
+  if (breadcrumbCotizacion) {
+    breadcrumbCotizacion
+      .textContent =
+      folioCotizacion;
+
+    breadcrumbCotizacion.href =
+      `#/cotizaciones/detalle?id=${
+        Number(
+          cotizacion
+            .idCotizacion
+        )
+      }`;
+  }
+
+  if (breadcrumbVersion) {
+    breadcrumbVersion.textContent =
+      `Versión V${
+        Number(
+          version.numeroVersion
+        )
+      }`;
+  }
+
+  if (badge) {
+    badge.className =
+      `cotizaciones-badge ${
+        obtenerClaseEstadoVersion(
+          version.estadoVersion
+        )
+      }`;
+
+    badge.textContent =
+      obtenerEtiquetaEstadoVersion(
+        version.estadoVersion
+      );
+  }
+
+  el(
+    'btnEliminarVersion'
+  ).hidden =
+    soloConsulta;
+
+  el(
+    'btnGuardarVersion'
+  ).hidden =
+    soloConsulta;
+
+  el(
+    'btnEnviarVersion'
+  ).hidden =
+    soloConsulta;
+}
+
+function renderContexto() {
+  const asignar =
+    (id, valor) => {
+      const nodo = el(id);
+
+      if (nodo) {
+        nodo.textContent =
+          valor;
+      }
+    };
+
+  asignar(
+    'versionCotizacionFolio',
+    construirFolioCotizacion(
+      cotizacion.ejercicio,
+      cotizacion.consecutivo
+    )
+  );
+
+  asignar(
+    'versionCliente',
+    nombreCliente(
+      clienteProspecto
+    )
+  );
+
+  asignar(
+    'versionFechaServicio',
+    formatearFecha(
+      cotizacion.fechaEvento
+    )
+  );
+
+  asignar(
+    'versionHoraServicio',
+    cotizacion.horaEvento ||
+      '—'
+  );
+}
+
+async function cargarListas() {
+  listasDisponibles =
+    await listarListasPrecioDisponibles({
+      fecha:
+        cotizacion.fechaEvento
+    });
+
+  const select =
+    el('versionListaPrecio');
+
+  if (!select) {
+    return;
+  }
+
+  const idsDisponibles =
+    new Set(
+      listasDisponibles.map(
+        lista =>
+          Number(
+            lista.idListaPrecio
+          )
+      )
+    );
+
+  let opciones =
+    [...listasDisponibles];
+
+  if (
+    version.idListaPrecio &&
+    !idsDisponibles.has(
+      Number(
+        version.idListaPrecio
+      )
+    )
+  ) {
+    const historica =
+      await obtenerConfiguracionListaPrecio(
+        version.idListaPrecio
+      ).catch(
+        () => null
+      );
+
+    if (historica) {
+      opciones = [
+        historica,
+        ...opciones
+      ];
+    }
+  }
+
+  select.innerHTML = `
+    <option value="">
+      Selecciona una lista
+    </option>
+
+    ${opciones
+      .map(
+        lista => `
+          <option
+            value="${
+              Number(
+                lista
+                  .idListaPrecio
+              )
+            }"
+          >
+            ${escaparHtml(
+              lista.nombre ||
+              'Lista de Precios'
+            )}
+          </option>
+        `
+      )
+      .join('')}
+  `;
+
+  select.value =
+    version.idListaPrecio
+      ? String(
+          version.idListaPrecio
+        )
+      : '';
+
+  select.disabled =
+    soloConsulta;
+
+  if (select.value) {
+    await cargarConfiguracionLista(
+      Number(select.value),
+      false
+    );
+  } else {
+    renderConfiguracionLista(
+      null
+    );
+  }
+}
+
+function renderConfiguracionLista(
+  lista
+) {
+  const vigencia =
+    el('listaPrecioVigencia');
+
+  const condicion =
+    el('listaPrecioCondicion');
+
+  const adicional =
+    el('listaPrecioAdicional');
+
+  if (vigencia) {
+    vigencia.textContent =
+      lista
+        ? `${
+            formatearFecha(
+              lista.vigenciaInicio
+            )
+          } - ${
+            formatearFecha(
+              lista.vigenciaFin
+            )
+          }`
+        : '—';
+  }
+
+  if (condicion) {
+    condicion.textContent =
+      lista?.condicion ||
+      'No definida';
+  }
+
+  if (adicional) {
+    adicional.textContent =
+      lista
+        ? `${
+            Number(
+              lista
+                .porcentajeAdicionalFueraLista ||
+              0
+            )
+          }%`
+        : '—';
+  }
+}
+
+async function cargarConfiguracionLista(
+  idListaPrecio,
+  recalcular = true
+) {
+  const secuencia =
+    ++secuenciaLista;
+
+  try {
+    const configuracion =
+      await obtenerConfiguracionListaPrecio(
+        idListaPrecio
+      );
+
+    if (
+      secuencia !==
+      secuenciaLista
+    ) {
+      return;
+    }
+
+    configuracionLista =
+      configuracion;
+
+    renderConfiguracionLista(
+      configuracion
+    );
+
+    if (recalcular) {
+      await recalcularProductosPorLista(
+        idListaPrecio,
+        secuencia
+      );
+    }
+  } catch (error) {
+    if (
+      secuencia !==
+      secuenciaLista
+    ) {
+      return;
+    }
+
+    configuracionLista =
+      null;
+
+    renderConfiguracionLista(
+      null
+    );
+
+    showNotification(
+      error?.message ||
+      'No fue posible consultar la Lista de Precios.',
+      {
+        type: 'error'
+      }
+    );
+  }
+}
+
+async function recalcularProductosPorLista(
+  idListaPrecio,
+  secuencia
+) {
+  const productos =
+    detalleLocal.filter(
+      item =>
+        item.tipoConcepto ===
+          TIPOS_CONCEPTO_COTIZACION
+            .PRODUCTO &&
+        item.idProducto
+    );
+
+  const resoluciones =
+    await Promise.all(
+      productos.map(
+        item =>
+          resolverPrecioProducto({
+            idListaPrecio,
+            idProducto:
+              item.idProducto
+          })
+      )
+    );
+
+  if (
+    secuencia !==
+    secuenciaLista
+  ) {
+    return;
+  }
+
+  const porProducto =
+    new Map(
+      resoluciones.map(
+        precio => [
+          Number(
+            precio.idProducto
+          ),
+          precio
+        ]
+      )
+    );
+
+  detalleLocal =
+    detalleLocal.map(
+      item => {
+        if (
+          item.tipoConcepto !==
+          TIPOS_CONCEPTO_COTIZACION
+            .PRODUCTO
+        ) {
+          return item;
+        }
+
+        const precio =
+          porProducto.get(
+            Number(
+              item.idProducto
+            )
+          );
+
+        if (!precio) {
+          return item;
+        }
+
+        const cantidad =
+          Number(
+            item.cantidad ||
+            0
+          );
+
+        return {
+          ...item,
+
+          precioBase:
+            precio.precioBase,
+
+          precioLista:
+            precio.precioLista,
+
+          porcentajeAdicional:
+            precio
+              .porcentajeAdicional,
+
+          precioAplicado:
+            precio
+              .precioAplicado,
+
+          subtotal:
+            cantidad *
+            precio
+              .precioAplicado
+        };
+      }
+    );
+
+  recalcularEconomia();
+  renderDetalle();
+}
+
+function precioDetalleHtml(
+  item
+) {
+  if (
+    item.tipoConcepto ===
+      TIPOS_CONCEPTO_COTIZACION
+        .PRODUCTO &&
+    Number(
+      item
+        .porcentajeAdicional ||
+      0
+    ) > 0
+  ) {
+    return `
+      ${crearBadge(
+        'Fuera de lista',
+        'cotizaciones-badge--warning'
+      )}
+
+      <div>
+        <small>
+          Precio base:
+          ${escaparHtml(
+            formatearMoneda(
+              item.precioBase
+            )
+          )}
+        </small>
+
+        <br>
+
+        <small>
+          + ${
+            Number(
+              item
+                .porcentajeAdicional
+            )
+          }%
+        </small>
+
+        <br>
+
+        <strong>
+          ${escaparHtml(
+            formatearMoneda(
+              item.precioAplicado
+            )
+          )}
+        </strong>
+      </div>
+    `;
+  }
+
+  return escaparHtml(
+    formatearMoneda(
+      item.precioAplicado
+    )
+  );
+}
+
+function badgeDisponibilidad(
+  item
+) {
+  if (!item.disponibilidad) {
+    return crearBadge(
+      'Sin consultar',
+      'cotizaciones-badge--neutral'
+    );
+  }
+
+  return crearBadge(
+    obtenerEtiquetaDisponibilidad(
+      item.disponibilidad
+    ),
+    obtenerClaseDisponibilidad(
+      item.disponibilidad
+    )
+  );
+}
+
+function renderDetalle() {
+  const tbody =
+    el('detalleVersionBody');
+
+  const mobile =
+    el('detalleVersionMobile');
+
+  const empty =
+    el('detalleVersionEmpty');
+
+  const cantidad =
+    el('detalleVersionCantidad');
+
+  if (cantidad) {
+    cantidad.textContent =
+      `${detalleLocal.length} ` +
+      `${
+        detalleLocal.length === 1
+          ? 'concepto'
+          : 'conceptos'
+      }`;
+  }
+
+  if (empty) {
+    empty.hidden =
+      detalleLocal.length > 0;
+  }
+
+  if (tbody) {
+    tbody.innerHTML =
+      detalleLocal
+        .map(
+          item => `
+            <tr>
+              <td>
+                <strong>
+                  ${escaparHtml(
+                    item
+                      .descripcionHistorica ||
+                    'Concepto'
+                  )}
+                </strong>
+              </td>
+
+              <td>
+                ${escaparHtml(
+                  item.tipoConcepto ===
+                    TIPOS_CONCEPTO_COTIZACION
+                      .PRODUCTO
+                    ? 'Producto'
+                    : item.tipoConcepto ===
+                        TIPOS_CONCEPTO_COTIZACION
+                          .SERVICIO
+                      ? 'Servicio'
+                      : 'Paquete'
+                )}
+              </td>
+
+              <td>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value="${
+                    Number(
+                      item.cantidad ||
+                      1
+                    )
+                  }"
+                  data-cantidad-detalle="${
+                    Number(
+                      item.idDetalle
+                    )
+                  }"
+                  ${
+                    soloConsulta
+                      ? 'disabled'
+                      : ''
+                  }
+                  aria-label="Cantidad de ${
+                    escaparHtml(
+                      item
+                        .descripcionHistorica ||
+                      'concepto'
+                    )
+                  }"
+                >
+              </td>
+
+              <td>
+                ${precioDetalleHtml(
+                  item
+                )}
+              </td>
+
+              <td>
+                ${badgeDisponibilidad(
+                  item
+                )}
+              </td>
+
+              <td
+                class="
+                  cotizaciones-money
+                "
+              >
+                ${escaparHtml(
+                  formatearMoneda(
+                    item.subtotal
+                  )
+                )}
+              </td>
+
+              <td>
+                ${
+                  soloConsulta
+                    ? '—'
+                    : `
+                      <button
+                        type="button"
+                        class="
+                          cotizaciones-btn
+                          cotizaciones-btn--danger
+                        "
+                        data-eliminar-detalle="${
+                          Number(
+                            item.idDetalle
+                          )
+                        }"
+                      >
+                        Quitar
+                      </button>
+                    `
+                }
+              </td>
+            </tr>
+          `
+        )
+        .join('');
+  }
+
+  if (mobile) {
+    mobile.innerHTML =
+      detalleLocal
+        .map(
+          item => `
+            <article
+              class="
+                cotizaciones-mobile-card
+              "
+            >
+              <div
+                class="
+                  cotizaciones-mobile-card-header
+                "
+              >
+                <strong>
+                  ${escaparHtml(
+                    item
+                      .descripcionHistorica ||
+                    'Concepto'
+                  )}
+                </strong>
+
+                ${badgeDisponibilidad(
+                  item
+                )}
+              </div>
+
+              <div
+                class="
+                  cotizaciones-mobile-card-grid
+                "
+              >
+                <div
+                  class="
+                    cotizaciones-mobile-card-field
+                  "
+                >
+                  <span>Tipo</span>
+
+                  <strong>
+                    ${escaparHtml(
+                      item.tipoConcepto
+                    )}
+                  </strong>
+                </div>
+
+                <div
+                  class="
+                    cotizaciones-mobile-card-field
+                  "
+                >
+                  <span>
+                    Cantidad
+                  </span>
+
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value="${
+                      Number(
+                        item.cantidad ||
+                        1
+                      )
+                    }"
+                    data-cantidad-detalle="${
+                      Number(
+                        item.idDetalle
+                      )
+                    }"
+                    ${
+                      soloConsulta
+                        ? 'disabled'
+                        : ''
+                    }
+                  >
+                </div>
+
+                <div
+                  class="
+                    cotizaciones-mobile-card-field
+                  "
+                >
+                  <span>Precio</span>
+
+                  <strong>
+                    ${escaparHtml(
+                      formatearMoneda(
+                        item
+                          .precioAplicado
+                      )
+                    )}
+                  </strong>
+                </div>
+
+                <div
+                  class="
+                    cotizaciones-mobile-card-field
+                  "
+                >
+                  <span>
+                    Subtotal
+                  </span>
+
+                  <strong>
+                    ${escaparHtml(
+                      formatearMoneda(
+                        item.subtotal
+                      )
+                    )}
+                  </strong>
+                </div>
+              </div>
+
+              ${
+                soloConsulta
+                  ? ''
+                  : `
+                    <button
+                      type="button"
+                      class="
+                        cotizaciones-btn
+                        cotizaciones-btn--danger
+                      "
+                      data-eliminar-detalle="${
+                        Number(
+                          item.idDetalle
+                        )
+                      }"
+                    >
+                      Quitar concepto
+                    </button>
+                  `
+              }
+            </article>
+          `
+        )
+        .join('');
+  }
+}
+
+function recalcularEconomia() {
+  const importeConceptos =
+    detalleLocal.reduce(
+      (total, item) =>
+        total +
+        Number(
+          item.subtotal ||
+          0
+        ),
+      0
+    );
+
+  const descuentos =
+    Number(
+      version.descuentos ||
+      0
+    );
+
+  const impuestos =
+    Number(
+      version.impuestos ||
+      0
+    );
+
+  const cargos =
+    Number(
+      version.cargos ||
+      0
+    );
+
+  const subtotal =
+    Math.max(
+      0,
+      importeConceptos -
+      descuentos
+    );
+
+  const total =
+    subtotal +
+    impuestos +
+    cargos;
+
+  version.importeConceptos =
+    importeConceptos;
+
+  version.subtotal =
+    subtotal;
+
+  version.total =
+    total;
+
+  const asignar =
+    (id, valor) => {
+      const nodo =
+        el(id);
+
+      if (nodo) {
+        nodo.textContent =
+          valor;
+      }
+    };
+
+  asignar(
+    'resumenImporteConceptos',
+    formatearMoneda(
+      importeConceptos
+    )
+  );
+
+  asignar(
+    'resumenDescuentos',
+    formatearMoneda(
+      descuentos
+    )
+  );
+
+  asignar(
+    'resumenSubtotal',
+    formatearMoneda(
+      subtotal
+    )
+  );
+
+  asignar(
+    'resumenImpuestos',
+    impuestos
+      ? formatearMoneda(
+          impuestos
+        )
+      : 'Pendiente de regla fiscal'
+  );
+
+  asignar(
+    'resumenCargos',
+    formatearMoneda(
+      cargos
+    )
+  );
+
+  asignar(
+    'resumenTotal',
+    formatearMoneda(
+      total
+    )
+  );
+}
+
+function renderDisponibilidadGlobal() {
+  const badge =
+    el(
+      'versionDisponibilidadBadge'
+    );
+
+  if (!badge) {
+    return;
+  }
+
+  if (
+    !version
+      .disponibilidadGlobal
+  ) {
+    badge.className =
+      'cotizaciones-badge cotizaciones-badge--neutral';
+
+    badge.textContent =
+      'Sin consultar';
+
+    return;
+  }
+
+  badge.className =
+    `cotizaciones-badge ${
+      obtenerClaseDisponibilidad(
+        version
+          .disponibilidadGlobal
+      )
+    }`;
+
+  badge.textContent =
+    obtenerEtiquetaDisponibilidad(
+      version
+        .disponibilidadGlobal
+    );
+}
+
+function renderResultadoBusqueda(
+  items,
+  tipo
+) {
+  const contenedor =
+    el('resultadosConceptos');
+
+  const empty =
+    el(
+      'resultadosConceptosEmpty'
+    );
+
+  if (
+    !contenedor ||
+    !empty
+  ) {
+    return;
+  }
+
+  if (!items.length) {
+    contenedor.innerHTML =
+      '';
+
+    empty.hidden = false;
+
+    empty
+      .querySelector('strong')
+      .textContent =
+      'No se encontraron resultados.';
+
+    return;
+  }
+
+  empty.hidden = true;
+
+  contenedor.innerHTML = `
+    <div
+      class="
+        cotizaciones-grid
+        cotizaciones-grid--3
+      "
+    >
+      ${items
+        .map(item => {
+          const id =
+            tipo ===
+            TIPOS_CONCEPTO_COTIZACION
+              .PRODUCTO
+              ? item.idProducto
+              : tipo ===
+                  TIPOS_CONCEPTO_COTIZACION
+                    .SERVICIO
+                ? item.idServicio
+                : item.idPaquete;
+
+          const codigo =
+            item.codigo ||
+            '';
+
+          const nombre =
+            item.nombre ||
+            'Sin nombre';
+
+          const puedeAgregar =
+            !soloConsulta &&
+            tipo ===
+              TIPOS_CONCEPTO_COTIZACION
+                .PRODUCTO &&
+            Boolean(
+              el(
+                'versionListaPrecio'
+              )?.value
+            );
+
+          return `
+            <article
+              class="
+                cotizaciones-card
+              "
+            >
+              <div
+                class="
+                  cotizaciones-card-body
+                "
+              >
+                <strong>
+                  ${escaparHtml(
+                    nombre
+                  )}
+                </strong>
+
+                <p
+                  class="
+                    cotizaciones-subtitle
+                  "
+                >
+                  ${escaparHtml(
+                    codigo
+                  )}
+                </p>
+
+                ${
+                  tipo !==
+                  TIPOS_CONCEPTO_COTIZACION
+                    .PRODUCTO
+                    ? `
+                      <p
+                        class="
+                          cotizaciones-field-help
+                        "
+                      >
+                        Precio por Lista de Precios
+                        pendiente de contrato.
+                      </p>
+                    `
+                    : ''
+                }
+
+                <button
+                  type="button"
+                  class="
+                    cotizaciones-btn
+                    cotizaciones-btn--secondary
+                  "
+                  data-agregar-concepto="${
+                    Number(id)
+                  }"
+                  data-tipo-concepto="${
+                    escaparHtml(tipo)
+                  }"
+                  ${
+                    puedeAgregar
+                      ? ''
+                      : 'disabled'
+                  }
+                >
+                  Agregar
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join('')}
+    </div>
+  `;
+}
+
+async function buscarConceptos() {
+  const secuencia =
+    ++secuenciaBusqueda;
+
+  const texto =
+    String(
+      el(
+        'buscarConcepto'
+      )?.value ||
+      ''
+    ).trim();
+
+  try {
+    let respuesta;
+
+    if (
+      tipoBusqueda ===
+      TIPOS_CONCEPTO_COTIZACION
+        .PRODUCTO
+    ) {
+      respuesta =
+        await listarProductos({
+          texto,
+          soloActivos: true,
+          skip: 0,
+          limit: 6
+        });
+    } else if (
+      tipoBusqueda ===
+      TIPOS_CONCEPTO_COTIZACION
+        .SERVICIO
+    ) {
+      respuesta =
+        await listarServicios({
+          texto,
+          soloActivos: true,
+          skip: 0,
+          limit: 6
+        });
+    } else {
+      respuesta =
+        await listarPaquetes({
+          texto,
+          soloActivos: true,
+          skip: 0,
+          limit: 6
+        });
+    }
+
+    if (
+      secuencia !==
+      secuenciaBusqueda
+    ) {
+      return;
+    }
+
+    renderResultadoBusqueda(
+      respuesta.items ||
+        [],
+      tipoBusqueda
+    );
+  } catch (error) {
+    if (
+      secuencia !==
+      secuenciaBusqueda
+    ) {
+      return;
+    }
+
+    showNotification(
+      error?.message ||
+      'No fue posible consultar el Catálogo.',
+      {
+        type: 'error'
+      }
+    );
+  }
+}
+
+function programarBusqueda() {
+  clearTimeout(
+    temporizadorBusqueda
+  );
+
+  temporizadorBusqueda =
+    setTimeout(
+      buscarConceptos,
+      250
+    );
+}
+
+async function agregarProducto(
+  idProducto
+) {
+  const idListaPrecio =
+    Number(
+      el(
+        'versionListaPrecio'
+      )?.value
+    );
+
+  if (!idListaPrecio) {
+    showNotification(
+      'Selecciona primero una Lista de Precios.',
+      {
+        type: 'error'
+      }
+    );
+
+    return;
+  }
+
+  if (
+    detalleLocal.some(
+      item =>
+        item.tipoConcepto ===
+          TIPOS_CONCEPTO_COTIZACION
+            .PRODUCTO &&
+        Number(
+          item.idProducto
+        ) ===
+        Number(
+          idProducto
+        )
+    )
+  ) {
+    showNotification(
+      'El producto ya forma parte de la versión.',
+      {
+        type: 'info'
+      }
+    );
+
+    return;
+  }
+
+  try {
+    const [
+      productoRespuesta,
+      precio
+    ] =
+      await Promise.all([
+        listarProductos({
+          texto: '',
+          soloActivos: true,
+          skip: 0,
+          limit: 100
+        }),
+
+        resolverPrecioProducto({
+          idListaPrecio,
+          idProducto
+        })
+      ]);
+
+    const producto =
+      productoRespuesta.items
+        .find(
+          item =>
+            Number(
+              item.idProducto
+            ) ===
+            Number(
+              idProducto
+            )
+        );
+
+    if (!producto) {
+      throw new Error(
+        'Producto no encontrado en el Catálogo.'
+      );
+    }
+
+    detalleLocal.push({
+      idDetalle:
+        siguienteIdTemporal--,
+
+      tipoConcepto:
+        TIPOS_CONCEPTO_COTIZACION
+          .PRODUCTO,
+
+      idProducto:
+        Number(idProducto),
+
+      idServicio: null,
+      idPaquete: null,
+
+      descripcionHistorica:
+        producto.nombre,
+
+      cantidad: 1,
+
+      precioBase:
+        precio.precioBase,
+
+      precioLista:
+        precio.precioLista,
+
+      porcentajeAdicional:
+        precio
+          .porcentajeAdicional,
+
+      precioAplicado:
+        precio
+          .precioAplicado,
+
+      subtotal:
+        precio
+          .precioAplicado,
+
+      disponibilidad:
+        null
+    });
+
+    recalcularEconomia();
+    renderDetalle();
+  } catch (error) {
+    showNotification(
+      error?.message ||
+      'No fue posible agregar el producto.',
+      {
+        type: 'error'
+      }
+    );
+  }
+}
+
+function eliminarDetalle(
+  idDetalle
+) {
+  detalleLocal =
+    detalleLocal.filter(
+      item =>
+        Number(
+          item.idDetalle
+        ) !==
+        Number(
+          idDetalle
+        )
+    );
+
+  recalcularEconomia();
+  renderDetalle();
+}
+
+function actualizarCantidad(
+  idDetalle,
+  cantidad
+) {
+  const valor =
+    Number(cantidad);
+
+  if (
+    !Number.isInteger(valor) ||
+    valor <= 0
+  ) {
+    showNotification(
+      'La cantidad debe ser un entero mayor a cero.',
+      {
+        type: 'error'
+      }
+    );
+
+    renderDetalle();
+    return;
+  }
+
+  detalleLocal =
+    detalleLocal.map(
+      item => {
+        if (
+          Number(
+            item.idDetalle
+          ) !==
+          Number(
+            idDetalle
+          )
+        ) {
+          return item;
+        }
+
+        return {
+          ...item,
+
+          cantidad:
+            valor,
+
+          subtotal:
+            valor *
+            Number(
+              item
+                .precioAplicado ||
+              0
+            ),
+
+          disponibilidad:
+            null
+        };
+      }
+    );
+
+  version.disponibilidadGlobal =
+    null;
+
+  recalcularEconomia();
+  renderDetalle();
+  renderDisponibilidadGlobal();
+}
+
+function construirPayloadVersion() {
+  return {
+    idListaPrecio:
+      Number(
+        el(
+          'versionListaPrecio'
+        )?.value
+      ) || null,
+
+    detalle:
+      detalleLocal.map(
+        item => ({
+          ...item
+        })
+      ),
+
+    disponibilidadGlobal:
+      version
+        .disponibilidadGlobal ||
+      null,
+
+    importeConceptos:
+      Number(
+        version
+          .importeConceptos ||
+        0
+      ),
+
+    descuentos:
+      Number(
+        version.descuentos ||
+        0
+      ),
+
+    impuestos:
+      Number(
+        version.impuestos ||
+        0
+      ),
+
+    cargos:
+      Number(
+        version.cargos ||
+        0
+      ),
+
+    total:
+      Number(
+        version.total ||
+        0
+      )
+  };
+}
+
+async function guardarBorrador() {
+  const payload =
+    construirPayloadVersion();
+
+  if (!payload.idListaPrecio) {
+    showNotification(
+      'Selecciona una Lista de Precios.',
+      {
+        type: 'error'
+      }
+    );
+
+    return false;
+  }
+
+  try {
+    version =
+      await updateCotizacionVersion(
+        cotizacion.idCotizacion,
+        version.idVersion,
+        payload
+      );
+
+    detalleLocal =
+      Array.isArray(
+        version.detalle
+      )
+        ? version.detalle.map(
+            item => ({
+              ...item
+            })
+          )
+        : [];
+
+    showNotification(
+      'Borrador guardado correctamente.',
+      {
+        type: 'success'
+      }
+    );
+
+    return true;
+  } catch (error) {
+    showNotification(
+      error?.message ||
+      'No fue posible guardar el Borrador.',
+      {
+        type: 'error'
+      }
+    );
+
+    return false;
+  }
+}
+
+async function enviarVersion() {
+  const guardado =
+    await guardarBorrador();
+
+  if (!guardado) {
+    return;
+  }
+
+  try {
+    await sendCotizacionVersion(
+      cotizacion.idCotizacion,
+      version.idVersion
+    );
+
+    showNotification(
+      'Versión enviada correctamente.',
+      {
+        type: 'success'
+      }
+    );
+
+    location.hash =
+      `#/cotizaciones/detalle?id=${
+        Number(
+          cotizacion
+            .idCotizacion
+        )
+      }`;
+  } catch (error) {
+    showNotification(
+      error?.message ||
+      'No fue posible enviar la versión.',
+      {
+        type: 'error'
+      }
+    );
+  }
+}
+
+async function eliminarVersion() {
+  const respuesta =
+    await openModal({
+      title:
+        'Eliminar versión en Borrador',
+
+      body:
+        '<p>Se eliminará esta versión. La cotización general no se eliminará de forma implícita.</p>',
+
+      confirmText:
+        'Eliminar versión',
+
+      cancelText:
+        'Cancelar',
+
+      danger: true
+    });
+
+  if (!respuesta.confirmed) {
+    return;
+  }
+
+  try {
+    await deleteCotizacionVersion(
+      cotizacion.idCotizacion,
+      version.idVersion
+    );
+
+    showNotification(
+      'Versión eliminada correctamente.',
+      {
+        type: 'success'
+      }
+    );
+
+    location.hash =
+      `#/cotizaciones/detalle?id=${
+        Number(
+          cotizacion
+            .idCotizacion
+        )
+      }`;
+  } catch (error) {
+    showNotification(
+      error?.message ||
+      'No fue posible eliminar la versión.',
+      {
+        type: 'error'
+      }
+    );
+  }
+}
+
+function consultarDisponibilidadPendiente() {
+  showNotification(
+    'La consulta de Inventario requiere fechaInicio y fechaFin. El contrato de periodo aún debe cerrarse antes de conectar esta acción.',
+    {
+      type: 'info',
+      timeout: 5000
+    }
+  );
+}
+
+function cambiarTipoBusqueda(
+  tipo
+) {
+  tipoBusqueda = tipo;
+
+  document
+    .querySelectorAll(
+      '[data-tipo-concepto]'
+    )
+    .forEach(tab => {
+      const activo =
+        tab.dataset
+          .tipoConcepto ===
+        tipo;
+
+      tab.classList.toggle(
+        'is-active',
+        activo
+      );
+
+      tab.setAttribute(
+        'aria-selected',
+        activo
+          ? 'true'
+          : 'false'
+      );
+    });
+
+  buscarConceptos();
+}
+
+function registrarEventos() {
+  el(
+    'versionListaPrecio'
+  )?.addEventListener(
+    'change',
+    async event => {
+      const idListaPrecio =
+        Number(
+          event.target.value
+        );
+
+      version.idListaPrecio =
+        idListaPrecio ||
+        null;
+
+      version.disponibilidadGlobal =
+        null;
+
+      renderDisponibilidadGlobal();
+
+      if (!idListaPrecio) {
+        configuracionLista =
+          null;
+
+        renderConfiguracionLista(
+          null
+        );
+
+        renderResultadoBusqueda(
+          [],
+          tipoBusqueda
+        );
+
+        return;
+      }
+
+      await cargarConfiguracionLista(
+        idListaPrecio,
+        true
+      );
+
+      await buscarConceptos();
+    }
+  );
+
+  el(
+    'buscarConcepto'
+  )?.addEventListener(
+    'input',
+    programarBusqueda
+  );
+
+  el(
+    'agregarConceptosTitulo'
+  )
+    ?.closest(
+      '.cotizaciones-card'
+    )
+    ?.addEventListener(
+      'click',
+      event => {
+        const tab =
+          event.target.closest(
+            '[data-tipo-concepto]'
+          );
+
+        if (tab) {
+          cambiarTipoBusqueda(
+            tab.dataset
+              .tipoConcepto
+          );
+
+          return;
+        }
+
+        const botonAgregar =
+          event.target.closest(
+            '[data-agregar-concepto]'
+          );
+
+        if (!botonAgregar) {
+          return;
+        }
+
+        if (
+          botonAgregar.dataset
+            .tipoConcepto !==
+          TIPOS_CONCEPTO_COTIZACION
+            .PRODUCTO
+        ) {
+          showNotification(
+            'La regla de precio por Lista de Precios para servicios y paquetes aún no está definida en la dependencia.',
+            {
+              type: 'info',
+              timeout: 5000
+            }
+          );
+
+          return;
+        }
+
+        agregarProducto(
+          Number(
+            botonAgregar.dataset
+              .agregarConcepto
+          )
+        );
+      }
+    );
+
+  el(
+    'detalleVersionTitulo'
+  )
+    ?.closest(
+      '.cotizaciones-card'
+    )
+    ?.addEventListener(
+      'change',
+      event => {
+        const input =
+          event.target.closest(
+            '[data-cantidad-detalle]'
+          );
+
+        if (!input) {
+          return;
+        }
+
+        actualizarCantidad(
+          Number(
+            input.dataset
+              .cantidadDetalle
+          ),
+          input.value
+        );
+      }
+    );
+
+  el(
+    'detalleVersionTitulo'
+  )
+    ?.closest(
+      '.cotizaciones-card'
+    )
+    ?.addEventListener(
+      'click',
+      event => {
+        const boton =
+          event.target.closest(
+            '[data-eliminar-detalle]'
+          );
+
+        if (!boton) {
+          return;
+        }
+
+        eliminarDetalle(
+          Number(
+            boton.dataset
+              .eliminarDetalle
+          )
+        );
+      }
+    );
+
+  el(
+    'btnGuardarVersion'
+  )?.addEventListener(
+    'click',
+    guardarBorrador
+  );
+
+  el(
+    'btnEnviarVersion'
+  )?.addEventListener(
+    'click',
+    enviarVersion
+  );
+
+  el(
+    'btnEliminarVersion'
+  )?.addEventListener(
+    'click',
+    eliminarVersion
+  );
+
+  el(
+    'btnActualizarDisponibilidad'
+  )?.addEventListener(
+    'click',
+    consultarDisponibilidadPendiente
+  );
+}
+
+async function inicializar() {
+  const idCotizacion =
+    obtenerEnteroParametro(
+      'idCotizacion'
+    );
+
+  const idVersion =
+    obtenerEnteroParametro(
+      'idVersion'
+    );
+
+  const modo =
+    obtenerParametrosHash()
+      .get('modo');
+
+  if (
+    !idCotizacion ||
+    !idVersion
+  ) {
+    mostrarError(
+      'Los identificadores de cotización y versión son obligatorios.'
+    );
+
+    return;
+  }
+
+  try {
+    [
+      cotizacion,
+      version
+    ] =
+      await Promise.all([
+        getCotizacion(
+          idCotizacion
+        ),
+
+        getCotizacionVersion(
+          idCotizacion,
+          idVersion
+        )
+      ]);
+
+    clienteProspecto =
+      await getClienteProspecto(
+        cotizacion
+          .idClienteProspecto
+      ).catch(
+        () => null
+      );
+
+    soloConsulta =
+      modo === 'consulta' ||
+      version.estadoVersion !==
+        ESTADOS_VERSION_COTIZACION
+          .BORRADOR;
+
+    detalleLocal =
+      Array.isArray(
+        version.detalle
+      )
+        ? version.detalle.map(
+            item => ({
+              ...item
+            })
+          )
+        : [];
+
+    renderEncabezado();
+    renderContexto();
+    renderDetalle();
+    recalcularEconomia();
+    renderDisponibilidadGlobal();
+
+    await cargarListas();
+    await buscarConceptos();
+
+    const buscador =
+      el('buscarConcepto');
+
+    if (buscador) {
+      buscador.disabled =
+        soloConsulta;
+    }
+
+    document
+      .querySelectorAll(
+        '[data-tipo-concepto]'
+      )
+      .forEach(tab => {
+        tab.disabled =
+          soloConsulta;
+      });
+
+    el(
+      'btnActualizarDisponibilidad'
+    ).disabled =
+      soloConsulta;
+
+    el(
+      'versionEstadoCarga'
+    ).hidden =
+      true;
+
+    el(
+      'versionContenido'
+    ).hidden =
+      false;
+  } catch (error) {
+    mostrarError(
+      error?.message ||
+      'Ocurrió un error inesperado.'
+    );
+  }
+}
+
+registrarEventos();
+inicializar();

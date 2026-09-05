@@ -1,0 +1,491 @@
+<section
+  id="cotizacionVersionPage"
+  class="container cotizaciones-page"
+>
+  <!-- Encabezado -->
+  <header class="cotizaciones-page-header">
+    <div class="cotizaciones-page-heading">
+      <nav
+        class="cotizaciones-breadcrumb"
+        aria-label="Navegación de versión"
+      >
+        <a href="#/cotizaciones">Inicio</a>
+        <span>/</span>
+        <a href="#/cotizaciones">Cotizaciones</a>
+        <span>/</span>
+
+        <a
+          id="breadcrumbCotizacion"
+          href="#/cotizaciones"
+        >
+          Cotización
+        </a>
+
+        <span>/</span>
+
+        <span
+          id="breadcrumbVersion"
+          aria-current="page"
+        >
+          Versión
+        </span>
+      </nav>
+
+      <div class="cotizaciones-toolbar-group">
+        <h1 id="versionTitulo">
+          Editar versión
+        </h1>
+
+        <span
+          id="versionEstadoBadge"
+          class="cotizaciones-badge cotizaciones-badge--neutral"
+        >
+          Borrador
+        </span>
+      </div>
+
+      <p class="cotizaciones-subtitle">
+        Esta versión puede modificarse mientras
+        permanezca en Borrador.
+      </p>
+    </div>
+
+    <div class="cotizaciones-actions">
+      <button
+        id="btnEliminarVersion"
+        class="cotizaciones-btn cotizaciones-btn--danger"
+        type="button"
+      >
+        Eliminar versión
+      </button>
+
+      <button
+        id="btnGuardarVersion"
+        class="cotizaciones-btn cotizaciones-btn--secondary"
+        type="button"
+      >
+        Guardar Borrador
+      </button>
+
+      <button
+        id="btnEnviarVersion"
+        class="cotizaciones-btn cotizaciones-btn--primary"
+        type="button"
+      >
+        Enviar versión
+      </button>
+    </div>
+  </header>
+
+  <!-- Estado -->
+  <div
+    id="versionEstadoCarga"
+    class="cotizaciones-loading"
+    aria-live="polite"
+  >
+    <strong>Cargando versión...</strong>
+    <p>
+      Consultando información comercial.
+    </p>
+  </div>
+
+  <!-- Contenido -->
+  <div
+    id="versionContenido"
+    hidden
+  >
+    <!-- Contexto de la cotización -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="versionContextoTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="versionContextoTitulo">
+            Contexto de la cotización
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-summary-grid">
+        <div class="cotizaciones-summary-item">
+          <span>Cotización</span>
+          <strong id="versionCotizacionFolio">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Cliente / Prospecto</span>
+          <strong id="versionCliente">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Fecha del servicio</span>
+          <strong id="versionFechaServicio">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Hora del servicio</span>
+          <strong id="versionHoraServicio">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lista de precios -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="listaPrecioVersionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="listaPrecioVersionTitulo">
+            Lista de Precios
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-grid cotizaciones-grid--4">
+          <div class="cotizaciones-field">
+            <label for="versionListaPrecio">
+              Lista de Precios
+            </label>
+
+            <select
+              id="versionListaPrecio"
+              name="idListaPrecio"
+              required
+            >
+              <option value="">
+                Selecciona una lista
+              </option>
+            </select>
+          </div>
+
+          <div class="cotizaciones-stat">
+            <span>Vigencia</span>
+            <strong id="listaPrecioVigencia">
+              —
+            </strong>
+          </div>
+
+          <div class="cotizaciones-stat">
+            <span>Condición</span>
+            <strong id="listaPrecioCondicion">
+              —
+            </strong>
+          </div>
+
+          <div class="cotizaciones-stat">
+            <span>
+              % adicional fuera de lista
+            </span>
+
+            <strong id="listaPrecioAdicional">
+              —
+            </strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Agregar conceptos -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="agregarConceptosTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="agregarConceptosTitulo">
+            Agregar conceptos
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-toolbar">
+          <div
+            class="cotizaciones-tabs"
+            role="tablist"
+            aria-label="Tipo de concepto"
+          >
+            <button
+              id="tabProducto"
+              class="cotizaciones-tab is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              data-tipo-concepto="PRODUCTO"
+            >
+              Producto
+            </button>
+
+            <button
+              id="tabServicio"
+              class="cotizaciones-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-tipo-concepto="SERVICIO"
+            >
+              Servicio
+            </button>
+
+            <button
+              id="tabPaquete"
+              class="cotizaciones-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              data-tipo-concepto="PAQUETE"
+            >
+              Paquete
+            </button>
+          </div>
+
+          <div class="cotizaciones-field">
+            <label
+              for="buscarConcepto"
+              class="sr-only"
+            >
+              Buscar concepto
+            </label>
+
+            <input
+              id="buscarConcepto"
+              type="search"
+              autocomplete="off"
+              placeholder="Buscar por nombre, código o categoría..."
+            >
+          </div>
+        </div>
+
+        <div class="cotizaciones-divider"></div>
+
+        <div
+          id="resultadosConceptos"
+          aria-live="polite"
+        >
+        </div>
+
+        <div
+          id="resultadosConceptosEmpty"
+          class="cotizaciones-empty"
+        >
+          <strong>
+            Busca un producto, servicio o paquete.
+          </strong>
+
+          <p>
+            Los resultados del Catálogo aparecerán aquí.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detalle y resumen económico -->
+    <div class="cotizaciones-grid cotizaciones-grid--2">
+      <!-- Detalle -->
+      <section
+        class="cotizaciones-card"
+        aria-labelledby="detalleVersionTitulo"
+      >
+        <div class="cotizaciones-card-header">
+          <div class="cotizaciones-card-title">
+            <h2 id="detalleVersionTitulo">
+              Detalle de la versión
+            </h2>
+          </div>
+
+          <span
+            id="detalleVersionCantidad"
+            class="cotizaciones-badge cotizaciones-badge--neutral"
+          >
+            0 conceptos
+          </span>
+        </div>
+
+        <div class="cotizaciones-card-body">
+          <!-- Escritorio -->
+          <div
+            class="cotizaciones-table-wrapper cotizaciones-desktop-table"
+          >
+            <table class="cotizaciones-table">
+              <thead>
+                <tr>
+                  <th scope="col">Concepto</th>
+                  <th scope="col">Tipo</th>
+                  <th scope="col">Cantidad</th>
+                  <th scope="col">Precio</th>
+                  <th scope="col">Disponibilidad</th>
+                  <th scope="col">Subtotal</th>
+                  <th scope="col">Acción</th>
+                </tr>
+              </thead>
+
+              <tbody id="detalleVersionBody">
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Móvil -->
+          <div
+            id="detalleVersionMobile"
+            class="cotizaciones-mobile-list"
+          >
+          </div>
+
+          <div
+            id="detalleVersionEmpty"
+            class="cotizaciones-empty"
+          >
+            <strong>
+              Esta versión todavía no tiene conceptos.
+            </strong>
+
+            <p>
+              Agrega productos, servicios o paquetes
+              desde el Catálogo.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Resumen -->
+      <div class="cotizaciones-grid">
+        <section
+          class="cotizaciones-card"
+          aria-labelledby="resumenEconomicoTitulo"
+        >
+          <div class="cotizaciones-card-header">
+            <div class="cotizaciones-card-title">
+              <h2 id="resumenEconomicoTitulo">
+                Resumen económico
+              </h2>
+            </div>
+          </div>
+
+          <div class="cotizaciones-card-body">
+            <div class="cotizaciones-summary-item">
+              <span>Importe de conceptos</span>
+
+              <strong
+                id="resumenImporteConceptos"
+                class="cotizaciones-money"
+              >
+                $0.00
+              </strong>
+            </div>
+
+            <div class="cotizaciones-summary-item">
+              <span>Descuentos autorizados</span>
+
+              <strong
+                id="resumenDescuentos"
+                class="cotizaciones-money"
+              >
+                $0.00
+              </strong>
+            </div>
+
+            <div class="cotizaciones-summary-item">
+              <span>Subtotal</span>
+
+              <strong
+                id="resumenSubtotal"
+                class="cotizaciones-money"
+              >
+                $0.00
+              </strong>
+            </div>
+
+            <div class="cotizaciones-summary-item">
+              <span>Impuestos</span>
+
+              <strong
+                id="resumenImpuestos"
+                class="cotizaciones-money"
+              >
+                —
+              </strong>
+            </div>
+
+            <div class="cotizaciones-summary-item">
+              <span>Cargos</span>
+
+              <strong
+                id="resumenCargos"
+                class="cotizaciones-money"
+              >
+                $0.00
+              </strong>
+            </div>
+
+            <div class="cotizaciones-summary-item">
+              <span>Total</span>
+
+              <strong
+                id="resumenTotal"
+                class="cotizaciones-money"
+              >
+                $0.00
+              </strong>
+            </div>
+          </div>
+        </section>
+
+        <section
+          class="cotizaciones-card"
+          aria-labelledby="disponibilidadVersionTitulo"
+        >
+          <div class="cotizaciones-card-header">
+            <div class="cotizaciones-card-title">
+              <h2 id="disponibilidadVersionTitulo">
+                Disponibilidad global
+              </h2>
+            </div>
+
+            <span
+              id="versionDisponibilidadBadge"
+              class="cotizaciones-badge cotizaciones-badge--neutral"
+            >
+              Sin consultar
+            </span>
+          </div>
+
+          <div class="cotizaciones-card-body">
+            <div class="cotizaciones-info">
+              <div class="cotizaciones-info-content">
+                <strong>
+                  Disponibilidad informativa
+                </strong>
+
+                <p>
+                  La disponibilidad no bloquea la creación
+                  ni el envío de esta versión.
+                </p>
+              </div>
+            </div>
+
+            <div class="cotizaciones-divider"></div>
+
+            <button
+              id="btnActualizarDisponibilidad"
+              class="cotizaciones-btn cotizaciones-btn--secondary"
+              type="button"
+            >
+              Consultar disponibilidad
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Host de diálogos -->
+  <div id="cotizacionesModalHost"></div>
+</section>
+
+<script
+  type="module"
+  src="./js/modules/cotizaciones/version.js"
+></script>

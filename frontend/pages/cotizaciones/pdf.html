@@ -1,0 +1,290 @@
+<section
+  id="cotizacionPdfPage"
+  class="container cotizaciones-page"
+>
+  <!-- Encabezado -->
+  <header class="cotizaciones-page-header">
+    <div class="cotizaciones-page-heading">
+      <nav
+        class="cotizaciones-breadcrumb"
+        aria-label="Navegación de documento"
+      >
+        <a href="#/cotizaciones">Inicio</a>
+        <span>/</span>
+        <a href="#/cotizaciones">Cotizaciones</a>
+        <span>/</span>
+
+        <a
+          id="pdfBreadcrumbCotizacion"
+          href="#/cotizaciones"
+        >
+          Cotización
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Documento PDF
+        </span>
+      </nav>
+
+      <h1 id="pdfTitulo">
+        Documento de cotización
+      </h1>
+
+      <p class="cotizaciones-subtitle">
+        Consulta el documento comercial asociado
+        a una versión.
+      </p>
+    </div>
+
+    <div class="cotizaciones-actions">
+      <button
+        id="btnVolverPdf"
+        class="cotizaciones-btn cotizaciones-btn--secondary"
+        type="button"
+      >
+        Volver
+      </button>
+    </div>
+  </header>
+
+  <!-- Estado -->
+  <div
+    id="pdfEstadoCarga"
+    class="cotizaciones-loading"
+    aria-live="polite"
+  >
+    <strong>
+      Cargando información...
+    </strong>
+
+    <p>
+      Consultando cotización y versiones.
+    </p>
+  </div>
+
+  <!-- Contenido -->
+  <div
+    id="pdfContenido"
+    hidden
+  >
+    <!-- Selección -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="pdfSeleccionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="pdfSeleccionTitulo">
+            Versión del documento
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-grid cotizaciones-grid--3">
+          <div class="cotizaciones-field">
+            <label for="pdfVersionSelect">
+              Versión
+            </label>
+
+            <select
+              id="pdfVersionSelect"
+              name="idVersion"
+            >
+              <option value="">
+                Selecciona una versión
+              </option>
+            </select>
+          </div>
+
+          <div class="cotizaciones-stat">
+            <span>Cotización</span>
+            <strong id="pdfCotizacionFolio">
+              —
+            </strong>
+          </div>
+
+          <div class="cotizaciones-stat">
+            <span>Cliente / Prospecto</span>
+            <strong id="pdfCliente">
+              —
+            </strong>
+          </div>
+        </div>
+
+        <div class="cotizaciones-divider"></div>
+
+        <div class="cotizaciones-toolbar">
+          <div>
+            <p class="cotizaciones-subtitle">
+              El documento se relacionará con la
+              cotización y la versión seleccionada.
+            </p>
+          </div>
+
+          <button
+            id="btnGenerarPdf"
+            class="cotizaciones-btn cotizaciones-btn--primary"
+            type="button"
+            disabled
+          >
+            Generar PDF
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pendiente de definición -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="pdfContenidoPendienteTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="pdfContenidoPendienteTitulo">
+            Documento comercial
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-info cotizaciones-info--warning">
+          <div class="cotizaciones-info-content">
+            <strong>
+              Contenido definitivo pendiente de definición.
+            </strong>
+
+            <p>
+              La estructura comercial, fiscal, legal,
+              firmas, leyendas y presentación final del
+              PDF no se implementarán hasta que sean
+              definidas formalmente.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Documento existente -->
+    <section
+      id="pdfDocumentoCard"
+      class="cotizaciones-card"
+      aria-labelledby="pdfDocumentoTitulo"
+      hidden
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="pdfDocumentoTitulo">
+            Documento generado
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-summary-grid">
+          <div class="cotizaciones-summary-item">
+            <span>Versión</span>
+            <strong id="pdfDocumentoVersion">
+              —
+            </strong>
+          </div>
+
+          <div class="cotizaciones-summary-item">
+            <span>Folio</span>
+            <strong id="pdfDocumentoFolio">
+              —
+            </strong>
+          </div>
+
+          <div class="cotizaciones-summary-item">
+            <span>Fecha de generación</span>
+            <strong id="pdfDocumentoFecha">
+              —
+            </strong>
+          </div>
+
+          <div class="cotizaciones-summary-item">
+            <span>Estado</span>
+            <strong id="pdfDocumentoEstado">
+              —
+            </strong>
+          </div>
+        </div>
+
+        <div class="cotizaciones-divider"></div>
+
+        <div class="cotizaciones-actions">
+          <button
+            id="btnConsultarPdf"
+            class="cotizaciones-btn cotizaciones-btn--secondary"
+            type="button"
+          >
+            Consultar documento
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Histórico documental -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="pdfHistorialTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="pdfHistorialTitulo">
+            Histórico de documentos
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div
+          class="cotizaciones-table-wrapper cotizaciones-desktop-table"
+        >
+          <table class="cotizaciones-table">
+            <thead>
+              <tr>
+                <th scope="col">Versión</th>
+                <th scope="col">Folio</th>
+                <th scope="col">Fecha generación</th>
+                <th scope="col">Referencia</th>
+                <th scope="col">Acción</th>
+              </tr>
+            </thead>
+
+            <tbody id="pdfHistorialBody">
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          id="pdfHistorialMobile"
+          class="cotizaciones-mobile-list"
+        >
+        </div>
+
+        <div
+          id="pdfHistorialEmpty"
+          class="cotizaciones-empty"
+        >
+          <strong>
+            No existen documentos generados.
+          </strong>
+
+          <p>
+            Los documentos históricos de las versiones
+            aparecerán aquí.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<script
+  type="module"
+  src="./js/modules/cotizaciones/pdf.js"
+></script>

@@ -1,13 +1,320 @@
-<section class="container">
-  <h1>Cotizaciones</h1>
-  <div id="cotizaciones" class="card mt-12"></div>
-  <script type="module">
-    import { listCotizaciones } from './js/api/cotizaciones.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await listCotizaciones();
-      renderTable(document.getElementById('cotizaciones'), ['Id','Cliente','Total','Estado'], datos.map(d=>({id:d.id,cliente:d.cliente,total:d.total,estado:d.estado})));
-    })();
-  </script>
+<section
+  id="cotizacionesListaPage"
+  class="container cotizaciones-page"
+>
+  <!-- Encabezado -->
+  <header class="cotizaciones-page-header">
+    <div class="cotizaciones-page-heading">
+      <nav
+        class="cotizaciones-breadcrumb"
+        aria-label="Navegación de Cotizaciones"
+      >
+        <a href="#/dashboard">Inicio</a>
+        <span>/</span>
+        <span aria-current="page">
+          Cotizaciones
+        </span>
+      </nav>
+
+      <h1>
+        Cotizaciones
+      </h1>
+
+      <p class="cotizaciones-subtitle">
+        Consulta, seguimiento y gestión de propuestas comerciales.
+      </p>
+    </div>
+
+    <div class="cotizaciones-actions">
+      <button
+        id="btnNuevaCotizacion"
+        class="cotizaciones-btn cotizaciones-btn--primary"
+        type="button"
+      >
+        Nueva cotización
+      </button>
+    </div>
+  </header>
+
+  <!-- Estado inicial -->
+  <div
+    id="cotizacionesListaEstado"
+    class="cotizaciones-loading"
+    aria-live="polite"
+  >
+    <strong>
+      Cargando cotizaciones...
+    </strong>
+
+    <p>
+      Consultando información de seguimiento.
+    </p>
+  </div>
+
+  <!-- Contenido -->
+  <div
+    id="cotizacionesListaContenido"
+    hidden
+  >
+    <!-- Filtros -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="cotizacionesFiltrosTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="cotizacionesFiltrosTitulo">
+            Filtros de búsqueda
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <form
+          id="cotizacionesFiltrosForm"
+          novalidate
+        >
+          <div class="cotizaciones-form-grid">
+            <div class="cotizaciones-field">
+              <label for="filtroFolio">
+                Folio / Consecutivo
+              </label>
+
+              <input
+                id="filtroFolio"
+                name="folio"
+                type="search"
+                autocomplete="off"
+                placeholder="Ej. COTMR-26-000021"
+              >
+            </div>
+
+            <div class="cotizaciones-field">
+              <label for="filtroCliente">
+                Cliente / Prospecto
+              </label>
+
+              <input
+                id="filtroCliente"
+                name="cliente"
+                type="search"
+                autocomplete="off"
+                placeholder="Buscar cliente o prospecto"
+              >
+            </div>
+
+            <div class="cotizaciones-field">
+              <label for="filtroEstado">
+                Estado general
+              </label>
+
+              <select
+                id="filtroEstado"
+                name="estado"
+              >
+                <option value="">
+                  Todos los estados
+                </option>
+              </select>
+            </div>
+
+            <div class="cotizaciones-field">
+              <label for="filtroFechaEvento">
+                Fecha del evento
+              </label>
+
+              <input
+                id="filtroFechaEvento"
+                name="fechaEvento"
+                type="date"
+              >
+            </div>
+
+            <div class="cotizaciones-field">
+              <label for="filtroVendedor">
+                Vendedor
+              </label>
+
+              <input
+                id="filtroVendedor"
+                name="vendedor"
+                type="search"
+                autocomplete="off"
+                placeholder="Buscar responsable"
+              >
+            </div>
+
+            <div class="cotizaciones-field">
+              <label for="filtroDisponibilidad">
+                Disponibilidad
+              </label>
+
+              <select
+                id="filtroDisponibilidad"
+                name="disponibilidad"
+              >
+                <option value="">
+                  Todas
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cotizaciones-divider"></div>
+
+          <div class="cotizaciones-toolbar">
+            <div class="cotizaciones-toolbar-group">
+              <button
+                id="btnBuscarCotizaciones"
+                class="cotizaciones-btn cotizaciones-btn--primary"
+                type="submit"
+              >
+                Buscar
+              </button>
+
+              <button
+                id="btnLimpiarFiltros"
+                class="cotizaciones-btn cotizaciones-btn--secondary"
+                type="button"
+              >
+                Limpiar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Resultados -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="cotizacionesResultadosTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="cotizacionesResultadosTitulo">
+            Resultados
+          </h2>
+
+          <span
+            id="cotizacionesResultadosConteo"
+            class="cotizaciones-badge cotizaciones-badge--neutral"
+          >
+            0 cotizaciones
+          </span>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <!-- Tabla escritorio -->
+        <div
+          class="cotizaciones-table-wrapper cotizaciones-desktop-table"
+        >
+          <table class="cotizaciones-table">
+            <thead>
+              <tr>
+                <th scope="col">
+                  Cotización
+                </th>
+
+                <th scope="col">
+                  Cliente
+                </th>
+
+                <th scope="col">
+                  Evento
+                </th>
+
+                <th scope="col">
+                  Fecha servicio
+                </th>
+
+                <th scope="col">
+                  Versiones
+                </th>
+
+                <th scope="col">
+                  Elegida
+                </th>
+
+                <th scope="col">
+                  Estado
+                </th>
+
+                <th scope="col">
+                  Total elegido
+                </th>
+
+                <th scope="col">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+
+            <tbody id="cotizacionesBody">
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tarjetas móvil -->
+        <div
+          id="cotizacionesMobile"
+          class="cotizaciones-mobile-list"
+        >
+        </div>
+
+        <!-- Sin resultados -->
+        <div
+          id="cotizacionesEmpty"
+          class="cotizaciones-empty"
+          hidden
+        >
+          <strong>
+            No se encontraron cotizaciones.
+          </strong>
+
+          <p>
+            Ajusta los filtros de búsqueda para consultar otros registros.
+          </p>
+        </div>
+
+        <!-- Paginación -->
+        <div class="cotizaciones-divider"></div>
+
+        <div class="cotizaciones-toolbar">
+          <span
+            id="cotizacionesPaginacionInfo"
+            class="cotizaciones-subtitle"
+          >
+            Sin resultados
+          </span>
+
+          <div class="cotizaciones-toolbar-group">
+            <button
+              id="btnPaginaAnterior"
+              class="cotizaciones-btn cotizaciones-btn--secondary"
+              type="button"
+              disabled
+            >
+              Anterior
+            </button>
+
+            <button
+              id="btnPaginaSiguiente"
+              class="cotizaciones-btn cotizaciones-btn--secondary"
+              type="button"
+              disabled
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </section>
 
+<script
+  type="module"
+  src="./js/modules/cotizaciones/lista.js"
+></script>

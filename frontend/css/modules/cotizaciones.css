@@ -1,0 +1,1051 @@
+/* =========================================================
+   Cotizaciones — estilos compartidos del módulo
+   Reutiliza variables y patrones globales existentes.
+   No modifica topbar, sidebar ni layout transversal.
+   ========================================================= */
+
+.cotizaciones-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.cotizaciones-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cotizaciones-page-heading {
+  min-width: 0;
+}
+
+.cotizaciones-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-bottom: 10px;
+
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.cotizaciones-breadcrumb a {
+  color: var(--primary);
+}
+
+.cotizaciones-page h1 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size:
+    clamp(
+      1.55rem,
+      2vw,
+      2rem
+    );
+
+  line-height: 1.2;
+}
+
+.cotizaciones-subtitle {
+  margin-top: 6px;
+
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.cotizaciones-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+.cotizaciones-card {
+  min-width: 0;
+
+  background: var(--panel);
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius:
+    var(--radius);
+
+  box-shadow:
+    0 1px 3px
+    rgba(0, 0, 0, 0.06);
+}
+
+.cotizaciones-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 14px 16px;
+
+  border-bottom:
+    1px solid #e5e7eb;
+}
+
+.cotizaciones-card-header h2,
+.cotizaciones-card-header h3 {
+  margin: 0;
+
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.cotizaciones-card-title {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 0;
+}
+
+.cotizaciones-card-body {
+  padding: 16px;
+}
+
+.cotizaciones-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.cotizaciones-grid--2 {
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+}
+
+.cotizaciones-grid--3 {
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+}
+
+.cotizaciones-grid--4 {
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+}
+
+.cotizaciones-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(180px, 1fr)
+    );
+
+  gap: 16px;
+}
+
+.cotizaciones-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.cotizaciones-field label {
+  color: var(--text);
+
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.cotizaciones-field input,
+.cotizaciones-field select,
+.cotizaciones-field textarea {
+  width: 100%;
+  min-height: 40px;
+
+  color: var(--text);
+  background: var(--panel);
+
+  border:
+    1px solid #d1d5db;
+}
+
+.cotizaciones-field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.cotizaciones-field input:disabled,
+.cotizaciones-field select:disabled,
+.cotizaciones-field textarea:disabled {
+  cursor: not-allowed;
+
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+.cotizaciones-field-help {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.cotizaciones-field-error {
+  color: var(--danger);
+  font-size: 0.78rem;
+}
+
+/* Botones */
+
+.cotizaciones-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding: 8px 14px;
+
+  border:
+    1px solid transparent;
+
+  border-radius:
+    var(--radius);
+
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.2;
+
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cotizaciones-btn:hover {
+  text-decoration: none;
+}
+
+.cotizaciones-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.cotizaciones-btn--primary {
+  background:
+    var(--primary);
+
+  border-color:
+    var(--primary);
+
+  color: #fff;
+}
+
+.cotizaciones-btn--secondary {
+  background:
+    var(--panel);
+
+  border-color:
+    #d1d5db;
+
+  color:
+    var(--text);
+}
+
+.cotizaciones-btn--secondary:hover {
+  background:
+    var(--bg);
+}
+
+.cotizaciones-btn--warning {
+  background:
+    #fff8e6;
+
+  border-color:
+    #fde68a;
+
+  color:
+    #92400e;
+}
+
+.cotizaciones-btn--danger {
+  background:
+    var(--panel);
+
+  border-color:
+    #fecaca;
+
+  color:
+    var(--danger);
+}
+
+.cotizaciones-btn--danger:hover {
+  background:
+    #fef2f2;
+}
+
+.cotizaciones-btn--link {
+  min-height: auto;
+
+  padding: 4px 6px;
+
+  background: transparent;
+
+  border-color:
+    transparent;
+
+  color:
+    var(--primary);
+}
+
+/* Estados */
+
+.cotizaciones-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  width: fit-content;
+  max-width: 100%;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+
+  white-space: nowrap;
+}
+
+.cotizaciones-badge--neutral {
+  background:
+    #f3f4f6;
+
+  color:
+    var(--muted);
+}
+
+.cotizaciones-badge--info {
+  background:
+    #eff6ff;
+
+  color:
+    var(--primary);
+}
+
+.cotizaciones-badge--success {
+  background:
+    #ecfdf5;
+
+  color:
+    #15803d;
+}
+
+.cotizaciones-badge--warning {
+  background:
+    #fff8e6;
+
+  color:
+    #92400e;
+}
+
+.cotizaciones-badge--danger {
+  background:
+    #fef2f2;
+
+  color:
+    var(--danger);
+}
+
+.cotizaciones-badge--selected {
+  background:
+    #eff6ff;
+
+  color:
+    var(--primary);
+
+  border:
+    1px solid #bfdbfe;
+}
+
+/* Resumen */
+
+.cotizaciones-summary-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 0;
+}
+
+.cotizaciones-summary-item {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 14px 16px;
+
+  border-right:
+    1px solid #e5e7eb;
+
+  border-bottom:
+    1px solid #e5e7eb;
+}
+
+.cotizaciones-summary-item:nth-child(4n) {
+  border-right: 0;
+}
+
+.cotizaciones-summary-item span {
+  color:
+    var(--muted);
+
+  font-size: 0.78rem;
+}
+
+.cotizaciones-summary-item strong {
+  overflow-wrap: anywhere;
+
+  color:
+    var(--text);
+
+  font-size: 0.96rem;
+}
+
+/* Tablas */
+
+.cotizaciones-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.cotizaciones-table {
+  width: 100%;
+
+  border-collapse:
+    collapse;
+
+  background:
+    var(--panel);
+}
+
+.cotizaciones-table th,
+.cotizaciones-table td {
+  padding:
+    11px 12px;
+
+  border-bottom:
+    1px solid #e5e7eb;
+
+  text-align: left;
+
+  vertical-align:
+    middle;
+
+  font-size:
+    0.84rem;
+}
+
+.cotizaciones-table th {
+  color:
+    var(--text);
+
+  background:
+    #f9fafb;
+
+  font-weight: 600;
+
+  white-space:
+    nowrap;
+}
+
+.cotizaciones-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.cotizaciones-table tbody tr:hover {
+  background:
+    #f8fbff;
+}
+
+.cotizaciones-table
+  .cotizaciones-row--selected {
+  background:
+    #eff6ff;
+}
+
+.cotizaciones-table-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.cotizaciones-money {
+  font-variant-numeric:
+    tabular-nums;
+
+  white-space:
+    nowrap;
+}
+
+/* Mensajes */
+
+.cotizaciones-info {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  padding:
+    12px 14px;
+
+  border:
+    1px solid #bfdbfe;
+
+  border-radius:
+    var(--radius);
+
+  background:
+    #eff6ff;
+
+  color:
+    var(--text);
+}
+
+.cotizaciones-info--warning {
+  border-color:
+    #fde68a;
+
+  background:
+    #fff8e6;
+}
+
+.cotizaciones-info--danger {
+  border-color:
+    #fecaca;
+
+  background:
+    #fef2f2;
+}
+
+.cotizaciones-info-content {
+  min-width: 0;
+}
+
+.cotizaciones-info strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.cotizaciones-info p {
+  margin: 0;
+
+  color:
+    var(--muted);
+
+  font-size:
+    0.84rem;
+}
+
+/* Estados de carga */
+
+.cotizaciones-empty,
+.cotizaciones-loading,
+.cotizaciones-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 150px;
+
+  padding: 24px;
+
+  text-align: center;
+}
+
+.cotizaciones-empty strong,
+.cotizaciones-loading strong,
+.cotizaciones-error strong {
+  color:
+    var(--text);
+}
+
+.cotizaciones-empty p,
+.cotizaciones-loading p,
+.cotizaciones-error p {
+  margin: 0;
+
+  color:
+    var(--muted);
+
+  font-size:
+    0.86rem;
+}
+
+.cotizaciones-error {
+  color:
+    var(--danger);
+}
+
+/* Herramientas */
+
+.cotizaciones-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  gap: 12px;
+}
+
+.cotizaciones-toolbar-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 10px;
+}
+
+/* Pestañas */
+
+.cotizaciones-tabs {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 0;
+
+  border:
+    1px solid #d1d5db;
+
+  border-radius:
+    var(--radius);
+
+  overflow: hidden;
+}
+
+.cotizaciones-tab {
+  min-height: 38px;
+
+  padding:
+    8px 14px;
+
+  border: 0;
+
+  border-right:
+    1px solid #d1d5db;
+
+  border-radius: 0;
+
+  background:
+    var(--panel);
+
+  color:
+    var(--text);
+}
+
+.cotizaciones-tab:last-child {
+  border-right: 0;
+}
+
+.cotizaciones-tab.is-active {
+  background:
+    var(--primary);
+
+  color: #fff;
+}
+
+.cotizaciones-divider {
+  height: 1px;
+
+  margin:
+    16px 0;
+
+  background:
+    #e5e7eb;
+}
+
+/* Indicadores compactos */
+
+.cotizaciones-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.cotizaciones-stat {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  padding: 12px;
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius:
+    var(--radius);
+
+  background:
+    #f9fafb;
+}
+
+.cotizaciones-stat span {
+  color:
+    var(--muted);
+
+  font-size:
+    0.78rem;
+}
+
+.cotizaciones-stat strong {
+  color:
+    var(--text);
+
+  font-size:
+    1rem;
+}
+
+/* Diálogos compartidos:
+   alta rápida, eliminar,
+   cancelar y rechazar */
+
+.cotizaciones-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 16px;
+
+  background:
+    rgba(
+      17,
+      24,
+      39,
+      0.35
+    );
+}
+
+.cotizaciones-modal {
+  width:
+    min(
+      100%,
+      560px
+    );
+
+  max-height:
+    calc(
+      100vh - 32px
+    );
+
+  overflow-y: auto;
+
+  background:
+    var(--panel);
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius:
+    var(--radius);
+
+  box-shadow:
+    0 18px 48px
+    rgba(
+      17,
+      24,
+      39,
+      0.18
+    );
+}
+
+.cotizaciones-modal-header,
+.cotizaciones-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding:
+    14px 16px;
+}
+
+.cotizaciones-modal-header {
+  border-bottom:
+    1px solid #e5e7eb;
+}
+
+.cotizaciones-modal-header h2,
+.cotizaciones-modal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.cotizaciones-modal-body {
+  padding: 16px;
+}
+
+.cotizaciones-modal-footer {
+  justify-content:
+    flex-end;
+
+  border-top:
+    1px solid #e5e7eb;
+}
+
+/* Representación móvil */
+
+.cotizaciones-mobile-list {
+  display: none;
+}
+
+.cotizaciones-mobile-card {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  padding: 14px;
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius:
+    var(--radius);
+
+  background:
+    var(--panel);
+}
+
+.cotizaciones-mobile-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.cotizaciones-mobile-card-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    10px 12px;
+}
+
+.cotizaciones-mobile-card-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+}
+
+.cotizaciones-mobile-card-field span {
+  color:
+    var(--muted);
+
+  font-size:
+    0.75rem;
+}
+
+.cotizaciones-mobile-card-field strong {
+  overflow-wrap:
+    anywhere;
+
+  font-size:
+    0.86rem;
+}
+
+/* Tablet */
+
+@media (max-width: 900px) {
+  .cotizaciones-grid--4,
+  .cotizaciones-summary-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .cotizaciones-summary-item:nth-child(4n) {
+    border-right:
+      1px solid #e5e7eb;
+  }
+
+  .cotizaciones-summary-item:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .cotizaciones-form-grid,
+  .cotizaciones-grid--3 {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+/* Móvil */
+
+@media (max-width: 720px) {
+  .cotizaciones-page {
+    gap: 16px;
+  }
+
+  .cotizaciones-page-header,
+  .cotizaciones-actions,
+  .cotizaciones-toolbar,
+  .cotizaciones-toolbar-group {
+    align-items:
+      stretch;
+  }
+
+  .cotizaciones-page-header,
+  .cotizaciones-toolbar {
+    flex-direction:
+      column;
+  }
+
+  .cotizaciones-actions,
+  .cotizaciones-toolbar-group {
+    width: 100%;
+  }
+
+  .cotizaciones-actions
+    .cotizaciones-btn,
+  .cotizaciones-toolbar-group
+    .cotizaciones-btn {
+    flex:
+      1 1 auto;
+
+    min-height: 44px;
+  }
+
+  .cotizaciones-form-grid,
+  .cotizaciones-grid--2,
+  .cotizaciones-grid--3,
+  .cotizaciones-grid--4,
+  .cotizaciones-summary-grid,
+  .cotizaciones-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cotizaciones-summary-item,
+  .cotizaciones-summary-item:nth-child(2n),
+  .cotizaciones-summary-item:nth-child(4n) {
+    border-right: 0;
+  }
+
+  .cotizaciones-card-header,
+  .cotizaciones-card-body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .cotizaciones-desktop-table {
+    display: none;
+  }
+
+  .cotizaciones-mobile-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .cotizaciones-btn {
+    min-height: 44px;
+  }
+
+  .cotizaciones-field input,
+  .cotizaciones-field select,
+  .cotizaciones-field textarea {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .cotizaciones-mobile-card-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cotizaciones-tabs {
+    display: grid;
+
+    grid-template-columns:
+      1fr;
+
+    width: 100%;
+  }
+
+  .cotizaciones-tab,
+  .cotizaciones-tab:last-child {
+    width: 100%;
+    min-height: 44px;
+
+    border-right: 0;
+
+    border-bottom:
+      1px solid #d1d5db;
+  }
+
+  .cotizaciones-tab:last-child {
+    border-bottom: 0;
+  }
+}

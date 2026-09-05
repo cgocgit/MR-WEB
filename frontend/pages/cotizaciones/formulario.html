@@ -1,14 +1,327 @@
-<section class="container">
-  <h1>Nuevo/Editar cotización</h1>
-  <form id="cotForm" class="card mt-12" style="display:flex;flex-direction:column;gap:8px;max-width:720px">
-    <label>Cliente<input name="cliente" required></label>
-    <label>Observaciones<textarea name="obs"></textarea></label>
-    <div style="display:flex;justify-content:flex-end"><button type="submit">Guardar</button></div>
+<section
+  id="nuevaCotizacionPage"
+  class="container cotizaciones-page"
+>
+  <!-- Encabezado -->
+  <header class="cotizaciones-page-header">
+    <div class="cotizaciones-page-heading">
+      <nav
+        class="cotizaciones-breadcrumb"
+        aria-label="Navegación de nueva cotización"
+      >
+        <a href="#/dashboard">
+          Inicio
+        </a>
+
+        <span>/</span>
+
+        <a href="#/cotizaciones">
+          Cotizaciones
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Nueva cotización
+        </span>
+      </nav>
+
+      <h1>
+        Nueva cotización
+      </h1>
+
+      <p class="cotizaciones-subtitle">
+        Crea la cotización general y la primera versión en Borrador.
+      </p>
+    </div>
+
+    <div class="cotizaciones-actions">
+      <button
+        id="btnCancelarNuevaCotizacion"
+        class="cotizaciones-btn cotizaciones-btn--secondary"
+        type="button"
+      >
+        Cancelar
+      </button>
+    </div>
+  </header>
+
+  <form
+    id="nuevaCotizacionForm"
+    novalidate
+  >
+    <div class="cotizaciones-grid cotizaciones-grid--2">
+      <!-- Cliente / Prospecto -->
+      <section
+        class="cotizaciones-card"
+        aria-labelledby="clienteProspectoTitulo"
+      >
+        <div class="cotizaciones-card-header">
+          <div class="cotizaciones-card-title">
+            <h2 id="clienteProspectoTitulo">
+              Cliente / Prospecto
+            </h2>
+          </div>
+        </div>
+
+        <div class="cotizaciones-card-body">
+          <div class="cotizaciones-field">
+            <label for="buscarClienteProspecto">
+              Buscar cliente o prospecto
+            </label>
+
+            <input
+              id="buscarClienteProspecto"
+              type="search"
+              autocomplete="off"
+              placeholder="Nombre, correo o teléfono"
+            >
+
+            <span class="cotizaciones-field-help">
+              Captura al menos dos caracteres para buscar.
+            </span>
+          </div>
+
+          <div
+            id="clienteBusquedaResultados"
+          >
+            <div class="cotizaciones-divider"></div>
+
+            <div
+              id="resultadosClienteProspecto"
+              class="cotizaciones-grid"
+              aria-live="polite"
+            >
+            </div>
+
+            <div
+              id="resultadosClienteProspectoEmpty"
+              class="cotizaciones-empty"
+            >
+              <strong>
+                Busca un cliente o prospecto.
+              </strong>
+
+              <p>
+                Los resultados existentes aparecerán aquí.
+              </p>
+            </div>
+          </div>
+
+          <!-- Registro seleccionado -->
+          <div
+            id="clienteSeleccionado"
+            hidden
+          >
+            <div class="cotizaciones-divider"></div>
+
+            <div class="cotizaciones-info">
+              <div
+                id="clienteSeleccionadoContenido"
+                class="cotizaciones-info-content"
+              >
+              </div>
+            </div>
+
+            <div class="cotizaciones-divider"></div>
+
+            <button
+              id="btnQuitarCliente"
+              class="cotizaciones-btn cotizaciones-btn--secondary"
+              type="button"
+            >
+              Cambiar cliente / prospecto
+            </button>
+          </div>
+
+          <div class="cotizaciones-divider"></div>
+
+          <div class="cotizaciones-toolbar">
+            <p class="cotizaciones-subtitle">
+              Si el registro no existe, puede darse de alta como Prospecto.
+            </p>
+
+            <button
+              id="btnAltaRapidaProspecto"
+              class="cotizaciones-btn cotizaciones-btn--secondary"
+              type="button"
+              hidden
+            >
+              Alta rápida de Prospecto
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Datos del evento -->
+      <section
+        class="cotizaciones-card"
+        aria-labelledby="datosEventoTitulo"
+      >
+        <div class="cotizaciones-card-header">
+          <div class="cotizaciones-card-title">
+            <h2 id="datosEventoTitulo">
+              Datos del evento
+            </h2>
+          </div>
+        </div>
+
+        <div class="cotizaciones-card-body">
+          <div class="cotizaciones-grid">
+            <div class="cotizaciones-grid cotizaciones-grid--2">
+              <div class="cotizaciones-field">
+                <label for="fechaEventoCotizacion">
+                  Fecha del servicio *
+                </label>
+
+                <input
+                  id="fechaEventoCotizacion"
+                  name="fechaEvento"
+                  type="date"
+                  required
+                >
+              </div>
+
+              <div class="cotizaciones-field">
+                <label for="horaEventoCotizacion">
+                  Hora del servicio *
+                </label>
+
+                <input
+                  id="horaEventoCotizacion"
+                  name="horaEvento"
+                  type="time"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="cotizaciones-field">
+              <label for="porcentajeConfirmacion">
+                Porcentaje de confirmación *
+              </label>
+
+              <div class="cotizaciones-toolbar-group">
+                <input
+                  id="porcentajeConfirmacion"
+                  name="porcentajeConfirmacion"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  inputmode="numeric"
+                  placeholder="Ej. 50"
+                  required
+                >
+
+                <span aria-hidden="true">
+                  %
+                </span>
+              </div>
+
+              <span class="cotizaciones-field-help">
+                Condición comercial requerida para el proceso posterior de confirmación.
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Resultado esperado -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="resultadoNuevaCotizacionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="resultadoNuevaCotizacionTitulo">
+            Resultado de la creación
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-stats">
+          <div class="cotizaciones-stat">
+            <span>
+              Cotización general
+            </span>
+
+            <strong>
+              Borrador
+            </strong>
+          </div>
+
+          <div class="cotizaciones-stat">
+            <span>
+              Primera versión
+            </span>
+
+            <strong>
+              V1 · Borrador
+            </strong>
+          </div>
+
+          <div class="cotizaciones-stat">
+            <span>
+              Folio
+            </span>
+
+            <strong>
+              Generación automática
+            </strong>
+          </div>
+        </div>
+
+        <div class="cotizaciones-divider"></div>
+
+        <div class="cotizaciones-info">
+          <div class="cotizaciones-info-content">
+            <strong>
+              La creación no reserva Inventario.
+            </strong>
+
+            <p>
+              Después de crear la cotización se abrirá el Editor de la versión V1 para seleccionar la Lista de Precios y construir la propuesta comercial.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Acciones -->
+    <section class="cotizaciones-card">
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-toolbar">
+          <p class="cotizaciones-subtitle">
+            Verifica el cliente o prospecto y los datos del evento antes de continuar.
+          </p>
+
+          <div class="cotizaciones-actions">
+            <button
+              class="cotizaciones-btn cotizaciones-btn--secondary"
+              type="button"
+              data-volver-cotizaciones
+            >
+              Cancelar
+            </button>
+
+            <button
+              id="btnCrearCotizacion"
+              class="cotizaciones-btn cotizaciones-btn--primary"
+              type="submit"
+            >
+              Crear cotización
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   </form>
-  <script type="module">
-    import { createCotizacion } from './js/api/cotizaciones.service.js';
-    const f = document.getElementById('cotForm');
-    f.addEventListener('submit', async (e)=>{ e.preventDefault(); const fd = new FormData(f); const payload = {cliente:fd.get('cliente'),obs:fd.get('obs')}; await createCotizacion(payload); alert('Cotización creada (mock)'); location.hash='#/cotizaciones'; });
-  </script>
 </section>
 
+<script
+  type="module"
+  src="./js/modules/cotizaciones/formulario.js"
+></script>

@@ -1,0 +1,378 @@
+<section
+  id="cotizacionConfirmacionPage"
+  class="container cotizaciones-page"
+>
+  <!-- Encabezado -->
+  <header class="cotizaciones-page-header">
+    <div class="cotizaciones-page-heading">
+      <nav
+        class="cotizaciones-breadcrumb"
+        aria-label="Navegación de confirmación"
+      >
+        <a href="#/cotizaciones">Inicio</a>
+        <span>/</span>
+        <a href="#/cotizaciones">Cotizaciones</a>
+        <span>/</span>
+
+        <a
+          id="confirmacionBreadcrumbCotizacion"
+          href="#/cotizaciones"
+        >
+          Cotización
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Confirmación
+        </span>
+      </nav>
+
+      <h1 id="confirmacionTitulo">
+        Confirmar cotización
+      </h1>
+
+      <p class="cotizaciones-subtitle">
+        Formaliza la propuesta utilizando la
+        versión elegida.
+      </p>
+    </div>
+
+    <div class="cotizaciones-actions">
+      <button
+        id="btnVolverConfirmacion"
+        class="cotizaciones-btn cotizaciones-btn--secondary"
+        type="button"
+      >
+        Volver
+      </button>
+    </div>
+  </header>
+
+  <!-- Estado de carga -->
+  <div
+    id="confirmacionEstadoCarga"
+    class="cotizaciones-loading"
+    aria-live="polite"
+  >
+    <strong>
+      Preparando confirmación...
+    </strong>
+
+    <p>
+      Consultando la cotización y su versión elegida.
+    </p>
+  </div>
+
+  <!-- Contenido -->
+  <div
+    id="confirmacionContenido"
+    hidden
+  >
+    <!-- Resumen -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="confirmacionResumenTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="confirmacionResumenTitulo">
+            Cotización a confirmar
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-summary-grid">
+        <div class="cotizaciones-summary-item">
+          <span>Cotización</span>
+          <strong id="confirmacionFolio">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Cliente / Prospecto</span>
+          <strong id="confirmacionCliente">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Versión elegida</span>
+          <strong id="confirmacionVersionElegida">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Fecha y hora</span>
+          <strong id="confirmacionFechaHora">—</strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Total</span>
+          <strong
+            id="confirmacionTotal"
+            class="cotizaciones-money"
+          >
+            —
+          </strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>
+            Porcentaje requerido
+          </span>
+
+          <strong
+            id="confirmacionPorcentajeRequerido"
+          >
+            —
+          </strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Estado general</span>
+          <strong id="confirmacionEstadoGeneral">
+            —
+          </strong>
+        </div>
+
+        <div class="cotizaciones-summary-item">
+          <span>Responsable</span>
+          <strong id="confirmacionResponsable">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Condiciones -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="condicionesConfirmacionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="condicionesConfirmacionTitulo">
+            Condiciones de confirmación
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-grid cotizaciones-grid--2">
+          <article
+            class="cotizaciones-card"
+            data-condicion="version-elegida"
+          >
+            <div class="cotizaciones-card-body">
+              <div class="cotizaciones-toolbar">
+                <div>
+                  <strong>Versión elegida</strong>
+
+                  <p class="cotizaciones-subtitle">
+                    Debe existir una única versión seleccionada.
+                  </p>
+                </div>
+
+                <span
+                  id="condicionVersionElegida"
+                  class="cotizaciones-badge cotizaciones-badge--neutral"
+                >
+                  Pendiente
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="cotizaciones-card"
+            data-condicion="fecha-hora"
+          >
+            <div class="cotizaciones-card-body">
+              <div class="cotizaciones-toolbar">
+                <div>
+                  <strong>Fecha y hora</strong>
+
+                  <p class="cotizaciones-subtitle">
+                    Deben encontrarse definidas.
+                  </p>
+                </div>
+
+                <span
+                  id="condicionFechaHora"
+                  class="cotizaciones-badge cotizaciones-badge--neutral"
+                >
+                  Pendiente
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="cotizaciones-card"
+            data-condicion="porcentaje"
+          >
+            <div class="cotizaciones-card-body">
+              <div class="cotizaciones-toolbar">
+                <div>
+                  <strong>
+                    Porcentaje de confirmación
+                  </strong>
+
+                  <p class="cotizaciones-subtitle">
+                    Debe cumplirse la condición comercial.
+                  </p>
+                </div>
+
+                <span
+                  id="condicionPorcentaje"
+                  class="cotizaciones-badge cotizaciones-badge--neutral"
+                >
+                  Pendiente
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <article
+            class="cotizaciones-card"
+            data-condicion="disponibilidad"
+          >
+            <div class="cotizaciones-card-body">
+              <div class="cotizaciones-toolbar">
+                <div>
+                  <strong>Disponibilidad</strong>
+
+                  <p class="cotizaciones-subtitle">
+                    Se valida con Inventario para la
+                    versión elegida.
+                  </p>
+                </div>
+
+                <span
+                  id="condicionDisponibilidad"
+                  class="cotizaciones-badge cotizaciones-badge--neutral"
+                >
+                  Sin consultar
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detalle elegido -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="detalleConfirmacionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="detalleConfirmacionTitulo">
+            Resumen de la versión elegida
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div
+          class="cotizaciones-table-wrapper cotizaciones-desktop-table"
+        >
+          <table class="cotizaciones-table">
+            <thead>
+              <tr>
+                <th scope="col">Concepto</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Disponibilidad</th>
+                <th scope="col">Subtotal</th>
+              </tr>
+            </thead>
+
+            <tbody id="confirmacionDetalleBody">
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          id="confirmacionDetalleMobile"
+          class="cotizaciones-mobile-list"
+        >
+        </div>
+      </div>
+    </section>
+
+    <!-- Coordinación con Inventario -->
+    <section
+      class="cotizaciones-card"
+      aria-labelledby="reservaConfirmacionTitulo"
+    >
+      <div class="cotizaciones-card-header">
+        <div class="cotizaciones-card-title">
+          <h2 id="reservaConfirmacionTitulo">
+            Validación con Inventario
+          </h2>
+        </div>
+      </div>
+
+      <div class="cotizaciones-card-body">
+        <div
+          id="confirmacionInventarioEstado"
+          class="cotizaciones-info"
+        >
+          <div class="cotizaciones-info-content">
+            <strong>
+              Aún no se ha iniciado la validación.
+            </strong>
+
+            <p>
+              Cotizaciones solicitará la operación
+              correspondiente a Inventario sin modificar
+              existencias directamente.
+            </p>
+          </div>
+        </div>
+
+        <div class="cotizaciones-divider"></div>
+
+        <button
+          id="btnValidarConfirmacion"
+          class="cotizaciones-btn cotizaciones-btn--secondary"
+          type="button"
+        >
+          Validar condiciones
+        </button>
+      </div>
+    </section>
+
+    <!-- Acción final -->
+    <section class="cotizaciones-card">
+      <div class="cotizaciones-card-body">
+        <div class="cotizaciones-toolbar">
+          <div>
+            <strong>
+              Confirmación de la cotización
+            </strong>
+
+            <p class="cotizaciones-subtitle">
+              La acción se habilitará cuando las
+              condiciones definidas hayan sido validadas.
+            </p>
+          </div>
+
+          <button
+            id="btnEjecutarConfirmacion"
+            class="cotizaciones-btn cotizaciones-btn--primary"
+            type="button"
+            disabled
+          >
+            Confirmar cotización
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="cotizacionesModalHost"></div>
+</section>
+
+<script
+  type="module"
+  src="./js/modules/cotizaciones/confirmacion.js"
+></script>
