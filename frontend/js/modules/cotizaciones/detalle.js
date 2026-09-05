@@ -469,6 +469,20 @@ function accionesVersionHtml(
     `);
   }
 
+  acciones.push(`
+    <button
+      type="button"
+      class="
+        cotizaciones-btn
+        cotizaciones-btn--secondary
+      "
+      data-accion-version="pdf"
+      data-id-version="${idVersion}"
+    >
+      PDF
+    </button>
+  `);
+
   return `
     <div
       class="cotizaciones-table-actions"
@@ -1532,6 +1546,18 @@ function registrarEventos() {
           elegirVersion(
             idVersion
           );
+          break;
+
+        case 'pdf':
+          location.hash =
+            `#/cotizaciones/pdf?idCotizacion=${
+              Number(
+                cotizacion.idCotizacion
+              )
+            }` +
+            `&idVersion=${
+              Number(idVersion)
+            }`;
           break;
 
         default:
