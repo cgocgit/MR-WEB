@@ -114,12 +114,28 @@ const routes = {
   '#/inventario/reservas':
     'pages/inventario/reservas.html',
 
-   // Cotizaciones
+  // Cotizaciones
   '#/cotizaciones':
     'pages/cotizaciones/lista.html',
 
+  '#/cotizaciones/nueva':
+    'pages/cotizaciones/formulario.html',
+
+  // Alias temporal de compatibilidad.
   '#/cotizaciones/formulario':
     'pages/cotizaciones/formulario.html',
+
+  '#/cotizaciones/detalle':
+    'pages/cotizaciones/detalle.html',
+
+  '#/cotizaciones/version':
+    'pages/cotizaciones/version.html',
+
+  '#/cotizaciones/confirmar':
+    'pages/cotizaciones/confirmacion.html',
+
+  '#/cotizaciones/pdf':
+    'pages/cotizaciones/pdf.html',
 
   // Órdenes
   '#/ordenes':
@@ -355,8 +371,26 @@ const routePermissions = {
   '#/cotizaciones':
     'cotizaciones.consultar',
 
+  '#/cotizaciones/nueva':
+    'cotizaciones.gestionar',
+
   '#/cotizaciones/formulario':
     'cotizaciones.gestionar',
+
+  '#/cotizaciones/detalle':
+    'cotizaciones.consultar',
+
+  '#/cotizaciones/version':
+    ({ query }) =>
+      query.get('modo') === 'consulta'
+        ? 'cotizaciones.consultar'
+        : 'cotizaciones.gestionar',
+
+  '#/cotizaciones/confirmar':
+    'cotizaciones.gestionar',
+
+  '#/cotizaciones/pdf':
+    'cotizaciones.consultar',
 
   // Órdenes
   '#/ordenes':

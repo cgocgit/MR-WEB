@@ -9,6 +9,10 @@ import {
 } from '../../api/catalogo.service.js';
 
 import {
+  obtenerConfiguracionListaPrecio
+} from '../../api/listas-precios.service.js';
+
+import {
   PERMISOS_CATALOGO
 } from '../../api/catalogo.constants.js';
 
@@ -34,7 +38,10 @@ import {
   renderNavegacionCatalogo
 } from './catalogo-ui.js';
 
+
 let listaActual = null;
+let configuracionActual = null;
+
 
 function obtenerElementos() {
   return {
@@ -83,6 +90,21 @@ function obtenerElementos() {
         'lista-descripcion'
       ),
 
+    listaPorcentajeAdicional:
+      document.getElementById(
+        'lista-porcentaje-adicional'
+      ),
+
+    listaTotalProductos:
+      document.getElementById(
+        'lista-total-productos'
+      ),
+
+    productosLista:
+      document.getElementById(
+        'lista-productos'
+      ),
+
     seccionAuditoria:
       document.getElementById(
         'seccion-auditoria'
@@ -115,6 +137,7 @@ function obtenerElementos() {
   };
 }
 
+
 function obtenerIdListaPrecio() {
   const queryString =
     location.hash.split('?')[1] || '';
@@ -124,12 +147,25 @@ function obtenerIdListaPrecio() {
   ).get('id');
 }
 
+
+function escaparHtml(valor) {
+  return String(valor ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+
 function formatearFecha(fecha) {
   if (!fecha) {
     return '—';
   }
 
-  return new Date(fecha).toLocaleDateString(
+  return new Date(
+    fecha
+  ).toLocaleDateString(
     'es-MX',
     {
       year: 'numeric',
@@ -139,12 +175,17 @@ function formatearFecha(fecha) {
   );
 }
 
-function formatearFechaHora(fecha) {
+
+function formatearFechaHora(
+  fecha
+) {
   if (!fecha) {
     return '—';
   }
 
-  return new Date(fecha).toLocaleString(
+  return new Date(
+    fecha
+  ).toLocaleString(
     'es-MX',
     {
       dateStyle: 'short',
@@ -153,115 +194,333 @@ function formatearFechaHora(fecha) {
   );
 }
 
-async function cargarListaPrecio(id) {
+
+function formatoMoneda(valor) {
+  return Number(valor || 0)
+    .toLocaleString(
+      'es-MX',
+      {
+        style: 'currency',
+        currency: 'MXN'
+      }
+    );
+}
+
+
+function renderizarProductos() {
+  const {
+    listaTotalProductos,
+    productosLista
+  } = obtenerElementos();
+
+  const productos =
+    configuracionActual
+      ?.detalleProductos ||
+    [];
+
+  if (listaTotalProductos) {
+    listaTotalProductos.textContent =
+      String(
+        productos.length
+      );
+  }
+
+  if (!productosLista) {
+    return;
+  }
+
+  if (
+    productos.length === 0
+  ) {
+    productosLista.innerHTML =
+      '<p class="catalogo-empty-text">No hay productos configurados en esta lista.</p>';
+
+    return;
+  }
+
+  productosLista.innerHTML =
+    productos
+      .map(
+        producto => `
+          <div class="catalogo-component-item">
+
+            <div>
+
+              <strong>
+                ${escaparHtml(producto.nombre)}
+              </strong>
+
+              <div class="catalogo-card-subtitle">
+                ${escaparHtml(producto.codigo)}
+              </div>
+
+            </div>
+
+            <div>
+
+              <div class="catalogo-card-subtitle">
+                Precio base
+              </div>
+
+              <strong>
+                ${formatoMoneda(
+                  producto.precioBase
+                )}
+              </strong>
+
+            </div>
+
+            <div>
+
+              <div class="catalogo-card-subtitle">
+                Precio en lista
+              </div>
+
+              <strong>
+                ${formatoMoneda(
+                  producto.precio
+                )}
+              </strong>
+
+            </div>
+
+            <div>
+
+              <span
+                class="catalogo-badge ${
+                  producto.activo === 1
+                    ? 'estado-activo'
+                    : 'estado-inactivo'
+                }"
+              >
+                ${
+                  producto.activo === 1
+                    ? 'Activo'
+                    : 'Inactivo'
+                }
+              </span>
+
+            </div>
+
+          </div>
+        `
+      )
+      .join('');
+}
+
+
+async function cargarListaPrecio(
+  id
+) {
   const elementos =
     obtenerElementos();
 
   try {
-    elementos.estadoCargando.style.display =
+    elementos
+      .estadoCargando
+      .style
+      .display =
       'flex';
 
-    elementos.detalleContent.style.display =
+    elementos
+      .detalleContent
+      .style
+      .display =
       'none';
 
-    elementos.estadoError.style.display =
+    elementos
+      .estadoError
+      .style
+      .display =
       'none';
+
+    const [
+      cabecera,
+      configuracion
+    ] =
+      await Promise.all([
+        obtenerListaPrecio(
+          id
+        ),
+
+        obtenerConfiguracionListaPrecio(
+          id
+        )
+      ]);
 
     listaActual =
-      await obtenerListaPrecio(id);
+      cabecera;
 
-    elementos.listaNombre.textContent =
-      listaActual.nombre;
+    configuracionActual =
+      configuracion;
 
-    elementos.listaEstado.textContent =
-      listaActual.activo
+    elementos
+      .listaNombre
+      .textContent =
+      cabecera.nombre;
+
+    elementos
+      .listaEstado
+      .textContent =
+      cabecera.activo
         ? 'Activo'
         : 'Inactivo';
 
-    elementos.listaEstado.className =
-      listaActual.activo
+    elementos
+      .listaEstado
+      .className =
+      cabecera.activo
         ? 'catalogo-detail-meta-value estado-activo'
         : 'catalogo-detail-meta-value estado-inactivo';
 
-    elementos.listaVigenciaInicio.textContent =
+    elementos
+      .listaVigenciaInicio
+      .textContent =
       formatearFecha(
-        listaActual.vigenciaInicio
+        cabecera
+          .vigenciaInicio
       );
 
-    elementos.listaVigenciaFin.textContent =
+    elementos
+      .listaVigenciaFin
+      .textContent =
       formatearFecha(
-        listaActual.vigenciaFin
+        cabecera
+          .vigenciaFin
       );
 
-    elementos.listaDescripcion.textContent =
-      listaActual.descripcion ||
+    elementos
+      .listaDescripcion
+      .textContent =
+      cabecera.descripcion ||
       'Sin descripción';
 
-    const session = getSession();
+    elementos
+      .listaPorcentajeAdicional
+      .textContent =
+      `${Number(
+        configuracion
+          .porcentajeAdicionalFueraLista ??
+        0
+      )}%`;
+
+    renderizarProductos();
+
+    const session =
+      getSession();
 
     const puedeGestionar =
       hasPermission(
         session,
-        PERMISOS_CATALOGO.PRECIOS_GESTIONAR
+        PERMISOS_CATALOGO
+          .PRECIOS_GESTIONAR
       );
 
-    elementos.btnEditar.style.display =
+    elementos
+      .btnEditar
+      .style
+      .display =
       puedeGestionar
         ? 'inline-block'
         : 'none';
 
-    elementos.btnEstado.style.display =
+    elementos
+      .btnEstado
+      .style
+      .display =
       puedeGestionar
         ? 'inline-block'
         : 'none';
 
-    elementos.btnEstado.textContent =
-      listaActual.activo
+    elementos
+      .btnEstado
+      .textContent =
+      cabecera.activo
         ? 'Desactivar'
         : 'Activar';
 
     if (puedeGestionar) {
-      elementos.seccionAuditoria.style.display =
+      elementos
+        .seccionAuditoria
+        .style
+        .display =
         'block';
 
-      elementos.listaRegistro.textContent =
-        `${listaActual.creadoPor || 'Sistema'} • ` +
+      elementos
+        .listaRegistro
+        .textContent =
+        `${
+          cabecera.creadoPor ||
+          'Sistema'
+        } • ` +
         `${formatearFechaHora(
-          listaActual.fechaRegistro
+          cabecera.fechaRegistro
         )}`;
 
-      elementos.listaModificacion.textContent =
-        `${listaActual.modificadoPor || 'Sistema'} • ` +
+      elementos
+        .listaModificacion
+        .textContent =
+        `${
+          cabecera.modificadoPor ||
+          'Sistema'
+        } • ` +
         `${formatearFechaHora(
-          listaActual.fechaModificacion
+          cabecera.fechaModificacion
         )}`;
+
+    } else {
+      elementos
+        .seccionAuditoria
+        .style
+        .display =
+        'none';
     }
 
-    elementos.estadoCargando.style.display =
+    elementos
+      .estadoCargando
+      .style
+      .display =
       'none';
 
-    elementos.detalleContent.style.display =
+    elementos
+      .detalleContent
+      .style
+      .display =
       'block';
 
   } catch (error) {
-    elementos.estadoCargando.style.display =
+    elementos
+      .estadoCargando
+      .style
+      .display =
       'none';
 
-    elementos.detalleContent.style.display =
+    elementos
+      .detalleContent
+      .style
+      .display =
       'none';
 
-    elementos.estadoError.style.display =
+    elementos
+      .estadoError
+      .style
+      .display =
       'flex';
 
-    elementos.errorMensaje.textContent =
+    elementos
+      .errorMensaje
+      .textContent =
       error.message ||
       'No fue posible consultar la lista de precios.';
   }
 }
 
+
 async function manejarCambioEstado() {
   const nuevoEstado =
-    !Boolean(listaActual.activo);
+    !Boolean(
+      listaActual.activo
+    );
 
   const confirmar =
     window.confirm(
@@ -286,7 +545,9 @@ async function manejarCambioEstado() {
       nuevoEstado
         ? 'Lista de precios activada correctamente.'
         : 'Lista de precios desactivada correctamente.',
-      { type: 'success' }
+      {
+        type: 'success'
+      }
     );
 
     await cargarListaPrecio(
@@ -297,13 +558,16 @@ async function manejarCambioEstado() {
     showNotification(
       error.message ||
         'No fue posible cambiar el estado.',
-      { type: 'error' }
+      {
+        type: 'error'
+      }
     );
 
   } finally {
     hideLoader();
   }
 }
+
 
 export async function init() {
   if (!requireAuth()) {
@@ -312,12 +576,14 @@ export async function init() {
 
   renderNavegacionCatalogo();
 
-  const session = getSession();
+  const session =
+    getSession();
 
   if (
     !hasPermission(
       session,
-      PERMISOS_CATALOGO.CONSULTAR
+      PERMISOS_CATALOGO
+        .CONSULTAR
     )
   ) {
     window.location.hash =
@@ -332,7 +598,9 @@ export async function init() {
   if (!idListaPrecio) {
     showNotification(
       'ID de lista de precios no especificado.',
-      { type: 'error' }
+      {
+        type: 'error'
+      }
     );
 
     window.location.hash =
@@ -351,24 +619,27 @@ export async function init() {
     btnEstado
   } = obtenerElementos();
 
-  btnVolver?.addEventListener(
-    'click',
-    () => {
-      window.location.hash =
-        '#/catalogo/precios';
-    }
-  );
+  btnVolver
+    ?.addEventListener(
+      'click',
+      () => {
+        window.location.hash =
+          '#/catalogo/precios';
+      }
+    );
 
-  btnEditar?.addEventListener(
-    'click',
-    () => {
-      window.location.hash =
-        `#/catalogo/precios/formulario?id=${listaActual.idListaPrecio}`;
-    }
-  );
+  btnEditar
+    ?.addEventListener(
+      'click',
+      () => {
+        window.location.hash =
+          `#/catalogo/precios/formulario?id=${listaActual.idListaPrecio}`;
+      }
+    );
 
-  btnEstado?.addEventListener(
-    'click',
-    manejarCambioEstado
-  );
+  btnEstado
+    ?.addEventListener(
+      'click',
+      manejarCambioEstado
+    );
 }

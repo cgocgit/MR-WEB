@@ -1547,6 +1547,12 @@ export async function registrarListaPrecio(
     activo:
       datos.activo ? 1 : 0,
 
+    porcentajeAdicionalFueraLista:
+      0,
+
+    detalleProductos:
+      [],
+
     fechaRegistro:
       ahora,
 
