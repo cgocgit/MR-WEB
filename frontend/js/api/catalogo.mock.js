@@ -424,9 +424,6 @@ export const PAQUETES_MOCK = [
 /**
  * Listas de precios Mock
  */
-/**
- * Listas de precios Mock
- */
 export const LISTAS_PRECIOS_MOCK = [
   {
     idListaPrecio: 6001,
