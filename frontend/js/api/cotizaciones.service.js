@@ -18,7 +18,9 @@ import {
 } from './listas-precios.service.js';
 
 import {
-  obtenerProducto
+  obtenerProducto,
+  obtenerServicio,
+  obtenerPaquete
 } from './catalogo.service.js';
 
 import {
@@ -763,7 +765,7 @@ function cumpleFiltros(
   return true;
 }
 
-async function normalizarDetalleVersion(
+async function async function normalizarDetalleVersion(
   versionActual,
   idListaPrecio,
   detalle = []
@@ -775,7 +777,7 @@ async function normalizarDetalleVersion(
     );
   }
 
-  const idsProductos =
+  const clavesConcepto =
     new Set();
 
   const idsExistentes =
@@ -796,34 +798,20 @@ async function normalizarDetalleVersion(
 
   const normalizados = [];
 
-  for (
-    const item of detalle
-  ) {
-    if (
-      item.tipoConcepto !==
-      TIPOS_CONCEPTO_COTIZACION
-        .PRODUCTO
-    ) {
-      throw crearError(
-        'PRECIO_CONCEPTO_PENDIENTE',
-        'La regla de precio por Lista de Precios para servicios y paquetes aún no está definida.'
-      );
-    }
-
-    const idProducto =
-      normalizarId(
-        item.idProducto,
-        'producto'
-      );
+  for (const item of detalle) {
+    const tipo =
+      item.tipoConcepto;
 
     if (
-      idsProductos.has(
-        idProducto
-      )
+      ![
+        TIPOS_CONCEPTO_COTIZACION.PRODUCTO,
+        TIPOS_CONCEPTO_COTIZACION.SERVICIO,
+        TIPOS_CONCEPTO_COTIZACION.PAQUETE
+      ].includes(tipo)
     ) {
       throw crearError(
-        'PRODUCTO_DUPLICADO',
-        'Un producto no puede aparecer más de una vez en la misma versión.'
+        'TIPO_CONCEPTO_INVALIDO',
+        'El tipo de concepto no es válido.'
       );
     }
 
@@ -831,9 +819,7 @@ async function normalizarDetalleVersion(
       Number(item.cantidad);
 
     if (
-      !Number.isInteger(
-        cantidad
-      ) ||
+      !Number.isInteger(cantidad) ||
       cantidad <= 0
     ) {
       throw crearError(
@@ -842,20 +828,207 @@ async function normalizarDetalleVersion(
       );
     }
 
-    const [
-      producto,
-      precio
-    ] =
-      await Promise.all([
-        obtenerProducto(
-          idProducto
-        ),
+    let idProducto = null;
+    let idServicio = null;
+    let idPaquete = null;
 
-        resolverPrecioProducto({
-          idListaPrecio,
-          idProducto
-        })
-      ]);
+    let descripcionHistorica = '';
+    let precioBase = 0;
+    let precioLista = null;
+    let porcentajeAdicional = 0;
+    let precioAplicado = 0;
+    let composicion = null;
+
+    if (
+      tipo ===
+      TIPOS_CONCEPTO_COTIZACION.PRODUCTO
+    ) {
+      idProducto =
+        normalizarId(
+          item.idProducto,
+          'producto'
+        );
+
+      const clave =
+        `PRODUCTO:${idProducto}`;
+
+      if (clavesConcepto.has(clave)) {
+        throw crearError(
+          'CONCEPTO_DUPLICADO',
+          'El producto ya existe en la versión.'
+        );
+      }
+
+      const [
+        producto,
+        precio
+      ] =
+        await Promise.all([
+          obtenerProducto(
+            idProducto
+          ),
+
+          resolverPrecioProducto({
+            idListaPrecio,
+            idProducto
+          })
+        ]);
+
+      descripcionHistorica =
+        producto.nombre;
+
+      precioBase =
+        Number(
+          precio.precioBase || 0
+        );
+
+      precioLista =
+        precio.precioLista === null
+          ? null
+          : Number(
+              precio.precioLista
+            );
+
+      porcentajeAdicional =
+        Number(
+          precio
+            .porcentajeAdicional ||
+          0
+        );
+
+      precioAplicado =
+        Number(
+          precio
+            .precioAplicado ||
+          0
+        );
+
+      clavesConcepto.add(clave);
+    }
+
+    if (
+      tipo ===
+      TIPOS_CONCEPTO_COTIZACION.SERVICIO
+    ) {
+      idServicio =
+        normalizarId(
+          item.idServicio,
+          'servicio'
+        );
+
+      const clave =
+        `SERVICIO:${idServicio}`;
+
+      if (clavesConcepto.has(clave)) {
+        throw crearError(
+          'CONCEPTO_DUPLICADO',
+          'El servicio ya existe en la versión.'
+        );
+      }
+
+      const servicio =
+        await obtenerServicio(
+          idServicio
+        );
+
+      descripcionHistorica =
+        servicio.nombre;
+
+      precioBase =
+        Number(
+          servicio.tarifaBase || 0
+        );
+
+      precioAplicado =
+        precioBase;
+
+      clavesConcepto.add(clave);
+    }
+
+    if (
+      tipo ===
+      TIPOS_CONCEPTO_COTIZACION.PAQUETE
+    ) {
+      idPaquete =
+        normalizarId(
+          item.idPaquete,
+          'paquete'
+        );
+
+      const clave =
+        `PAQUETE:${idPaquete}`;
+
+      if (clavesConcepto.has(clave)) {
+        throw crearError(
+          'CONCEPTO_DUPLICADO',
+          'El paquete ya existe en la versión.'
+        );
+      }
+
+      const paquete =
+        await obtenerPaquete(
+          idPaquete
+        );
+
+      descripcionHistorica =
+        paquete.nombre;
+
+      precioBase =
+        Number(
+          paquete.precio || 0
+        );
+
+      precioAplicado =
+        precioBase;
+
+      composicion = {
+        productos:
+          (
+            paquete.detalleProductos ||
+            []
+          ).map(
+            componente => ({
+              idProducto:
+                Number(
+                  componente.idProducto
+                ),
+
+              nombre:
+                componente.nombre,
+
+              cantidad:
+                Number(
+                  componente.cantidad ||
+                  0
+                )
+            })
+          ),
+
+        servicios:
+          (
+            paquete.detalleServicios ||
+            []
+          ).map(
+            componente => ({
+              idServicio:
+                Number(
+                  componente.idServicio
+                ),
+
+              nombre:
+                componente.nombre,
+
+              cantidad:
+                Number(
+                  componente.cantidad ||
+                  0
+                )
+            })
+          )
+      };
+
+      clavesConcepto.add(clave);
+    }
 
     const idDetalleOriginal =
       Number(
@@ -878,60 +1051,45 @@ async function normalizarDetalleVersion(
       idDetalle,
 
       tipoConcepto:
-        TIPOS_CONCEPTO_COTIZACION
-          .PRODUCTO,
+        tipo,
 
       idProducto,
-      idServicio: null,
-      idPaquete: null,
+      idServicio,
+      idPaquete,
 
-      descripcionHistorica:
-        producto.nombre ||
-        normalizarTexto(
-          item.descripcionHistorica
-        ) ||
-        `Producto ${idProducto}`,
+      descripcionHistorica,
 
       cantidad,
 
-      precioBase:
-        Number(
-          precio.precioBase || 0
-        ),
+      precioBase,
+      precioLista,
+      porcentajeAdicional,
+      precioAplicado,
 
-      precioLista:
-        precio.precioLista === null
-          ? null
-          : Number(
-              precio.precioLista
-            ),
-
-      porcentajeAdicional:
+      descuentoAutorizado:
         Number(
-          precio
-            .porcentajeAdicional ||
+          item
+            .descuentoAutorizado ||
           0
         ),
 
-      precioAplicado:
+      impuesto:
         Number(
-          precio.precioAplicado ||
-          0
+          item.impuesto || 0
         ),
 
-      descuentoAutorizado: 0,
-      impuesto: 0,
-      cargos: 0,
+      cargos:
+        Number(
+          item.cargos || 0
+        ),
 
       subtotal:
         redondearMoneda(
           cantidad *
-          Number(
-            precio
-              .precioAplicado ||
-            0
-          )
+          precioAplicado
         ),
+
+      composicion,
 
       disponibilidad:
         Object.values(
@@ -942,10 +1100,6 @@ async function normalizarDetalleVersion(
           ? item.disponibilidad
           : null
     });
-
-    idsProductos.add(
-      idProducto
-    );
   }
 
   return normalizados;
@@ -1294,6 +1448,20 @@ export async function registrarConfirmacionReservaCotizacion(
 
   cotizacion.fechaActualizacion =
     ahora;
+
+  if (confirmada) {
+    const versionElegida =
+      obtenerVersionElegida(
+        cotizacion
+      );
+
+    if (versionElegida) {
+      versionElegida
+        .disponibilidadGlobal =
+        DISPONIBILIDAD_COTIZACION
+          .DISPONIBLE;
+    }
+  }
 
   if (confirmada) {
     registrarHistorial(
@@ -1822,8 +1990,27 @@ export async function updateCotizacionVersion(
     economia
   );
 
-  cotizacion.fechaActualizacion =
+  const ahora =
     new Date().toISOString();
+
+  const usuario =
+    obtenerUsuarioActual();
+
+  version.fechaActualizacion =
+    ahora;
+
+  version.usuarioModificacion =
+    usuario.nombre;
+
+  cotizacion.fechaActualizacion =
+    ahora;
+
+  registrarHistorial(
+    cotizacion,
+    'VERSION_MODIFICADA',
+    `Se modificó la versión V${version.numeroVersion} en Borrador.`,
+    usuario
+  );
 
   return clone(
     version

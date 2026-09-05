@@ -13,8 +13,14 @@ import {
 import {
   listarProductos,
   listarServicios,
-  listarPaquetes
+  listarPaquetes,
+  obtenerServicio,
+  obtenerPaquete
 } from '../../api/catalogo.service.js';
+
+import {
+  consultarDisponibilidadFutura
+} from '../../api/inventario.service.js';
 
 import {
   listarListasPrecioDisponibles,
@@ -67,6 +73,7 @@ let tipoBusqueda =
 
 let secuenciaBusqueda = 0;
 let secuenciaLista = 0;
+let secuenciaDisponibilidad = 0;
 
 let temporizadorBusqueda =
   null;
@@ -671,6 +678,57 @@ function badgeDisponibilidad(
   );
 }
 
+function composicionPaqueteHtml(
+  item
+) {
+  if (
+    item.tipoConcepto !==
+      TIPOS_CONCEPTO_COTIZACION
+        .PAQUETE ||
+    !item.composicion
+  ) {
+    return '';
+  }
+
+  const componentes = [
+    ...(
+      item.composicion.productos ||
+      []
+    ).map(
+      componente =>
+        `${componente.nombre} × ${componente.cantidad}`
+    ),
+
+    ...(
+      item.composicion.servicios ||
+      []
+    ).map(
+      componente =>
+        `${componente.nombre} × ${componente.cantidad}`
+    )
+  ];
+
+  if (!componentes.length) {
+    return '';
+  }
+
+  return `
+    <div
+      class="cotizaciones-field-help"
+    >
+      Incluye:
+      ${componentes
+        .map(
+          componente =>
+            escaparHtml(
+              componente
+            )
+        )
+        .join(' · ')}
+    </div>
+  `;
+}
+
 function renderDetalle() {
   const tbody =
     el('detalleVersionBody');
@@ -713,6 +771,9 @@ function renderDetalle() {
                     'Concepto'
                   )}
                 </strong>
+                ${composicionPaqueteHtml(
+                  item
+                )}
               </td>
 
               <td>
@@ -834,7 +895,9 @@ function renderDetalle() {
                     'Concepto'
                   )}
                 </strong>
-
+                ${composicionPaqueteHtml(
+                  item
+                )}
                 ${badgeDisponibilidad(
                   item
                 )}
@@ -1119,8 +1182,7 @@ function renderResultadoBusqueda(
   }
 
   if (!items.length) {
-    contenedor.innerHTML =
-      '';
+    contenedor.innerHTML = '';
 
     empty.hidden = false;
 
@@ -1133,6 +1195,13 @@ function renderResultadoBusqueda(
   }
 
   empty.hidden = true;
+
+  const listaSeleccionada =
+    Boolean(
+      el(
+        'versionListaPrecio'
+      )?.value
+    );
 
   contenedor.innerHTML = `
     <div
@@ -1154,64 +1223,88 @@ function renderResultadoBusqueda(
                 ? item.idServicio
                 : item.idPaquete;
 
-          const codigo =
-            item.codigo ||
-            '';
+          const precioTexto =
+            tipo ===
+            TIPOS_CONCEPTO_COTIZACION
+              .PRODUCTO
+              ? 'Precio según Lista de Precios'
+              : tipo ===
+                  TIPOS_CONCEPTO_COTIZACION
+                    .SERVICIO
+                ? `Tarifa: ${
+                    formatearMoneda(
+                      item.tarifaBase
+                    )
+                  }`
+                : `Precio: ${
+                    formatearMoneda(
+                      item.precio
+                    )
+                  }`;
 
-          const nombre =
-            item.nombre ||
-            'Sin nombre';
+          const detallePaquete =
+            tipo ===
+              TIPOS_CONCEPTO_COTIZACION
+                .PAQUETE
+              ? `${
+                  Number(
+                    item.totalProductos ||
+                    0
+                  )
+                } producto(s) · ${
+                  Number(
+                    item.totalServicios ||
+                    0
+                  )
+                } servicio(s)`
+              : '';
 
           const puedeAgregar =
             !soloConsulta &&
-            tipo ===
-              TIPOS_CONCEPTO_COTIZACION
-                .PRODUCTO &&
-            Boolean(
-              el(
-                'versionListaPrecio'
-              )?.value
-            );
+            listaSeleccionada;
 
           return `
             <article
-              class="
-                cotizaciones-card
-              "
+              class="cotizaciones-card"
             >
               <div
-                class="
-                  cotizaciones-card-body
-                "
+                class="cotizaciones-card-body"
               >
                 <strong>
                   ${escaparHtml(
-                    nombre
+                    item.nombre ||
+                    'Sin nombre'
                   )}
                 </strong>
 
                 <p
-                  class="
-                    cotizaciones-subtitle
-                  "
+                  class="cotizaciones-subtitle"
                 >
                   ${escaparHtml(
-                    codigo
+                    item.codigo ||
+                    ''
+                  )}
+                </p>
+
+                <p
+                  class="cotizaciones-field-help"
+                >
+                  ${escaparHtml(
+                    precioTexto
                   )}
                 </p>
 
                 ${
-                  tipo !==
-                  TIPOS_CONCEPTO_COTIZACION
-                    .PRODUCTO
+                  detallePaquete
                     ? `
                       <p
                         class="
                           cotizaciones-field-help
                         "
                       >
-                        Precio por Lista de Precios
-                        pendiente de contrato.
+                        ${escaparHtml(
+                          detallePaquete
+                        )}
                       </p>
                     `
                     : ''
@@ -1337,8 +1430,9 @@ function programarBusqueda() {
     );
 }
 
-async function agregarProducto(
-  idProducto
+async function agregarConcepto(
+  idConcepto,
+  tipo
 ) {
   const idListaPrecio =
     Number(
@@ -1358,22 +1452,33 @@ async function agregarProducto(
     return;
   }
 
-  if (
+  const campoId =
+    tipo ===
+    TIPOS_CONCEPTO_COTIZACION
+      .PRODUCTO
+      ? 'idProducto'
+      : tipo ===
+          TIPOS_CONCEPTO_COTIZACION
+            .SERVICIO
+        ? 'idServicio'
+        : 'idPaquete';
+
+  const duplicado =
     detalleLocal.some(
       item =>
         item.tipoConcepto ===
-          TIPOS_CONCEPTO_COTIZACION
-            .PRODUCTO &&
+          tipo &&
         Number(
-          item.idProducto
+          item[campoId]
         ) ===
-        Number(
-          idProducto
-        )
-    )
-  ) {
+          Number(
+            idConcepto
+          )
+    );
+
+  if (duplicado) {
     showNotification(
-      'El producto ya forma parte de la versión.',
+      'El concepto ya forma parte de la versión.',
       {
         type: 'info'
       }
@@ -1383,40 +1488,164 @@ async function agregarProducto(
   }
 
   try {
-    const [
-      productoRespuesta,
-      precio
-    ] =
-      await Promise.all([
-        listarProductos({
-          texto: '',
-          soloActivos: true,
-          skip: 0,
-          limit: 100
-        }),
+    let entidad;
+    let precioBase = 0;
+    let precioLista = null;
+    let porcentajeAdicional = 0;
+    let precioAplicado = 0;
+    let composicion = null;
 
-        resolverPrecioProducto({
-          idListaPrecio,
-          idProducto
-        })
-      ]);
+    if (
+      tipo ===
+      TIPOS_CONCEPTO_COTIZACION
+        .PRODUCTO
+    ) {
+      const [
+        productos,
+        precio
+      ] =
+        await Promise.all([
+          listarProductos({
+            texto: '',
+            soloActivos: true,
+            skip: 0,
+            limit: 100
+          }),
 
-    const producto =
-      productoRespuesta.items
-        .find(
+          resolverPrecioProducto({
+            idListaPrecio,
+            idProducto:
+              idConcepto
+          })
+        ]);
+
+      entidad =
+        productos.items.find(
           item =>
             Number(
               item.idProducto
             ) ===
-            Number(
-              idProducto
-            )
+              Number(
+                idConcepto
+              )
         );
 
-    if (!producto) {
-      throw new Error(
-        'Producto no encontrado en el Catálogo.'
-      );
+      if (!entidad) {
+        throw new Error(
+          'Producto no encontrado en el Catálogo.'
+        );
+      }
+
+      precioBase =
+        Number(
+          precio.precioBase ||
+          0
+        );
+
+      precioLista =
+        precio.precioLista;
+
+      porcentajeAdicional =
+        Number(
+          precio
+            .porcentajeAdicional ||
+          0
+        );
+
+      precioAplicado =
+        Number(
+          precio
+            .precioAplicado ||
+          0
+        );
+    }
+
+    if (
+      tipo ===
+      TIPOS_CONCEPTO_COTIZACION
+        .SERVICIO
+    ) {
+      entidad =
+        await obtenerServicio(
+          idConcepto
+        );
+
+      precioBase =
+        Number(
+          entidad.tarifaBase ||
+          0
+        );
+
+      precioAplicado =
+        precioBase;
+    }
+
+    if (
+      tipo ===
+      TIPOS_CONCEPTO_COTIZACION
+        .PAQUETE
+    ) {
+      entidad =
+        await obtenerPaquete(
+          idConcepto
+        );
+
+      precioBase =
+        Number(
+          entidad.precio ||
+          0
+        );
+
+      precioAplicado =
+        precioBase;
+
+      composicion = {
+        productos:
+          (
+            entidad
+              .detalleProductos ||
+            []
+          ).map(
+            componente => ({
+              idProducto:
+                Number(
+                  componente.idProducto
+                ),
+
+              nombre:
+                componente.nombre,
+
+              cantidad:
+                Number(
+                  componente.cantidad ||
+                  0
+                )
+            })
+          ),
+
+        servicios:
+          (
+            entidad
+              .detalleServicios ||
+            []
+          ).map(
+            componente => ({
+              idServicio:
+                Number(
+                  componente.idServicio
+                ),
+
+              nombre:
+                componente.nombre,
+
+              cantidad:
+                Number(
+                  componente.cantidad ||
+                  0
+                )
+            })
+          )
+      };
     }
 
     detalleLocal.push({
@@ -1424,48 +1653,61 @@ async function agregarProducto(
         siguienteIdTemporal--,
 
       tipoConcepto:
-        TIPOS_CONCEPTO_COTIZACION
-          .PRODUCTO,
+        tipo,
 
       idProducto:
-        Number(idProducto),
+        tipo ===
+          TIPOS_CONCEPTO_COTIZACION
+            .PRODUCTO
+          ? Number(idConcepto)
+          : null,
 
-      idServicio: null,
-      idPaquete: null,
+      idServicio:
+        tipo ===
+          TIPOS_CONCEPTO_COTIZACION
+            .SERVICIO
+          ? Number(idConcepto)
+          : null,
+
+      idPaquete:
+        tipo ===
+          TIPOS_CONCEPTO_COTIZACION
+            .PAQUETE
+          ? Number(idConcepto)
+          : null,
 
       descripcionHistorica:
-        producto.nombre,
+        entidad.nombre,
 
       cantidad: 1,
 
-      precioBase:
-        precio.precioBase,
-
-      precioLista:
-        precio.precioLista,
-
-      porcentajeAdicional:
-        precio
-          .porcentajeAdicional,
-
-      precioAplicado:
-        precio
-          .precioAplicado,
+      precioBase,
+      precioLista,
+      porcentajeAdicional,
+      precioAplicado,
 
       subtotal:
-        precio
-          .precioAplicado,
+        precioAplicado,
+
+      composicion,
 
       disponibilidad:
         null
     });
 
+    version
+      .disponibilidadGlobal =
+      null;
+
+    secuenciaDisponibilidad += 1;
+
     recalcularEconomia();
     renderDetalle();
+    renderDisponibilidadGlobal();
   } catch (error) {
     showNotification(
       error?.message ||
-      'No fue posible agregar el producto.',
+      'No fue posible agregar el concepto.',
       {
         type: 'error'
       }
@@ -1487,8 +1729,14 @@ function eliminarDetalle(
         )
     );
 
+  version.disponibilidadGlobal =
+    null;
+
+  secuenciaDisponibilidad += 1;
+
   recalcularEconomia();
   renderDetalle();
+  renderDisponibilidadGlobal();
 }
 
 function actualizarCantidad(
@@ -1549,6 +1797,8 @@ function actualizarCantidad(
 
   version.disponibilidadGlobal =
     null;
+
+  secuenciaDisponibilidad += 1;
 
   recalcularEconomia();
   renderDetalle();
@@ -1756,14 +2006,244 @@ async function eliminarVersion() {
   }
 }
 
-function consultarDisponibilidadPendiente() {
-  showNotification(
-    'La consulta de Inventario requiere fechaInicio y fechaFin. El contrato de periodo aún debe cerrarse antes de conectar esta acción.',
-    {
-      type: 'info',
-      timeout: 5000
+async function consultarProductoInventario(
+  idProducto,
+  cantidad
+) {
+  const resultado =
+    await consultarDisponibilidadFutura({
+      idProducto,
+      cantidad,
+
+      /*
+       * Cotizaciones consulta para la
+       * fecha del evento.
+       * El contrato actual de Inventario
+       * recibe un rango de fechas.
+       */
+      fechaInicio:
+        cotizacion.fechaEvento,
+
+      fechaFin:
+        cotizacion.fechaEvento
+    });
+
+  return resultado.disponible ===
+    true;
+}
+
+async function resolverDisponibilidadDetalle(
+  item
+) {
+  if (
+    item.tipoConcepto ===
+    TIPOS_CONCEPTO_COTIZACION
+      .PRODUCTO
+  ) {
+    const disponible =
+      await consultarProductoInventario(
+        item.idProducto,
+        item.cantidad
+      );
+
+    return {
+      ...item,
+
+      disponibilidad:
+        disponible
+          ? 'DISPONIBLE'
+          : 'INCOMPLETO'
+    };
+  }
+
+  if (
+    item.tipoConcepto ===
+    TIPOS_CONCEPTO_COTIZACION
+      .SERVICIO
+  ) {
+    /*
+     * Inventario administra existencia
+     * física de productos.
+     */
+    return {
+      ...item,
+      disponibilidad:
+        'DISPONIBLE'
+    };
+  }
+
+  if (
+    item.tipoConcepto ===
+    TIPOS_CONCEPTO_COTIZACION
+      .PAQUETE
+  ) {
+    const paquete =
+      await obtenerPaquete(
+        item.idPaquete
+      );
+
+    const productosFisicos =
+      paquete.detalleProductos ||
+      [];
+
+    if (
+      !productosFisicos.length
+    ) {
+      return {
+        ...item,
+        disponibilidad:
+          'DISPONIBLE'
+      };
     }
-  );
+
+    const resultados =
+      await Promise.all(
+        productosFisicos.map(
+          componente =>
+            consultarProductoInventario(
+              componente.idProducto,
+
+              Number(
+                componente.cantidad ||
+                0
+              ) *
+              Number(
+                item.cantidad ||
+                1
+              )
+            )
+        )
+      );
+
+    return {
+      ...item,
+
+      disponibilidad:
+        resultados.every(Boolean)
+          ? 'DISPONIBLE'
+          : 'INCOMPLETO'
+    };
+  }
+
+  return {
+    ...item,
+    disponibilidad:
+      'INCOMPLETO'
+  };
+}
+
+async function consultarDisponibilidad() {
+  if (!detalleLocal.length) {
+    showNotification(
+      'Agrega al menos un concepto antes de consultar disponibilidad.',
+      {
+        type: 'info'
+      }
+    );
+
+    return;
+  }
+
+  if (!cotizacion.fechaEvento) {
+    showNotification(
+      'La cotización no tiene fecha de evento.',
+      {
+        type: 'error'
+      }
+    );
+
+    return;
+  }
+
+  const secuencia =
+    ++secuenciaDisponibilidad;
+
+  const boton =
+    el(
+      'btnActualizarDisponibilidad'
+    );
+
+  if (boton) {
+    boton.disabled = true;
+    boton.textContent =
+      'Consultando...';
+  }
+
+  try {
+    const resultado =
+      await Promise.all(
+        detalleLocal.map(
+          resolverDisponibilidadDetalle
+        )
+      );
+
+    if (
+      secuencia !==
+      secuenciaDisponibilidad
+    ) {
+      return;
+    }
+
+    detalleLocal =
+      resultado;
+
+    const disponible =
+      detalleLocal.every(
+        item =>
+          item.disponibilidad ===
+          'DISPONIBLE'
+      );
+
+    version.disponibilidadGlobal =
+      disponible
+        ? 'DISPONIBLE'
+        : 'INCOMPLETO';
+
+    renderDetalle();
+    renderDisponibilidadGlobal();
+
+    showNotification(
+      disponible
+        ? 'Disponibilidad consultada: Disponible.'
+        : 'Disponibilidad consultada: No disponible / Incompleto.',
+      {
+        type:
+          disponible
+            ? 'success'
+            : 'info'
+      }
+    );
+  } catch (error) {
+    if (
+      secuencia !==
+      secuenciaDisponibilidad
+    ) {
+      return;
+    }
+
+    console.error(
+      '[Cotizaciones] Error al consultar disponibilidad:',
+      error
+    );
+
+    showNotification(
+      error?.message ||
+      'No fue posible consultar la disponibilidad.',
+      {
+        type: 'error'
+      }
+    );
+  } finally {
+    if (
+      secuencia ===
+      secuenciaDisponibilidad &&
+      boton
+    ) {
+      boton.disabled = false;
+      boton.textContent =
+        'Consultar disponibilidad';
+    }
+  }
 }
 
 function cambiarTipoBusqueda(
@@ -1815,6 +2295,17 @@ function registrarEventos() {
       version.disponibilidadGlobal =
         null;
 
+      detalleLocal =
+        detalleLocal.map(
+          item => ({
+            ...item,
+            disponibilidad: null
+          })
+        );
+
+      secuenciaDisponibilidad += 1;
+
+      renderDetalle();
       renderDisponibilidadGlobal();
 
       if (!idListaPrecio) {
@@ -1881,31 +2372,15 @@ function registrarEventos() {
           return;
         }
 
-        if (
+        agregarConcepto(
+        Number(
           botonAgregar.dataset
-            .tipoConcepto !==
-          TIPOS_CONCEPTO_COTIZACION
-            .PRODUCTO
-        ) {
-          showNotification(
-            'La regla de precio por Lista de Precios para servicios y paquetes aún no está definida en la dependencia.',
-            {
-              type: 'info',
-              timeout: 5000
-            }
-          );
+            .agregarConcepto
+        ),
 
-          return;
-        }
-
-        agregarProducto(
-          Number(
-            botonAgregar.dataset
-              .agregarConcepto
-          )
-        );
-      }
-    );
+        botonAgregar.dataset
+          .tipoConcepto
+      );
 
   el(
     'detalleVersionTitulo'
@@ -1987,7 +2462,7 @@ function registrarEventos() {
     'btnActualizarDisponibilidad'
   )?.addEventListener(
     'click',
-    consultarDisponibilidadPendiente
+    consultarDisponibilidad
   );
 }
 
@@ -2098,7 +2573,7 @@ soloConsulta =
     el(
       'btnActualizarDisponibilidad'
     ).disabled =
-      soloConsulta;
+      false;
 
     el(
       'versionEstadoCarga'
@@ -2136,6 +2611,7 @@ export function init() {
    */
   secuenciaBusqueda += 1;
   secuenciaLista += 1;
+  secuenciaDisponibilidad += 1;
 
   clearTimeout(
     temporizadorBusqueda

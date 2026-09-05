@@ -2,6 +2,7 @@ import {
   getCotizacion,
   createCotizacionVersion,
   deleteCotizacionVersion,
+  deleteCotizacion,
   selectCotizacionVersion,
   rejectCotizacion,
   cancelCotizacion
@@ -27,6 +28,7 @@ import {
   ESTADOS_COTIZACION_GENERAL,
   ESTADOS_TERMINALES_COTIZACION,
   ESTADOS_VERSION_COTIZACION,
+  TIPOS_CONCEPTO_COTIZACION,
   PERMISOS_COTIZACIONES
 } from '../../api/cotizaciones.constants.js';
 
@@ -229,19 +231,40 @@ function renderEncabezado() {
   const confirmar =
     el('btnConfirmarCotizacion');
 
+  const eliminar =
+    el('btnEliminarCotizacion');
+
+  const todasBorrador =
+    Array.isArray(
+      cotizacion.versiones
+    ) &&
+    cotizacion.versiones.length > 0 &&
+    cotizacion.versiones.every(
+      version =>
+        version.estadoVersion ===
+        ESTADOS_VERSION_COTIZACION
+          .BORRADOR
+    );
+
+  if (eliminar) {
+    eliminar.hidden =
+      !gestion ||
+      !todasBorrador;
+  }
+
   if (nuevaVersion) {
     nuevaVersion.hidden =
       !gestion ||
-      terminal;
+      terminal ||
+      confirmada;
   }
 
   if (rechazar) {
-    rechazar.hidden =
-      !gestion ||
-      terminal ||
-      cotizacion.estadoGeneral ===
-        ESTADOS_COTIZACION_GENERAL.CONFIRMADA;
-  }
+  rechazar.hidden =
+    !gestion ||
+    terminal ||
+    confirmada;
+}
 
   if (cancelar) {
     cancelar.hidden =
@@ -839,7 +862,9 @@ function renderComparacion() {
     cotizacion.versiones.filter(
       version =>
         seleccionComparacion.has(
-          Number(version.idVersion)
+          Number(
+            version.idVersion
+          )
         )
     );
 
@@ -850,20 +875,24 @@ function renderComparacion() {
     return;
   }
 
-  const conceptoTexto =
+  const conceptosTexto =
     version => {
-      const detalle =
-        Array.isArray(
-          version.detalle
-        )
-          ? version.detalle
-          : [];
+      const conceptos =
+        (
+          version.detalle ||
+          []
+        ).filter(
+          item =>
+            item.tipoConcepto !==
+            TIPOS_CONCEPTO_COTIZACION
+              .PAQUETE
+        );
 
-      if (!detalle.length) {
+      if (!conceptos.length) {
         return 'Sin conceptos';
       }
 
-      return detalle
+      return conceptos
         .map(
           item =>
             `${
@@ -874,12 +903,77 @@ function renderComparacion() {
               )
             } × ${
               Number(
-                item.cantidad || 0
+                item.cantidad ||
+                0
               )
             }`
         )
         .join('<br>');
     };
+
+  const paquetesTexto =
+    version => {
+      const paquetes =
+        (
+          version.detalle ||
+          []
+        ).filter(
+          item =>
+            item.tipoConcepto ===
+            TIPOS_CONCEPTO_COTIZACION
+              .PAQUETE
+        );
+
+      if (!paquetes.length) {
+        return 'Sin paquetes';
+      }
+
+      return paquetes
+        .map(
+          item =>
+            `${
+              escaparHtml(
+                item
+                  .descripcionHistorica ||
+                'Paquete'
+              )
+            } × ${
+              Number(
+                item.cantidad ||
+                0
+              )
+            }`
+        )
+        .join('<br>');
+    };
+
+  const celdasMoneda =
+    campo =>
+      versiones
+        .map(
+          version => `
+            <td
+              class="cotizaciones-money"
+            >
+              ${escaparHtml(
+                formatearMoneda(
+                  version[campo] ||
+                  0
+                )
+              )}
+            </td>
+          `
+        )
+        .join('');
+
+  const mostrarCargos =
+    versiones.some(
+      version =>
+        Number(
+          version.cargos ||
+          0
+        ) !== 0
+    );
 
   resultado.innerHTML = `
     <table
@@ -888,7 +982,7 @@ function renderComparacion() {
       <thead>
         <tr>
           <th scope="col">
-            Concepto
+            Comparativo
           </th>
 
           ${versiones
@@ -897,11 +991,9 @@ function renderComparacion() {
                 <th scope="col">
                   V${
                     Number(
-                      version
-                        .numeroVersion
+                      version.numeroVersion
                     )
                   }
-
                   ${
                     version.elegida
                       ? ' · Elegida'
@@ -926,8 +1018,7 @@ function renderComparacion() {
                 <td>
                   ${escaparHtml(
                     listaNombre(
-                      version
-                        .idListaPrecio
+                      version.idListaPrecio
                     )
                   )}
                 </td>
@@ -945,7 +1036,25 @@ function renderComparacion() {
             .map(
               version => `
                 <td>
-                  ${conceptoTexto(
+                  ${conceptosTexto(
+                    version
+                  )}
+                </td>
+              `
+            )
+            .join('')}
+        </tr>
+
+        <tr>
+          <th scope="row">
+            Paquetes
+          </th>
+
+          ${versiones
+            .map(
+              version => `
+                <td>
+                  ${paquetesTexto(
                     version
                   )}
                 </td>
@@ -980,26 +1089,48 @@ function renderComparacion() {
 
         <tr>
           <th scope="row">
+            Subtotal
+          </th>
+
+          ${celdasMoneda(
+            'subtotal'
+          )}
+        </tr>
+
+        <tr>
+          <th scope="row">
+            Descuentos
+          </th>
+
+          ${celdasMoneda(
+            'descuentos'
+          )}
+        </tr>
+
+        ${
+          mostrarCargos
+            ? `
+              <tr>
+                <th scope="row">
+                  Cargos
+                </th>
+
+                ${celdasMoneda(
+                  'cargos'
+                )}
+              </tr>
+            `
+            : ''
+        }
+
+        <tr>
+          <th scope="row">
             Total
           </th>
 
-          ${versiones
-            .map(
-              version => `
-                <td
-                  class="
-                    cotizaciones-money
-                  "
-                >
-                  ${escaparHtml(
-                    formatearMoneda(
-                      version.total
-                    )
-                  )}
-                </td>
-              `
-            )
-            .join('')}
+          ${celdasMoneda(
+            'total'
+          )}
         </tr>
       </tbody>
     </table>
@@ -1008,6 +1139,8 @@ function renderComparacion() {
   resultado.hidden = false;
   empty.hidden = true;
 }
+
+
 
 function renderHistorial() {
   const contenedor =
@@ -1294,6 +1427,53 @@ async function elegirVersion(
   }
 }
 
+async function eliminarCotizacionGeneral() {
+  const respuesta =
+    await openModal({
+      title:
+        'Eliminar cotización',
+
+      body:
+        '<p>Se eliminará la cotización general y sus versiones en Borrador. Esta operación solo está disponible porque ninguna versión ha sido enviada.</p>',
+
+      confirmText:
+        'Eliminar cotización',
+
+      cancelText:
+        'Cancelar',
+
+      danger: true
+    });
+
+  if (!respuesta.confirmed) {
+    return;
+  }
+
+  try {
+    await deleteCotizacion(
+      cotizacion.idCotizacion
+    );
+
+    showNotification(
+      'Cotización eliminada correctamente.',
+      {
+        type: 'success'
+      }
+    );
+
+    location.hash =
+      '#/cotizaciones';
+  } catch (error) {
+    showNotification(
+      error?.message ||
+      'No fue posible eliminar la cotización.',
+      {
+        type: 'error'
+      }
+    );
+  }
+}
+
 async function solicitarMotivo(
   tipo
 ) {
@@ -1429,6 +1609,13 @@ function registrarEventos() {
   )?.addEventListener(
     'click',
     crearNuevaVersion
+  );
+
+  el(
+    'btnEliminarCotizacion'
+  )?.addEventListener(
+    'click',
+    eliminarCotizacionGeneral
   );
 
   el(

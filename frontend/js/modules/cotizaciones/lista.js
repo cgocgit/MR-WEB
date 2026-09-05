@@ -573,6 +573,14 @@ function filaHtml(
       </td>
 
       <td>
+        ${escaparHtml(
+          cotizacion
+            .responsable?.nombre ||
+          '—'
+        )}
+      </td>
+
+      <td>
         ${accionesHtml(
           cotizacion
         )}
@@ -742,6 +750,24 @@ function tarjetaHtml(
                   )
                 : '—'
             }
+          </strong>
+        </div>
+
+        <div
+          class="
+            cotizaciones-mobile-card-field
+          "
+        >
+          <span>
+            Vendedor
+          </span>
+
+          <strong>
+            ${escaparHtml(
+              cotizacion
+                .responsable?.nombre ||
+              '—'
+            )}
           </strong>
         </div>
       </div>
