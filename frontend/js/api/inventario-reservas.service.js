@@ -761,3 +761,287 @@ export async function obtenerReservaInventario(
     reserva
   );
 }
+
+export async function obtenerContextoReservaPorOrden(
+  idOrden
+) {
+  const id = Number(idOrden);
+
+  if (
+    !Number.isInteger(id) ||
+    id <= 0
+  ) {
+    throw error(
+      'ORDEN_INVALIDA',
+      'La Orden de servicio indicada no es válida.'
+    );
+  }
+
+  await simularLatenciaInventario();
+
+  const reservas =
+    (
+      await cargarReservas()
+    ).filter(
+      reserva =>
+        Number(reserva.idOrden) === id
+    );
+
+  if (reservas.length === 0) {
+    return clonarDatosInventario({
+      idOrden: id,
+      totalReservas: 0,
+      estados: [],
+      estadoResumen: null,
+      cantidadReservada: 0,
+      fechaInicio: null,
+      fechaFin: null,
+      items: []
+    });
+  }
+
+  const estados = [
+    ...new Set(
+      reservas
+        .map(
+          reserva =>
+            reserva.estado
+        )
+        .filter(Boolean)
+    )
+  ];
+
+  const fechasInicio =
+    reservas
+      .map(
+        reserva =>
+          reserva.fechaEntrega
+      )
+      .filter(Boolean)
+      .sort();
+
+  const fechasFin =
+    reservas
+      .map(
+        reserva =>
+          reserva.fechaRecoleccion
+      )
+      .filter(Boolean)
+      .sort();
+
+  return clonarDatosInventario({
+    idOrden: id,
+
+    totalReservas:
+      reservas.length,
+
+    estados,
+
+    estadoResumen:
+      estados.length === 1
+        ? estados[0]
+        : estados.length > 1
+          ? 'MIXTA'
+          : null,
+
+    cantidadReservada:
+      reservas.reduce(
+        (total, reserva) =>
+          total +
+          Number(
+            reserva.cantidadReservada ||
+            0
+          ),
+        0
+      ),
+
+    fechaInicio:
+      fechasInicio[0] ??
+      null,
+
+    fechaFin:
+      fechasFin[
+        fechasFin.length - 1
+      ] ??
+      null,
+
+    items:
+      reservas
+  });
+}
+
+export async function solicitarLiberacionReservaPorOrden(
+  idOrden,
+  datos = {}
+) {
+  const id = Number(idOrden);
+
+  if (
+    !Number.isInteger(id) ||
+    id <= 0
+  ) {
+    throw error(
+      'ORDEN_INVALIDA',
+      'La Orden de servicio indicada no es válida.'
+    );
+  }
+
+  await simularLatenciaInventario();
+
+  const relacionadas =
+    RESERVAS_FUTURAS_MOCK.filter(
+      reserva =>
+        Number(reserva.idOrden) === id
+    );
+
+  if (
+    relacionadas.length === 0
+  ) {
+    return clonarDatosInventario({
+      idOrden: id,
+      estadoSolicitud:
+        'SIN_RESERVA',
+      totalReservas: 0,
+      solicitudesNuevas: 0
+    });
+  }
+
+  const fechaHora =
+    datos.fechaHora ??
+    new Date().toISOString();
+
+  const motivo =
+    String(
+      datos.motivo ?? ''
+    ).trim() || null;
+
+  const usuarioNombre =
+    datos.usuario?.nombre ??
+    datos.usuario?.name ??
+    datos.usuario?.username ??
+    'Sistema';
+
+  let solicitudesNuevas = 0;
+
+  relacionadas.forEach(
+    reserva => {
+      const estado =
+        String(
+          reserva.estado ?? ''
+        ).toUpperCase();
+
+      if (
+        [
+          ESTADOS_RESERVA.LIBERADA,
+          ESTADOS_RESERVA.CANCELADA
+        ].includes(estado)
+      ) {
+        return;
+      }
+
+      if (
+        reserva
+          .solicitudLiberacionOrden
+          ?.estado ===
+        'SOLICITADA'
+      ) {
+        return;
+      }
+
+      reserva.solicitudLiberacionOrden = {
+        estado:
+          'SOLICITADA',
+
+        motivo,
+
+        fechaHora,
+
+        usuario:
+          usuarioNombre
+      };
+
+      reserva.fechaUltimaModificacion =
+        fechaHora;
+
+      reserva.usuarioUltimaModificacion =
+        usuarioNombre;
+
+      solicitudesNuevas += 1;
+    }
+  );
+
+  return clonarDatosInventario({
+    idOrden: id,
+
+    estadoSolicitud:
+      solicitudesNuevas > 0
+        ? 'SOLICITADA'
+        : 'SIN_ACCION_PENDIENTE',
+
+    totalReservas:
+      relacionadas.length,
+
+    solicitudesNuevas
+  });
+}
+
+export async function recibirSolicitudLiberacionPorOrden(
+  idOrden,
+  solicitud = {}
+) {
+  const id =
+    Number(idOrden);
+
+  if (
+    !Number.isInteger(id) ||
+    id <= 0
+  ) {
+    throw error(
+      'ORDEN_INVALIDA',
+      'La Orden indicada no es válida.'
+    );
+  }
+
+  await simularLatenciaInventario();
+
+  const relacionadas =
+    RESERVAS_FUTURAS_MOCK.filter(
+      reserva =>
+        Number(
+          reserva.idOrden
+        ) === id
+    );
+
+  relacionadas.forEach(
+    reserva => {
+      reserva.solicitudLiberacionOrden = {
+        estado:
+          'PENDIENTE_ATENCION',
+
+        motivo:
+          solicitud.motivo ??
+          null,
+
+        fechaHora:
+          solicitud.fechaHora ??
+          new Date().toISOString(),
+
+        usuario:
+          solicitud.usuario ??
+          null
+      };
+    }
+  );
+
+  return clonarDatosInventario({
+    idOrden: id,
+
+    recibida: true,
+
+    reservasRelacionadas:
+      relacionadas.length,
+
+    estado:
+      'PENDIENTE_ATENCION'
+  });
+}

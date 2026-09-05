@@ -89,9 +89,24 @@ export function renderSidebar(container, session){
   },
   {
     key: 'ordenes',
-    href: '#/ordenes',
+
+    href:
+      hasPermission(
+        session,
+        'ordenes.consultar'
+      )
+        ? '#/ordenes'
+        : '#/ordenes?modo=asignadas',
+
     label: 'Órdenes',
-    permission: 'ordenes.consultar'
+
+    permission:
+      hasPermission(
+        session,
+        'ordenes.consultar'
+      )
+        ? 'ordenes.consultar'
+        : 'ordenes.asignadas'
   },
   {
     key: 'logistica',

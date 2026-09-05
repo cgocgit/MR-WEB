@@ -1,0 +1,195 @@
+<section
+  id="ordenRevisionPage"
+  class="container ordenes-page"
+>
+  <header
+    class="ordenes-page-header"
+  >
+    <div>
+      <nav
+        class="ordenes-breadcrumb"
+        aria-label="Navegación de Órdenes"
+      >
+        <a href="#/ordenes">
+          Órdenes
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Revisión de Ventas
+        </span>
+      </nav>
+
+      <h1
+        id="ordenRevisionTitulo"
+      >
+        Revisión de Ventas
+      </h1>
+
+      <p
+        class="ordenes-subtitle"
+      >
+        Validación comercial previa a la programación logística.
+      </p>
+    </div>
+
+    <div
+      class="ordenes-actions"
+    >
+      <button
+        id="btnVolverDetalleOrden"
+        type="button"
+        class="
+          ordenes-btn
+          ordenes-btn--secondary
+        "
+      >
+        Volver al detalle
+      </button>
+
+      <button
+        id="btnCancelarRevision"
+        type="button"
+        class="
+          ordenes-btn
+          ordenes-btn--danger
+        "
+        hidden
+      >
+        Cancelar Orden
+      </button>
+    </div>
+  </header>
+
+  <div
+    id="ordenRevisionEstado"
+    class="
+      ordenes-state
+      ordenes-state--loading
+    "
+  >
+    <strong>
+      Cargando información...
+    </strong>
+
+    <p>
+      Preparando la Orden para revisión.
+    </p>
+  </div>
+
+  <div
+    id="ordenRevisionContenido"
+    hidden
+  >
+    <div
+      class="
+        ordenes-alert
+        ordenes-alert--info
+      "
+    >
+      <strong>
+        Información de solo lectura
+      </strong>
+
+      <p>
+        La información proviene de la cotización confirmada y no puede editarse desde la Orden.
+      </p>
+    </div>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Resumen para revisión
+        </h2>
+      </div>
+
+      <div
+        id="revisionResumen"
+        class="ordenes-summary-grid"
+      ></div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Detalle comprometido
+        </h2>
+      </div>
+
+      <div
+        id="revisionDetalleComprometido"
+        class="ordenes-card-body"
+      ></div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Condiciones relacionadas
+        </h2>
+      </div>
+
+      <div
+        id="revisionReserva"
+        class="ordenes-summary-grid"
+      ></div>
+    </section>
+
+    <div
+      class="
+        ordenes-alert
+        ordenes-alert--warning
+      "
+    >
+      <strong>
+        Siguiente paso
+      </strong>
+
+      <p>
+        Al confirmar la revisión, la Orden cambiará a
+        <strong>Pendiente de programación</strong>
+        y quedará disponible para Logística.
+      </p>
+    </div>
+
+    <div
+      class="ordenes-review-actions"
+    >
+      <button
+        id="btnConfirmarRevision"
+        type="button"
+        class="
+          ordenes-btn
+          ordenes-btn--primary
+        "
+      >
+        Confirmar revisión y enviar a programación
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="ordenesModalHost"
+  ></div>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/ordenes/revision.js';
+
+  init();
+</script>
