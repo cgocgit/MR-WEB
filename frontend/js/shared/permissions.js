@@ -139,9 +139,6 @@ export const ROLE_PERMISSIONS = {
     'ordenes.inventario.consultar',
     'ordenes.logistica.consultar',
 
-    'ordenes.consultar',
-    'ordenes.gestionar',
-
     'logistica.consultar',
 
     'reportes.consultar',
@@ -170,8 +167,6 @@ export const ROLE_PERMISSIONS = {
 
     'ordenes.consultar',
     'ordenes.detalle.consultar',
-    'ordenes.revisar',
-    'ordenes.cancelar',
     'ordenes.origen-cotizacion.consultar',
     'ordenes.inventario.consultar',
     'ordenes.logistica.consultar',
@@ -257,7 +252,6 @@ export const ROLE_PERMISSIONS = {
     'ordenes.consultar',
     'ordenes.detalle.consultar',
     'ordenes.origen-cotizacion.consultar',
-    'ordenes.inventario.consultar',
     'ordenes.logistica.consultar',
 
     'logistica.consultar',

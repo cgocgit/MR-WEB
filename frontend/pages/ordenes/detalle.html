@@ -1,11 +1,258 @@
-<section class="container">
-  <h1>Detalle de orden</h1>
-  <div id="detalle" class="card mt-12">Seleccione una orden en la lista</div>
-  <script type="module">
-    import { getOrden } from './js/api/ordenes.service.js';
-    const q = new URLSearchParams(location.hash.split('?')[1] || '');
-    const id = q.get('id');
-    if(id){ (async ()=>{ const d = await getOrden(id); document.getElementById('detalle').textContent = JSON.stringify(d); })() }
-  </script>
+<section
+  id="ordenDetallePage"
+  class="container ordenes-page"
+>
+  <header
+    class="ordenes-page-header"
+  >
+    <div>
+      <nav
+        class="ordenes-breadcrumb"
+        aria-label="Navegación de Orden"
+      >
+        <a href="#/ordenes">
+          Órdenes
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Detalle
+        </span>
+      </nav>
+
+      <div
+        class="ordenes-toolbar-group"
+      >
+        <h1
+          id="ordenDetalleTitulo"
+        >
+          Orden
+        </h1>
+
+        <span
+          id="ordenEstadoEncabezado"
+        ></span>
+      </div>
+
+      <p
+        class="ordenes-subtitle"
+      >
+        Contexto completo y congelado de la Orden de servicio.
+      </p>
+    </div>
+
+    <div
+      class="ordenes-actions"
+    >
+      <button
+        id="btnVolverOrdenes"
+        type="button"
+        class="
+          ordenes-btn
+          ordenes-btn--secondary
+        "
+      >
+        Volver al listado
+      </button>
+
+      <button
+        id="btnCancelarOrden"
+        type="button"
+        class="
+          ordenes-btn
+          ordenes-btn--danger
+        "
+        hidden
+      >
+        Cancelar Orden
+      </button>
+
+      <button
+        id="btnRevisarOrden"
+        type="button"
+        class="
+          ordenes-btn
+          ordenes-btn--primary
+        "
+        hidden
+      >
+        Revisar y enviar a programación
+      </button>
+    </div>
+  </header>
+
+  <div
+    id="ordenDetalleEstado"
+    class="
+      ordenes-state
+      ordenes-state--loading
+    "
+  >
+    <strong>
+      Cargando detalle...
+    </strong>
+
+    <p>
+      Consultando información relacionada.
+    </p>
+  </div>
+
+  <div
+    id="ordenDetalleContenido"
+    hidden
+  >
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Resumen de atención
+        </h2>
+      </div>
+
+      <div
+        id="ordenResumenAtencion"
+        class="ordenes-summary-grid"
+      ></div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Cotización origen
+        </h2>
+
+        <button
+          id="btnConsultarCotizacion"
+          type="button"
+          class="
+            ordenes-btn
+            ordenes-btn--secondary
+            ordenes-btn--small
+          "
+          hidden
+        >
+          Consultar cotización
+        </button>
+      </div>
+
+      <div
+        id="ordenCotizacionOrigen"
+        class="ordenes-summary-grid"
+      ></div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Detalle comprometido
+        </h2>
+      </div>
+
+      <div
+        id="ordenDetalleComprometido"
+        class="ordenes-card-body"
+      ></div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Inventario relacionado
+        </h2>
+
+        <button
+          id="btnConsultarReserva"
+          type="button"
+          class="
+            ordenes-btn
+            ordenes-btn--secondary
+            ordenes-btn--small
+          "
+          hidden
+        >
+          Consultar reserva
+        </button>
+      </div>
+
+      <div
+        id="ordenInventarioRelacionado"
+        class="ordenes-summary-grid"
+      ></div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Logística relacionada
+        </h2>
+
+        <button
+          id="btnConsultarProgramacion"
+          type="button"
+          class="
+            ordenes-btn
+            ordenes-btn--secondary
+            ordenes-btn--small
+          "
+          hidden
+        >
+          Consultar programación
+        </button>
+      </div>
+
+      <div
+        id="ordenLogisticaRelacionada"
+        class="ordenes-summary-grid"
+      ></div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Trazabilidad
+        </h2>
+      </div>
+
+      <div
+        id="ordenTrazabilidad"
+        class="ordenes-card-body"
+      ></div>
+    </section>
+  </div>
+
+  <div
+    id="ordenesModalHost"
+  ></div>
 </section>
 
+<script type="module">
+  import {
+    init
+  } from './js/modules/ordenes/detalle.js';
+
+  init();
+</script>
