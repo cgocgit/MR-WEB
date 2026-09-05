@@ -683,57 +683,16 @@ function validarCondicionesConocidas() {
 
 function registrarEventos() {
   el(
-  'btnValidarConfirmacion'
-)?.addEventListener(
-  'click',
-  () => {
-    const valida =
-      validarCondicionesConocidas();
+    'btnVolverConfirmacion'
+  )?.addEventListener(
+    'click',
+    () => {
+      if (!cotizacion) {
+        location.hash =
+          '#/cotizaciones';
 
-    const ejecutar =
-      el(
-        'btnEjecutarConfirmacion'
-      );
-
-    if (ejecutar) {
-      ejecutar.disabled =
-        !valida;
-    }
-  }
-);
-
-el(
-  'btnEjecutarConfirmacion'
-)?.addEventListener(
-  'click',
-  async () => {
-    if (
-      !validarCondicionesConocidas()
-    ) {
-      return;
-    }
-
-    const boton =
-      el(
-        'btnEjecutarConfirmacion'
-      );
-
-    if (boton) {
-      boton.disabled = true;
-    }
-
-    try {
-      cotizacion =
-        await confirmCotizacion(
-          cotizacion.idCotizacion
-        );
-
-      showNotification(
-        'Cotización Confirmada-Reservada correctamente.',
-        {
-          type: 'success'
-        }
-      );
+        return;
+      }
 
       location.hash =
         `#/cotizaciones/detalle?id=${
@@ -741,134 +700,87 @@ el(
             cotizacion.idCotizacion
           )
         }`;
-    } catch (error) {
-      /*
-       * Se registra el error.
-       * Cotizaciones no realiza
-       * compensaciones sobre otros módulos.
-       */
-      console.error(
-        '[Cotizaciones] Error durante la confirmación:',
-        error
-      );
-
-      showNotification(
-        error?.message ||
-        'No fue posible confirmar la cotización.',
-        {
-          type: 'error'
-        }
-      );
-
-      if (boton) {
-        boton.disabled =
-          !puedeConfirmar();
-      }
     }
-  }
-);
+  );
 
   el(
-  'btnValidarConfirmacion'
-)?.addEventListener(
-  'click',
-  () => {
-    const valida =
-      validarCondicionesConocidas();
+    'btnValidarConfirmacion'
+  )?.addEventListener(
+    'click',
+    () => {
+      const valida =
+        validarCondicionesConocidas();
 
-    const ejecutar =
-      el(
-        'btnEjecutarConfirmacion'
-      );
-
-    if (ejecutar) {
-      ejecutar.disabled =
-        !valida;
-    }
-  }
-);
-
-el(
-  'btnEjecutarConfirmacion'
-)?.addEventListener(
-  'click',
-  async () => {
-    if (
-      !validarCondicionesConocidas()
-    ) {
-      return;
-    }
-
-    const boton =
-      el(
-        'btnEjecutarConfirmacion'
-      );
-
-    if (boton) {
-      boton.disabled = true;
-    }
-
-    try {
-      cotizacion =
-        await confirmCotizacion(
-          cotizacion.idCotizacion
+      const ejecutar =
+        el(
+          'btnEjecutarConfirmacion'
         );
 
-      showNotification(
-        'Cotización Confirmada-Reservada correctamente.',
-        {
-          type: 'success'
-        }
-      );
-
-      location.hash =
-        `#/cotizaciones/detalle?id=${
-          Number(
-            cotizacion.idCotizacion
-          )
-        }`;
-    } catch (error) {
-      /*
-       * Se registra el error.
-       * Cotizaciones no realiza
-       * compensaciones sobre otros módulos.
-       */
-      console.error(
-        '[Cotizaciones] Error durante la confirmación:',
-        error
-      );
-
-      showNotification(
-        error?.message ||
-        'No fue posible confirmar la cotización.',
-        {
-          type: 'error'
-        }
-      );
-
-      if (boton) {
-        boton.disabled =
-          !puedeConfirmar();
+      if (ejecutar) {
+        ejecutar.disabled =
+          !valida;
       }
     }
-  }
-);
+  );
 
-  /*
-   * Se mantiene deshabilitado hasta
-   * cerrar contrato con Pagos e Inventario.
-   */
   el(
     'btnEjecutarConfirmacion'
   )?.addEventListener(
     'click',
-    () => {
-      showNotification(
-        'La confirmación final todavía no está habilitada.',
-        {
-          type: 'info'
+    async () => {
+      if (
+        !validarCondicionesConocidas()
+      ) {
+        return;
+      }
+
+      const boton =
+        el(
+          'btnEjecutarConfirmacion'
+        );
+
+      if (boton) {
+        boton.disabled = true;
+      }
+
+      try {
+        cotizacion =
+          await confirmCotizacion(
+            cotizacion.idCotizacion
+          );
+
+        showNotification(
+          'Cotización Confirmada-Reservada correctamente.',
+          {
+            type: 'success'
+          }
+        );
+
+        location.hash =
+          `#/cotizaciones/detalle?id=${
+            Number(
+              cotizacion.idCotizacion
+            )
+          }`;
+      } catch (error) {
+        console.error(
+          '[Cotizaciones] Error durante la confirmación:',
+          error
+        );
+
+        showNotification(
+          error?.message ||
+          'No fue posible confirmar la cotización.',
+          {
+            type: 'error'
+          }
+        );
+
+        if (boton) {
+          boton.disabled =
+            !puedeConfirmar();
         }
-      );
+      }
     }
   );
 }

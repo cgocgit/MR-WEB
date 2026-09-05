@@ -1747,6 +1747,10 @@ export async function updateCotizacionVersion(
       idCotizacion
     );
 
+  exigirCotizacionNoConfirmada(
+    cotizacion
+  );
+
   const version =
     getVersionOrThrow(
       cotizacion,
@@ -1838,6 +1842,10 @@ export async function deleteCotizacionVersion(
       idCotizacion
     );
 
+  exigirCotizacionNoConfirmada(
+    cotizacion
+  );
+
   const version =
     getVersionOrThrow(
       cotizacion,
@@ -1910,6 +1918,10 @@ export async function sendCotizacionVersion(
     getCotizacionOrThrow(
       idCotizacion
     );
+
+  exigirCotizacionNoConfirmada(
+    cotizacion
+  );
 
   const version =
     getVersionOrThrow(
