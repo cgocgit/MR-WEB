@@ -2372,21 +2372,21 @@ function registrarEventos() {
           return;
         }
 
-    agregarConcepto(
-      Number(
-        botonAgregar.dataset
-          .agregarConcepto
-      ),
+        agregarConcepto(
+          Number(
+            botonAgregar.dataset
+              .agregarConcepto
+          ),
 
-      botonAgregar.dataset
-        .tipoConcepto
-    );
-          }
+          botonAgregar.dataset
+            .tipoConcepto
         );
+      }
+    );
 
-    el(
-      'detalleVersionTitulo'
-    )
+  el(
+    'detalleVersionTitulo'
+  )
     ?.closest(
       '.cotizaciones-card'
     )
