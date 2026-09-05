@@ -765,7 +765,7 @@ function cumpleFiltros(
   return true;
 }
 
-async function async function normalizarDetalleVersion(
+async function normalizarDetalleVersion(
   versionActual,
   idListaPrecio,
   detalle = []
