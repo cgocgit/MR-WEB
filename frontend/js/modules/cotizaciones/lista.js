@@ -412,6 +412,16 @@ function accionesHtml(
     cotizacion.estadoGeneral
   );
 
+  const confirmada = [
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA,
+
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA_RESERVADA
+  ].includes(
+    cotizacion.estadoGeneral
+  );
+
   const acciones = [
     `
       <button
@@ -429,7 +439,8 @@ function accionesHtml(
 
   if (
     tieneGestion() &&
-    !terminal
+    !terminal &&
+    !confirmada
   ) {
     acciones.push(`
       <button
@@ -1146,9 +1157,9 @@ function inicializarFiltros() {
       </option>
 
       <option
-        value="${ESTADOS_COTIZACION_GENERAL.CONFIRMADA}"
+        value="${ESTADOS_COTIZACION_GENERAL.CONFIRMADA_RESERVADA}"
       >
-        Confirmada
+        Confirmada-Reservada
       </option>
 
       <option

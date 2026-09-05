@@ -190,6 +190,12 @@ export function obtenerClaseEstadoGeneral(
 
     [
       ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA_RESERVADA
+    ]:
+      'cotizaciones-badge--success',
+    
+    [
+      ESTADOS_COTIZACION_GENERAL
         .CANCELADA
     ]:
       'cotizaciones-badge--danger',

@@ -1,4 +1,5 @@
 import {
+  confirmCotizacion,
   getCotizacion,
   getCotizacionVersion
 } from '../../api/cotizaciones.service.js';
@@ -227,13 +228,30 @@ function renderResumen() {
 
 function renderCondiciones() {
   const existeVersion =
-    Boolean(versionElegida);
+    Boolean(
+      versionElegida
+    );
 
   const fechaHoraValida =
     Boolean(
       cotizacion.fechaEvento &&
       cotizacion.horaEvento
     );
+
+  const pagoConfirmado =
+    cotizacion
+      .confirmacionPago
+      ?.confirmada === true;
+
+  const disponible =
+    versionElegida
+      ?.disponibilidadGlobal ===
+    'DISPONIBLE';
+
+  const reservaConfirmada =
+    cotizacion
+      .reservaInventario
+      ?.confirmada === true;
 
   setHtml(
     'condicionVersionElegida',
@@ -261,45 +279,37 @@ function renderCondiciones() {
     )
   );
 
-  /*
-   * No se infiere un pago.
-   * El contrato de Pagos aún no
-   * proporciona la validación requerida.
-   */
   setHtml(
     'condicionPorcentaje',
     crearBadge(
-      'Pendiente de validación de pago',
-      'cotizaciones-badge--warning'
+      pagoConfirmado
+        ? 'Confirmado por Pagos'
+        : 'Pendiente de Pagos',
+
+      pagoConfirmado
+        ? 'cotizaciones-badge--success'
+        : 'cotizaciones-badge--warning'
     )
   );
 
-  if (
-    versionElegida
-      ?.disponibilidadGlobal
-  ) {
-    setHtml(
-      'condicionDisponibilidad',
-      crearBadge(
-        obtenerEtiquetaDisponibilidad(
-          versionElegida
-            .disponibilidadGlobal
-        ),
-        obtenerClaseDisponibilidad(
-          versionElegida
-            .disponibilidadGlobal
-        )
-      )
-    );
-  } else {
-    setHtml(
-      'condicionDisponibilidad',
-      crearBadge(
-        'Sin consultar',
-        'cotizaciones-badge--neutral'
-      )
-    );
-  }
+  setHtml(
+    'condicionDisponibilidad',
+    crearBadge(
+      disponible &&
+      reservaConfirmada
+        ? 'Disponible / Reservada'
+        : disponible
+          ? 'Disponible'
+          : 'No disponible',
+
+      disponible &&
+      reservaConfirmada
+        ? 'cotizaciones-badge--success'
+        : disponible
+          ? 'cotizaciones-badge--warning'
+          : 'cotizaciones-badge--danger'
+    )
+  );
 }
 
 function renderDetalle() {
@@ -490,6 +500,39 @@ function renderEstadoInventario() {
     return;
   }
 
+  const reserva =
+    cotizacion
+      .reservaInventario;
+
+  if (
+    reserva?.confirmada ===
+    true
+  ) {
+    contenedor.className =
+      'cotizaciones-info';
+
+    contenedor.innerHTML = `
+      <div
+        class="cotizaciones-info-content"
+      >
+        <strong>
+          Reserva confirmada por Inventario.
+        </strong>
+
+        <p>
+          Referencia:
+          ${escaparHtml(
+            reserva.referenciaReserva ||
+            reserva.idReserva ||
+            'registrada'
+          )}
+        </p>
+      </div>
+    `;
+
+    return;
+  }
+
   contenedor.className =
     'cotizaciones-info cotizaciones-info--warning';
 
@@ -498,17 +541,49 @@ function renderEstadoInventario() {
       class="cotizaciones-info-content"
     >
       <strong>
-        Integración de reserva pendiente.
+        Pendiente de confirmación de reserva.
       </strong>
 
       <p>
-        La operación de Inventario requiere
-        fechaInicio y fechaFin. No se generará
-        una reserva con un periodo inferido.
+        Cotizaciones no genera la reserva.
+        Espera la confirmación proveniente de Inventario.
       </p>
     </div>
   `;
 }
+
+function puedeConfirmar() {
+  return (
+    cotizacion?.estadoGeneral ===
+      ESTADOS_COTIZACION_GENERAL
+        .EN_SEGUIMIENTO &&
+
+    Boolean(
+      versionElegida
+    ) &&
+
+    Boolean(
+      cotizacion.fechaEvento
+    ) &&
+
+    Boolean(
+      cotizacion.horaEvento
+    ) &&
+
+    cotizacion
+      .confirmacionPago
+      ?.confirmada === true &&
+
+    versionElegida
+      ?.disponibilidadGlobal ===
+      'DISPONIBLE' &&
+
+    cotizacion
+      .reservaInventario
+      ?.confirmada === true
+  );
+}
+
 
 function validarCondicionesConocidas() {
   if (
@@ -523,7 +598,7 @@ function validarCondicionesConocidas() {
       }
     );
 
-    return;
+    return false;
   }
 
   if (!versionElegida) {
@@ -534,7 +609,7 @@ function validarCondicionesConocidas() {
       }
     );
 
-    return;
+    return false;
   }
 
   if (
@@ -548,30 +623,117 @@ function validarCondicionesConocidas() {
       }
     );
 
-    return;
+    return false;
+  }
+
+  if (
+    cotizacion
+      .confirmacionPago
+      ?.confirmada !== true
+  ) {
+    showNotification(
+      'Aún no se ha recibido la confirmación desde Pagos.',
+      {
+        type: 'error'
+      }
+    );
+
+    return false;
+  }
+
+  if (
+    versionElegida
+      .disponibilidadGlobal !==
+    'DISPONIBLE'
+  ) {
+    showNotification(
+      'La versión elegida no cuenta con disponibilidad suficiente.',
+      {
+        type: 'error'
+      }
+    );
+
+    return false;
+  }
+
+  if (
+    cotizacion
+      .reservaInventario
+      ?.confirmada !== true
+  ) {
+    showNotification(
+      'Aún no se ha recibido la confirmación de reserva desde Inventario.',
+      {
+        type: 'error'
+      }
+    );
+
+    return false;
   }
 
   showNotification(
-    'Las condiciones locales son correctas. Permanecen pendientes la validación del pago y el contrato de reserva con Inventario.',
+    'Las condiciones de confirmación están completas.',
     {
-      type: 'info',
-      timeout: 6000
+      type: 'success'
     }
   );
+
+  return true;
 }
 
 function registrarEventos() {
   el(
-    'btnVolverConfirmacion'
-  )?.addEventListener(
-    'click',
-    () => {
-      if (!cotizacion) {
-        location.hash =
-          '#/cotizaciones';
+  'btnValidarConfirmacion'
+)?.addEventListener(
+  'click',
+  () => {
+    const valida =
+      validarCondicionesConocidas();
 
-        return;
-      }
+    const ejecutar =
+      el(
+        'btnEjecutarConfirmacion'
+      );
+
+    if (ejecutar) {
+      ejecutar.disabled =
+        !valida;
+    }
+  }
+);
+
+el(
+  'btnEjecutarConfirmacion'
+)?.addEventListener(
+  'click',
+  async () => {
+    if (
+      !validarCondicionesConocidas()
+    ) {
+      return;
+    }
+
+    const boton =
+      el(
+        'btnEjecutarConfirmacion'
+      );
+
+    if (boton) {
+      boton.disabled = true;
+    }
+
+    try {
+      cotizacion =
+        await confirmCotizacion(
+          cotizacion.idCotizacion
+        );
+
+      showNotification(
+        'Cotización Confirmada-Reservada correctamente.',
+        {
+          type: 'success'
+        }
+      );
 
       location.hash =
         `#/cotizaciones/detalle?id=${
@@ -579,15 +741,118 @@ function registrarEventos() {
             cotizacion.idCotizacion
           )
         }`;
+    } catch (error) {
+      /*
+       * Se registra el error.
+       * Cotizaciones no realiza
+       * compensaciones sobre otros módulos.
+       */
+      console.error(
+        '[Cotizaciones] Error durante la confirmación:',
+        error
+      );
+
+      showNotification(
+        error?.message ||
+        'No fue posible confirmar la cotización.',
+        {
+          type: 'error'
+        }
+      );
+
+      if (boton) {
+        boton.disabled =
+          !puedeConfirmar();
+      }
     }
-  );
+  }
+);
 
   el(
-    'btnValidarConfirmacion'
-  )?.addEventListener(
-    'click',
-    validarCondicionesConocidas
-  );
+  'btnValidarConfirmacion'
+)?.addEventListener(
+  'click',
+  () => {
+    const valida =
+      validarCondicionesConocidas();
+
+    const ejecutar =
+      el(
+        'btnEjecutarConfirmacion'
+      );
+
+    if (ejecutar) {
+      ejecutar.disabled =
+        !valida;
+    }
+  }
+);
+
+el(
+  'btnEjecutarConfirmacion'
+)?.addEventListener(
+  'click',
+  async () => {
+    if (
+      !validarCondicionesConocidas()
+    ) {
+      return;
+    }
+
+    const boton =
+      el(
+        'btnEjecutarConfirmacion'
+      );
+
+    if (boton) {
+      boton.disabled = true;
+    }
+
+    try {
+      cotizacion =
+        await confirmCotizacion(
+          cotizacion.idCotizacion
+        );
+
+      showNotification(
+        'Cotización Confirmada-Reservada correctamente.',
+        {
+          type: 'success'
+        }
+      );
+
+      location.hash =
+        `#/cotizaciones/detalle?id=${
+          Number(
+            cotizacion.idCotizacion
+          )
+        }`;
+    } catch (error) {
+      /*
+       * Se registra el error.
+       * Cotizaciones no realiza
+       * compensaciones sobre otros módulos.
+       */
+      console.error(
+        '[Cotizaciones] Error durante la confirmación:',
+        error
+      );
+
+      showNotification(
+        error?.message ||
+        'No fue posible confirmar la cotización.',
+        {
+          type: 'error'
+        }
+      );
+
+      if (boton) {
+        boton.disabled =
+          !puedeConfirmar();
+      }
+    }
+  }
+);
 
   /*
    * Se mantiene deshabilitado hasta
@@ -657,8 +922,25 @@ async function inicializar() {
       );
 
     if (ejecutar) {
-      ejecutar.disabled = true;
+    const yaConfirmada = [
+      ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA,
+
+      ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA_RESERVADA
+    ].includes(
+      cotizacion.estadoGeneral
+    );
+
+    ejecutar.disabled =
+      yaConfirmada ||
+      !puedeConfirmar();
+
+    if (yaConfirmada) {
+      ejecutar.textContent =
+        'Confirmada-Reservada';
     }
+  }
 
     el(
       'confirmacionEstadoCarga'

@@ -8,7 +8,17 @@
 export const ESTADOS_COTIZACION_GENERAL = Object.freeze({
   BORRADOR: 'BORRADOR',
   EN_SEGUIMIENTO: 'EN_SEGUIMIENTO',
+
+  /*
+   * Se conserva CONFIRMADA únicamente
+   * para compatibilidad con registros
+   * anteriores.
+   */
   CONFIRMADA: 'CONFIRMADA',
+
+  CONFIRMADA_RESERVADA:
+    'CONFIRMADA_RESERVADA',
+
   CANCELADA: 'CANCELADA',
   RECHAZADA: 'RECHAZADA',
   VENCIDA: 'VENCIDA'
@@ -18,6 +28,10 @@ export const ESTADO_COTIZACION_GENERAL_LABELS = Object.freeze({
   BORRADOR: 'Borrador',
   EN_SEGUIMIENTO: 'En seguimiento',
   CONFIRMADA: 'Confirmada',
+
+  CONFIRMADA_RESERVADA:
+    'Confirmada-Reservada',
+
   CANCELADA: 'Cancelada',
   RECHAZADA: 'Rechazada',
   VENCIDA: 'Vencida'

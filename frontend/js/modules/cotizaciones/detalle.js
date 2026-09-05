@@ -207,6 +207,16 @@ function renderEncabezado() {
       cotizacion.estadoGeneral
     );
 
+  const confirmada = [
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA,
+
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA_RESERVADA
+  ].includes(
+    cotizacion.estadoGeneral
+  );
+
   const nuevaVersion =
     el('btnNuevaVersion');
 
@@ -372,14 +382,22 @@ function renderResumen() {
 function puedeElegirVersion(
   version
 ) {
+  const confirmada = [
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA,
+
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA_RESERVADA
+  ].includes(
+    cotizacion.estadoGeneral
+  );
+
   return (
     tieneGestion() &&
     version.estadoVersion ===
       ESTADOS_VERSION_COTIZACION
         .ENVIADA &&
-    cotizacion.estadoGeneral !==
-      ESTADOS_COTIZACION_GENERAL
-        .CONFIRMADA &&
+    !confirmada &&
     !ESTADOS_TERMINALES_COTIZACION
       .includes(
         cotizacion.estadoGeneral

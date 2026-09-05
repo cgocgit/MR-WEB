@@ -449,6 +449,37 @@ function fechaHoraEvento(
     : value;
 }
 
+function esCotizacionConfirmada(
+  cotizacion
+) {
+  return [
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA,
+
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA_RESERVADA
+  ].includes(
+    cotizacion.estadoGeneral
+  );
+}
+
+function exigirCotizacionNoConfirmada(
+  cotizacion
+) {
+  if (
+    !esCotizacionConfirmada(
+      cotizacion
+    )
+  ) {
+    return;
+  }
+
+  throw crearError(
+    'COTIZACION_CONFIRMADA',
+    'La cotización ya fue confirmada. Para realizar una nueva propuesta debe cancelarse y generarse una nueva cotización.'
+  );
+}
+
 function aplicarVencimientoAutomatico() {
   const ahora =
     new Date();
@@ -456,9 +487,9 @@ function aplicarVencimientoAutomatico() {
   mockState.cotizaciones.forEach(
     cotizacion => {
       if (
-        cotizacion.estadoGeneral ===
-          ESTADOS_COTIZACION_GENERAL
-            .CONFIRMADA ||
+        esCotizacionConfirmada(
+          cotizacion
+        ) ||
         ESTADOS_TERMINALES_COTIZACION
           .includes(
             cotizacion.estadoGeneral
@@ -1138,6 +1169,297 @@ export async function getCotizacionVersion(
 }
 
 /**
+ * Entrada intermodular desde Pagos.
+ *
+ * Cotizaciones no procesa el pago.
+ * Únicamente recibe su confirmación.
+ */
+export async function registrarConfirmacionPagoCotizacion(
+  idCotizacion,
+  confirmacion = {}
+) {
+  const cotizacion =
+    getCotizacionOrThrow(
+      idCotizacion
+    );
+
+  const confirmado =
+    confirmacion.confirmada ===
+    true;
+
+  const ahora =
+    new Date().toISOString();
+
+  cotizacion.confirmacionPago = {
+    confirmada:
+      confirmado,
+
+    referenciaPago:
+      normalizarTexto(
+        confirmacion
+          .referenciaPago
+      ) || null,
+
+    fechaConfirmacion:
+      confirmado
+        ? (
+            confirmacion
+              .fechaConfirmacion ||
+            ahora
+          )
+        : null
+  };
+
+  cotizacion.fechaActualizacion =
+    ahora;
+
+  if (confirmado) {
+    registrarHistorial(
+      cotizacion,
+      'PAGO_CONFIRMADO',
+      'Se recibió la confirmación del porcentaje requerido desde el módulo Pagos.',
+      {
+        idUsuario: null,
+        nombre: 'Pagos'
+      }
+    );
+  }
+
+  return clone(
+    cotizacion
+      .confirmacionPago
+  );
+}
+
+
+/**
+ * Entrada intermodular desde Inventario.
+ *
+ * Cotizaciones no crea ni administra
+ * la reserva. Únicamente recibe
+ * la confirmación y su referencia.
+ */
+export async function registrarConfirmacionReservaCotizacion(
+  idCotizacion,
+  reserva = {}
+) {
+  const cotizacion =
+    getCotizacionOrThrow(
+      idCotizacion
+    );
+
+  const confirmada =
+    reserva.confirmada ===
+    true;
+
+  if (
+    confirmada &&
+    reserva.idReserva ===
+      undefined &&
+    !normalizarTexto(
+      reserva.referenciaReserva
+    )
+  ) {
+    throw crearError(
+      'REFERENCIA_RESERVA_REQUERIDA',
+      'La confirmación de Inventario debe incluir la referencia de la reserva.'
+    );
+  }
+
+  const ahora =
+    new Date().toISOString();
+
+  cotizacion.reservaInventario = {
+    confirmada,
+
+    idReserva:
+      reserva.idReserva ??
+      null,
+
+    referenciaReserva:
+      normalizarTexto(
+        reserva
+          .referenciaReserva
+      ) || null,
+
+    fechaConfirmacion:
+      confirmada
+        ? (
+            reserva
+              .fechaConfirmacion ||
+            ahora
+          )
+        : null
+  };
+
+  cotizacion.fechaActualizacion =
+    ahora;
+
+  if (confirmada) {
+    registrarHistorial(
+      cotizacion,
+      'RESERVA_CONFIRMADA',
+      'Se recibió la confirmación de reserva desde Inventario.',
+      {
+        idUsuario: null,
+        nombre: 'Inventario'
+      }
+    );
+  }
+
+  return clone(
+    cotizacion
+      .reservaInventario
+  );
+}
+
+
+/**
+ * Formaliza la cotización después de
+ * haber recibido las confirmaciones
+ * correspondientes.
+ *
+ * No procesa pagos.
+ * No crea reservas.
+ * No genera Orden de Servicio.
+ */
+export async function confirmCotizacion(
+  idCotizacion
+) {
+  exigirGestion();
+  aplicarVencimientoAutomatico();
+
+  const cotizacion =
+    getCotizacionOrThrow(
+      idCotizacion
+    );
+
+  /*
+   * Operación idempotente.
+   */
+  if (
+    esCotizacionConfirmada(
+      cotizacion
+    )
+  ) {
+    return clone(
+      cotizacion
+    );
+  }
+
+  if (
+    cotizacion.estadoGeneral !==
+    ESTADOS_COTIZACION_GENERAL
+      .EN_SEGUIMIENTO
+  ) {
+    throw crearError(
+      'ESTADO_INVALIDO',
+      'La cotización debe encontrarse En seguimiento para ser confirmada.'
+    );
+  }
+
+  const versionElegida =
+    obtenerVersionElegida(
+      cotizacion
+    );
+
+  if (!versionElegida) {
+    throw crearError(
+      'VERSION_ELEGIDA_REQUERIDA',
+      'Debe existir una versión elegida.'
+    );
+  }
+
+  if (
+    versionElegida.estadoVersion !==
+    ESTADOS_VERSION_COTIZACION
+      .ENVIADA
+  ) {
+    throw crearError(
+      'VERSION_NO_ENVIADA',
+      'La versión elegida debe encontrarse Enviada.'
+    );
+  }
+
+  if (
+    !cotizacion.fechaEvento ||
+    !cotizacion.horaEvento
+  ) {
+    throw crearError(
+      'FECHA_HORA_REQUERIDA',
+      'La fecha y hora del evento son obligatorias.'
+    );
+  }
+
+  /*
+   * Pagos es dueño de la validación.
+   * Cotizaciones únicamente consume
+   * la confirmación recibida.
+   */
+  if (
+    cotizacion
+      .confirmacionPago
+      ?.confirmada !== true
+  ) {
+    throw crearError(
+      'PAGO_NO_CONFIRMADO',
+      'Aún no se ha recibido la confirmación del porcentaje requerido desde Pagos.'
+    );
+  }
+
+  if (
+    versionElegida
+      .disponibilidadGlobal !==
+    DISPONIBILIDAD_COTIZACION
+      .DISPONIBLE
+  ) {
+    throw crearError(
+      'DISPONIBILIDAD_INSUFICIENTE',
+      'La versión elegida no tiene disponibilidad suficiente.'
+    );
+  }
+
+  /*
+   * Inventario es dueño de la reserva.
+   * Cotizaciones únicamente consume
+   * la confirmación recibida.
+   */
+  if (
+    cotizacion
+      .reservaInventario
+      ?.confirmada !== true
+  ) {
+    throw crearError(
+      'RESERVA_NO_CONFIRMADA',
+      'Aún no se ha recibido la confirmación de reserva desde Inventario.'
+    );
+  }
+
+  const ahora =
+    new Date().toISOString();
+
+  cotizacion.estadoGeneral =
+    ESTADOS_COTIZACION_GENERAL
+      .CONFIRMADA_RESERVADA;
+
+  cotizacion.fechaConfirmacion =
+    ahora;
+
+  cotizacion.fechaActualizacion =
+    ahora;
+
+  registrarHistorial(
+    cotizacion,
+    'COTIZACION_CONFIRMADA_RESERVADA',
+    `La cotización fue confirmada con la versión V${versionElegida.numeroVersion} y la reserva de Inventario asociada.`
+  );
+
+  return clone(
+    cotizacion
+  );
+}
+
+/**
  * Crea Cotización general + V1.
  *
  * Mantiene compatibilidad temporal
@@ -1231,6 +1553,21 @@ export async function createCotizacion(
 
     idVersionElegida: null,
 
+    confirmacionPago: {
+      confirmada: false,
+      referenciaPago: null,
+      fechaConfirmacion: null
+    },
+
+    reservaInventario: {
+      confirmada: false,
+      idReserva: null,
+      referenciaReserva: null,
+      fechaConfirmacion: null
+    },
+
+    fechaConfirmacion: null,
+
     responsable:
       usuario,
 
@@ -1307,6 +1644,10 @@ export async function createCotizacionVersion(
     getCotizacionOrThrow(
       idCotizacion
     );
+  
+  exigirCotizacionNoConfirmada(
+    cotizacion
+  );
 
   if (
     ESTADOS_TERMINALES_COTIZACION
@@ -1654,10 +1995,10 @@ export async function selectCotizacionVersion(
       idCotizacion
     );
 
-  if (
-    cotizacion.estadoGeneral ===
-      ESTADOS_COTIZACION_GENERAL
-        .CONFIRMADA ||
+ if (
+    esCotizacionConfirmada(
+      cotizacion
+    ) ||
     ESTADOS_TERMINALES_COTIZACION
       .includes(
         cotizacion.estadoGeneral
@@ -1728,9 +2069,9 @@ export async function rejectCotizacion(
     );
 
   if (
-    cotizacion.estadoGeneral ===
-      ESTADOS_COTIZACION_GENERAL
-        .CONFIRMADA ||
+    esCotizacionConfirmada(
+      cotizacion
+    ) ||
     ESTADOS_TERMINALES_COTIZACION
       .includes(
         cotizacion.estadoGeneral
@@ -1798,17 +2139,6 @@ export async function cancelCotizacion(
     throw crearError(
       'ESTADO_INVALIDO',
       'La cotización ya se encuentra en un estado terminal.'
-    );
-  }
-
-  if (
-    cotizacion.estadoGeneral ===
-    ESTADOS_COTIZACION_GENERAL
-      .CONFIRMADA
-  ) {
-    throw crearError(
-      'INTEGRACION_PENDIENTE',
-      'La cancelación de una cotización Confirmada requiere cancelar la Orden de Servicio y liberar la reserva de Inventario. Esa compensación aún no está definida.'
     );
   }
 

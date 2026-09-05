@@ -23,6 +23,7 @@ import {
 } from '../../api/listas-precios.service.js';
 
 import {
+  ESTADOS_COTIZACION_GENERAL,
   ESTADOS_VERSION_COTIZACION,
   TIPOS_CONCEPTO_COTIZACION
 } from '../../api/cotizaciones.constants.js';
@@ -2040,11 +2041,22 @@ async function inicializar() {
         () => null
       );
 
-    soloConsulta =
-      modo === 'consulta' ||
-      version.estadoVersion !==
-        ESTADOS_VERSION_COTIZACION
-          .BORRADOR;
+    const cotizacionConfirmada = [
+  ESTADOS_COTIZACION_GENERAL
+    .CONFIRMADA,
+
+  ESTADOS_COTIZACION_GENERAL
+    .CONFIRMADA_RESERVADA
+].includes(
+  cotizacion.estadoGeneral
+);
+
+soloConsulta =
+  modo === 'consulta' ||
+  cotizacionConfirmada ||
+  version.estadoVersion !==
+    ESTADOS_VERSION_COTIZACION
+      .BORRADOR;
 
     detalleLocal =
       Array.isArray(

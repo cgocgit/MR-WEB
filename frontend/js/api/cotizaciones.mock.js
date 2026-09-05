@@ -26,6 +26,25 @@ const COTIZACIONES_INICIALES = [
       ESTADOS_COTIZACION_GENERAL.EN_SEGUIMIENTO,
     idVersionElegida: 91012,
 
+    confirmacionPago: {
+    confirmada: true,
+    referenciaPago:
+      'PAGO-COT-9101',
+    fechaConfirmacion:
+      '2026-09-02T16:50:00'
+  },
+
+  reservaInventario: {
+    confirmada: true,
+    idReserva: 7901,
+    referenciaReserva:
+      'RES-COT-9101',
+    fechaConfirmacion:
+      '2026-09-02T16:51:00'
+  },
+
+  fechaConfirmacion: null,
+
     responsable: {
       idUsuario: 5001,
       nombre: 'Carlos Olvera'
@@ -519,10 +538,31 @@ const COTIZACIONES_INICIALES = [
     porcentajeConfirmacion: 50,
 
     estadoGeneral:
-      ESTADOS_COTIZACION_GENERAL.CONFIRMADA,
+      ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA_RESERVADA,
 
     idVersionElegida: 91031,
 
+    confirmacionPago: {
+      confirmada: true,
+      referenciaPago:
+        'PAGO-COT-9103',
+      fechaConfirmacion:
+        '2026-09-01T13:00:00'
+    },
+
+    reservaInventario: {
+      confirmada: true,
+      idReserva: 7903,
+      referenciaReserva:
+        'RES-COT-9103',
+      fechaConfirmacion:
+        '2026-09-01T13:04:00'
+    },
+
+    fechaConfirmacion:
+      '2026-09-01T13:05:00',
+      
     responsable: {
       idUsuario: 5002,
       nombre: 'Encargado de Ventas'
