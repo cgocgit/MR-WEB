@@ -30,6 +30,7 @@ import {
 
 import {
   ESTADOS_COTIZACION_GENERAL,
+  ESTADOS_TERMINALES_COTIZACION,
   ESTADOS_VERSION_COTIZACION,
   TIPOS_CONCEPTO_COTIZACION
 } from '../../api/cotizaciones.constants.js';
@@ -2519,21 +2520,28 @@ async function inicializar() {
       );
 
     const cotizacionConfirmada = [
-  ESTADOS_COTIZACION_GENERAL
-    .CONFIRMADA,
+      ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA,
 
-  ESTADOS_COTIZACION_GENERAL
-    .CONFIRMADA_RESERVADA
-].includes(
-  cotizacion.estadoGeneral
-);
+      ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA_RESERVADA
+    ].includes(
+      cotizacion.estadoGeneral
+    );
 
-soloConsulta =
-  modo === 'consulta' ||
-  cotizacionConfirmada ||
-  version.estadoVersion !==
-    ESTADOS_VERSION_COTIZACION
-      .BORRADOR;
+    const cotizacionTerminal =
+      ESTADOS_TERMINALES_COTIZACION
+        .includes(
+          cotizacion.estadoGeneral
+        );
+
+    soloConsulta =
+      modo === 'consulta' ||
+      cotizacionConfirmada ||
+      cotizacionTerminal ||
+      version.estadoVersion !==
+        ESTADOS_VERSION_COTIZACION
+          .BORRADOR;
 
     detalleLocal =
       Array.isArray(

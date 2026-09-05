@@ -2033,6 +2033,18 @@ export async function deleteCotizacionVersion(
     cotizacion
   );
 
+  if (
+    ESTADOS_TERMINALES_COTIZACION
+      .includes(
+        cotizacion.estadoGeneral
+      )
+  ) {
+    throw crearError(
+      'ESTADO_INVALIDO',
+      'Las versiones de una cotización Cancelada, Rechazada o Vencida se conservan como histórico.'
+    );
+  }
+
   const version =
     getVersionOrThrow(
       cotizacion,
@@ -2386,6 +2398,18 @@ export async function deleteCotizacion(
     getCotizacionOrThrow(
       idCotizacion
     );
+
+  if (
+    ESTADOS_TERMINALES_COTIZACION
+      .includes(
+        cotizacion.estadoGeneral
+      )
+  ) {
+    throw crearError(
+      'COTIZACION_NO_ELIMINABLE',
+      'Una cotización Cancelada, Rechazada o Vencida debe conservarse para histórico.'
+    );
+  }
 
   const todasBorrador =
     cotizacion.versiones.every(

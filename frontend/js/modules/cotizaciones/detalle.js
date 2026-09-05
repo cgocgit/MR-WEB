@@ -249,6 +249,8 @@ function renderEncabezado() {
   if (eliminar) {
     eliminar.hidden =
       !gestion ||
+      terminal ||
+      confirmada ||
       !todasBorrador;
   }
 
@@ -442,11 +444,27 @@ function accionesVersionHtml(
     ESTADOS_VERSION_COTIZACION
       .BORRADOR;
 
+  const estadoGeneralCerrado =
+    ESTADOS_TERMINALES_COTIZACION
+      .includes(
+        cotizacion.estadoGeneral
+      ) ||
+    [
+      ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA,
+
+      ESTADOS_COTIZACION_GENERAL
+        .CONFIRMADA_RESERVADA
+    ].includes(
+      cotizacion.estadoGeneral
+    );
+
   const acciones = [];
 
   if (
     esBorrador &&
-    gestion
+    gestion &&
+    !estadoGeneralCerrado
   ) {
     acciones.push(`
       <button
