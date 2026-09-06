@@ -761,3 +761,64 @@ export async function obtenerReservaInventario(
     reserva
   );
 }
+
+export async function recibirSolicitudLiberacionPorOrden(
+  idOrden,
+  solicitud = {}
+) {
+  const id =
+    Number(idOrden);
+
+  if (
+    !Number.isInteger(id) ||
+    id <= 0
+  ) {
+    throw error(
+      'ORDEN_INVALIDA',
+      'La Orden indicada no es válida.'
+    );
+  }
+
+  await simularLatenciaInventario();
+
+  const relacionadas =
+    RESERVAS_FUTURAS_MOCK.filter(
+      reserva =>
+        Number(
+          reserva.idOrden
+        ) === id
+    );
+
+  relacionadas.forEach(
+    reserva => {
+      reserva.solicitudLiberacionOrden = {
+        estado:
+          'PENDIENTE_ATENCION',
+
+        motivo:
+          solicitud.motivo ??
+          null,
+
+        fechaHora:
+          solicitud.fechaHora ??
+          new Date().toISOString(),
+
+        usuario:
+          solicitud.usuario ??
+          null
+      };
+    }
+  );
+
+  return clonarDatosInventario({
+    idOrden: id,
+
+    recibida: true,
+
+    reservasRelacionadas:
+      relacionadas.length,
+
+    estado:
+      'PENDIENTE_ATENCION'
+  });
+}

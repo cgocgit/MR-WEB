@@ -144,6 +144,9 @@ const routes = {
   '#/ordenes/detalle':
     'pages/ordenes/detalle.html',
 
+  '#/ordenes/revision':
+    'pages/ordenes/revision.html',
+
   // Logística
   '#/logistica':
     'pages/logistica/asignadas.html',
@@ -394,10 +397,28 @@ const routePermissions = {
 
   // Órdenes
   '#/ordenes':
-    'ordenes.consultar',
+    ({ query }) =>
+      query.get('modo') ===
+        'asignadas'
+        ? 'ordenes.asignadas'
+        : hasPermission(
+            getSession(),
+            'ordenes.consultar'
+          )
+          ? 'ordenes.consultar'
+          : 'ordenes.asignadas',
 
   '#/ordenes/detalle':
-    'ordenes.consultar',
+    () =>
+      hasPermission(
+        getSession(),
+        'ordenes.detalle.consultar'
+      )
+        ? null
+        : 'ordenes.asignadas',
+
+  '#/ordenes/revision':
+    'ordenes.revisar',
 
   // Logística
   '#/logistica':

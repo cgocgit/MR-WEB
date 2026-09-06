@@ -1,13 +1,404 @@
-<section class="container">
-  <h1>Órdenes de servicio</h1>
-  <div id="ordenes" class="card mt-12"></div>
-  <script type="module">
-    import { listOrdenes } from './js/api/ordenes.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await listOrdenes();
-      renderTable(document.getElementById('ordenes'), ['Id','Cliente','Estatus'], datos.map(d=>({id:d.id,cliente:d.cliente,estatus:d.estatus})));
-    })();
-  </script>
+<section
+  id="ordenesListaPage"
+  class="container ordenes-page"
+>
+  <header
+    class="ordenes-page-header"
+  >
+    <div>
+      <nav
+        class="ordenes-breadcrumb"
+        aria-label="Navegación de Órdenes"
+      >
+        <a href="#/dashboard">
+          Inicio
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Órdenes
+        </span>
+      </nav>
+
+      <h1
+        id="ordenesListaTitulo"
+      >
+        Órdenes de servicio
+      </h1>
+
+      <p
+        id="ordenesListaSubtitulo"
+        class="ordenes-subtitle"
+      >
+        Consulta y seguimiento comercial, de Inventario y Logística.
+      </p>
+    </div>
+  </header>
+
+  <div
+    id="ordenesListaEstado"
+    class="
+      ordenes-state
+      ordenes-state--loading
+    "
+    aria-live="polite"
+  >
+    <strong>
+      Cargando Órdenes...
+    </strong>
+
+    <p>
+      Consultando información de seguimiento.
+    </p>
+  </div>
+
+  <div
+    id="ordenesListaContenido"
+    hidden
+  >
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Filtros de búsqueda
+        </h2>
+      </div>
+
+      <div
+        class="ordenes-card-body"
+      >
+        <form
+          id="ordenesFiltrosForm"
+        >
+          <div
+            class="ordenes-form-grid"
+          >
+            <div
+              class="ordenes-field"
+            >
+              <label
+                for="filtroOrdenBusqueda"
+              >
+                Folio, cliente o contacto
+              </label>
+
+              <input
+                id="filtroOrdenBusqueda"
+                type="search"
+                autocomplete="off"
+              >
+            </div>
+
+            <div
+              class="ordenes-field"
+            >
+              <label
+                for="filtroOrdenEstado"
+              >
+                Estado de Orden
+              </label>
+
+              <select
+                id="filtroOrdenEstado"
+              ></select>
+            </div>
+
+            <div
+              class="ordenes-field"
+            >
+              <label
+                for="filtroOrdenFecha"
+              >
+                Fecha del evento
+              </label>
+
+              <input
+                id="filtroOrdenFecha"
+                type="date"
+              >
+            </div>
+
+            <div
+              class="ordenes-field"
+            >
+              <label
+                for="filtroOrdenTipo"
+              >
+                Tipo de compromiso
+              </label>
+
+              <select
+                id="filtroOrdenTipo"
+              ></select>
+            </div>
+
+            <div
+              class="ordenes-field"
+            >
+              <label
+                for="filtroOrdenReserva"
+              >
+                Estado de reserva
+              </label>
+
+              <select
+                id="filtroOrdenReserva"
+              >
+                <option value="">
+                  Todos
+                </option>
+
+                <option value="CONFIRMADA">
+                  Confirmada
+                </option>
+
+                <option value="ACTIVA">
+                  Activa
+                </option>
+
+                <option value="LIBERADA">
+                  Liberada
+                </option>
+
+                <option value="CANCELADA">
+                  Cancelada
+                </option>
+              </select>
+            </div>
+
+            <div
+              class="ordenes-field"
+            >
+              <label
+                for="filtroOrdenLogistica"
+              >
+                Estado logístico
+              </label>
+
+              <select
+                id="filtroOrdenLogistica"
+              >
+                <option value="">
+                  Todos
+                </option>
+
+                <option
+                  value="RECOLECCION_EN_PROCESO"
+                >
+                  Recolección en proceso
+                </option>
+
+                <option
+                  value="RECOLECCION_COMPLETADA"
+                >
+                  Recolección completada
+                </option>
+
+                <option value="Salida">
+                  Salida
+                </option>
+              </select>
+            </div>
+            <div
+              class="ordenes-field"
+            >
+              <label
+                for="ordenesOrdenamiento"
+              >
+                Ordenar por
+              </label>
+
+              <select
+                id="ordenesOrdenamiento"
+              >
+                <option value="EVENTO_ASC">
+                  Evento: más próximo
+                </option>
+
+                <option value="EVENTO_DESC">
+                  Evento: más lejano
+                </option>
+
+                <option value="ACTUALIZACION_DESC">
+                  Última actualización
+                </option>
+
+                <option value="FOLIO_ASC">
+                  Folio
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div
+            class="ordenes-divider"
+          ></div>
+
+          <div
+            class="ordenes-toolbar"
+          >
+            <div
+              class="ordenes-toolbar-group"
+            >
+              <button
+                type="submit"
+                class="
+                  ordenes-btn
+                  ordenes-btn--primary
+                "
+              >
+                Buscar
+              </button>
+
+              <button
+                id="btnLimpiarOrdenes"
+                type="button"
+                class="
+                  ordenes-btn
+                  ordenes-btn--secondary
+                "
+              >
+                Limpiar filtros
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section
+      class="ordenes-card"
+    >
+      <div
+        class="ordenes-card-header"
+      >
+        <h2>
+          Resultados
+        </h2>
+
+        <span
+          id="ordenesResultadosConteo"
+          class="
+            ordenes-badge
+            ordenes-badge--neutral
+          "
+        >
+          0 Órdenes
+        </span>
+      </div>
+
+      <div
+        class="ordenes-card-body"
+      >
+        <div
+          class="
+            ordenes-table-wrapper
+            ordenes-desktop-table
+          "
+        >
+          <table
+            class="ordenes-table"
+          >
+            <thead>
+              <tr>
+                <th>Orden</th>
+                <th>Estado</th>
+                <th>Reserva</th>
+                <th>Logística</th>
+                <th>Cliente / contacto</th>
+                <th>Evento</th>
+                <th>Domicilio</th>
+                <th>Compromiso</th>
+                <th>Cotización</th>
+                <th>Actualización</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody
+              id="ordenesBody"
+            ></tbody>
+          </table>
+        </div>
+
+        <div
+          id="ordenesMobile"
+          class="ordenes-mobile-list"
+        ></div>
+
+        <div
+          id="ordenesEmpty"
+          class="ordenes-empty"
+          hidden
+        >
+          <strong>
+            No se encontraron Órdenes.
+          </strong>
+
+          <p>
+            Ajusta los filtros para consultar otros registros.
+          </p>
+        </div>
+
+        <div
+          class="ordenes-divider"
+        ></div>
+
+        <div
+          class="ordenes-toolbar"
+        >
+          <span
+            id="ordenesPaginacionInfo"
+            class="ordenes-subtitle"
+          >
+            Sin resultados
+          </span>
+
+          <div
+            class="ordenes-toolbar-group"
+          >
+            <button
+              id="btnOrdenesAnterior"
+              type="button"
+              class="
+                ordenes-btn
+                ordenes-btn--secondary
+              "
+              disabled
+            >
+              Anterior
+            </button>
+
+            <button
+              id="btnOrdenesSiguiente"
+              type="button"
+              class="
+                ordenes-btn
+                ordenes-btn--secondary
+              "
+              disabled
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div
+    id="ordenesModalHost"
+  ></div>
 </section>
 
+<script type="module">
+  import {
+    init
+  } from './js/modules/ordenes/lista.js';
+
+  init();
+</script>

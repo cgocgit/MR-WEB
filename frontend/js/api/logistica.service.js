@@ -161,3 +161,64 @@ export async function actualizarEstadoRecoleccion(
     ok: true
   });
 }
+
+export async function recibirSolicitudCancelacionPorOrden(
+  ordenId,
+  solicitud = {}
+) {
+  const idOrden =
+    Number(ordenId);
+
+  if (
+    !Number.isInteger(idOrden) ||
+    idOrden <= 0
+  ) {
+    const error =
+      new Error(
+        'La Orden indicada no es válida.'
+      );
+
+    error.codigo =
+      'ORDEN_INVALIDA';
+
+    throw error;
+  }
+
+  const asignacion =
+    ASIGNACIONES_LOGISTICA_MOCK.find(
+      item =>
+        Number(item.orden) ===
+        idOrden
+    );
+
+  if (asignacion) {
+    asignacion.solicitudCancelacionOrden = {
+      estado:
+        'PENDIENTE_ATENCION',
+
+      motivo:
+        solicitud.motivo ??
+        null,
+
+      fechaHora:
+        solicitud.fechaHora ??
+        new Date().toISOString(),
+
+      usuario:
+        solicitud.usuario ??
+        null
+    };
+  }
+
+  return clonar({
+    ordenId: idOrden,
+
+    recibida: true,
+
+    programacionRelacionada:
+      Boolean(asignacion),
+
+    estado:
+      'PENDIENTE_ATENCION'
+  });
+}

@@ -57,6 +57,10 @@ export const ROLE_PERMISSIONS = {
     'cotizaciones.consultar',
 
     'ordenes.consultar',
+    'ordenes.detalle.consultar',
+    'ordenes.origen-cotizacion.consultar',
+    'ordenes.inventario.consultar',
+    'ordenes.logistica.consultar',
 
     'logistica.consultar',
 
@@ -100,6 +104,9 @@ export const ROLE_PERMISSIONS = {
     'inventario.movimientos.consultar',
 
     'ordenes.consultar',
+    'ordenes.detalle.consultar',
+    'ordenes.inventario.consultar',
+    'ordenes.logistica.consultar',
 
     'logistica.consultar',
 
@@ -124,11 +131,13 @@ export const ROLE_PERMISSIONS = {
     'inventario.disponibilidad.consultar',
     'inventario.reservas.consultar',
 
-    'cotizaciones.consultar',
-    'cotizaciones.gestionar',
-
     'ordenes.consultar',
-    'ordenes.gestionar',
+    'ordenes.detalle.consultar',
+    'ordenes.revisar',
+    'ordenes.cancelar',
+    'ordenes.origen-cotizacion.consultar',
+    'ordenes.inventario.consultar',
+    'ordenes.logistica.consultar',
 
     'logistica.consultar',
 
@@ -157,7 +166,10 @@ export const ROLE_PERMISSIONS = {
     'cotizaciones.gestionar',
 
     'ordenes.consultar',
-    'ordenes.gestionar',
+    'ordenes.detalle.consultar',
+    'ordenes.origen-cotizacion.consultar',
+    'ordenes.inventario.consultar',
+    'ordenes.logistica.consultar',
 
     'logistica.consultar',
 
@@ -174,8 +186,8 @@ export const ROLE_PERMISSIONS = {
 
     'catalogo.consultar',
 
-    'ordenes.consultar',
     'ordenes.asignadas',
+    'ordenes.logistica.consultar',
 
     'logistica.consultar',
     'logistica.ejecutar',
@@ -211,6 +223,10 @@ export const ROLE_PERMISSIONS = {
     'cotizaciones.consultar',
 
     'ordenes.consultar',
+    'ordenes.detalle.consultar',
+    'ordenes.origen-cotizacion.consultar',
+    'ordenes.inventario.consultar',
+    'ordenes.logistica.consultar',
 
     'logistica.consultar',
     'logistica.gestionar',
@@ -234,6 +250,9 @@ export const ROLE_PERMISSIONS = {
     'cotizaciones.consultar',
 
     'ordenes.consultar',
+    'ordenes.detalle.consultar',
+    'ordenes.origen-cotizacion.consultar',
+    'ordenes.logistica.consultar',
 
     'logistica.consultar',
 
