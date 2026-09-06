@@ -157,9 +157,24 @@ const routes = {
   '#/logistica/ejecucion':
     'pages/logistica/ejecucion.html',
 
-  // Pagos
-  '#/pagos/registro':
+    // Pagos
+  '#/pagos':
+    'pages/pagos/inicio.html',
+
+  '#/pagos/consulta':
+    'pages/pagos/consulta.html',
+
+  '#/pagos/nuevo':
     'pages/pagos/registro.html',
+
+  '#/pagos/cuenta':
+    'pages/pagos/detalle.html',
+
+  '#/pagos/compensar':
+    'pages/pagos/compensacion.html',
+
+  '#/pagos/alertas':
+    'pages/pagos/alertas.html',
 
   // Reportes
   '#/reportes':
@@ -427,12 +442,24 @@ const routePermissions = {
   '#/logistica/ejecucion':
     'logistica.ejecutar',
 
-  // Pagos
+    // Pagos
   '#/pagos':
     'pagos.consultar',
 
-  '#/pagos/registro':
+  '#/pagos/consulta':
+    'pagos.consultar',
+
+  '#/pagos/nuevo':
     'pagos.gestionar',
+
+  '#/pagos/cuenta':
+    'pagos.consultar',
+
+  '#/pagos/compensar':
+    'pagos.gestionar',
+
+  '#/pagos/alertas':
+    'pagos.alertas.consultar',
 
   // Reportes
   '#/reportes':

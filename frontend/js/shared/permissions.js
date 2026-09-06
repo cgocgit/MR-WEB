@@ -65,6 +65,7 @@ export const ROLE_PERMISSIONS = {
     'logistica.consultar',
 
     'pagos.consultar',
+    'pagos.alertas.consultar',
 
     'reportes.consultar',
 
@@ -175,6 +176,7 @@ export const ROLE_PERMISSIONS = {
 
     'pagos.consultar',
     'pagos.gestionar',
+    'pagos.alertas.consultar',
 
     'reportes.consultar',
 

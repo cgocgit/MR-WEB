@@ -840,6 +840,13 @@ function establecerProcesando(
 ) {
   procesando = estado;
 
+  if (estado) {
+    texto(
+      'pagos-registro-procesando',
+      'Registrando pago...'
+    );
+  }
+
   const root =
     obtenerRoot();
 
@@ -1059,7 +1066,28 @@ async function confirmarRegistro() {
   try {
     const resultado =
       await registrarPago(
-        datosPago()
+        datosPago(),
+        {
+          onPagoRegistrado:
+            evento => {
+              if (
+                evento
+                  .requiereConfirmacion
+              ) {
+                texto(
+                  'pagos-registro-procesando',
+                  'Pago registrado correctamente. Procesando confirmación de cotización.'
+                );
+
+                return;
+              }
+
+              texto(
+                'pagos-registro-procesando',
+                'Pago registrado correctamente.'
+              );
+            }
+        }
       );
 
     renderizarResultado(

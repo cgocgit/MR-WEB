@@ -246,6 +246,42 @@ function crearEnlace(
   return enlace;
 }
 
+function crearCampoCard(
+  etiqueta,
+  valor
+) {
+  const campo =
+    document.createElement(
+      'div'
+    );
+
+  campo.className =
+    'pagos-mobile-card-field';
+
+  const label =
+    document.createElement(
+      'span'
+    );
+
+  label.textContent =
+    etiqueta;
+
+  const contenido =
+    document.createElement(
+      'strong'
+    );
+
+  contenido.textContent =
+    valor ?? '—';
+
+  campo.append(
+    label,
+    contenido
+  );
+
+  return campo;
+}
+
 function normalizarReferencia(
   referencia
 ) {
@@ -566,7 +602,179 @@ function renderizarAlertas(
       );
     }
   );
-}
+
+  renderizarAlertasMovil(
+      items
+    );
+  }
+
+  function renderizarAlertasMovil(
+    items = []
+  ) {
+    const contenedor =
+      elemento(
+        'pagos-alertas-cards'
+      );
+
+    if (!contenedor) {
+      return;
+    }
+
+    contenedor.replaceChildren();
+
+    items.forEach(
+      alerta => {
+        const card =
+          document.createElement(
+            'article'
+          );
+
+        card.className =
+          'pagos-mobile-card';
+
+        const header =
+          document.createElement(
+            'div'
+          );
+
+        header.className =
+          'pagos-mobile-card-header';
+
+        const folio =
+          document.createElement(
+            'strong'
+          );
+
+        folio.textContent =
+          alerta.folioAlerta;
+
+        const estadoAlerta =
+          document.createElement(
+            'span'
+          );
+
+        estadoAlerta.className =
+          'pagos-alerta-estado';
+
+        estadoAlerta.textContent =
+          alerta.estado ||
+          'Pendiente';
+
+        header.append(
+          folio,
+          estadoAlerta
+        );
+
+        const grid =
+          document.createElement(
+            'div'
+          );
+
+        grid.className =
+          'pagos-mobile-card-grid';
+
+        grid.append(
+          crearCampoCard(
+            'Fecha y hora',
+            formatDateTime(
+              alerta.fechaHora
+            )
+          ),
+
+          crearCampoCard(
+            'Pago',
+            alerta.folioPago
+          ),
+
+          crearCampoCard(
+            'Cotización',
+            alerta.folioCotizacion
+          ),
+
+          crearCampoCard(
+            'Versión',
+            `Versión ${
+              alerta.numeroVersion
+            }`
+          ),
+
+          crearCampoCard(
+            'Cliente',
+            alerta.nombreCliente
+          ),
+
+          crearCampoCard(
+            'Operación fallida',
+            alerta.operacionFallida
+          ),
+
+          crearCampoCard(
+            'Descripción',
+            alerta.descripcionError
+          ),
+
+          crearCampoCard(
+            'Resultado conocido',
+            alerta.resultadoConocido ||
+              '—'
+          )
+        );
+
+        const acciones =
+          document.createElement(
+            'div'
+          );
+
+        acciones.className =
+          'pagos-table-actions';
+
+        acciones.appendChild(
+          crearEnlace(
+            'Ver cuenta',
+            construirRutaCuenta(
+              alerta
+            )
+          )
+        );
+
+        const verPago =
+          document.createElement(
+            'button'
+          );
+
+        verPago.type =
+          'button';
+
+        verPago.className =
+          'pagos-table-action';
+
+        verPago.textContent =
+          'Ver pago';
+
+        verPago.addEventListener(
+          'click',
+          () =>
+            mostrarPago(
+              alerta
+            )
+        );
+
+        acciones.appendChild(
+          verPago
+        );
+
+        card.append(
+          header,
+          grid,
+          acciones
+        );
+
+        contenedor.appendChild(
+          card
+        );
+      }
+    );
+  }
 
 function mostrarPago(
   alerta

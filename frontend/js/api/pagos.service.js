@@ -1572,6 +1572,43 @@ export async function registrarPago(
       }
     );
 
+  if (
+    typeof opciones
+      .onPagoRegistrado ===
+    'function'
+  ) {
+    try {
+      opciones.onPagoRegistrado(
+        clonar({
+          idPago:
+            movimiento
+              .idMovimiento,
+
+          folioPago,
+
+          idCotizacion:
+            cuentaBase
+              .idCotizacion,
+
+          idVersion:
+            cuentaBase
+              .idVersion,
+
+          cuenta:
+            cuentaNueva,
+
+          requiereConfirmacion:
+            debeConfirmar
+        })
+      );
+    } catch (error) {
+      console.warn(
+        'No fue posible notificar el registro del pago.',
+        error
+      );
+    }
+  }
+
   let resultadoIntegracion =
     cuentaBase
       .resultadoIntegracion ||

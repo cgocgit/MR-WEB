@@ -566,6 +566,10 @@ function renderizarMovimientos(
       );
     }
   );
+
+  renderizarMovimientosMovil(
+    movimientos
+  );
 }
 
 function renderizarMovimientosMovil(
