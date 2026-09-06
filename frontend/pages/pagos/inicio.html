@@ -1,0 +1,276 @@
+<section
+  id="pagos-inicio-root"
+  class="container pagos-page"
+>
+  <header class="pagos-page-header">
+    <div>
+      <h1>Pagos</h1>
+
+      <p class="pagos-page-description">
+        Consulta y registro de pagos asociados con cotizaciones.
+      </p>
+    </div>
+
+    <div class="pagos-page-actions">
+      <button
+        id="btn-pagos-inicio-actualizar"
+        type="button"
+        class="button button-secondary"
+      >
+        Actualizar
+      </button>
+
+      <a
+        href="#/pagos/nuevo"
+        class="button"
+        data-pagos-requiere-permiso="pagos.gestionar"
+      >
+        Registrar pago
+      </a>
+    </div>
+  </header>
+
+  <div
+    id="pagos-inicio-cargando"
+    class="pagos-state pagos-state-loading"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Cargando información de Pagos...
+  </div>
+
+  <div
+    id="pagos-inicio-error"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  ></div>
+
+  <div
+    id="pagos-inicio-contenido"
+    class="pagos-page"
+    hidden
+  >
+    <!-- =====================================
+         RESUMEN OPERATIVO
+         ===================================== -->
+
+    <section
+      aria-labelledby="pagos-inicio-resumen-titulo"
+    >
+      <h2 id="pagos-inicio-resumen-titulo">
+        Situación de cuentas
+      </h2>
+
+      <div class="pagos-inicio-resumen">
+        <article class="pagos-inicio-resumen-card">
+          <span>
+            Pendientes de confirmación
+          </span>
+
+          <strong id="pagos-inicio-pendientes">
+            0
+          </strong>
+
+          <small>
+            Aún no alcanzan el importe requerido.
+          </small>
+        </article>
+
+        <article class="pagos-inicio-resumen-card">
+          <span>
+            Confirmadas con saldo pendiente
+          </span>
+
+          <strong id="pagos-inicio-confirmadas">
+            0
+          </strong>
+
+          <small>
+            Cotizaciones confirmadas aún no liquidadas.
+          </small>
+        </article>
+
+        <article class="pagos-inicio-resumen-card">
+          <span>
+            Liquidadas
+          </span>
+
+          <strong id="pagos-inicio-liquidadas">
+            0
+          </strong>
+
+          <small>
+            Cuentas cuyo total está cubierto.
+          </small>
+        </article>
+
+        <article class="pagos-inicio-resumen-card">
+          <span>
+            Con alerta de integración
+          </span>
+
+          <strong id="pagos-inicio-alertas">
+            0
+          </strong>
+
+          <small>
+            Fallos posteriores al registro del pago.
+          </small>
+        </article>
+      </div>
+    </section>
+
+    <!-- =====================================
+         ACCESOS RÁPIDOS
+         ===================================== -->
+
+    <section
+      aria-labelledby="pagos-inicio-accesos-titulo"
+    >
+      <h2 id="pagos-inicio-accesos-titulo">
+        Accesos rápidos
+      </h2>
+
+      <div class="pagos-inicio-accesos">
+        <a
+          href="#/pagos/consulta"
+          class="pagos-inicio-acceso"
+          data-pagos-requiere-permiso="pagos.consultar"
+        >
+          <strong>
+            Consultar pagos
+          </strong>
+
+          <span>
+            Consulta cuentas por cotización y movimientos registrados.
+          </span>
+        </a>
+
+        <a
+          href="#/pagos/nuevo"
+          class="pagos-inicio-acceso"
+          data-pagos-requiere-permiso="pagos.gestionar"
+        >
+          <strong>
+            Registrar pago
+          </strong>
+
+          <span>
+            Registra manualmente un pago sobre una cotización habilitada.
+          </span>
+        </a>
+
+        <a
+          href="#/pagos/alertas"
+          class="pagos-inicio-acceso"
+          data-pagos-requiere-permiso="pagos.alertas.consultar"
+        >
+          <strong>
+            Consultar alertas
+          </strong>
+
+          <span>
+            Revisa fallos de integración posteriores al registro.
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- =====================================
+         ACTIVIDAD RECIENTE
+         ===================================== -->
+
+    <section
+      class="pagos-card"
+      aria-labelledby="pagos-inicio-actividad-titulo"
+    >
+      <h2
+        id="pagos-inicio-actividad-titulo"
+        class="pagos-section-title"
+      >
+        Actividad reciente
+      </h2>
+
+      <p class="pagos-section-description">
+        Últimos pagos y movimientos compensatorios registrados.
+      </p>
+
+      <div
+        id="pagos-inicio-vacio"
+        class="pagos-state pagos-state-empty"
+        hidden
+      >
+        No existen movimientos registrados.
+      </div>
+
+      <div
+        id="pagos-inicio-actividad"
+        hidden
+      >
+        <div
+          class="
+            pagos-table-wrap
+            pagos-desktop-table
+          "
+        >
+          <table class="pagos-table">
+            <thead>
+              <tr>
+                <th scope="col">
+                  Fecha y hora
+                </th>
+
+                <th scope="col">
+                  Tipo
+                </th>
+
+                <th scope="col">
+                  Cotización
+                </th>
+
+                <th scope="col">
+                  Versión
+                </th>
+
+                <th scope="col">
+                  Cliente
+                </th>
+
+                <th scope="col">
+                  Importe
+                </th>
+
+                <th scope="col">
+                  Usuario
+                </th>
+
+                <th scope="col">
+                  Acción
+                </th>
+              </tr>
+            </thead>
+
+            <tbody id="pagos-inicio-actividad-tbody">
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          id="pagos-inicio-actividad-cards"
+          class="pagos-mobile-cards"
+          aria-label="Actividad reciente"
+        ></div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/pagos/inicio.js';
+
+  init();
+</script>

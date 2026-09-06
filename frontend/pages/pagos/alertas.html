@@ -1,0 +1,370 @@
+<section
+  id="pagos-alertas-root"
+  class="container pagos-page"
+>
+  <header class="pagos-page-header">
+    <div>
+      <h1>Alertas de integración</h1>
+
+      <p class="pagos-page-description">
+        Consulta fallos ocurridos después del registro de un pago.
+      </p>
+    </div>
+
+    <div class="pagos-page-actions">
+      <button
+        id="btn-pagos-alertas-actualizar"
+        type="button"
+        class="button button-secondary"
+      >
+        Actualizar
+      </button>
+    </div>
+  </header>
+
+  <div
+    id="pagos-alertas-acceso-denegado"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  >
+    No cuenta con permiso para acceder a esta función.
+  </div>
+
+  <div id="pagos-alertas-contenido">
+    <!-- ===================================
+         FILTROS
+         =================================== -->
+
+    <section
+      class="pagos-card pagos-filtros"
+      aria-labelledby="pagos-alertas-filtros-titulo"
+    >
+      <h2
+        id="pagos-alertas-filtros-titulo"
+        class="pagos-section-title"
+      >
+        Filtros
+      </h2>
+
+      <div class="pagos-filtros-grid">
+        <div class="form-field">
+          <label for="pagos-alertas-folio-alerta">
+            Folio de alerta
+          </label>
+
+          <input
+            id="pagos-alertas-folio-alerta"
+            type="search"
+            autocomplete="off"
+            placeholder="Ej. ALT-PAG-0001"
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="pagos-alertas-folio-pago">
+            Folio de pago
+          </label>
+
+          <input
+            id="pagos-alertas-folio-pago"
+            type="search"
+            autocomplete="off"
+            placeholder="Ej. PGO-0124"
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="pagos-alertas-folio-cotizacion">
+            Folio de cotización
+          </label>
+
+          <input
+            id="pagos-alertas-folio-cotizacion"
+            type="search"
+            autocomplete="off"
+            placeholder="Ej. COT-2026-004"
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="pagos-alertas-cliente">
+            Cliente
+          </label>
+
+          <input
+            id="pagos-alertas-cliente"
+            type="search"
+            autocomplete="off"
+            placeholder="Nombre del cliente"
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="pagos-alertas-fecha-inicial">
+            Fecha inicial
+          </label>
+
+          <input
+            id="pagos-alertas-fecha-inicial"
+            type="date"
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="pagos-alertas-fecha-final">
+            Fecha final
+          </label>
+
+          <input
+            id="pagos-alertas-fecha-final"
+            type="date"
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="pagos-alertas-operacion">
+            Operación fallida
+          </label>
+
+          <select id="pagos-alertas-operacion">
+            <option value="">
+              Todas
+            </option>
+
+            <option value="CONFIRMAR_COTIZACION">
+              Confirmar cotización
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pagos-form-actions">
+        <button
+          id="btn-pagos-alertas-limpiar"
+          type="button"
+          class="button button-secondary"
+        >
+          Limpiar filtros
+        </button>
+
+        <button
+          id="btn-pagos-alertas-buscar"
+          type="button"
+        >
+          Buscar
+        </button>
+      </div>
+    </section>
+
+    <div
+      id="pagos-alertas-cargando"
+      class="pagos-state pagos-state-loading"
+      role="status"
+      aria-live="polite"
+      hidden
+    >
+      Consultando alertas...
+    </div>
+
+    <div
+      id="pagos-alertas-error"
+      class="pagos-state pagos-state-error"
+      role="alert"
+      hidden
+    ></div>
+
+    <div
+      id="pagos-alertas-vacio"
+      class="pagos-state pagos-state-empty"
+      hidden
+    ></div>
+
+    <!-- ===================================
+         RESULTADOS
+         =================================== -->
+
+    <section
+      id="pagos-alertas-resultados"
+      class="pagos-card"
+      aria-labelledby="pagos-alertas-resultados-titulo"
+    >
+      <h2
+        id="pagos-alertas-resultados-titulo"
+        class="pagos-section-title"
+      >
+        Alertas registradas
+      </h2>
+
+      <p class="pagos-section-description">
+        El estado de las alertas es informativo y no puede modificarse desde esta pantalla.
+      </p>
+
+      <div class="pagos-table-wrap">
+        <table class="pagos-table">
+          <thead>
+            <tr>
+              <th scope="col">
+                Alerta
+              </th>
+
+              <th scope="col">
+                Fecha y hora
+              </th>
+
+              <th scope="col">
+                Pago
+              </th>
+
+              <th scope="col">
+                Cotización
+              </th>
+
+              <th scope="col">
+                Versión
+              </th>
+
+              <th scope="col">
+                Cliente
+              </th>
+
+              <th scope="col">
+                Operación fallida
+              </th>
+
+              <th scope="col">
+                Descripción
+              </th>
+
+              <th scope="col">
+                Resultado conocido
+              </th>
+
+              <th scope="col">
+                Estado
+              </th>
+
+              <th scope="col">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+
+          <tbody id="pagos-alertas-tbody">
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagos-pagination">
+        <span id="pagos-alertas-paginacion">
+          0-0 de 0
+        </span>
+
+        <div class="pagos-pagination-controls">
+          <button
+            id="btn-pagos-alertas-anterior"
+            type="button"
+            class="button button-secondary"
+          >
+            Anterior
+          </button>
+
+          <button
+            id="btn-pagos-alertas-siguiente"
+            type="button"
+            class="button button-secondary"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="pagos-state pagos-state-warning">
+      Una alerta indica que el pago fue registrado, pero una operación posterior
+      no pudo completarse. Esta pantalla no permite resolver, descartar, escalar
+      ni reintentar la operación.
+    </div>
+  </div>
+
+  <!-- =====================================
+       DETALLE INFORMATIVO DEL PAGO
+       ===================================== -->
+
+  <dialog id="pagos-alertas-dialog">
+    <div class="pagos-confirmacion">
+      <h2>
+        Información de la alerta
+      </h2>
+
+      <div class="pagos-reference-grid">
+        <div class="pagos-reference-item">
+          <span>
+            Pago
+          </span>
+
+          <strong id="pagos-alertas-detalle-pago">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Cotización
+          </span>
+
+          <strong id="pagos-alertas-detalle-cotizacion">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Cliente
+          </span>
+
+          <strong id="pagos-alertas-detalle-cliente">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Operación fallida
+          </span>
+
+          <strong id="pagos-alertas-detalle-operacion">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-form-field">
+        <span>
+          Descripción del error
+        </span>
+
+        <strong id="pagos-alertas-detalle-error">
+          —
+        </strong>
+      </div>
+
+      <div class="pagos-form-actions">
+        <button
+          id="btn-pagos-alertas-dialog-cerrar"
+          type="button"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/pagos/alertas.js';
+
+  init();
+</script>
