@@ -932,6 +932,10 @@ async function procesarConfirmacion({
     };
 
     cuentaBase
+      .procesandoConfirmacion =
+      false;
+
+    cuentaBase
       .resultadoIntegracion =
       resultado;
 
