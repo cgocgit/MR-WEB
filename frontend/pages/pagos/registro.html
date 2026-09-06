@@ -14,6 +14,7 @@
 
     <div class="pagos-page-actions">
       <a
+        id="btn-pagos-registro-volver"
         href="#/pagos/consulta"
         class="button-secondary"
       >
@@ -164,6 +165,7 @@
                   <input
                     id="pagos-registro-fecha"
                     type="date"
+                    aria-describedby="pagos-registro-fecha-error"
                     required
                   >
 
@@ -173,7 +175,6 @@
                     role="alert"
                     hidden
                   ></span>
-                </div>
 
                 <div class="pagos-form-field">
                   <label for="pagos-registro-monto">
@@ -186,6 +187,7 @@
                     min="0.01"
                     step="0.01"
                     inputmode="decimal"
+                    aria-describedby="pagos-registro-monto-error"
                     required
                   >
 
@@ -204,6 +206,7 @@
 
                   <select
                     id="pagos-registro-metodo"
+                    aria-describedby="pagos-registro-metodo-error"
                     required
                   >
                     <option value="">
@@ -301,7 +304,7 @@
             hidden
           >
             <strong>
-              El pago excede el saldo de la cotización.
+              ⚠ El pago excede el saldo de la cotización.
             </strong>
 
             <div>
@@ -324,6 +327,7 @@
 
           <div class="pagos-form-actions">
             <a
+              id="btn-pagos-registro-cancelar"
               href="#/pagos/consulta"
               class="button-secondary"
             >
@@ -814,7 +818,7 @@
         class="pagos-confirmacion-warning"
         hidden
       >
-        El pago excede el saldo de la cotización.
+        ⚠ El pago excede el saldo de la cotización.
 
         Excedente:
         <strong id="pagos-confirmacion-excedente-importe">
