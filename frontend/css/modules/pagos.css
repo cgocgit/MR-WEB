@@ -1,0 +1,805 @@
+/* ============================================
+   Módulo Pagos
+   ============================================ */
+
+.pagos-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pagos-page [hidden] {
+  display: none !important;
+}
+
+/* ============================================
+   Encabezado de página
+   ============================================ */
+
+.pagos-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--gap);
+}
+
+.pagos-page-header h1 {
+  margin: 0;
+}
+
+.pagos-page-description {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.pagos-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ============================================
+   Enlaces utilizados como botones
+   ============================================ */
+
+.pagos-page a.button,
+.pagos-page a.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 36px;
+  padding: 8px 12px;
+
+  border-radius: 6px;
+
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+
+  cursor: pointer;
+}
+
+.pagos-page a.button {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.pagos-page a.button:hover,
+.pagos-page a.button:focus-visible {
+  color: #fff;
+}
+
+.pagos-page a.button-secondary {
+  border: 1px solid var(--primary);
+  background: var(--panel);
+  color: var(--primary);
+}
+
+/* ============================================
+   Tarjetas y secciones
+   ============================================ */
+
+.pagos-card {
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  padding: 16px;
+}
+
+.pagos-section-title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+}
+
+.pagos-section-description {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+/* ============================================
+   Estados generales
+   ============================================ */
+
+.pagos-state {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: .9rem;
+}
+
+.pagos-state-loading {
+  background: #eff6ff;
+  color: var(--primary);
+}
+
+.pagos-state-error {
+  background: #fef2f2;
+  color: var(--danger);
+}
+
+.pagos-state-warning {
+  background: #fff8e6;
+  color: #92400e;
+}
+
+.pagos-state-success {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.pagos-state-empty {
+  background: var(--panel);
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ============================================
+   Indicadores
+   ============================================ */
+
+.pagos-indicador {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  width: fit-content;
+
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pagos-indicador--error {
+  background: #fef2f2;
+  color: var(--danger);
+}
+
+.pagos-indicador--advertencia {
+  background: #fff8e6;
+  color: #92400e;
+}
+
+.pagos-indicador--exito {
+  background: #ecfdf5;
+  color: #15803d;
+}
+
+.pagos-indicador--informativo {
+  background: #eff6ff;
+  color: var(--primary);
+}
+
+.pagos-indicador--proceso {
+  background: #eff6ff;
+  color: var(--primary);
+}
+
+.pagos-indicador--pendiente {
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+/* ============================================
+   Inicio de Pagos
+   ============================================ */
+
+.pagos-inicio-resumen {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pagos-inicio-resumen-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  min-height: 104px;
+
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  padding: 16px;
+}
+
+.pagos-inicio-resumen-card span {
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.pagos-inicio-resumen-card strong {
+  font-size: 1.75rem;
+}
+
+.pagos-inicio-resumen-card small {
+  color: var(--muted);
+}
+
+.pagos-inicio-accesos {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pagos-inicio-acceso {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+
+  min-height: 120px;
+
+  padding: 16px;
+
+  border: 1px solid #e6e6e6;
+  border-radius: var(--radius);
+
+  background: var(--panel);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.pagos-inicio-acceso:hover,
+.pagos-inicio-acceso:focus-visible {
+  border-color: var(--primary);
+  outline: 2px solid transparent;
+}
+
+.pagos-inicio-acceso strong {
+  color: var(--primary);
+}
+
+.pagos-inicio-acceso span {
+  color: var(--muted);
+  font-size: .88rem;
+}
+
+/* ============================================
+   Formularios y filtros
+   ============================================ */
+
+.pagos-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pagos-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.pagos-form-grid-two {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+.pagos-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pagos-form-field label {
+  font-weight: 600;
+}
+
+.pagos-form-field input,
+.pagos-form-field select,
+.pagos-form-field textarea {
+  width: 100%;
+}
+
+.pagos-form-field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.pagos-form-field small {
+  color: var(--muted);
+}
+
+.pagos-form-field-error {
+  min-height: 18px;
+  color: var(--danger);
+  font-size: .8rem;
+}
+
+.pagos-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.pagos-filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pagos-filtros-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+/* ============================================
+   Consulta - selector de vista
+   ============================================ */
+
+.pagos-vistas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pagos-vista-button {
+  padding: 8px 12px;
+
+  border: 1px solid #e6e6e6;
+  border-radius: var(--radius);
+
+  background: var(--panel);
+  color: var(--text);
+
+  cursor: pointer;
+}
+
+.pagos-vista-button[aria-selected="true"] {
+  border-color: var(--primary);
+  background: #eff6ff;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ============================================
+   Tablas
+   ============================================ */
+
+.pagos-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.pagos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pagos-table th,
+.pagos-table td {
+  padding: 11px 10px;
+  border-bottom: 1px solid #e6e6e6;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.pagos-table th {
+  background: var(--bg);
+  font-size: .82rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pagos-table td {
+  font-size: .88rem;
+}
+
+.pagos-table-sort {
+  padding: 0;
+
+  border: 0;
+  background: transparent;
+
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.pagos-table-sort:hover,
+.pagos-table-sort:focus-visible {
+  color: var(--primary);
+}
+
+.pagos-table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pagos-table-action {
+  white-space: nowrap;
+}
+
+/* ============================================
+   Tarjetas de resultado móviles
+   ============================================ */
+
+.pagos-mobile-cards {
+  display: none;
+}
+
+.pagos-mobile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  padding: 16px;
+}
+
+.pagos-mobile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.pagos-mobile-card-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pagos-mobile-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pagos-mobile-card-field span {
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.pagos-mobile-card-field strong {
+  font-size: .9rem;
+}
+
+/* ============================================
+   Resumen monetario
+   ============================================ */
+
+.pagos-resumen-monetario {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pagos-resumen-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  padding: 14px;
+
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.pagos-resumen-item span {
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+.pagos-resumen-item strong {
+  font-size: 1.1rem;
+}
+
+.pagos-resumen-destacado strong {
+  color: var(--primary);
+}
+
+.pagos-resumen-advertencia strong {
+  color: #92400e;
+}
+
+/* ============================================
+   Progreso
+   ============================================ */
+
+.pagos-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pagos-progress-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pagos-progress-track {
+  width: 100%;
+  height: 10px;
+
+  overflow: hidden;
+
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+
+.pagos-progress-value {
+  width: 0;
+  height: 100%;
+
+  background: var(--primary);
+  border-radius: inherit;
+
+  transition: width .2s ease;
+}
+
+/* ============================================
+   Referencias y auditoría
+   ============================================ */
+
+.pagos-reference-grid,
+.pagos-audit-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pagos-reference-item,
+.pagos-audit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pagos-reference-item span,
+.pagos-audit-item span {
+  color: var(--muted);
+  font-size: .8rem;
+}
+
+/* ============================================
+   Historial
+   ============================================ */
+
+.pagos-movimiento {
+  position: relative;
+}
+
+.pagos-movimiento-compensatorio {
+  background: #fff8e6;
+}
+
+.pagos-compensacion-reference {
+  display: inline-flex;
+  margin-top: 4px;
+
+  color: #92400e;
+  font-size: .76rem;
+  font-weight: 600;
+}
+
+/* ============================================
+   Registro de pago
+   ============================================ */
+
+.pagos-registro-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 2fr)
+    minmax(280px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.pagos-cotizacion-resultados {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pagos-cotizacion-option {
+  display: grid;
+  grid-template-columns:
+    minmax(130px, .8fr)
+    minmax(180px, 1.5fr)
+    repeat(2, minmax(110px, .8fr));
+  gap: 12px;
+  align-items: center;
+
+  width: 100%;
+
+  padding: 12px;
+
+  border: 1px solid #e6e6e6;
+  border-radius: var(--radius);
+
+  background: var(--panel);
+  color: var(--text);
+
+  text-align: left;
+  cursor: pointer;
+}
+
+.pagos-cotizacion-option:hover,
+.pagos-cotizacion-option:focus-visible {
+  border-color: var(--primary);
+}
+
+/* ============================================
+   Confirmación monetaria
+   ============================================ */
+
+.pagos-confirmacion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pagos-confirmacion-warning {
+  padding: 12px;
+
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+
+  background: #fff8e6;
+  color: #92400e;
+}
+
+/* ============================================
+   Alertas
+   ============================================ */
+
+.pagos-alerta-operacion {
+  font-weight: 600;
+}
+
+.pagos-alerta-error {
+  max-width: 360px;
+}
+
+.pagos-alerta-estado {
+  display: inline-flex;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  background: #fff8e6;
+  color: #92400e;
+
+  font-size: .78rem;
+  font-weight: 600;
+}
+
+/* ============================================
+   Paginación
+   ============================================ */
+
+.pagos-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.pagos-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagos-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 1000px) {
+  .pagos-inicio-resumen,
+  .pagos-resumen-monetario {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .pagos-inicio-accesos {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .pagos-filtros-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .pagos-registro-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .pagos-page-header {
+    flex-direction: column;
+  }
+
+  .pagos-page-actions {
+    width: 100%;
+  }
+
+  .pagos-page-actions .btn,
+  .pagos-page-actions button,
+  .pagos-page-actions a {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+
+  .pagos-inicio-resumen,
+  .pagos-inicio-accesos,
+  .pagos-resumen-monetario,
+  .pagos-form-grid,
+  .pagos-form-grid-two,
+  .pagos-filtros-grid,
+  .pagos-reference-grid,
+  .pagos-audit-grid,
+  .pagos-mobile-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pagos-desktop-table {
+    display: none;
+  }
+
+  .pagos-mobile-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pagos-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .pagos-form-actions button,
+  .pagos-form-actions a {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .pagos-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagos-pagination-controls {
+    justify-content: space-between;
+  }
+
+  .pagos-pagination-controls button {
+    min-height: 44px;
+  }
+
+  .pagos-cotizacion-option {
+    grid-template-columns: 1fr;
+  }
+}

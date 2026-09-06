@@ -1,0 +1,490 @@
+<section
+  id="pagos-compensacion-root"
+  class="container pagos-page"
+>
+  <header class="pagos-page-header">
+    <div>
+      <h1>
+        Registro de movimiento compensatorio
+      </h1>
+
+      <p class="pagos-page-description">
+        Registra una corrección asociada con un pago original sin modificarlo.
+      </p>
+    </div>
+  </header>
+
+  <div
+    id="pagos-compensacion-acceso-denegado"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  >
+    No cuenta con permiso para acceder a esta función.
+  </div>
+
+  <div
+    id="pagos-compensacion-cargando"
+    class="pagos-state pagos-state-loading"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Consultando pago original...
+  </div>
+
+  <div
+    id="pagos-compensacion-no-encontrado"
+    class="pagos-state pagos-state-empty"
+    hidden
+  >
+    No fue posible identificar el pago original.
+  </div>
+
+  <div
+    id="pagos-compensacion-error"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  ></div>
+
+  <div id="pagos-compensacion-contenido">
+    <div
+      id="pagos-compensacion-formulario"
+      class="pagos-page"
+      hidden
+    >
+      <!-- ===================================
+           PAGO ORIGINAL
+           =================================== -->
+
+      <section
+        class="pagos-card"
+        aria-labelledby="pagos-compensacion-original-titulo"
+      >
+        <h2
+          id="pagos-compensacion-original-titulo"
+          class="pagos-section-title"
+        >
+          Pago original
+        </h2>
+
+        <p class="pagos-section-description">
+          El pago original permanecerá sin modificaciones.
+        </p>
+
+        <div class="pagos-reference-grid">
+          <div class="pagos-reference-item">
+            <span>
+              Folio del pago
+            </span>
+
+            <strong id="pagos-compensacion-folio-pago">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Cotización
+            </span>
+
+            <strong id="pagos-compensacion-cotizacion">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Versión aceptada
+            </span>
+
+            <strong id="pagos-compensacion-version">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Cliente
+            </span>
+
+            <strong id="pagos-compensacion-cliente">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Fecha del pago
+            </span>
+
+            <strong id="pagos-compensacion-fecha-pago">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Monto original
+            </span>
+
+            <strong id="pagos-compensacion-monto-original">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Método
+            </span>
+
+            <strong id="pagos-compensacion-metodo">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Referencia
+            </span>
+
+            <strong id="pagos-compensacion-referencia">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Usuario que registró
+            </span>
+
+            <strong id="pagos-compensacion-usuario">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Acumulado neto actual
+            </span>
+
+            <strong id="pagos-compensacion-acumulado-actual">
+              —
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================
+           DATOS DE COMPENSACIÓN
+           =================================== -->
+
+      <section
+        class="pagos-card"
+        aria-labelledby="pagos-compensacion-datos-titulo"
+      >
+        <h2
+          id="pagos-compensacion-datos-titulo"
+          class="pagos-section-title"
+        >
+          Datos de la compensación
+        </h2>
+
+        <div class="pagos-form">
+          <div class="pagos-form-grid pagos-form-grid-two">
+            <div class="pagos-form-field">
+              <label for="pagos-compensacion-monto">
+                Monto compensado
+              </label>
+
+              <input
+                id="pagos-compensacion-monto"
+                type="number"
+                min="0.01"
+                step="0.01"
+                inputmode="decimal"
+                required
+              >
+
+              <span
+                id="pagos-compensacion-monto-error"
+                class="pagos-form-field-error"
+                role="alert"
+                hidden
+              ></span>
+            </div>
+
+            <div class="pagos-form-field">
+              <label for="pagos-compensacion-motivo">
+                Motivo
+              </label>
+
+              <textarea
+                id="pagos-compensacion-motivo"
+                required
+              ></textarea>
+
+              <span
+                id="pagos-compensacion-motivo-error"
+                class="pagos-form-field-error"
+                role="alert"
+                hidden
+              ></span>
+            </div>
+          </div>
+
+          <div class="pagos-form-field">
+            <label for="pagos-compensacion-observaciones">
+              Observaciones complementarias
+            </label>
+
+            <textarea
+              id="pagos-compensacion-observaciones"
+            ></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================
+           RESUMEN PREVIO
+           =================================== -->
+
+      <section
+        class="pagos-card"
+        aria-labelledby="pagos-compensacion-resumen-titulo"
+      >
+        <h2
+          id="pagos-compensacion-resumen-titulo"
+          class="pagos-section-title"
+        >
+          Resumen previo
+        </h2>
+
+        <div class="pagos-resumen-monetario">
+          <div class="pagos-resumen-item">
+            <span>
+              Acumulado anterior
+            </span>
+
+            <strong id="pagos-compensacion-resumen-anterior">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item">
+            <span>
+              Monto compensado
+            </span>
+
+            <strong id="pagos-compensacion-resumen-monto">
+              —
+            </strong>
+          </div>
+
+          <div
+            class="
+              pagos-resumen-item
+              pagos-resumen-destacado
+            "
+          >
+            <span>
+              Acumulado resultante
+            </span>
+
+            <strong id="pagos-compensacion-resumen-resultante">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item">
+            <span>
+              Saldo para confirmar
+            </span>
+
+            <strong id="pagos-compensacion-resumen-confirmacion">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item">
+            <span>
+              Saldo para liquidar
+            </span>
+
+            <strong id="pagos-compensacion-resumen-liquidacion">
+              —
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <div
+        id="pagos-compensacion-procesando"
+        class="pagos-state pagos-state-loading"
+        role="status"
+        aria-live="polite"
+        hidden
+      >
+        Registrando movimiento compensatorio...
+      </div>
+
+      <div class="pagos-form-actions">
+        <a
+          id="btn-pagos-compensacion-volver"
+          href="#/pagos/consulta"
+          class="button button-secondary"
+        >
+          Cancelar
+        </a>
+
+        <button
+          id="btn-pagos-compensacion-guardar"
+          type="button"
+        >
+          Registrar compensación
+        </button>
+      </div>
+    </div>
+
+    <!-- ===================================
+         RESULTADO
+         =================================== -->
+
+    <section
+      id="pagos-compensacion-resultado"
+      class="pagos-card"
+      aria-live="polite"
+      hidden
+    >
+      <h2>
+        Movimiento compensatorio registrado
+      </h2>
+
+      <div class="pagos-reference-grid">
+        <div class="pagos-reference-item">
+          <span>
+            Folio del movimiento
+          </span>
+
+          <strong id="pagos-compensacion-resultado-folio">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Pago original
+          </span>
+
+          <strong id="pagos-compensacion-resultado-pago">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Acumulado actualizado
+          </span>
+
+          <strong id="pagos-compensacion-resultado-acumulado">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-form-actions">
+        <a
+          id="btn-pagos-compensacion-ver-cuenta"
+          href="#/pagos/consulta"
+          class="button"
+        >
+          Ver cuenta
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- =====================================
+       CONFIRMACIÓN
+       ===================================== -->
+
+  <dialog id="pagos-compensacion-dialog">
+    <div class="pagos-confirmacion">
+      <h2>
+        Confirmar compensación
+      </h2>
+
+      <div class="pagos-reference-grid">
+        <div class="pagos-reference-item">
+          <span>
+            Pago original
+          </span>
+
+          <strong id="pagos-compensacion-confirmacion-pago">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Monto compensado
+          </span>
+
+          <strong id="pagos-compensacion-confirmacion-monto">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Motivo
+          </span>
+
+          <strong id="pagos-compensacion-confirmacion-motivo">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Acumulado resultante
+          </span>
+
+          <strong id="pagos-compensacion-confirmacion-acumulado">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-confirmacion-warning">
+        El pago original permanecerá sin modificaciones.
+      </div>
+
+      <div class="pagos-form-actions">
+        <button
+          id="btn-pagos-compensacion-confirmacion-cancelar"
+          type="button"
+          class="button button-secondary"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="btn-pagos-compensacion-confirmacion-confirmar"
+          type="button"
+        >
+          Confirmar compensación
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/pagos/compensacion.js';
+
+  init();
+</script>
