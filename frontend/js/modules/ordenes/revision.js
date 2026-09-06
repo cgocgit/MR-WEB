@@ -373,7 +373,7 @@ function registrarEventos() {
           false;
 
         boton.textContent =
-          'Confirmar revisión y enviar a programación';
+          'Reintentar';
       }
     }
   );

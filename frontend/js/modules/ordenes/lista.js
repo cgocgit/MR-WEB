@@ -119,6 +119,12 @@ function guardarContexto() {
       pagina:
         paginaActual,
 
+      ordenamiento:
+        el(
+          'ordenesOrdenamiento'
+        )?.value ||
+        'EVENTO_ASC',
+
       scrollY:
         window.scrollY,
 
@@ -186,6 +192,17 @@ function restaurarContexto() {
         contexto.pagina
       ) || 1;
 
+    const ordenamiento =
+      el(
+        'ordenesOrdenamiento'
+      );
+
+    if (ordenamiento) {
+      ordenamiento.value =
+        contexto.ordenamiento ||
+        'EVENTO_ASC';
+    }
+
     restaurarScroll =
       Number(
         contexto.scrollY
@@ -195,6 +212,78 @@ function restaurarContexto() {
       CONTEXTO_KEY
     );
   }
+}
+
+function hayFiltrosActivos() {
+  const filtros =
+    filtrosActuales();
+
+  return Object.values(
+    filtros
+  ).some(
+    valor =>
+      String(
+        valor ?? ''
+      ).trim() !== ''
+  );
+}
+
+function ordenarResultados() {
+  const criterio =
+    el(
+      'ordenesOrdenamiento'
+    )?.value ||
+    'EVENTO_ASC';
+
+  const fechaEvento =
+    orden =>
+      String(
+        orden.fechaHoraEvento ||
+        orden.fechaEntrega ||
+        ''
+      );
+
+  const actualizacion =
+    orden =>
+      String(
+        orden.fechaUltimaActualizacion ||
+        ''
+      );
+
+  resultados.sort(
+    (a, b) => {
+      switch (criterio) {
+        case 'EVENTO_DESC':
+          return fechaEvento(b)
+            .localeCompare(
+              fechaEvento(a)
+            );
+
+        case 'ACTUALIZACION_DESC':
+          return actualizacion(b)
+            .localeCompare(
+              actualizacion(a)
+            );
+
+        case 'FOLIO_ASC':
+          return String(
+            a.folio || ''
+          ).localeCompare(
+            String(
+              b.folio || ''
+            ),
+            'es-MX'
+          );
+
+        case 'EVENTO_ASC':
+        default:
+          return fechaEvento(a)
+            .localeCompare(
+              fechaEvento(b)
+            );
+      }
+    }
+  );
 }
 
 function llenarSelects() {
@@ -463,21 +552,30 @@ function filaHtml(
       </td>
 
       <td>
-        ${escaparHtml(
-          formatearFechaHora(
-            orden.fechaHoraEvento ||
-            orden.fechaEntrega
-          )
-        )}
-      </td>
+      ${escaparHtml(
+        formatearFechaHora(
+          orden.fechaHoraEvento ||
+          orden.fechaEntrega
+        )
+      )}
+    </td>
 
-      <td>
-        ${escaparHtml(
-          obtenerEtiquetaTipoCompromiso(
-            orden.tipoCompromiso
-          )
-        )}
-      </td>
+    <td>
+      ${escaparHtml(
+        valorDisponible(
+          orden.domicilioEvento ||
+          orden.direccionEntrega
+        )
+      )}
+    </td>
+
+    <td>
+      ${escaparHtml(
+        obtenerEtiquetaTipoCompromiso(
+          orden.tipoCompromiso
+        )
+      )}
+    </td>
 
       <td>
         ${escaparHtml(
@@ -714,10 +812,36 @@ function renderResultados() {
       .map(tarjetaHtml)
       .join('');
 
-  el(
-    'ordenesEmpty'
-  ).hidden =
+  const empty =
+    el(
+      'ordenesEmpty'
+    );
+
+  empty.hidden =
     total > 0;
+
+  if (total === 0) {
+    empty.innerHTML =
+      hayFiltrosActivos()
+        ? `
+          <strong>
+            Sin resultados para los filtros aplicados.
+          </strong>
+
+          <p>
+            Ajusta o limpia los filtros para consultar otros registros.
+          </p>
+        `
+        : `
+          <strong>
+            Sin Órdenes registradas.
+          </strong>
+
+          <p>
+            No existen Órdenes de servicio disponibles para consulta.
+          </p>
+        `;
+  }
 
   renderPaginacion();
 }
@@ -742,6 +866,8 @@ async function cargar({
             esModoAsignadas()
         }
       );
+
+    ordenarResultados();
 
     renderResultados();
     mostrarContenido();
@@ -870,6 +996,19 @@ function registrarEventos() {
     }
   );
 
+  el(
+    'ordenesOrdenamiento'
+  )?.addEventListener(
+    'change',
+    () => {
+      paginaActual = 1;
+
+      ordenarResultados();
+
+      renderResultados();
+    }
+  );
+  
   document.addEventListener(
     'click',
     event => {

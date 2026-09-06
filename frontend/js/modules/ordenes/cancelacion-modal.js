@@ -352,7 +352,7 @@ export function abrirModalCancelacion({
           false;
 
         confirmar.textContent =
-          'Cancelar Orden';
+          'Reintentar';
       }
     }
   );

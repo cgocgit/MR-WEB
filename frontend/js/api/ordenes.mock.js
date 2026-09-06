@@ -1,4 +1,5 @@
 import {
+  ACCIONES_TRAZABILIDAD_ORDEN,
   ESTADOS_ORDEN
 } from './ordenes.constants.js';
 
@@ -63,7 +64,26 @@ const ORDENES_INICIALES = [
 
     revisionVentas: null,
     cancelacion: null,
-    trazabilidad: [],
+
+    trazabilidad: [
+      {
+        fechaHora: null,
+        usuario: null,
+
+        accion:
+          ACCIONES_TRAZABILIDAD_ORDEN
+            .GENERACION,
+
+        estadoAnterior: null,
+
+        estadoNuevo:
+          ESTADOS_ORDEN
+            .EN_REVISION_VENTAS,
+
+        comentario:
+          'Orden generada desde la cotización confirmada.'
+      }
+    ],
 
     /*
      * Compatibilidad con las funciones existentes consumidas
@@ -118,7 +138,26 @@ const ORDENES_INICIALES = [
 
     revisionVentas: null,
     cancelacion: null,
-    trazabilidad: [],
+
+    trazabilidad: [
+      {
+        fechaHora: null,
+        usuario: null,
+
+        accion:
+          ACCIONES_TRAZABILIDAD_ORDEN
+            .GENERACION,
+
+        estadoAnterior: null,
+
+        estadoNuevo:
+          ESTADOS_ORDEN
+            .EN_REVISION_VENTAS,
+
+        comentario:
+          'Orden generada desde la cotización confirmada.'
+      }
+    ],
 
     /*
      * Compatibilidad con las funciones existentes consumidas

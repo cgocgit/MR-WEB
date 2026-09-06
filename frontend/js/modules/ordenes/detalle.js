@@ -77,9 +77,12 @@ function volverListado() {
 function mostrarError(
   mensaje
 ) {
-  el(
-    'ordenDetalleEstado'
-  ).innerHTML = `
+  const estado =
+    el(
+      'ordenDetalleEstado'
+    );
+
+  estado.innerHTML = `
     <strong>
       No fue posible consultar la Orden.
     </strong>
@@ -87,16 +90,36 @@ function mostrarError(
     <p>
       ${escaparHtml(mensaje)}
     </p>
+
+    <button
+      type="button"
+      class="
+        ordenes-btn
+        ordenes-btn--secondary
+      "
+      data-reintentar-detalle
+    >
+      Reintentar
+    </button>
   `;
 
-  el(
-    'ordenDetalleEstado'
-  ).className =
+  estado.className =
     'ordenes-state ordenes-state--error';
+
+  estado.hidden = false;
 
   el(
     'ordenDetalleContenido'
   ).hidden = true;
+
+  estado
+    .querySelector(
+      '[data-reintentar-detalle]'
+    )
+    ?.addEventListener(
+      'click',
+      cargarDetalle
+    );
 }
 
 function mostrarContenido() {
@@ -221,13 +244,47 @@ function renderResumen(
 function renderCotizacion(
   orden
 ) {
+  const contenedor =
+    el(
+      'ordenCotizacionOrigen'
+    );
+
+  const seccion =
+    contenedor?.closest(
+      '.ordenes-card'
+    );
+
+  const puedeConsultarOrigen =
+    permiso(
+      PERMISOS_ORDENES
+        .ORIGEN_COTIZACION_CONSULTAR
+    );
+
+  if (seccion) {
+    seccion.hidden =
+      !puedeConsultarOrigen;
+  }
+
+  const boton =
+    el(
+      'btnConsultarCotizacion'
+    );
+
+  if (
+    !puedeConsultarOrigen
+  ) {
+    if (boton) {
+      boton.hidden = true;
+    }
+
+    return;
+  }
+
   const origen =
     orden.cotizacionOrigen ||
     {};
 
-  el(
-    'ordenCotizacionOrigen'
-  ).innerHTML = `
+  contenedor.innerHTML = `
     <div class="ordenes-summary-item">
       <span>Cotización</span>
       <strong>
@@ -272,11 +329,6 @@ function renderCotizacion(
       </strong>
     </div>
   `;
-
-  const boton =
-    el(
-      'btnConsultarCotizacion'
-    );
 
   boton.hidden =
     !permiso(
@@ -413,6 +465,31 @@ function renderInventario(
     return;
   }
 
+  const items =
+    inventario.items || [];
+
+  const salidas = [
+    ...new Set(
+      items
+        .map(
+          item =>
+            item.referenciaSalida
+        )
+        .filter(Boolean)
+    )
+  ];
+
+  const retornos = [
+    ...new Set(
+      items
+        .map(
+          item =>
+            item.referenciaRetorno
+        )
+        .filter(Boolean)
+    )
+  ];
+
   el(
     'ordenInventarioRelacionado'
   ).innerHTML = `
@@ -463,6 +540,28 @@ function renderInventario(
         )}
       </strong>
     </div>
+
+    <div class="ordenes-summary-item">
+      <span>Salidas</span>
+      <strong>
+        ${escaparHtml(
+          salidas.length
+            ? salidas.join(', ')
+            : 'Sin salida registrada'
+        )}
+      </strong>
+    </div>
+
+    <div class="ordenes-summary-item">
+      <span>Retornos</span>
+      <strong>
+        ${escaparHtml(
+          retornos.length
+            ? retornos.join(', ')
+            : 'Sin retorno registrado'
+        )}
+      </strong>
+    </div>
   `;
 
   el(
@@ -500,6 +599,15 @@ function renderLogistica(
     return;
   }
 
+  const horario =
+    logistica.fechaInicio
+      ? `${formatearFechaHora(
+          logistica.fechaInicio
+        )} — ${formatearFechaHora(
+          logistica.fechaFin
+        )}`
+      : '—';
+
   el(
     'ordenLogisticaRelacionada'
   ).innerHTML = `
@@ -520,12 +628,10 @@ function renderLogistica(
     </div>
 
     <div class="ordenes-summary-item">
-      <span>Programación</span>
+      <span>Programación / horario</span>
       <strong>
         ${escaparHtml(
-          formatearFechaHora(
-            logistica.fechaInicio
-          )
+          horario
         )}
       </strong>
     </div>
@@ -547,6 +653,30 @@ function renderLogistica(
         ${escaparHtml(
           valorDisponible(
             logistica.vehiculo
+          )
+        )}
+      </strong>
+    </div>
+
+    <div class="ordenes-summary-item">
+      <span>Ruta</span>
+      <strong>
+        ${escaparHtml(
+          valorDisponible(
+            logistica.ruta
+          )
+        )}
+      </strong>
+    </div>
+
+    <div class="ordenes-summary-item">
+      <span>Referencia logística</span>
+      <strong>
+        ${escaparHtml(
+          valorDisponible(
+            logistica
+              .idActividadLogistica ||
+            logistica.id
           )
         )}
       </strong>
@@ -780,7 +910,7 @@ function renderOrden(
   mostrarContenido();
 }
 
-export async function init() {
+async function cargarDetalle() {
   const id =
     obtenerIdOrdenHash();
 
@@ -792,7 +922,30 @@ export async function init() {
     return;
   }
 
-  registrarEventos();
+  el(
+    'ordenDetalleEstado'
+  ).className =
+    'ordenes-state ordenes-state--loading';
+
+  el(
+    'ordenDetalleEstado'
+  ).innerHTML = `
+    <strong>
+      Cargando detalle...
+    </strong>
+
+    <p>
+      Consultando información relacionada.
+    </p>
+  `;
+
+  el(
+    'ordenDetalleEstado'
+  ).hidden = false;
+
+  el(
+    'ordenDetalleContenido'
+  ).hidden = true;
 
   try {
     ordenActual =
@@ -807,4 +960,10 @@ export async function init() {
       'Ocurrió un error inesperado.'
     );
   }
+}
+
+export async function init() {
+  registrarEventos();
+
+  await cargarDetalle();
 }
