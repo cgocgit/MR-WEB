@@ -167,8 +167,8 @@ function renderOrden(
       <strong>
         ${escaparHtml(
           valorDisponible(
-            orden.domicilioEvento ||
-            orden.direccionEntrega
+            orden.domicilioEvento,
+            'No informado'
           )
         )}
       </strong>
@@ -195,44 +195,131 @@ function renderOrden(
     orden.detalleComprometido ||
     {};
 
-  const items = [
-    ...(detalle.productos || []).map(
-      item => ({
+  const items = [];
+
+  (
+    detalle.productos || []
+  ).forEach(
+    item => {
+      items.push({
         tipo:
           'Producto rentado',
-        ...item
-      })
-    ),
 
-    ...(detalle.servicios || []).map(
-      item => ({
+        nombre:
+          item.nombre,
+
+        cantidad:
+          item.cantidad,
+
+        origen:
+          'Concepto directo'
+      });
+    }
+  );
+
+  (
+    detalle.servicios || []
+  ).forEach(
+    item => {
+      items.push({
         tipo:
           'Servicio',
-        ...item
-      })
-    ),
 
-    ...(detalle.paquetes || []).map(
-      item => ({
+        nombre:
+          item.nombre,
+
+        cantidad:
+          item.cantidad,
+
+        origen:
+          'Concepto directo'
+      });
+    }
+  );
+
+  (
+    detalle.paquetes || []
+  ).forEach(
+    paquete => {
+      items.push({
         tipo:
           'Paquete',
-        ...item
-      })
-    )
-  ];
+
+        nombre:
+          paquete.nombre,
+
+        cantidad:
+          paquete.cantidad,
+
+        origen:
+          'Cotización confirmada'
+      });
+
+      (
+        paquete
+          .composicion
+          ?.productos ||
+        []
+      ).forEach(
+        item => {
+          items.push({
+            tipo:
+              'Producto incluido',
+
+            nombre:
+              item.nombre,
+
+            cantidad:
+              item.cantidad,
+
+            origen:
+              paquete.nombre
+          });
+        }
+      );
+
+      (
+        paquete
+          .composicion
+          ?.servicios ||
+        []
+      ).forEach(
+        item => {
+          items.push({
+            tipo:
+              'Servicio incluido',
+
+            nombre:
+              item.nombre,
+
+            cantidad:
+              item.cantidad,
+
+            origen:
+              paquete.nombre
+          });
+        }
+      );
+    }
+  );
 
   el(
     'revisionDetalleComprometido'
   ).innerHTML =
     items.length
       ? `
-        <div class="ordenes-table-wrapper">
-          <table class="ordenes-table">
+        <div
+          class="ordenes-table-wrapper"
+        >
+          <table
+            class="ordenes-table"
+          >
             <thead>
               <tr>
                 <th>Tipo</th>
                 <th>Concepto</th>
                 <th>Cantidad</th>
+                <th>Origen</th>
               </tr>
             </thead>
 
@@ -246,18 +333,27 @@ function renderOrden(
                           item.tipo
                         )}
                       </td>
+
                       <td>
                         ${escaparHtml(
                           valorDisponible(
-                            item.nombre ||
-                            item.descripcion
+                            item.nombre
                           )
                         )}
                       </td>
+
                       <td>
                         ${escaparHtml(
                           valorDisponible(
                             item.cantidad
+                          )
+                        )}
+                      </td>
+
+                      <td>
+                        ${escaparHtml(
+                          valorDisponible(
+                            item.origen
                           )
                         )}
                       </td>
@@ -270,7 +366,9 @@ function renderOrden(
         </div>
       `
       : `
-        <div class="ordenes-empty">
+        <div
+          class="ordenes-empty"
+        >
           <strong>
             Sin detalle comprometido disponible.
           </strong>

@@ -194,8 +194,8 @@ function renderResumen(
       <strong>
         ${escaparHtml(
           valorDisponible(
-            orden.domicilioEvento ||
-            orden.direccionEntrega
+            orden.domicilioEvento,
+            'No informado'
           )
         )}
       </strong>
@@ -349,93 +349,291 @@ function renderDetalleComprometido(
     orden.detalleComprometido ||
     {};
 
-  const grupos = [
-    [
-      'Productos rentados',
-      detalle.productos || []
-    ],
-    [
-      'Servicios',
-      detalle.servicios || []
-    ],
-    [
-      'Paquetes',
-      detalle.paquetes || []
-    ]
-  ];
+  const productos =
+    detalle.productos || [];
 
-  const contenido =
-    grupos
-      .filter(
-        ([, items]) =>
-          items.length > 0
-      )
-      .map(
-        ([titulo, items]) => `
-          <section
-            class="ordenes-detail-group"
+  const servicios =
+    detalle.servicios || [];
+
+  const paquetes =
+    detalle.paquetes || [];
+
+  const secciones = [];
+
+  if (productos.length) {
+    secciones.push(`
+      <section
+        class="ordenes-detail-group"
+      >
+        <h3>
+          Productos rentados
+        </h3>
+
+        <div
+          class="ordenes-table-wrapper"
+        >
+          <table
+            class="ordenes-table"
           >
-            <h3>
-              ${escaparHtml(titulo)}
-            </h3>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${productos
+                .map(
+                  item => `
+                    <tr>
+                      <td>
+                        ${escaparHtml(
+                          valorDisponible(
+                            item.nombre
+                          )
+                        )}
+                      </td>
+
+                      <td>
+                        ${escaparHtml(
+                          valorDisponible(
+                            item.cantidad
+                          )
+                        )}
+                      </td>
+                    </tr>
+                  `
+                )
+                .join('')}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `);
+  }
+
+  if (servicios.length) {
+    secciones.push(`
+      <section
+        class="ordenes-detail-group"
+      >
+        <h3>
+          Servicios
+        </h3>
+
+        <div
+          class="ordenes-table-wrapper"
+        >
+          <table
+            class="ordenes-table"
+          >
+            <thead>
+              <tr>
+                <th>Servicio</th>
+                <th>Cantidad</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${servicios
+                .map(
+                  item => `
+                    <tr>
+                      <td>
+                        ${escaparHtml(
+                          valorDisponible(
+                            item.nombre
+                          )
+                        )}
+                      </td>
+
+                      <td>
+                        ${escaparHtml(
+                          valorDisponible(
+                            item.cantidad
+                          )
+                        )}
+                      </td>
+                    </tr>
+                  `
+                )
+                .join('')}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `);
+  }
+
+  paquetes.forEach(
+    paquete => {
+      const composicion =
+        paquete.composicion ||
+        {};
+
+      const productosPaquete =
+        composicion.productos ||
+        [];
+
+      const serviciosPaquete =
+        composicion.servicios ||
+        [];
+
+      secciones.push(`
+        <section
+          class="ordenes-detail-group"
+        >
+          <h3>
+            Paquete
+          </h3>
+
+          <div
+            class="ordenes-summary-grid"
+          >
+            <div
+              class="ordenes-summary-item"
+            >
+              <span>
+                Paquete comprometido
+              </span>
+
+              <strong>
+                ${escaparHtml(
+                  valorDisponible(
+                    paquete.nombre
+                  )
+                )}
+              </strong>
+            </div>
 
             <div
-              class="ordenes-table-wrapper"
+              class="ordenes-summary-item"
             >
-              <table
-                class="ordenes-table"
-              >
-                <thead>
-                  <tr>
-                    <th>Concepto</th>
-                    <th>Cantidad</th>
-                  </tr>
-                </thead>
+              <span>
+                Cantidad
+              </span>
 
-                <tbody>
-                  ${items
-                    .map(
-                      item => `
-                        <tr>
-                          <td>
-                            ${escaparHtml(
-                              valorDisponible(
-                                item.nombre ||
-                                item.descripcion
-                              )
-                            )}
-                          </td>
-
-                          <td>
-                            ${escaparHtml(
-                              valorDisponible(
-                                item.cantidad
-                              )
-                            )}
-                          </td>
-                        </tr>
-                      `
-                    )
-                    .join('')}
-                </tbody>
-              </table>
+              <strong>
+                ${escaparHtml(
+                  valorDisponible(
+                    paquete.cantidad
+                  )
+                )}
+              </strong>
             </div>
-          </section>
-        `
-      )
-      .join('');
+          </div>
+
+          ${
+            productosPaquete.length
+              ? `
+                <h4>
+                  Productos incluidos
+                </h4>
+
+                <div
+                  class="ordenes-table-wrapper"
+                >
+                  <table
+                    class="ordenes-table"
+                  >
+                    <thead>
+                      <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      ${productosPaquete
+                        .map(
+                          item => `
+                            <tr>
+                              <td>
+                                ${escaparHtml(
+                                  item.nombre
+                                )}
+                              </td>
+
+                              <td>
+                                ${escaparHtml(
+                                  item.cantidad
+                                )}
+                              </td>
+                            </tr>
+                          `
+                        )
+                        .join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `
+              : ''
+          }
+
+          ${
+            serviciosPaquete.length
+              ? `
+                <h4>
+                  Servicios incluidos
+                </h4>
+
+                <div
+                  class="ordenes-table-wrapper"
+                >
+                  <table
+                    class="ordenes-table"
+                  >
+                    <thead>
+                      <tr>
+                        <th>Servicio</th>
+                        <th>Cantidad</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      ${serviciosPaquete
+                        .map(
+                          item => `
+                            <tr>
+                              <td>
+                                ${escaparHtml(
+                                  item.nombre
+                                )}
+                              </td>
+
+                              <td>
+                                ${escaparHtml(
+                                  item.cantidad
+                                )}
+                              </td>
+                            </tr>
+                          `
+                        )
+                        .join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `
+              : ''
+          }
+        </section>
+      `);
+    }
+  );
 
   el(
     'ordenDetalleComprometido'
   ).innerHTML =
-    contenido ||
-    `
-      <div class="ordenes-empty">
-        <strong>
-          Sin detalle disponible.
-        </strong>
-      </div>
-    `;
+    secciones.length
+      ? secciones.join('')
+      : `
+        <div class="ordenes-empty">
+          <strong>
+            Sin detalle comprometido disponible.
+          </strong>
+        </div>
+      `;
 }
 
 function renderInventario(

@@ -552,19 +552,30 @@ function filaHtml(
       </td>
 
       <td>
-      ${escaparHtml(
-        formatearFechaHora(
-          orden.fechaHoraEvento ||
-          orden.fechaEntrega
-        )
-      )}
-    </td>
+        <strong>
+          ${escaparHtml(
+            valorDisponible(
+              orden.evento,
+              'Evento no informado'
+            )
+          )}
+        </strong>
+
+        <small>
+          ${escaparHtml(
+            formatearFechaHora(
+              orden.fechaHoraEvento ||
+              orden.fechaEntrega
+            )
+          )}
+        </small>
+      </td>
 
     <td>
       ${escaparHtml(
         valorDisponible(
-          orden.domicilioEvento ||
-          orden.direccionEntrega
+          orden.domicilioEvento,
+          'No informado'
         )
       )}
     </td>

@@ -495,7 +495,11 @@ export async function listOrdenes(
   }
 
   let base =
-    state.ordenes;
+    state.ordenes.filter(
+      orden =>
+        orden.visibleEnModuloOrdenes !==
+        false
+    );
 
   if (
     opciones.soloAsignadas ||
@@ -538,6 +542,16 @@ export async function getOrden(
 ) {
   const orden =
     obtenerOrdenInterna(id);
+
+  if (
+    orden.visibleEnModuloOrdenes ===
+    false
+  ) {
+    throw error(
+      'ORDEN_NO_ENCONTRADA',
+      'No se encontró la Orden de servicio.'
+    );
+  }
 
   if (
     !puedeConsultarDetalle(
