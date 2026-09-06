@@ -1,5 +1,6 @@
 import {
-  consultarAlertasPagos
+  consultarAlertasPagos,
+  obtenerPagoPorId
 } from '../../api/pagos.service.js';
 
 import {
@@ -11,7 +12,10 @@ import {
 } from '../../shared/permissions.js';
 
 import {
-  formatDateTime
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  formatMetodoPago
 } from './pagos.formatters.js';
 
 const ROOT_ID =
@@ -23,6 +27,8 @@ const PERMISO =
 const LIMITE = 10;
 
 let estado = {
+  idAlerta: null,
+
   folioAlerta: '',
   folioPago: '',
   folioCotizacion: '',
@@ -30,7 +36,6 @@ let estado = {
 
   fechaInicial: '',
   fechaFinal: '',
-
   operacionFallida: '',
 
   skip: 0,
@@ -39,6 +44,12 @@ let estado = {
 };
 
 let secuenciaConsulta = 0;
+
+let returnTo =
+  '#/pagos/consulta';
+
+let alertaInicialMostrada =
+  false;
 
 function elemento(id) {
   return document.getElementById(id);
@@ -80,6 +91,89 @@ function valor(id) {
     ?.trim() || '';
 }
 
+function parametrosHash() {
+  const partes =
+    window.location.hash
+      .split('?');
+
+  return new URLSearchParams(
+    partes[1] || ''
+  );
+}
+
+function cargarContextoNavegacion() {
+  const parametros =
+    parametrosHash();
+
+  const regreso =
+    parametros.get(
+      'returnTo'
+    );
+
+  if (
+    regreso &&
+    regreso.startsWith(
+      '#/pagos/consulta'
+    )
+  ) {
+    returnTo =
+      regreso;
+  }
+
+  const idAlerta =
+    Number(
+      parametros.get(
+        'idAlerta'
+      )
+    );
+
+  if (
+    Number.isInteger(
+      idAlerta
+    ) &&
+    idAlerta > 0
+  ) {
+    estado.idAlerta =
+      idAlerta;
+  }
+
+  const volver =
+    elemento(
+      'btn-pagos-alertas-volver'
+    );
+
+  if (volver) {
+    volver.href =
+      returnTo;
+  }
+}
+
+function sincronizarRutaAlertas() {
+  const parametros =
+    new URLSearchParams();
+
+  parametros.set(
+    'returnTo',
+    returnTo
+  );
+
+  if (estado.idAlerta) {
+    parametros.set(
+      'idAlerta',
+      String(
+        estado.idAlerta
+      )
+    );
+  }
+
+  history.replaceState(
+    null,
+    '',
+    '#/pagos/alertas?' +
+      parametros.toString()
+  );
+}
+
 function leerFiltros() {
   estado.folioAlerta =
     valor(
@@ -116,7 +210,15 @@ function leerFiltros() {
       'pagos-alertas-operacion'
     );
 
+  estado.idAlerta =
+    null;
+
+  alertaInicialMostrada =
+    true;
+
   estado.skip = 0;
+
+  sincronizarRutaAlertas();
 }
 
 function limpiarFiltros() {
@@ -140,6 +242,8 @@ function limpiarFiltros() {
   estado = {
     ...estado,
 
+    idAlerta: null,
+
     folioAlerta: '',
     folioPago: '',
     folioCotizacion: '',
@@ -147,17 +251,24 @@ function limpiarFiltros() {
 
     fechaInicial: '',
     fechaFinal: '',
-
     operacionFallida: '',
 
     skip: 0
   };
+
+  alertaInicialMostrada =
+    true;
+
+  sincronizarRutaAlertas();
 
   consultar();
 }
 
 function filtrosServicio() {
   return {
+    idAlerta:
+      estado.idAlerta,
+
     folioAlerta:
       estado.folioAlerta,
 
@@ -185,6 +296,18 @@ function filtrosServicio() {
     limit:
       estado.limit
   };
+}
+
+function hayFiltrosActivos() {
+  return Boolean(
+    estado.folioAlerta ||
+    estado.folioPago ||
+    estado.folioCotizacion ||
+    estado.cliente ||
+    estado.fechaInicial ||
+    estado.fechaFinal ||
+    estado.operacionFallida
+  );
 }
 
 function crearCelda(valor) {
@@ -217,6 +340,11 @@ function construirRutaCuenta(
     String(
       alerta.idVersion
     )
+  );
+
+  parametros.set(
+    'returnTo',
+    returnTo
   );
 
   return (
@@ -776,7 +904,7 @@ function renderizarAlertas(
     );
   }
 
-function mostrarPago(
+async function mostrarPago(
   alerta
 ) {
   texto(
@@ -851,6 +979,21 @@ function mostrarPago(
       );
   }
 
+  ocultar(
+    'pagos-alertas-pago-cargando',
+    false
+  );
+
+  ocultar(
+    'pagos-alertas-pago-error',
+    true
+  );
+
+  ocultar(
+    'pagos-alertas-pago-contenido',
+    true
+  );
+
   const dialogo =
     elemento(
       'pagos-alertas-dialog'
@@ -859,9 +1002,96 @@ function mostrarPago(
   if (
     dialogo &&
     typeof dialogo.showModal ===
-      'function'
+      'function' &&
+    !dialogo.open
   ) {
     dialogo.showModal();
+  }
+
+  try {
+    const pago =
+      await obtenerPagoPorId(
+        alerta.idPago
+      );
+
+    texto(
+      'pagos-alertas-pago-folio',
+      pago.folioMovimiento
+    );
+
+    texto(
+      'pagos-alertas-pago-fecha',
+      formatDate(
+        pago.fechaPago
+      )
+    );
+
+    texto(
+      'pagos-alertas-pago-registro',
+      formatDateTime(
+        pago.fechaHoraRegistro
+      )
+    );
+
+    texto(
+      'pagos-alertas-pago-monto',
+      formatCurrency(
+        pago.monto
+      )
+    );
+
+    texto(
+      'pagos-alertas-pago-metodo',
+      formatMetodoPago(
+        pago.metodoPago
+      )
+    );
+
+    texto(
+      'pagos-alertas-pago-referencia',
+      pago.referencia ||
+        pago.observaciones ||
+        '—'
+    );
+
+    texto(
+      'pagos-alertas-pago-usuario',
+      pago.usuarioResponsable ||
+        '—'
+    );
+
+    texto(
+      'pagos-alertas-pago-comprobante',
+      pago.comprobante
+        ?.disponibleDuranteSesion
+        ? (
+            pago.comprobante
+              .nombreArchivo ||
+            'Disponible'
+          )
+        : 'Este movimiento no cuenta con comprobante disponible.'
+    );
+
+    ocultar(
+      'pagos-alertas-pago-contenido',
+      false
+    );
+  } catch (error) {
+    texto(
+      'pagos-alertas-pago-error',
+      error?.message ||
+        'No fue posible consultar el pago.'
+    );
+
+    ocultar(
+      'pagos-alertas-pago-error',
+      false
+    );
+  } finally {
+    ocultar(
+      'pagos-alertas-pago-cargando',
+      true
+    );
   }
 }
 
@@ -952,14 +1182,35 @@ async function consultar() {
     if (
       items.length === 0
     ) {
+      const mensaje =
+        estado.idAlerta
+          ? 'No se encontró la alerta solicitada.'
+          : (
+              hayFiltrosActivos()
+                ? 'No se encontraron alertas para los filtros seleccionados.'
+                : 'No hay alertas de integración registradas.'
+            );
+
       texto(
         'pagos-alertas-vacio',
-        'No se encontraron alertas para los filtros seleccionados.'
+        mensaje
       );
     } else {
       renderizarAlertas(
         items
       );
+
+      if (
+        estado.idAlerta &&
+        !alertaInicialMostrada
+      ) {
+        alertaInicialMostrada =
+          true;
+
+        mostrarPago(
+          items[0]
+        );
+      }
     }
 
     renderizarPaginacion();
@@ -1084,6 +1335,8 @@ export function init() {
 
     return;
   }
+
+  cargarContextoNavegacion();
 
   registrarEventos();
 

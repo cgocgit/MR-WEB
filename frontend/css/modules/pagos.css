@@ -803,3 +803,254 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   Pagos - complementos finales de especificación
+   ============================================ */
+
+/* Resultados de búsqueda de cotizaciones */
+
+.pagos-cotizacion-option-dato {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.pagos-cotizacion-option-dato small {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 400;
+}
+
+.pagos-cotizacion-option-dato strong {
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 721px) {
+  .pagos-cotizacion-option {
+    grid-template-columns:
+      repeat(
+        auto-fit,
+        minmax(145px, 1fr)
+      );
+  }
+}
+
+/* Filtros responsivos */
+
+.pagos-filtros-desplegables {
+  width: 100%;
+}
+
+.pagos-filtros-toggle {
+  display: none;
+}
+
+.pagos-filtros-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/*
+ * En escritorio y móvil los filtros permanecen
+ * visibles aunque details no tenga open.
+ */
+.pagos-filtros-desplegables:not([open])
+  > .pagos-filtros-panel {
+  display: flex;
+}
+
+/* ============================================
+   Tableta
+   ============================================ */
+
+@media
+  (min-width: 721px)
+  and
+  (max-width: 1000px) {
+
+  .pagos-filtros-toggle {
+    display: inline-flex;
+    width: fit-content;
+
+    margin-bottom: 12px;
+    padding: 9px 12px;
+
+    border: 1px solid #d7d7d7;
+    border-radius: var(--radius);
+
+    background: var(--panel);
+    color: var(--text);
+
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .pagos-filtros-desplegables:not([open])
+    > .pagos-filtros-panel {
+    display: none;
+  }
+
+  /*
+   * Consulta - Cuentas por cotización.
+   * Mantener visibles:
+   * folio, cliente, acumulado,
+   * saldos, situación y acción.
+   */
+
+  #pagos-panel-cuentas
+    .pagos-table
+    th:nth-child(2),
+  #pagos-panel-cuentas
+    .pagos-table
+    td:nth-child(2),
+
+  #pagos-panel-cuentas
+    .pagos-table
+    th:nth-child(4),
+  #pagos-panel-cuentas
+    .pagos-table
+    td:nth-child(4),
+
+  #pagos-panel-cuentas
+    .pagos-table
+    th:nth-child(5),
+  #pagos-panel-cuentas
+    .pagos-table
+    td:nth-child(5),
+
+  #pagos-panel-cuentas
+    .pagos-table
+    th:nth-child(9),
+  #pagos-panel-cuentas
+    .pagos-table
+    td:nth-child(9),
+
+  #pagos-panel-cuentas
+    .pagos-table
+    th:nth-child(11),
+  #pagos-panel-cuentas
+    .pagos-table
+    td:nth-child(11) {
+    display: none;
+  }
+
+  /*
+   * Consulta - Movimientos.
+   */
+
+  #pagos-panel-movimientos
+    .pagos-table
+    th:nth-child(3),
+  #pagos-panel-movimientos
+    .pagos-table
+    td:nth-child(3),
+
+  #pagos-panel-movimientos
+    .pagos-table
+    th:nth-child(6),
+  #pagos-panel-movimientos
+    .pagos-table
+    td:nth-child(6),
+
+  #pagos-panel-movimientos
+    .pagos-table
+    th:nth-child(8),
+  #pagos-panel-movimientos
+    .pagos-table
+    td:nth-child(8),
+
+  #pagos-panel-movimientos
+    .pagos-table
+    th:nth-child(10),
+  #pagos-panel-movimientos
+    .pagos-table
+    td:nth-child(10),
+
+  #pagos-panel-movimientos
+    .pagos-table
+    th:nth-child(11),
+  #pagos-panel-movimientos
+    .pagos-table
+    td:nth-child(11) {
+    display: none;
+  }
+
+  /*
+   * Alertas.
+   */
+
+  #pagos-alertas-resultados
+    .pagos-table
+    th:nth-child(5),
+  #pagos-alertas-resultados
+    .pagos-table
+    td:nth-child(5),
+
+  #pagos-alertas-resultados
+    .pagos-table
+    th:nth-child(7),
+  #pagos-alertas-resultados
+    .pagos-table
+    td:nth-child(7),
+
+  #pagos-alertas-resultados
+    .pagos-table
+    th:nth-child(8),
+  #pagos-alertas-resultados
+    .pagos-table
+    td:nth-child(8),
+
+  #pagos-alertas-resultados
+    .pagos-table
+    th:nth-child(9),
+  #pagos-alertas-resultados
+    .pagos-table
+    td:nth-child(9) {
+    display: none;
+  }
+
+  /*
+   * Detalle - Historial.
+   */
+
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    th:nth-child(3),
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    td:nth-child(3),
+
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    th:nth-child(6),
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    td:nth-child(6),
+
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    th:nth-child(7),
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    td:nth-child(7),
+
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    th:nth-child(8),
+  #pagos-detalle-root
+    .pagos-desktop-table
+    .pagos-table
+    td:nth-child(8) {
+    display: none;
+  }
+}

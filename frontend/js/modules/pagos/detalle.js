@@ -274,21 +274,50 @@ function renderizarResumen(
   if (barra) {
     barra.style.width =
       `${porcentajeVisual}%`;
+  }
 
-    barra.setAttribute(
+  const metaIndicador =
+    getIndicadorMeta(
+      cuenta
+        .indicadorPresentacion
+    );
+
+  const textoProgreso =
+    `${
+      formatPercentage(
+        cuenta
+          .porcentajeCubierto
+      )
+    } · ${
+      metaIndicador.texto
+    }`;
+
+  texto(
+    'pagos-detalle-progreso-texto',
+    textoProgreso
+  );
+
+  const track =
+    barra?.parentElement;
+
+  if (
+    track?.getAttribute(
+      'role'
+    ) ===
+    'progressbar'
+  ) {
+    track.setAttribute(
       'aria-valuenow',
       String(
         porcentajeVisual
       )
     );
-  }
 
-  texto(
-    'pagos-detalle-progreso-texto',
-    formatPercentage(
-      cuenta.porcentajeCubierto
-    )
-  );
+    track.setAttribute(
+      'aria-valuetext',
+      textoProgreso
+    );
+  }
 }
 
 function crearCelda(valor) {
@@ -835,7 +864,12 @@ function renderizarIntegracion(
             ? 'Procesado correctamente'
             : 'Con fallo de integración'
         )
-      : 'Sin proceso registrado'
+      : (
+          cuenta
+            .procesandoConfirmacion
+            ? 'Procesando confirmación'
+            : 'Sin proceso registrado'
+        )
   );
 
   texto(
@@ -903,8 +937,17 @@ function renderizarAcciones(
       cuenta
         .saldoLiquidacion === 0;
 
+    const parametros =
+      new URLSearchParams();
+
+    parametros.set(
+      'returnTo',
+      returnTo
+    );
+
     registrarOtro.href =
-      '#/pagos/nuevo';
+      '#/pagos/nuevo?' +
+      parametros.toString();
   }
 }
 

@@ -294,11 +294,30 @@ function validar() {
     ''
   );
 
+  elemento(
+    'pagos-compensacion-monto'
+  )?.removeAttribute(
+    'aria-invalid'
+  );
+
+  elemento(
+    'pagos-compensacion-motivo'
+  )?.removeAttribute(
+    'aria-invalid'
+  );
+
   let valido = true;
 
   if (
     montoCompensacion() <= 0
   ) {
+    elemento(
+      'pagos-compensacion-monto'
+    )?.setAttribute(
+      'aria-invalid',
+      'true'
+    );
+
     mostrarError(
       'pagos-compensacion-monto-error',
       'El monto compensado debe ser mayor que cero.'
@@ -312,6 +331,13 @@ function validar() {
       'pagos-compensacion-motivo'
     )
   ) {
+    elemento(
+      'pagos-compensacion-motivo'
+    )?.setAttribute(
+      'aria-invalid',
+      'true'
+    );
+
     mostrarError(
       'pagos-compensacion-motivo-error',
       'El motivo es obligatorio.'
