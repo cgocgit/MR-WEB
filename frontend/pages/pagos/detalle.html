@@ -390,7 +390,7 @@
         La cuenta no tiene movimientos registrados.
       </div>
 
-      <div class="pagos-table-wrap">
+      <div class="pagos-table-wrap pagos-desktop-table">
         <table class="pagos-table">
           <thead>
             <tr>
@@ -423,6 +423,10 @@
               </th>
 
               <th scope="col">
+                Motivo de compensación
+              </th>
+
+              <th scope="col">
                 Usuario
               </th>
 
@@ -440,6 +444,12 @@
           </tbody>
         </table>
       </div>
+
+      <div
+        id="pagos-detalle-movimientos-cards"
+        class="pagos-mobile-cards"
+        aria-label="Historial de movimientos"
+      ></div>
     </section>
   </div>
 

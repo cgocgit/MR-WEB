@@ -349,6 +349,70 @@ function crearBotonCompensar(
   return enlace;
 }
 
+function crearBotonComprobante(
+  movimiento
+) {
+  const boton =
+    document.createElement(
+      'button'
+    );
+
+  boton.type =
+    'button';
+
+  boton.textContent =
+    'Ver comprobante';
+
+  boton.className =
+    'pagos-table-action';
+
+  boton.addEventListener(
+    'click',
+    () =>
+      mostrarComprobante(
+        movimiento
+      )
+  );
+
+  return boton;
+}
+
+function crearCampoCard(
+  etiqueta,
+  valor
+) {
+  const campo =
+    document.createElement(
+      'div'
+    );
+
+  campo.className =
+    'pagos-mobile-card-field';
+
+  const label =
+    document.createElement(
+      'span'
+    );
+
+  label.textContent =
+    etiqueta;
+
+  const contenido =
+    document.createElement(
+      'strong'
+    );
+
+  contenido.textContent =
+    valor ?? '—';
+
+  campo.append(
+    label,
+    contenido
+  );
+
+  return campo;
+}
+
 function renderizarMovimientos(
   movimientos = []
 ) {
@@ -434,6 +498,12 @@ function renderizarMovimientos(
 
         crearCelda(
           movimiento
+            .motivoCompensacion ||
+            '—'
+        ),
+
+        crearCelda(
+          movimiento
             .usuarioResponsable
         )
       );
@@ -465,30 +535,10 @@ function renderizarMovimientos(
           .comprobante
           ?.disponibleDuranteSesion
       ) {
-        const boton =
-          document.createElement(
-            'button'
-          );
-
-        boton.type =
-          'button';
-
-        boton.textContent =
-          'Ver comprobante';
-
-        boton.className =
-          'pagos-table-action';
-
-        boton.addEventListener(
-          'click',
-          () =>
-            mostrarComprobante(
-              movimiento
-            )
-        );
-
         acciones.appendChild(
-          boton
+          crearBotonComprobante(
+            movimiento
+          )
         );
       }
 
@@ -513,6 +563,202 @@ function renderizarMovimientos(
 
       tbody.appendChild(
         fila
+      );
+    }
+  );
+}
+
+function renderizarMovimientosMovil(
+  movimientos = []
+) {
+  const contenedor =
+    elemento(
+      'pagos-detalle-movimientos-cards'
+    );
+
+  if (!contenedor) {
+    return;
+  }
+
+  contenedor.replaceChildren();
+
+  movimientos.forEach(
+    movimiento => {
+      const card =
+        document.createElement(
+          'article'
+        );
+
+      card.className =
+        'pagos-mobile-card';
+
+      if (
+        movimiento
+          .tipoMovimiento ===
+        'COMPENSACION'
+      ) {
+        card.classList.add(
+          'pagos-movimiento-compensatorio'
+        );
+      }
+
+      const header =
+        document.createElement(
+          'div'
+        );
+
+      header.className =
+        'pagos-mobile-card-header';
+
+      const folio =
+        document.createElement(
+          'strong'
+        );
+
+      folio.textContent =
+        movimiento
+          .folioMovimiento;
+
+      header.appendChild(
+        folio
+      );
+
+      const grid =
+        document.createElement(
+          'div'
+        );
+
+      grid.className =
+        'pagos-mobile-card-grid';
+
+      grid.append(
+        crearCampoCard(
+          'Tipo',
+          formatTipoMovimiento(
+            movimiento
+              .tipoMovimiento
+          )
+        ),
+
+        crearCampoCard(
+          'Fecha del pago',
+          formatDate(
+            movimiento
+              .fechaPago
+          )
+        ),
+
+        crearCampoCard(
+          'Fecha y hora de registro',
+          formatDateTime(
+            movimiento
+              .fechaHoraRegistro
+          )
+        ),
+
+        crearCampoCard(
+          'Importe',
+          formatCurrency(
+            movimiento.monto
+          )
+        ),
+
+        crearCampoCard(
+          'Método',
+          formatMetodoPago(
+            movimiento
+              .metodoPago
+          )
+        ),
+
+        crearCampoCard(
+          'Referencia / observaciones',
+          movimiento.referencia ||
+            movimiento.observaciones ||
+            '—'
+        ),
+
+        crearCampoCard(
+          'Usuario responsable',
+          movimiento
+            .usuarioResponsable
+        ),
+
+        crearCampoCard(
+          'Pago original',
+          movimiento
+            .folioPagoOriginal ||
+            '—'
+        )
+      );
+
+      if (
+        movimiento
+          .tipoMovimiento ===
+        'COMPENSACION'
+      ) {
+        grid.appendChild(
+          crearCampoCard(
+            'Motivo de compensación',
+            movimiento
+              .motivoCompensacion ||
+              '—'
+          )
+        );
+      }
+
+      card.append(
+        header,
+        grid
+      );
+
+      const acciones =
+        document.createElement(
+          'div'
+        );
+
+      acciones.className =
+        'pagos-table-actions';
+
+      if (
+        movimiento
+          .comprobante
+          ?.disponibleDuranteSesion
+      ) {
+        acciones.appendChild(
+          crearBotonComprobante(
+            movimiento
+          )
+        );
+      }
+
+      if (
+        movimiento
+          .tipoMovimiento ===
+          'PAGO' &&
+        puede(
+          PERMISOS.GESTIONAR
+        )
+      ) {
+        acciones.appendChild(
+          crearBotonCompensar(
+            movimiento
+          )
+        );
+      }
+
+      if (
+        acciones
+          .childElementCount >
+        0
+      ) {
+        card.appendChild(
+          acciones
+        );
+      }
+
+      contenedor.appendChild(
+        card
       );
     }
   );
