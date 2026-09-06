@@ -1,0 +1,540 @@
+<section
+  id="pagos-detalle-root"
+  class="container pagos-page"
+>
+  <header class="pagos-page-header">
+    <div>
+      <nav
+          class="pagos-breadcrumb"
+          aria-label="Navegación de Pagos"
+        >
+          <a href="#/dashboard">
+            Inicio
+          </a>
+
+          <span>/</span>
+
+          <a href="#/pagos">
+            Pagos
+          </a>
+
+          <span>/</span>
+
+          <a href="#/pagos/consulta">
+            Consulta de pagos
+          </a>
+
+          <span>/</span>
+
+          <span aria-current="page">
+            Detalle de cuenta
+          </span>
+        </nav>
+      <h1>Detalle de cuenta</h1>
+
+      <p class="pagos-page-description">
+        Consulta la cuenta acumulada, movimientos y trazabilidad de la cotización.
+      </p>
+    </div>
+
+    <div class="pagos-page-actions">
+      <a
+        id="btn-pagos-detalle-volver"
+        href="#/pagos/consulta"
+        class="button button-secondary"
+      >
+        Volver
+      </a>
+
+      <a
+        id="btn-pagos-detalle-registrar"
+        href="#/pagos/nuevo"
+        class="button"
+        hidden
+      >
+        Registrar otro pago
+      </a>
+    </div>
+  </header>
+
+  <div
+    id="pagos-detalle-acceso-denegado"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  >
+    No cuenta con permiso para acceder a esta función.
+  </div>
+
+  <div
+    id="pagos-detalle-cargando"
+    class="pagos-state pagos-state-loading"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Consultando detalle de cuenta...
+  </div>
+
+  <div
+    id="pagos-detalle-error"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  ></div>
+
+  <div
+    id="pagos-detalle-no-encontrado"
+    class="pagos-state pagos-state-empty"
+    hidden
+  >
+    No fue posible identificar la cuenta solicitada.
+  </div>
+
+  <div
+    id="pagos-detalle-contenido"
+    class="pagos-page"
+    hidden
+  >
+    <!-- =====================================
+         IDENTIFICACIÓN
+         ===================================== -->
+
+    <section class="pagos-card">
+      <div class="pagos-page-header">
+        <div>
+          <h2
+            id="pagos-detalle-folio"
+            class="pagos-section-title"
+          >
+            —
+          </h2>
+
+          <p class="pagos-section-description">
+            <span id="pagos-detalle-version">
+              —
+            </span>
+            ·
+            <span id="pagos-detalle-cliente">
+              —
+            </span>
+          </p>
+        </div>
+
+        <div id="pagos-detalle-indicador">
+        </div>
+      </div>
+
+      <div class="pagos-audit-grid">
+        <div class="pagos-audit-item">
+          <span>
+            Vendedor responsable
+          </span>
+
+          <strong id="pagos-detalle-vendedor">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-audit-item">
+          <span>
+            Último movimiento
+          </span>
+
+          <strong id="pagos-detalle-ultimo-movimiento">
+            —
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================
+         RESUMEN MONETARIO
+         ===================================== -->
+
+    <section
+      class="pagos-card"
+      aria-labelledby="pagos-detalle-resumen-titulo"
+    >
+      <h2
+        id="pagos-detalle-resumen-titulo"
+        class="pagos-section-title"
+      >
+        Resumen monetario
+      </h2>
+
+      <div class="pagos-resumen-monetario">
+        <div class="pagos-resumen-item">
+          <span>
+            Total de cotización
+          </span>
+
+          <strong id="pagos-detalle-total">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-resumen-item">
+          <span>
+            Porcentaje requerido
+          </span>
+
+          <strong id="pagos-detalle-porcentaje-requerido">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-resumen-item">
+          <span>
+            Importe requerido
+          </span>
+
+          <strong id="pagos-detalle-importe-requerido">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-resumen-item">
+          <span>
+            Acumulado bruto
+          </span>
+
+          <strong id="pagos-detalle-acumulado-bruto">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-resumen-item">
+          <span>
+            Total compensado
+          </span>
+
+          <strong id="pagos-detalle-total-compensado">
+            —
+          </strong>
+        </div>
+
+        <div
+          class="
+            pagos-resumen-item
+            pagos-resumen-destacado
+          "
+        >
+          <span>
+            Acumulado neto
+          </span>
+
+          <strong id="pagos-detalle-acumulado-neto">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-resumen-item">
+          <span>
+            Saldo para confirmar
+          </span>
+
+          <strong id="pagos-detalle-saldo-confirmacion">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-resumen-item">
+          <span>
+            Saldo para liquidar
+          </span>
+
+          <strong id="pagos-detalle-saldo-liquidacion">
+            —
+          </strong>
+        </div>
+
+        <div
+          class="
+            pagos-resumen-item
+            pagos-resumen-advertencia
+          "
+        >
+          <span>
+            Excedente
+          </span>
+
+          <strong id="pagos-detalle-excedente">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-resumen-item">
+          <span>
+            Porcentaje cubierto
+          </span>
+
+          <strong id="pagos-detalle-porcentaje-cubierto">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-progress">
+        <div class="pagos-progress-header">
+          <span>
+            Avance respecto del total
+          </span>
+
+          <strong id="pagos-detalle-progreso-texto">
+            0 %
+          </strong>
+        </div>
+
+        <div
+          class="pagos-progress-track"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div
+            id="pagos-detalle-progreso"
+            class="pagos-progress-value"
+            aria-valuenow="0"
+          ></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================
+         RESULTADO DE INTEGRACIÓN
+         ===================================== -->
+
+    <section
+      class="pagos-card"
+      aria-labelledby="pagos-detalle-integracion-titulo"
+    >
+      <h2
+        id="pagos-detalle-integracion-titulo"
+        class="pagos-section-title"
+      >
+        Resultado de integración
+      </h2>
+
+      <div class="pagos-reference-grid">
+        <div class="pagos-reference-item">
+          <span>
+            Importe requerido alcanzado
+          </span>
+
+          <strong id="pagos-detalle-umbral">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Estado del proceso
+          </span>
+
+          <strong id="pagos-detalle-integracion-estado">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Fecha y hora de procesamiento
+          </span>
+
+          <strong id="pagos-detalle-integracion-fecha">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Cotización confirmada
+          </span>
+
+          <strong id="pagos-detalle-ref-cotizacion">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Reserva de Inventario
+          </span>
+
+          <strong id="pagos-detalle-ref-reserva">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Orden de servicio
+          </span>
+
+          <strong id="pagos-detalle-ref-orden">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Alerta de integración
+          </span>
+
+          <strong id="pagos-detalle-ref-alerta">
+            —
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================
+         HISTORIAL Y AUDITORÍA
+         ===================================== -->
+
+    <section
+      class="pagos-card"
+      aria-labelledby="pagos-detalle-movimientos-titulo"
+    >
+      <h2
+        id="pagos-detalle-movimientos-titulo"
+        class="pagos-section-title"
+      >
+        Historial de movimientos
+      </h2>
+
+      <p class="pagos-section-description">
+        Pagos y movimientos compensatorios registrados en la cuenta.
+      </p>
+
+      <div
+        id="pagos-detalle-sin-movimientos"
+        class="pagos-state pagos-state-empty"
+        hidden
+      >
+        La cuenta no tiene movimientos registrados.
+      </div>
+
+      <div class="pagos-table-wrap pagos-desktop-table">
+        <table class="pagos-table">
+          <thead>
+            <tr>
+              <th scope="col">
+                Folio
+              </th>
+
+              <th scope="col">
+                Tipo
+              </th>
+
+              <th scope="col">
+                Fecha del pago
+              </th>
+
+              <th scope="col">
+                Registro
+              </th>
+
+              <th scope="col">
+                Importe
+              </th>
+
+              <th scope="col">
+                Método
+              </th>
+
+              <th scope="col">
+                Referencia / observaciones
+              </th>
+
+              <th scope="col">
+                Motivo de compensación
+              </th>
+
+              <th scope="col">
+                Usuario
+              </th>
+
+              <th scope="col">
+                Pago original
+              </th>
+
+              <th scope="col">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+
+          <tbody id="pagos-detalle-movimientos-tbody">
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        id="pagos-detalle-movimientos-cards"
+        class="pagos-mobile-cards"
+        aria-label="Historial de movimientos"
+      ></div>
+    </section>
+  </div>
+
+  <!-- COMPROBANTE -->
+
+  <dialog id="pagos-detalle-comprobante-dialog">
+    <div class="pagos-confirmacion">
+      <h2>
+        Comprobante
+      </h2>
+
+      <div class="pagos-audit-grid">
+        <div class="pagos-audit-item">
+          <span>
+            Archivo
+          </span>
+
+          <strong id="pagos-detalle-comprobante-mensaje">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-audit-item">
+          <span>
+            Tipo
+          </span>
+
+          <strong id="pagos-detalle-comprobante-tipo">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-audit-item">
+          <span>
+            Tamaño
+          </span>
+
+          <strong id="pagos-detalle-comprobante-tamano">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-form-actions">
+        <button
+          id="btn-pagos-detalle-comprobante-cerrar"
+          type="button"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/pagos/detalle.js';
+
+  init();
+</script>

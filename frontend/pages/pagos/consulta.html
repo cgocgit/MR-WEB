@@ -1,0 +1,594 @@
+<section
+  id="pagos-consulta-root"
+  class="container pagos-page"
+>
+  <header class="pagos-page-header">
+    <div>
+      <nav
+        class="pagos-breadcrumb"
+        aria-label="Navegación de Pagos"
+      >
+        <a href="#/dashboard">
+          Inicio
+        </a>
+
+        <span>/</span>
+
+        <a href="#/pagos">
+          Pagos
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Consulta de pagos
+        </span>
+      </nav>
+      <h1>Consulta de pagos</h1>
+
+      <p class="pagos-page-description">
+        Consulta cuentas por cotización y movimientos registrados.
+      </p>
+    </div>
+
+    <div class="pagos-page-actions">
+      <button
+        id="btn-pagos-consulta-actualizar"
+        type="button"
+        class="button button-secondary"
+      >
+        Actualizar
+      </button>
+
+      <a
+        id="btn-pagos-consulta-registrar"
+        href="#/pagos/nuevo"
+        class="button"
+        data-pagos-requiere-permiso="pagos.gestionar"
+      >
+        Registrar pago
+      </a>
+    </div>
+  </header>
+
+  <!-- =====================================
+       VISTAS
+       ===================================== -->
+
+  <nav
+    class="pagos-vistas"
+    aria-label="Vista de consulta"
+  >
+    <button
+      id="btn-pagos-vista-cuentas"
+      type="button"
+      class="pagos-vista-button"
+      aria-selected="true"
+    >
+      Cuentas por cotización
+    </button>
+
+    <button
+      id="btn-pagos-vista-movimientos"
+      type="button"
+      class="pagos-vista-button"
+      aria-selected="false"
+    >
+      Movimientos
+    </button>
+  </nav>
+
+  <!-- =====================================
+       FILTROS
+       ===================================== -->
+
+  <section
+    class="pagos-card pagos-filtros"
+    aria-labelledby="pagos-consulta-filtros-titulo"
+  >
+    <h2
+      id="pagos-consulta-filtros-titulo"
+      class="pagos-section-title"
+    >
+      Filtros
+    </h2>
+
+    <details class="pagos-filtros-desplegables" open>
+      <summary class="pagos-filtros-toggle">
+        Mostrar / ocultar filtros
+      </summary>
+
+      <div class="pagos-filtros-panel">
+        <div class="pagos-filtros-grid">
+      <div class="form-field">
+        <label for="pagos-filtro-folio">
+          Folio de cotización
+        </label>
+
+        <input
+          id="pagos-filtro-folio"
+          type="search"
+          autocomplete="off"
+          placeholder="Ej. COT-2026-001"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-version">
+          Versión
+        </label>
+
+        <input
+          id="pagos-filtro-version"
+          type="search"
+          autocomplete="off"
+          placeholder="Ej. 1"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-cliente">
+          Cliente
+        </label>
+
+        <input
+          id="pagos-filtro-cliente"
+          type="search"
+          autocomplete="off"
+          placeholder="Nombre del cliente"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-fecha-inicial">
+          Fecha inicial
+        </label>
+
+        <input
+          id="pagos-filtro-fecha-inicial"
+          type="date"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-fecha-final">
+          Fecha final
+        </label>
+
+        <input
+          id="pagos-filtro-fecha-final"
+          type="date"
+        >
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-metodo">
+          Método de pago
+        </label>
+
+        <select id="pagos-filtro-metodo">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="EFECTIVO">
+            Efectivo
+          </option>
+
+          <option value="TRANSFERENCIA">
+            Transferencia
+          </option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-tipo">
+          Tipo de movimiento
+        </label>
+
+        <select id="pagos-filtro-tipo">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="PAGO">
+            Pago
+          </option>
+
+          <option value="COMPENSACION">
+            Movimiento compensatorio
+          </option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-situacion">
+          Situación de cuenta
+        </label>
+
+        <select id="pagos-filtro-situacion">
+          <option value="">
+            Todas
+          </option>
+
+          <option value="PENDIENTE_CONFIRMACION">
+            Pendiente de confirmación
+          </option>
+
+          <option value="PROCESANDO_CONFIRMACION">
+            Procesando confirmación
+          </option>
+
+          <option value="CONFIRMADA_SALDO_PENDIENTE">
+            Confirmada con saldo pendiente
+          </option>
+
+          <option value="LIQUIDADA">
+            Liquidada
+          </option>
+
+          <option value="EXCEDENTE_DETECTADO">
+            Excedente detectado
+          </option>
+
+          <option value="CON_ERROR_INTEGRACION">
+            Con error de integración
+          </option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="pagos-filtro-usuario">
+          Usuario responsable
+        </label>
+
+        <input
+          id="pagos-filtro-usuario"
+          type="search"
+          autocomplete="off"
+          placeholder="Usuario"
+        >
+      </div>
+    </div>
+
+    <div class="pagos-form-actions">
+      <button
+        id="btn-pagos-consulta-limpiar"
+        type="button"
+        class="button button-secondary"
+      >
+        Limpiar filtros
+      </button>
+
+      <button
+        id="btn-pagos-consulta-buscar"
+        type="button"
+      >
+        Buscar
+            </button>
+    </div>
+      </div>
+    </details>
+  </section>
+
+  <div
+    id="pagos-consulta-cargando"
+    class="pagos-state pagos-state-loading"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Consultando pagos...
+  </div>
+
+  <div
+    id="pagos-consulta-error"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  ></div>
+
+  <div
+    id="pagos-consulta-vacio"
+    class="pagos-state pagos-state-empty"
+    hidden
+  ></div>
+
+  <!-- =====================================
+       RESULTADOS
+       ===================================== -->
+
+  <section
+    id="pagos-consulta-resultados"
+    class="pagos-card"
+    aria-label="Resultados de consulta"
+  >
+    <!-- CUENTAS -->
+
+    <div id="pagos-panel-cuentas">
+      <div
+        class="
+          pagos-table-wrap
+          pagos-desktop-table
+        "
+      >
+        <table class="pagos-table">
+          <thead>
+            <tr>
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="folioCotizacion"
+                >
+                  Cotización
+                </button>
+              </th>
+
+              <th scope="col">
+                Versión aceptada
+              </th>
+
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="nombreCliente"
+                >
+                  Cliente
+                </button>
+              </th>
+
+              <th scope="col">
+                Total
+              </th>
+
+              <th scope="col">
+                Importe requerido
+              </th>
+
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="acumuladoNeto"
+                >
+                  Acumulado neto
+                </button>
+              </th>
+
+              <th scope="col">
+                Saldo para confirmar
+              </th>
+
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="saldoLiquidacion"
+                >
+                  Saldo para liquidar
+                </button>
+              </th>
+
+              <th scope="col">
+                Porcentaje
+              </th>
+
+              <th scope="col">
+                Situación
+              </th>
+
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="fechaUltimoMovimiento"
+                >
+                  Último movimiento
+                </button>
+              </th>
+
+              <th scope="col">
+                Acción
+              </th>
+            </tr>
+          </thead>
+
+          <tbody id="pagos-cuentas-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MOVIMIENTOS -->
+
+    <div
+      id="pagos-panel-movimientos"
+      hidden
+    >
+      <div
+        class="
+          pagos-table-wrap
+          pagos-desktop-table
+        "
+      >
+        <table class="pagos-table">
+          <thead>
+            <tr>
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="folioMovimiento"
+                >
+                  Folio
+                </button>
+              </th>
+
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="fechaPago"
+                >
+                  Fecha del pago
+                </button>
+              </th>
+
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="fechaHoraRegistro"
+                >
+                  Registro
+                </button>
+              </th>
+
+              <th scope="col">
+                Tipo
+              </th>
+
+              <th scope="col">
+                Cotización
+              </th>
+
+              <th scope="col">
+                Versión
+              </th>
+
+              <th scope="col">
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="nombreCliente"
+                >
+                  Cliente
+                </button>
+              </th>
+
+              <th scope="col">
+                Método
+              </th>
+
+              <th scope="col">
+                Importe
+              </th>
+
+              <th scope="col">
+                Usuario
+              </th>
+
+              <th scope="col">
+                Pago original
+              </th>
+
+              <th scope="col">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+
+          <tbody id="pagos-movimientos-tbody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div
+      id="pagos-consulta-cards"
+      class="pagos-mobile-cards"
+      aria-label="Resultados de pagos"
+    ></div>
+
+    <div class="pagos-pagination">
+      <span id="pagos-consulta-paginacion-texto">
+        0-0 de 0
+      </span>
+
+      <div class="pagos-pagination-controls">
+        <button
+          id="btn-pagos-consulta-anterior"
+          type="button"
+          class="button button-secondary"
+        >
+          Anterior
+        </button>
+
+        <button
+          id="btn-pagos-consulta-siguiente"
+          type="button"
+          class="button button-secondary"
+        >
+          Siguiente
+        </button>
+      </div>
+        </div>
+  </section>
+
+  <!-- =====================================
+       COMPROBANTE
+       ===================================== -->
+
+  <dialog id="pagos-consulta-comprobante-dialog">
+    <div class="pagos-confirmacion">
+      <h2>
+        Comprobante
+      </h2>
+
+      <p class="pagos-section-description">
+        Información del comprobante disponible durante la sesión.
+      </p>
+
+      <div class="pagos-audit-grid">
+        <div class="pagos-audit-item">
+          <span>
+            Archivo
+          </span>
+
+          <strong id="pagos-consulta-comprobante-nombre">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-audit-item">
+          <span>
+            Tipo
+          </span>
+
+          <strong id="pagos-consulta-comprobante-tipo">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-audit-item">
+          <span>
+            Tamaño
+          </span>
+
+          <strong id="pagos-consulta-comprobante-tamano">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-form-actions">
+        <button
+          id="btn-pagos-consulta-comprobante-cerrar"
+          type="button"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/pagos/consulta.js';
+
+  init();
+</script>

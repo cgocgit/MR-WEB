@@ -1,17 +1,881 @@
-<section class="container">
-  <h1>Registrar pago</h1>
-  <form id="pagoForm" class="card mt-12" style="display:flex;flex-direction:column;gap:8px;max-width:480px">
-    <label>Orden<input name="orden" required></label>
-    <label>Fecha<input name="fecha" type="date" required></label>
-    <label>Monto<input name="monto" type="number" required></label>
-    <label>Método<select name="metodo"><option>Efectivo</option><option>Transferencia</option></select></label>
-    <label>Referencia (opcional)<input name="referencia"></label>
-    <div style="display:flex;justify-content:flex-end"><button type="submit">Registrar</button></div>
-  </form>
-  <script type="module">
-    import { registrarPago } from './js/api/pagos.service.js';
-    const f = document.getElementById('pagoForm');
-    f.addEventListener('submit', async (e)=>{ e.preventDefault(); const fd = new FormData(f); const payload = {orden:fd.get('orden'),fecha:fd.get('fecha'),monto:fd.get('monto'),metodo:fd.get('metodo'),referencia:fd.get('referencia')}; await registrarPago(payload); alert('Pago registrado (mock)'); location.hash='#/pagos'; });
-  </script>
+<section
+  id="pagos-registro-root"
+  class="container pagos-page"
+>
+  <header class="pagos-page-header">
+    <div>
+      <nav
+        class="pagos-breadcrumb"
+        aria-label="Navegación de Pagos"
+      >
+        <a href="#/dashboard">
+          Inicio
+        </a>
+
+        <span>/</span>
+
+        <a href="#/pagos">
+          Pagos
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Registro de pago
+        </span>
+      </nav>
+      <h1>Registro de pago</h1>
+
+      <p class="pagos-page-description">
+        Registra manualmente un pago asociado con una cotización
+        y su versión aceptada.
+      </p>
+    </div>
+
+    <div class="pagos-page-actions">
+      <a
+        id="btn-pagos-registro-volver"
+        href="#/pagos/consulta"
+        class="button-secondary"
+      >
+        Volver a consulta
+      </a>
+    </div>
+  </header>
+
+  <div
+    id="pagos-registro-acceso-denegado"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    hidden
+  >
+    No cuenta con permiso para acceder a esta función.
+  </div>
+
+  <div
+    id="pagos-registro-error"
+    class="pagos-state pagos-state-error"
+    role="alert"
+    aria-live="assertive"
+    hidden
+  ></div>
+
+  <div
+    id="pagos-registro-procesando"
+    class="pagos-state pagos-state-loading"
+    role="status"
+    aria-live="polite"
+    hidden
+  >
+    Registrando pago...
+  </div>
+
+  <div id="pagos-registro-contenido">
+
+    <!-- =====================================
+         FORMULARIO
+         ===================================== -->
+
+    <div
+      id="pagos-registro-formulario"
+      class="pagos-page"
+    >
+      <div class="pagos-registro-layout">
+
+        <div class="pagos-page">
+
+          <!-- ===============================
+               SELECCIÓN DE COTIZACIÓN
+               =============================== -->
+
+          <section
+            class="pagos-card"
+            aria-labelledby="pagos-registro-cotizacion-titulo"
+          >
+            <h2
+              id="pagos-registro-cotizacion-titulo"
+              class="pagos-section-title"
+            >
+              1. Seleccionar cotización
+            </h2>
+
+            <p class="pagos-section-description">
+              Busca por folio o cliente. Solo se muestran
+              cotizaciones habilitadas para recibir pagos.
+            </p>
+
+            <div class="pagos-form">
+              <div class="pagos-form-field">
+                <label for="pagos-registro-busqueda">
+                  Cotización o cliente
+                </label>
+
+                <input
+                  id="pagos-registro-busqueda"
+                  type="search"
+                  autocomplete="off"
+                  placeholder="Ej. COT-2026-001 o nombre del cliente"
+                >
+              </div>
+
+              <div class="pagos-form-actions">
+                <button
+                  id="btn-pagos-registro-buscar"
+                  type="button"
+                >
+                  Buscar
+                </button>
+              </div>
+
+              <div
+                id="pagos-registro-busqueda-cargando"
+                class="pagos-state pagos-state-loading"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                Consultando cotizaciones habilitadas...
+              </div>
+
+              <div
+                id="pagos-registro-busqueda-error"
+                class="pagos-state pagos-state-error"
+                role="alert"
+                hidden
+              ></div>
+
+              <div
+                id="pagos-registro-sin-resultados"
+                class="pagos-state pagos-state-empty"
+                hidden
+              >
+                No se encontraron cotizaciones habilitadas.
+              </div>
+
+              <div
+                id="pagos-registro-resultados"
+                class="pagos-cotizacion-resultados"
+                aria-label="Cotizaciones encontradas"
+              ></div>
+            </div>
+          </section>
+
+          <!-- ===============================
+               DATOS DEL PAGO
+               =============================== -->
+
+          <section
+            class="pagos-card"
+            aria-labelledby="pagos-registro-datos-titulo"
+          >
+            <h2
+              id="pagos-registro-datos-titulo"
+              class="pagos-section-title"
+            >
+              2. Datos del pago
+            </h2>
+
+            <div class="pagos-form">
+              <div class="pagos-form-grid">
+                <div class="pagos-form-field">
+                  <label for="pagos-registro-fecha">
+                    Fecha del pago
+                  </label>
+
+                  <input
+                    id="pagos-registro-fecha"
+                    type="date"
+                    aria-describedby="pagos-registro-fecha-error"
+                    required
+                  >
+
+                  <span
+                    id="pagos-registro-fecha-error"
+                    class="pagos-form-field-error"
+                    role="alert"
+                    hidden
+                  ></span>
+                  </div>
+
+                  <div class="pagos-form-field">
+                    <label for="pagos-registro-monto">
+                      Monto
+                    </label>
+
+                  <input
+                    id="pagos-registro-monto"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    inputmode="decimal"
+                    aria-describedby="pagos-registro-monto-error"
+                    required
+                  >
+
+                  <span
+                    id="pagos-registro-monto-error"
+                    class="pagos-form-field-error"
+                    role="alert"
+                    hidden
+                  ></span>
+                </div>
+
+                <div class="pagos-form-field">
+                  <label for="pagos-registro-metodo">
+                    Método de pago
+                  </label>
+
+                  <select
+                    id="pagos-registro-metodo"
+                    aria-describedby="pagos-registro-metodo-error"
+                    required
+                  >
+                    <option value="">
+                      Seleccione
+                    </option>
+
+                    <option value="EFECTIVO">
+                      Efectivo
+                    </option>
+
+                    <option value="TRANSFERENCIA">
+                      Transferencia
+                    </option>
+                  </select>
+
+                  <span
+                    id="pagos-registro-metodo-error"
+                    class="pagos-form-field-error"
+                    role="alert"
+                    hidden
+                  ></span>
+                </div>
+              </div>
+
+              <div class="pagos-form-field">
+                <label for="pagos-registro-referencia">
+                  Referencia
+                </label>
+
+                <input
+                  id="pagos-registro-referencia"
+                  type="text"
+                  autocomplete="off"
+                  placeholder="Referencia opcional"
+                >
+              </div>
+
+              <div class="pagos-form-field">
+                <label for="pagos-registro-observaciones">
+                  Observaciones
+                </label>
+
+                <textarea
+                  id="pagos-registro-observaciones"
+                  placeholder="Observaciones opcionales"
+                ></textarea>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===============================
+               COMPROBANTE
+               =============================== -->
+
+          <section
+            class="pagos-card"
+            aria-labelledby="pagos-registro-comprobante-titulo"
+          >
+            <h2
+              id="pagos-registro-comprobante-titulo"
+              class="pagos-section-title"
+            >
+              3. Comprobante
+            </h2>
+
+            <p class="pagos-section-description">
+              El comprobante es opcional y se conserva únicamente
+              durante la sesión simulada.
+            </p>
+
+            <div class="pagos-form-field">
+              <label for="pagos-registro-comprobante">
+                Archivo
+              </label>
+
+              <input
+                id="pagos-registro-comprobante"
+                type="file"
+              >
+
+              <small id="pagos-registro-comprobante-nombre">
+                Sin archivo seleccionado
+              </small>
+            </div>
+          </section>
+
+          <!-- ===============================
+               ADVERTENCIAS
+               =============================== -->
+
+          <div
+            id="pagos-registro-advertencia-excedente"
+            class="pagos-state pagos-state-warning"
+            role="alert"
+            hidden
+          >
+            <strong>
+              ⚠ El pago excede el saldo de la cotización.
+            </strong>
+
+            <div>
+              Excedente:
+              <span id="pagos-registro-excedente-importe">
+                $0.00
+              </span>
+            </div>
+          </div>
+
+          <div
+            id="pagos-registro-alcanza-umbral"
+            class="pagos-state pagos-state-success"
+            role="status"
+            hidden
+          >
+            Este pago alcanzará el importe requerido para
+            solicitar a Cotizaciones continuar la confirmación.
+          </div>
+
+          <div class="pagos-form-actions">
+            <a
+              id="btn-pagos-registro-cancelar"
+              href="#/pagos/consulta"
+              class="button-secondary"
+            >
+              Cancelar
+            </a>
+
+            <button
+              id="btn-pagos-registro-guardar"
+              type="button"
+            >
+              Registrar pago
+            </button>
+          </div>
+        </div>
+
+        <!-- ===============================
+             PANEL DE CUENTA
+             =============================== -->
+
+        <aside
+          id="pagos-registro-cuenta"
+          class="pagos-card"
+          aria-labelledby="pagos-registro-cuenta-titulo"
+          hidden
+        >
+          <h2
+            id="pagos-registro-cuenta-titulo"
+            class="pagos-section-title"
+          >
+            Cuenta seleccionada
+          </h2>
+
+          <div class="pagos-reference-grid">
+            <div class="pagos-reference-item">
+              <span>
+                ID cotización
+              </span>
+
+              <strong id="pagos-registro-id-cotizacion">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-reference-item">
+              <span>
+                Folio
+              </span>
+
+              <strong id="pagos-registro-folio">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-reference-item">
+              <span>
+                Versión aceptada
+              </span>
+
+              <strong id="pagos-registro-version">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-reference-item">
+              <span>
+                ID versión
+              </span>
+
+              <strong id="pagos-registro-id-version">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-reference-item">
+              <span>
+                Cliente
+              </span>
+
+              <strong id="pagos-registro-cliente">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-reference-item">
+              <span>
+                Vendedor responsable
+              </span>
+
+              <strong id="pagos-registro-vendedor">
+                —
+              </strong>
+            </div>
+          </div>
+
+          <hr>
+
+          <div class="pagos-resumen-monetario">
+            <div class="pagos-resumen-item">
+              <span>
+                Total
+              </span>
+
+              <strong id="pagos-registro-total">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-resumen-item">
+              <span>
+                Porcentaje requerido
+              </span>
+
+              <strong id="pagos-registro-porcentaje-requerido">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-resumen-item">
+              <span>
+                Importe requerido
+              </span>
+
+              <strong id="pagos-registro-importe-requerido">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-resumen-item pagos-resumen-destacado">
+              <span>
+                Acumulado neto
+              </span>
+
+              <strong id="pagos-registro-acumulado">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-resumen-item">
+              <span>
+                Saldo para confirmar
+              </span>
+
+              <strong id="pagos-registro-saldo-confirmacion">
+                —
+              </strong>
+            </div>
+
+            <div class="pagos-resumen-item">
+              <span>
+                Saldo para liquidar
+              </span>
+
+              <strong id="pagos-registro-saldo-liquidacion">
+                —
+              </strong>
+            </div>
+          </div>
+
+          <div id="pagos-registro-indicador">
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Resultado previo de confirmación
+            </span>
+
+            <strong id="pagos-registro-resultado-previo">
+              —
+            </strong>
+          </div>
+        </aside>
+      </div>
+
+      <!-- ===============================
+           RESUMEN PREVIO
+           =============================== -->
+
+      <section
+        id="pagos-registro-resumen-previo"
+        class="pagos-card"
+        aria-labelledby="pagos-registro-resumen-titulo"
+        hidden
+      >
+        <h2
+          id="pagos-registro-resumen-titulo"
+          class="pagos-section-title"
+        >
+          Resumen previo
+        </h2>
+
+        <div class="pagos-resumen-monetario">
+          <div class="pagos-resumen-item">
+            <span>
+              Acumulado anterior
+            </span>
+
+            <strong id="pagos-registro-resumen-anterior">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item">
+            <span>
+              Nuevo pago
+            </span>
+
+            <strong id="pagos-registro-resumen-pago">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item pagos-resumen-destacado">
+            <span>
+              Nuevo acumulado
+            </span>
+
+            <strong id="pagos-registro-resumen-nuevo">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item">
+            <span>
+              Importe requerido
+            </span>
+
+            <strong id="pagos-registro-resumen-requerido">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item">
+            <span>
+              Nuevo saldo para confirmar
+            </span>
+
+            <strong id="pagos-registro-resumen-saldo-confirmacion">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item">
+            <span>
+              Nuevo saldo para liquidar
+            </span>
+
+            <strong id="pagos-registro-resumen-saldo-liquidacion">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-resumen-item pagos-resumen-advertencia">
+            <span>
+              Excedente
+            </span>
+
+            <strong id="pagos-registro-resumen-excedente">
+              —
+            </strong>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- =====================================
+         RESULTADO
+         ===================================== -->
+
+    <section
+      id="pagos-registro-resultado"
+      class="pagos-card"
+      aria-live="polite"
+      hidden
+    >
+      <h2 id="pagos-registro-resultado-titulo">
+        Pago registrado correctamente
+      </h2>
+
+      <div class="pagos-reference-grid">
+        <div class="pagos-reference-item">
+          <span>
+            Folio del pago
+          </span>
+
+          <strong id="pagos-registro-resultado-folio">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Acumulado actualizado
+          </span>
+
+          <strong id="pagos-registro-resultado-acumulado">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Saldo para confirmar
+          </span>
+
+          <strong id="pagos-registro-resultado-saldo-confirmacion">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Saldo para liquidar
+          </span>
+
+          <strong id="pagos-registro-resultado-saldo-liquidacion">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <section
+        id="pagos-registro-resultado-integracion"
+        class="pagos-card"
+        hidden
+      >
+        <h3>
+          Resultado del proceso
+        </h3>
+
+        <p id="pagos-registro-resultado-integracion-mensaje">
+        </p>
+
+        <div class="pagos-reference-grid">
+          <div class="pagos-reference-item">
+            <span>
+              Cotización confirmada
+            </span>
+
+            <strong id="pagos-registro-resultado-cotizacion">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Reserva
+            </span>
+
+            <strong id="pagos-registro-resultado-reserva">
+              —
+            </strong>
+          </div>
+
+          <div class="pagos-reference-item">
+            <span>
+              Orden de servicio
+            </span>
+
+            <strong id="pagos-registro-resultado-orden">
+              —
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <div
+        id="pagos-registro-resultado-alerta"
+        class="pagos-state pagos-state-warning"
+        hidden
+      >
+        El pago fue registrado, pero no fue posible completar
+        el proceso con Cotizaciones.
+
+        <div>
+          Alerta:
+          <strong id="pagos-registro-resultado-alerta-folio">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-form-actions">
+        <a
+          id="pagos-registro-resultado-ver-alerta"
+          href="#/pagos/alertas"
+          class="button-secondary"
+          data-pagos-requiere-permiso="pagos.alertas.consultar"
+          hidden
+        >
+          Ver alerta
+        </a>
+
+        <a
+          id="pagos-registro-resultado-ver-cuenta"
+          href="#/pagos/consulta"
+          class="button"
+        >
+          Ver cuenta
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- =====================================
+       CONFIRMACIÓN
+       ===================================== -->
+
+  <dialog id="pagos-registro-dialog">
+    <div class="pagos-confirmacion">
+      <h2>
+        Confirmar registro
+      </h2>
+
+      <div class="pagos-reference-grid">
+        <div class="pagos-reference-item">
+          <span>
+            Cotización
+          </span>
+
+          <strong id="pagos-confirmacion-cotizacion">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Versión aceptada
+          </span>
+
+          <strong id="pagos-confirmacion-version">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Cliente
+          </span>
+
+          <strong id="pagos-confirmacion-cliente">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Monto
+          </span>
+
+          <strong id="pagos-confirmacion-monto">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Método
+          </span>
+
+          <strong id="pagos-confirmacion-metodo">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Acumulado resultante
+          </span>
+
+          <strong id="pagos-confirmacion-acumulado">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Saldo resultante
+          </span>
+
+          <strong id="pagos-confirmacion-saldo">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div
+        id="pagos-confirmacion-excedente"
+        class="pagos-confirmacion-warning"
+        hidden
+      >
+        ⚠ El pago excede el saldo de la cotización.
+
+        Excedente:
+        <strong id="pagos-confirmacion-excedente-importe">
+          —
+        </strong>
+      </div>
+
+      <div class="pagos-confirmacion-warning">
+        El pago no podrá editarse ni eliminarse después
+        de registrarlo.
+      </div>
+
+      <div class="pagos-form-actions">
+        <button
+          id="btn-pagos-confirmacion-cancelar"
+          type="button"
+          class="button-secondary"
+        >
+          Cancelar
+        </button>
+
+        <button
+          id="btn-pagos-confirmacion-confirmar"
+          type="button"
+        >
+          Confirmar registro
+        </button>
+      </div>
+    </div>
+  </dialog>
 </section>
 
+<script type="module">
+  import {
+    init
+  } from './js/modules/pagos/registro.js';
+
+  init();
+</script>
