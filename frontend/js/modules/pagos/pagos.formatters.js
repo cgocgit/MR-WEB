@@ -49,7 +49,7 @@ const INDICADORES = Object.freeze({
 
   EXCEDENTE_DETECTADO: {
     codigo: 'EXCEDENTE_DETECTADO',
-    texto: 'Excedente detectado',
+    texto: '⚠ Excedente detectado',
     clase: 'pagos-indicador--advertencia'
   },
 
@@ -123,10 +123,29 @@ function toValidDate(value) {
     return null;
   }
 
+  if (value instanceof Date) {
+    return Number.isNaN(
+      value.getTime()
+    )
+      ? null
+      : value;
+  }
+
+  const textoFecha =
+    String(value).trim();
+
+  const soloFecha =
+    /^(\d{4})-(\d{2})-(\d{2})$/
+      .exec(textoFecha);
+
   const date =
-    value instanceof Date
-      ? value
-      : new Date(value);
+    soloFecha
+      ? new Date(
+          Number(soloFecha[1]),
+          Number(soloFecha[2]) - 1,
+          Number(soloFecha[3])
+        )
+      : new Date(textoFecha);
 
   return Number.isNaN(
     date.getTime()
@@ -175,10 +194,10 @@ export function formatTipoMovimiento(
 ) {
   switch (tipo) {
     case 'PAGO':
-      return 'Pago';
+      return '● Pago';
 
     case 'COMPENSACION':
-      return 'Movimiento compensatorio';
+      return '↺ Movimiento compensatorio';
 
     default:
       return '—';

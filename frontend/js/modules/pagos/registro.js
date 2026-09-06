@@ -38,6 +38,9 @@ let archivoSeleccionado = null;
 let procesando = false;
 let busquedaSecuencia = 0;
 
+let returnTo =
+  '#/pagos/consulta';
+
 function elemento(id) {
   return document.getElementById(id);
 }
@@ -79,6 +82,54 @@ function ocultar(id, oculto) {
   if (destino) {
     destino.hidden =
       oculto;
+  }
+}
+
+function parametrosHash() {
+  const partes =
+    window.location.hash
+      .split('?');
+
+  return new URLSearchParams(
+    partes[1] || ''
+  );
+}
+
+function configurarRegreso() {
+  const regreso =
+    parametrosHash()
+      .get(
+        'returnTo'
+      );
+
+  if (
+    regreso &&
+    regreso.startsWith(
+      '#/pagos/consulta'
+    )
+  ) {
+    returnTo =
+      regreso;
+  }
+
+  const volver =
+    elemento(
+      'btn-pagos-registro-volver'
+    );
+
+  const cancelar =
+    elemento(
+      'btn-pagos-registro-cancelar'
+    );
+
+  if (volver) {
+    volver.href =
+      returnTo;
+  }
+
+  if (cancelar) {
+    cancelar.href =
+      returnTo;
   }
 }
 
@@ -150,6 +201,42 @@ function limpiarResultadosBusqueda() {
   );
 }
 
+function crearDatoResultadoCotizacion(
+  etiqueta,
+  valor
+) {
+  const contenedor =
+    document.createElement(
+      'span'
+    );
+
+  contenedor.className =
+    'pagos-cotizacion-option-dato';
+
+  const label =
+    document.createElement(
+      'small'
+    );
+
+  label.textContent =
+    etiqueta;
+
+  const contenido =
+    document.createElement(
+      'strong'
+    );
+
+  contenido.textContent =
+    valor;
+
+  contenedor.append(
+    label,
+    contenido
+  );
+
+  return contenedor;
+}
+
 function construirResultadoCotizacion(
   cuenta
 ) {
@@ -174,45 +261,70 @@ function construirResultadoCotizacion(
       cuenta.idVersion
     );
 
-  const folio =
-    document.createElement(
-      'strong'
-    );
-
-  folio.textContent =
-    cuenta.folioCotizacion;
-
-  const cliente =
+  const indicador =
     document.createElement(
       'span'
     );
 
-  cliente.textContent =
-    cuenta.nombreCliente;
+  indicador.className =
+    'pagos-cotizacion-option-dato';
 
-  const version =
+  const indicadorLabel =
     document.createElement(
-      'span'
+      'small'
     );
 
-  version.textContent =
-    `Versión ${cuenta.numeroVersion}`;
+  indicadorLabel.textContent =
+    'Situación';
 
-  const saldo =
-    document.createElement(
-      'span'
-    );
-
-  saldo.textContent =
-    `Saldo: ${formatCurrency(
-      cuenta.saldoLiquidacion
-    )}`;
+  indicador.append(
+    indicadorLabel,
+    crearIndicador(
+      cuenta
+        .indicadorPresentacion
+    )
+  );
 
   boton.append(
-    folio,
-    cliente,
-    version,
-    saldo
+    crearDatoResultadoCotizacion(
+      'Folio',
+      cuenta.folioCotizacion
+    ),
+
+    crearDatoResultadoCotizacion(
+      'Versión aceptada',
+      `Versión ${
+        cuenta.numeroVersion
+      }`
+    ),
+
+    crearDatoResultadoCotizacion(
+      'Cliente',
+      cuenta.nombreCliente
+    ),
+
+    crearDatoResultadoCotizacion(
+      'Total',
+      formatCurrency(
+        cuenta.totalCotizacion
+      )
+    ),
+
+    crearDatoResultadoCotizacion(
+      'Acumulado neto',
+      formatCurrency(
+        cuenta.acumuladoNeto
+      )
+    ),
+
+    crearDatoResultadoCotizacion(
+      'Saldo para liquidar',
+      formatCurrency(
+        cuenta.saldoLiquidacion
+      )
+    ),
+
+    indicador
   );
 
   boton.addEventListener(
@@ -617,6 +729,24 @@ function actualizarProyeccion() {
   );
 }
 
+function marcarCampoInvalido(
+  campoId,
+  errorId,
+  mensaje
+) {
+  elemento(
+    campoId
+  )?.setAttribute(
+    'aria-invalid',
+    'true'
+  );
+
+  mostrarMensaje(
+    errorId,
+    mensaje
+  );
+}
+
 function limpiarErroresFormulario() {
   [
     'pagos-registro-fecha-error',
@@ -629,6 +759,18 @@ function limpiarErroresFormulario() {
         id,
         ''
       )
+  );
+
+  [
+    'pagos-registro-fecha',
+    'pagos-registro-monto',
+    'pagos-registro-metodo'
+  ].forEach(
+    id =>
+      elemento(id)
+        ?.removeAttribute(
+          'aria-invalid'
+        )
   );
 }
 
@@ -651,7 +793,8 @@ function validarFormulario() {
       'pagos-registro-fecha'
     )
   ) {
-    mostrarMensaje(
+    marcarCampoInvalido(
+      'pagos-registro-fecha',
       'pagos-registro-fecha-error',
       'La fecha del pago es obligatoria.'
     );
@@ -666,7 +809,8 @@ function validarFormulario() {
     !Number.isFinite(monto) ||
     monto <= 0
   ) {
-    mostrarMensaje(
+    marcarCampoInvalido(
+      'pagos-registro-monto',
       'pagos-registro-monto-error',
       'El monto debe ser mayor que cero.'
     );
@@ -683,9 +827,12 @@ function validarFormulario() {
     ![
       'EFECTIVO',
       'TRANSFERENCIA'
-    ].includes(metodo)
+    ].includes(
+      metodo
+    )
   ) {
-    mostrarMensaje(
+    marcarCampoInvalido(
+      'pagos-registro-metodo',
       'pagos-registro-metodo-error',
       'Seleccione Efectivo o Transferencia.'
     );
@@ -892,6 +1039,11 @@ function construirRutaCuenta(
     )
   );
 
+  parametros.set(
+    'returnTo',
+    returnTo
+  );
+
   return (
     '#/pagos/cuenta?' +
     parametros.toString()
@@ -913,10 +1065,7 @@ function renderizarResultado(
 
   texto(
     'pagos-registro-resultado-titulo',
-    resultado
-      .falloIntegracion
-      ? 'Pago registrado con fallo de integración'
-      : 'Pago registrado correctamente'
+    'Pago registrado correctamente'
   );
 
   texto(
@@ -1034,10 +1183,24 @@ function renderizarResultado(
       );
 
     if (alerta) {
-      verAlerta.href =
-        `#/pagos/alertas?idAlerta=${encodeURIComponent(
+      const parametros =
+        new URLSearchParams();
+
+      parametros.set(
+        'idAlerta',
+        String(
           alerta
-        )}`;
+        )
+      );
+
+      parametros.set(
+        'returnTo',
+        returnTo
+      );
+
+      verAlerta.href =
+        '#/pagos/alertas?' +
+        parametros.toString();
     }
   }
 }
@@ -1226,6 +1389,8 @@ export function init() {
   configurarPermisos(
     root
   );
+
+  configurarRegreso();
 
   registrarEventos();
 

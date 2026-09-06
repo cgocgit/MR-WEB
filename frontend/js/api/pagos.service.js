@@ -50,9 +50,24 @@ function esperar() {
     );
 
   return new Promise(
-    resolve => {
+    (resolve, reject) => {
       window.setTimeout(
-        resolve,
+        () => {
+          if (
+            configuracionMock
+              .disponible === false
+          ) {
+            reject(
+              new Error(
+                'Servicio simulado no disponible.'
+              )
+            );
+
+            return;
+          }
+
+          resolve();
+        },
         Number.isFinite(latencia)
           ? Math.max(
               latencia,
@@ -317,7 +332,10 @@ function construirCuenta(
           ),
 
         procesandoConfirmacion:
-          false,
+          Boolean(
+            cuentaBase
+              .procesandoConfirmacion
+          ),
 
         importeRequerido:
           resumen
@@ -958,6 +976,10 @@ async function procesarConfirmacion({
   };
 
   cuentaBase
+    .procesandoConfirmacion =
+    false;
+
+  cuentaBase
     .cotizacionConfirmada =
     true;
 
@@ -1419,6 +1441,41 @@ export async function obtenerPagoOriginal(
   });
 }
 
+export async function obtenerPagoPorId(
+  idPago
+) {
+  exigirAlguno([
+    PERMISOS.CONSULTAR,
+    PERMISOS.ALERTAS
+  ]);
+
+  await esperar();
+
+  const pago =
+    movimientosMock.find(
+      movimiento =>
+        Number(
+          movimiento.idMovimiento
+        ) ===
+          Number(idPago) &&
+        movimiento
+          .tipoMovimiento ===
+          'PAGO'
+    );
+
+  if (!pago) {
+    throw new Error(
+      'Pago no encontrado.'
+    );
+  }
+
+  return clonar(
+    enriquecerMovimiento(
+      pago
+    )
+  );
+}
+
 export async function registrarPago(
   payload,
   opciones = {}
@@ -1571,6 +1628,17 @@ export async function registrarPago(
             .cotizacionConfirmada
       }
     );
+  
+  if (debeConfirmar) {
+    cuentaBase
+      .procesandoConfirmacion =
+      true;
+
+    cuentaNueva =
+      construirCuenta(
+        cuentaBase
+      );
+  }
 
   if (
     typeof opciones
@@ -1890,6 +1958,18 @@ export async function consultarAlertasPagos(
     items.filter(
       alerta => {
         if (
+          filtros.idAlerta &&
+          Number(
+            alerta.idAlerta
+          ) !==
+            Number(
+              filtros.idAlerta
+            )
+        ) {
+          return false;
+        }
+
+        if (
           filtros.folioAlerta &&
           !textoIncluye(
             alerta.folioAlerta,
@@ -2020,4 +2100,21 @@ export function configurarModoIntegracionPagos(
     .integracion
     .modo =
     modo;
+}
+
+/**
+ * Utilidad únicamente para pruebas
+ * manuales del servicio simulado.
+ *
+ * No debe exponerse como acción
+ * de interfaz.
+ */
+export function configurarDisponibilidadPagos(
+  disponible
+) {
+  configuracionMock
+    .disponible =
+    Boolean(
+      disponible
+    );
 }

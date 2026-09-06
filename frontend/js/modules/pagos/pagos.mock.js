@@ -707,6 +707,7 @@ export const secuenciasMock = {
  */
 export const configuracionMock = {
   latenciaMs: 250,
+  disponible: true,
 
   integracion: {
     modo:

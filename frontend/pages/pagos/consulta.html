@@ -21,6 +21,7 @@
       </button>
 
       <a
+        id="btn-pagos-consulta-registrar"
         href="#/pagos/nuevo"
         class="button"
         data-pagos-requiere-permiso="pagos.gestionar"
@@ -72,7 +73,13 @@
       Filtros
     </h2>
 
-    <div class="pagos-filtros-grid">
+    <details class="pagos-filtros-desplegables">
+      <summary class="pagos-filtros-toggle">
+        Mostrar / ocultar filtros
+      </summary>
+
+      <div class="pagos-filtros-panel">
+        <div class="pagos-filtros-grid">
       <div class="form-field">
         <label for="pagos-filtro-folio">
           Folio de cotización
@@ -238,8 +245,10 @@
         type="button"
       >
         Buscar
-      </button>
+            </button>
     </div>
+      </div>
+    </details>
   </section>
 
   <div
@@ -388,15 +397,33 @@
           <thead>
             <tr>
               <th scope="col">
-                Folio
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="folioMovimiento"
+                >
+                  Folio
+                </button>
               </th>
 
               <th scope="col">
-                Fecha del pago
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="fechaPago"
+                >
+                  Fecha del pago
+                </button>
               </th>
 
               <th scope="col">
-                Registro
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="fechaHoraRegistro"
+                >
+                  Registro
+                </button>
               </th>
 
               <th scope="col">
@@ -412,7 +439,13 @@
               </th>
 
               <th scope="col">
-                Cliente
+                <button
+                  type="button"
+                  class="pagos-table-sort"
+                  data-pagos-orden="nombreCliente"
+                >
+                  Cliente
+                </button>
               </th>
 
               <th scope="col">

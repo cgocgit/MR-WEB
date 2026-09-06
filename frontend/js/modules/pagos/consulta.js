@@ -172,6 +172,18 @@ function cargarContexto() {
     estado.skip =
       skip;
   }
+
+  if (
+    !parametros.has(
+      'ordenCampo'
+    )
+  ) {
+    estado.ordenCampo =
+      estado.vista ===
+        'MOVIMIENTOS'
+        ? 'fechaHoraRegistro'
+        : 'fechaUltimoMovimiento';
+  }
 }
 
 function sincronizarHash() {
@@ -227,11 +239,36 @@ function sincronizarHash() {
     '#/pagos/consulta?' +
     parametros.toString();
 
-  history.replaceState(
+    history.replaceState(
     null,
     '',
     nuevoHash
   );
+
+  actualizarRutaRegistro();
+}
+
+function actualizarRutaRegistro() {
+  const enlace =
+    elemento(
+      'btn-pagos-consulta-registrar'
+    );
+
+  if (!enlace) {
+    return;
+  }
+
+  const parametros =
+    new URLSearchParams();
+
+  parametros.set(
+    'returnTo',
+    window.location.hash
+  );
+
+  enlace.href =
+    '#/pagos/nuevo?' +
+    parametros.toString();
 }
 
 function sincronizarFormulario() {
@@ -445,6 +482,25 @@ function filtrosServicio() {
     limit:
       estado.limit
   };
+}
+
+function hayFiltrosActivos() {
+  return [
+    'folioCotizacion',
+    'version',
+    'cliente',
+    'fechaInicial',
+    'fechaFinal',
+    'metodo',
+    'tipo',
+    'situacion',
+    'usuarioResponsable'
+  ].some(
+    campo =>
+      Boolean(
+        estado[campo]
+      )
+  );
 }
 
 function mostrarCarga(
@@ -1260,9 +1316,19 @@ function renderizarResultado(
   );
 
   if (vacio) {
+    const mensaje =
+      hayFiltrosActivos()
+        ? 'No se encontraron resultados para los filtros seleccionados.'
+        : (
+            estado.vista ===
+              'CUENTAS'
+              ? 'No hay cuentas de pago registradas.'
+              : 'No hay movimientos registrados.'
+          );
+
     texto(
       'pagos-consulta-vacio',
-      'No se encontraron resultados para los filtros seleccionados.'
+      mensaje
     );
 
     renderizarPaginacion();
@@ -1294,8 +1360,9 @@ async function consultar() {
     ++secuenciaConsulta;
 
   limpiarEstados();
-
   mostrarCarga(true);
+
+  sincronizarHash();
 
   try {
     const resultado =
@@ -1318,8 +1385,6 @@ async function consultar() {
     renderizarResultado(
       resultado
     );
-
-    sincronizarHash();
   } catch (error) {
     if (
       consultaActual !==
@@ -1358,6 +1423,15 @@ function cambiarVista(
 
   estado.vista =
     vista;
+
+  estado.ordenCampo =
+    vista ===
+      'MOVIMIENTOS'
+      ? 'fechaHoraRegistro'
+      : 'fechaUltimoMovimiento';
+
+  estado.ordenDireccion =
+    'desc';
 
   estado.skip = 0;
 
@@ -1510,7 +1584,7 @@ function registrarEventos() {
         'pagos-consulta-comprobante-dialog'
       )?.close()
   );
-  
+
   document
     .querySelectorAll(
       '[data-pagos-orden]'
