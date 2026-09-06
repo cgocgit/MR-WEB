@@ -300,6 +300,26 @@
       <div class="pagos-reference-grid">
         <div class="pagos-reference-item">
           <span>
+            Alerta
+          </span>
+
+          <strong id="pagos-alertas-detalle-alerta">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Fecha y hora
+          </span>
+
+          <strong id="pagos-alertas-detalle-fecha">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
             Pago
           </span>
 
@@ -314,6 +334,16 @@
           </span>
 
           <strong id="pagos-alertas-detalle-cotizacion">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Versión aceptada
+          </span>
+
+          <strong id="pagos-alertas-detalle-version">
             —
           </strong>
         </div>
@@ -337,6 +367,26 @@
             —
           </strong>
         </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Resultado conocido
+          </span>
+
+          <strong id="pagos-alertas-detalle-resultado">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-reference-item">
+          <span>
+            Estado
+          </span>
+
+          <strong id="pagos-alertas-detalle-estado">
+            —
+          </strong>
+        </div>
       </div>
 
       <div class="pagos-form-field">
@@ -349,7 +399,36 @@
         </strong>
       </div>
 
+      <section
+        aria-labelledby="pagos-alertas-referencias-titulo"
+      >
+        <h3 id="pagos-alertas-referencias-titulo">
+          Referencias generadas antes del fallo
+        </h3>
+
+        <div
+          id="pagos-alertas-detalle-sin-referencias"
+          class="pagos-state pagos-state-empty"
+          hidden
+        >
+          No se generaron referencias antes del fallo.
+        </div>
+
+        <div
+          id="pagos-alertas-detalle-referencias"
+          class="pagos-reference-grid"
+        ></div>
+      </section>
+
       <div class="pagos-form-actions">
+        <a
+          id="btn-pagos-alertas-detalle-cuenta"
+          href="#/pagos/consulta"
+          class="button-secondary"
+        >
+          Ver cuenta
+        </a>
+
         <button
           id="btn-pagos-alertas-dialog-cerrar"
           type="button"

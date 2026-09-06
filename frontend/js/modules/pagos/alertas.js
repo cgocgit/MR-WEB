@@ -246,6 +246,184 @@ function crearEnlace(
   return enlace;
 }
 
+function normalizarReferencia(
+  referencia
+) {
+  if (
+    referencia === null ||
+    referencia === undefined ||
+    referencia === ''
+  ) {
+    return {
+      valor: null,
+      ruta: null
+    };
+  }
+
+  if (
+    typeof referencia ===
+    'object'
+  ) {
+    return {
+      valor:
+        referencia.valor ||
+        referencia.folio ||
+        referencia.referencia ||
+        referencia.id ||
+        null,
+
+      ruta:
+        referencia.ruta ||
+        referencia.href ||
+        null
+    };
+  }
+
+  return {
+    valor:
+      String(
+        referencia
+      ),
+
+    ruta:
+      null
+  };
+}
+
+function obtenerReferencias(
+  alerta
+) {
+  const referencias =
+    alerta.referenciasGeneradas ||
+    {};
+
+  return [
+    {
+      tipo:
+        'Cotización confirmada',
+
+      ...normalizarReferencia(
+        referencias
+          .cotizacionConfirmada
+      )
+    },
+
+    {
+      tipo:
+        'Reserva de Inventario',
+
+      ...normalizarReferencia(
+        referencias
+          .reservaInventario
+      )
+    },
+
+    {
+      tipo:
+        'Orden de servicio',
+
+      ...normalizarReferencia(
+        referencias
+          .ordenServicio
+      )
+    }
+  ];
+}
+
+function renderizarReferencias(
+  alerta
+) {
+  const contenedor =
+    elemento(
+      'pagos-alertas-detalle-referencias'
+    );
+
+  if (!contenedor) {
+    return;
+  }
+
+  contenedor.replaceChildren();
+
+  const referencias =
+    obtenerReferencias(
+      alerta
+    );
+
+  const referenciasDisponibles =
+    referencias.filter(
+      referencia =>
+        referencia.valor
+    );
+
+  ocultar(
+    'pagos-alertas-detalle-sin-referencias',
+    referenciasDisponibles.length >
+      0
+  );
+
+  referenciasDisponibles.forEach(
+    referencia => {
+      const item =
+        document.createElement(
+          'div'
+        );
+
+      item.className =
+        'pagos-reference-item';
+
+      const etiqueta =
+        document.createElement(
+          'span'
+        );
+
+      etiqueta.textContent =
+        referencia.tipo;
+
+      const valorReferencia =
+        document.createElement(
+          'strong'
+        );
+
+      valorReferencia.textContent =
+        referencia.valor;
+
+      item.append(
+        etiqueta,
+        valorReferencia
+      );
+
+      if (
+        referencia.ruta &&
+        String(
+          referencia.ruta
+        ).startsWith('#/')
+      ) {
+        const enlace =
+          document.createElement(
+            'a'
+          );
+
+        enlace.href =
+          referencia.ruta;
+
+        enlace.className =
+          'pagos-table-action';
+
+        enlace.textContent =
+          'Abrir referencia';
+
+        item.appendChild(
+          enlace
+        );
+      }
+
+      contenedor.appendChild(
+        item
+      );
+    }
+  );
+}
+
 function renderizarAlertas(
   items
 ) {
@@ -390,7 +568,21 @@ function renderizarAlertas(
   );
 }
 
-function mostrarPago(alerta) {
+function mostrarPago(
+  alerta
+) {
+  texto(
+    'pagos-alertas-detalle-alerta',
+    alerta.folioAlerta
+  );
+
+  texto(
+    'pagos-alertas-detalle-fecha',
+    formatDateTime(
+      alerta.fechaHora
+    )
+  );
+
   texto(
     'pagos-alertas-detalle-pago',
     alerta.folioPago
@@ -399,6 +591,13 @@ function mostrarPago(alerta) {
   texto(
     'pagos-alertas-detalle-cotizacion',
     alerta.folioCotizacion
+  );
+
+  texto(
+    'pagos-alertas-detalle-version',
+    `Versión ${
+      alerta.numeroVersion
+    }`
   );
 
   texto(
@@ -412,9 +611,37 @@ function mostrarPago(alerta) {
   );
 
   texto(
+    'pagos-alertas-detalle-resultado',
+    alerta.resultadoConocido ||
+      '—'
+  );
+
+  texto(
+    'pagos-alertas-detalle-estado',
+    alerta.estado ||
+      'Pendiente'
+  );
+
+  texto(
     'pagos-alertas-detalle-error',
     alerta.descripcionError
   );
+
+  renderizarReferencias(
+    alerta
+  );
+
+  const cuenta =
+    elemento(
+      'btn-pagos-alertas-detalle-cuenta'
+    );
+
+  if (cuenta) {
+    cuenta.href =
+      construirRutaCuenta(
+        alerta
+      );
+  }
 
   const dialogo =
     elemento(
