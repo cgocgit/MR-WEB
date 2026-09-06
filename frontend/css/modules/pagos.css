@@ -23,6 +23,28 @@
   gap: var(--gap);
 }
 
+.pagos-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-bottom: 10px;
+
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.pagos-breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.pagos-breadcrumb a:hover,
+.pagos-breadcrumb a:focus-visible {
+  text-decoration: underline;
+}
+
 .pagos-page-header h1 {
   margin: 0;
 }

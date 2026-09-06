@@ -238,14 +238,18 @@ function mapaPagosPorId() {
 
 function enriquecerMovimiento(
   movimiento,
-  pagosPorId =
-    mapaPagosPorId()
+  pagosPorId = null
 ) {
+  const mapaPagos =
+    pagosPorId instanceof Map
+      ? pagosPorId
+      : mapaPagosPorId();
+
   const original =
     movimiento
       .tipoMovimiento ===
     'COMPENSACION'
-      ? pagosPorId.get(
+      ? mapaPagos.get(
           Number(
             movimiento
               .idPagoOriginal

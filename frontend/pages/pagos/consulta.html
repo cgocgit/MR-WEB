@@ -4,6 +4,26 @@
 >
   <header class="pagos-page-header">
     <div>
+      <nav
+        class="pagos-breadcrumb"
+        aria-label="Navegación de Pagos"
+      >
+        <a href="#/dashboard">
+          Inicio
+        </a>
+
+        <span>/</span>
+
+        <a href="#/pagos">
+          Pagos
+        </a>
+
+        <span>/</span>
+
+        <span aria-current="page">
+          Consulta de pagos
+        </span>
+      </nav>
       <h1>Consulta de pagos</h1>
 
       <p class="pagos-page-description">
@@ -73,7 +93,7 @@
       Filtros
     </h2>
 
-    <details class="pagos-filtros-desplegables">
+    <details class="pagos-filtros-desplegables" open>
       <summary class="pagos-filtros-toggle">
         Mostrar / ocultar filtros
       </summary>
