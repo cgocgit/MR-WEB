@@ -158,9 +158,6 @@ const routes = {
     'pages/logistica/ejecucion.html',
 
   // Pagos
-  '#/pagos':
-    'pages/pagos/lista.html',
-
   '#/pagos/registro':
     'pages/pagos/registro.html',
 
