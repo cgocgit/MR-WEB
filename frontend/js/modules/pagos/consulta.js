@@ -620,6 +620,98 @@ function crearEnlace(
   return enlace;
 }
 
+function mostrarComprobante(
+  movimiento
+) {
+  const comprobante =
+    movimiento.comprobante;
+
+  if (
+    !comprobante ||
+    !comprobante
+      .disponibleDuranteSesion
+  ) {
+    texto(
+      'pagos-consulta-comprobante-nombre',
+      'Este movimiento no cuenta con comprobante disponible.'
+    );
+
+    texto(
+      'pagos-consulta-comprobante-tipo',
+      '—'
+    );
+
+    texto(
+      'pagos-consulta-comprobante-tamano',
+      '—'
+    );
+  } else {
+    texto(
+      'pagos-consulta-comprobante-nombre',
+      comprobante.nombreArchivo ||
+        '—'
+    );
+
+    texto(
+      'pagos-consulta-comprobante-tipo',
+      comprobante.tipoArchivo ||
+        '—'
+    );
+
+    texto(
+      'pagos-consulta-comprobante-tamano',
+      Number.isFinite(
+        Number(
+          comprobante.tamanoBytes
+        )
+      )
+        ? `${comprobante.tamanoBytes} bytes`
+        : '—'
+    );
+  }
+
+  const dialogo =
+    elemento(
+      'pagos-consulta-comprobante-dialog'
+    );
+
+  if (
+    dialogo &&
+    typeof dialogo.showModal ===
+      'function'
+  ) {
+    dialogo.showModal();
+  }
+}
+
+function crearBotonComprobante(
+  movimiento
+) {
+  const boton =
+    document.createElement(
+      'button'
+    );
+
+  boton.type =
+    'button';
+
+  boton.className =
+    'pagos-table-action';
+
+  boton.textContent =
+    'Ver comprobante';
+
+  boton.addEventListener(
+    'click',
+    () =>
+      mostrarComprobante(
+        movimiento
+      )
+  );
+
+  return boton;
+}
+
 function renderizarCuentasTabla(
   items
 ) {
@@ -859,32 +951,10 @@ function renderizarMovimientosTabla(
           .comprobante
           ?.disponibleDuranteSesion
       ) {
-        const comprobante =
-          document.createElement(
-            'button'
-          );
-
-        comprobante.type =
-          'button';
-
-        comprobante.className =
-          'pagos-table-action';
-
-        comprobante.textContent =
-          'Ver comprobante';
-
-        comprobante.dataset
-          .idMovimiento =
-          String(
-            movimiento.idMovimiento
-          );
-
-        comprobante.dataset
-          .accion =
-          'comprobante';
-
         acciones.appendChild(
-          comprobante
+          crearBotonComprobante(
+            movimiento
+          )
         );
       }
 
@@ -1089,6 +1159,18 @@ function renderizarCards(
           )
         )
       );
+
+      if (
+        item
+          .comprobante
+          ?.disponibleDuranteSesion
+      ) {
+        card.appendChild(
+          crearBotonComprobante(
+            item
+          )
+        );
+      }
 
       if (
         item.tipoMovimiento ===
@@ -1419,6 +1501,16 @@ function registrarEventos() {
     paginaSiguiente
   );
 
+  elemento(
+    'btn-pagos-consulta-comprobante-cerrar'
+  )?.addEventListener(
+    'click',
+    () =>
+      elemento(
+        'pagos-consulta-comprobante-dialog'
+      )?.close()
+  );
+  
   document
     .querySelectorAll(
       '[data-pagos-orden]'

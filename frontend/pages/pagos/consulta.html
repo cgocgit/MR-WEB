@@ -471,8 +471,65 @@
           Siguiente
         </button>
       </div>
-    </div>
+        </div>
   </section>
+
+  <!-- =====================================
+       COMPROBANTE
+       ===================================== -->
+
+  <dialog id="pagos-consulta-comprobante-dialog">
+    <div class="pagos-confirmacion">
+      <h2>
+        Comprobante
+      </h2>
+
+      <p class="pagos-section-description">
+        Información del comprobante disponible durante la sesión.
+      </p>
+
+      <div class="pagos-audit-grid">
+        <div class="pagos-audit-item">
+          <span>
+            Archivo
+          </span>
+
+          <strong id="pagos-consulta-comprobante-nombre">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-audit-item">
+          <span>
+            Tipo
+          </span>
+
+          <strong id="pagos-consulta-comprobante-tipo">
+            —
+          </strong>
+        </div>
+
+        <div class="pagos-audit-item">
+          <span>
+            Tamaño
+          </span>
+
+          <strong id="pagos-consulta-comprobante-tamano">
+            —
+          </strong>
+        </div>
+      </div>
+
+      <div class="pagos-form-actions">
+        <button
+          id="btn-pagos-consulta-comprobante-cerrar"
+          type="button"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </dialog>
 </section>
 
 <script type="module">

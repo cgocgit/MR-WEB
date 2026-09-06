@@ -586,6 +586,50 @@ export const movimientosMock = [
 
     usuarioResponsable:
       'Ana Pérez'
+    },
+
+  {
+    idMovimiento: 8008,
+    folioMovimiento:
+      'PGO-0124',
+
+    tipoMovimiento: 'PAGO',
+    idPagoOriginal: null,
+
+    idCotizacion: 3004,
+    folioCotizacion:
+      'COT-2026-004',
+
+    idVersion: 3104,
+    numeroVersion: 2,
+
+    idCliente: 1004,
+    nombreCliente:
+      'Industria Reyes',
+
+    fechaPago:
+      '2026-09-14',
+
+    fechaHoraRegistro:
+      '2026-09-14T16:10:00',
+
+    monto: 90000,
+
+    metodoPago:
+      'TRANSFERENCIA',
+
+    referencia:
+      'SPEI 7734',
+
+    observaciones:
+      'Pago registrado previo al fallo de integración.',
+
+    comprobante: null,
+
+    motivoCompensacion: null,
+
+    usuarioResponsable:
+      'Ana Pérez'
   }
 ];
 
