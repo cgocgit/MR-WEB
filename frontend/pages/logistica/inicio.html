@@ -1,0 +1,301 @@
+<section
+  id="logistica-inicio-root"
+  class="container logistica-page logistica-inicio"
+>
+  <nav
+    class="logistica-breadcrumb"
+    aria-label="Ruta de navegación"
+  >
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <span>Logística</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Inicio de Logística</h1>
+
+      <p class="logistica-page-description">
+        Consulta el estado de la operación y accede
+        a las funciones disponibles según tus permisos.
+      </p>
+    </div>
+  </header>
+
+  <div
+    id="logisticaInicioEstado"
+    class="logistica-estado"
+    aria-live="polite"
+    hidden
+  ></div>
+
+  <section
+    class="logistica-indicadores"
+    aria-label="Indicadores de Logística"
+  >
+    <a
+      href="#/logistica/programacion"
+      class="card logistica-indicador"
+      data-logistica-permisos="logistica.consultar|logistica.gestionar"
+    >
+      <div>
+        <span class="logistica-indicador-titulo">
+          Pendientes de programación
+        </span>
+
+        <strong
+          class="logistica-indicador-valor"
+          data-indicador="pendientesProgramacion"
+        >
+          —
+        </strong>
+      </div>
+
+      <span aria-hidden="true">›</span>
+    </a>
+
+    <a
+      href="#/logistica/rutas"
+      class="card logistica-indicador"
+      data-logistica-permisos="logistica.consultar|logistica.gestionar|logistica.asignadas|logistica.traslado"
+    >
+      <div>
+        <span class="logistica-indicador-titulo">
+          Rutas activas
+        </span>
+
+        <strong
+          class="logistica-indicador-valor"
+          data-indicador="rutasActivas"
+        >
+          —
+        </strong>
+      </div>
+
+      <span aria-hidden="true">›</span>
+    </a>
+
+    <a
+      href="#/logistica/incidencias"
+      class="card logistica-indicador"
+      data-logistica-permisos="logistica.consultar|logistica.gestionar|logistica.asignadas|logistica.proceso.gestion|logistica.traslado"
+    >
+      <div>
+        <span class="logistica-indicador-titulo">
+          Incidencias abiertas
+        </span>
+
+        <strong
+          class="logistica-indicador-valor"
+          data-indicador="incidenciasAbiertas"
+        >
+          —
+        </strong>
+      </div>
+
+      <span aria-hidden="true">›</span>
+    </a>
+
+    <a
+      href="#/logistica/consulta"
+      class="card logistica-indicador"
+      data-logistica-permisos="logistica.consultar|logistica.gestionar"
+    >
+      <div>
+        <span class="logistica-indicador-titulo">
+          Retornos pendientes
+        </span>
+
+        <strong
+          class="logistica-indicador-valor"
+          data-indicador="retornosPendientes"
+        >
+          —
+        </strong>
+      </div>
+
+      <span aria-hidden="true">›</span>
+    </a>
+
+    <a
+      href="#/logistica/consulta"
+      class="card logistica-indicador"
+      data-logistica-permisos="logistica.consultar|logistica.gestionar"
+    >
+      <div>
+        <span class="logistica-indicador-titulo">
+          Fuera de tolerancia
+        </span>
+
+        <strong
+          class="logistica-indicador-valor"
+          data-indicador="fasesFueraTolerancia"
+        >
+          —
+        </strong>
+      </div>
+
+      <span aria-hidden="true">›</span>
+    </a>
+  </section>
+
+  <div class="logistica-inicio-grid">
+    <section
+      class="card logistica-panel"
+      aria-labelledby="logisticaActividadTitulo"
+    >
+      <header class="logistica-panel-header">
+        <h2 id="logisticaActividadTitulo">
+          Actividad próxima
+        </h2>
+
+        <a href="#/logistica/consulta">
+          Ver todas
+        </a>
+      </header>
+
+      <div class="table-responsive">
+        <table class="logistica-table">
+          <thead>
+            <tr>
+              <th scope="col">Fecha y hora</th>
+              <th scope="col">Orden / Ruta</th>
+              <th scope="col">Actividad</th>
+              <th scope="col">Responsable</th>
+              <th scope="col">Situación</th>
+            </tr>
+          </thead>
+
+          <tbody id="logisticaActividadBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section
+      class="card logistica-panel"
+      aria-labelledby="logisticaIncidenciasTitulo"
+    >
+      <header class="logistica-panel-header">
+        <h2 id="logisticaIncidenciasTitulo">
+          Incidencias recientes
+        </h2>
+
+        <a href="#/logistica/incidencias">
+          Ver todas
+        </a>
+      </header>
+
+      <div class="table-responsive">
+        <table class="logistica-table">
+          <thead>
+            <tr>
+              <th scope="col">Incidencia</th>
+              <th scope="col">Orden / Ruta</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+
+          <tbody id="logisticaIncidenciasBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <section
+    class="logistica-inicio-accesos"
+    aria-labelledby="logisticaAccesosTitulo"
+  >
+    <h2 id="logisticaAccesosTitulo">
+      Accesos del módulo
+    </h2>
+
+    <div class="logistica-accesos-grid">
+      <a
+        href="#/logistica/programacion"
+        class="card logistica-acceso-card"
+        data-logistica-permisos="logistica.consultar|logistica.gestionar"
+      >
+        <h3>Programación</h3>
+        <p>
+          Programa, reprograma y consulta
+          la asignación de recursos.
+        </p>
+        <span aria-hidden="true">→</span>
+      </a>
+
+      <a
+        href="#/logistica/consulta"
+        class="card logistica-acceso-card"
+        data-logistica-permisos="logistica.consultar|logistica.gestionar"
+      >
+        <h3>Consulta logística</h3>
+        <p>
+          Consulta calendario, actividades,
+          responsables y tiempos.
+        </p>
+        <span aria-hidden="true">→</span>
+      </a>
+
+      <a
+        href="#/logistica/rutas"
+        class="card logistica-acceso-card"
+        data-logistica-permisos="logistica.consultar|logistica.gestionar|logistica.asignadas|logistica.traslado"
+      >
+        <h3>Rutas</h3>
+        <p>
+          Consulta rutas y el orden
+          de sus paradas.
+        </p>
+        <span aria-hidden="true">→</span>
+      </a>
+
+      <a
+        href="#/logistica/asignadas"
+        class="card logistica-acceso-card"
+        data-logistica-permisos="logistica.asignadas"
+      >
+        <h3>Mis asignaciones</h3>
+        <p>
+          Consulta las actividades asignadas
+          al usuario autenticado.
+        </p>
+        <span aria-hidden="true">→</span>
+      </a>
+
+      <a
+        href="#/logistica/incidencias"
+        class="card logistica-acceso-card"
+        data-logistica-permisos="logistica.consultar|logistica.gestionar|logistica.asignadas|logistica.proceso.gestion|logistica.traslado"
+      >
+        <h3>Incidencias</h3>
+        <p>
+          Consulta, reporta o da seguimiento
+          según tu perfil.
+        </p>
+        <span aria-hidden="true">→</span>
+      </a>
+
+      <a
+        href="#/logistica/tolerancias"
+        class="card logistica-acceso-card"
+        data-logistica-permisos="logistica.tolerancias.gestionar"
+      >
+        <h3>Tolerancias operativas</h3>
+        <p>
+          Configura los tiempos de tolerancia
+          aplicables por fase.
+        </p>
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/inicio.js';
+
+  init();
+</script>

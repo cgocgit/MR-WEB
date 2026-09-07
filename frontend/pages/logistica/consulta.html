@@ -1,0 +1,314 @@
+<section
+  id="logistica-consulta-root"
+  class="container logistica-page"
+>
+  <nav
+    class="logistica-breadcrumb"
+    aria-label="Ruta de navegación"
+  >
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Consulta</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Consulta logística</h1>
+
+      <p class="logistica-page-description">
+        Consulta la programación, fases, responsables,
+        tiempos, rutas e incidencias de la operación.
+      </p>
+    </div>
+  </header>
+
+  <section
+    class="card logistica-filtros"
+    aria-labelledby="consultaFiltrosTitulo"
+  >
+    <div class="logistica-panel-header">
+      <h2 id="consultaFiltrosTitulo">
+        Filtros
+      </h2>
+    </div>
+
+    <form id="consultaForm">
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="consultaPeriodo">
+            Periodo
+          </label>
+
+          <select
+            id="consultaPeriodo"
+            name="periodo"
+          >
+            <option value="">
+              Todos
+            </option>
+
+            <option value="HOY">
+              Hoy
+            </option>
+
+            <option value="PROXIMOS_7_DIAS">
+              Próximos 7 días
+            </option>
+
+            <option value="PROXIMOS_30_DIAS">
+              Próximos 30 días
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="consultaOrden">
+            Orden
+          </label>
+
+          <input
+            id="consultaOrden"
+            name="orden"
+            type="search"
+            autocomplete="off"
+            placeholder="Folio de Orden"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="consultaRuta">
+            Ruta
+          </label>
+
+          <input
+            id="consultaRuta"
+            name="ruta"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="consultaFase">
+            Fase
+          </label>
+
+          <select
+            id="consultaFase"
+            name="fase"
+          >
+            <option value="">
+              Todas
+            </option>
+
+            <option value="PREPARACION">
+              Preparación
+            </option>
+
+            <option value="CARGA_DESPACHO">
+              Carga y despacho
+            </option>
+
+            <option value="TRASLADO_SITIO">
+              Traslado al sitio
+            </option>
+
+            <option value="ENTREGA">
+              Entrega
+            </option>
+
+            <option value="MONTAJE">
+              Montaje
+            </option>
+
+            <option value="EJECUCION">
+              Ejecución o permanencia
+            </option>
+
+            <option value="DESMONTAJE">
+              Desmontaje
+            </option>
+
+            <option value="RECOLECCION">
+              Recolección
+            </option>
+
+            <option value="TRASLADO_RETORNO">
+              Traslado de retorno
+            </option>
+
+            <option value="ENTREGA_ALMACEN">
+              Entrega al almacén
+            </option>
+
+            <option value="INSPECCION">
+              Inspección
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="consultaResponsable">
+            Responsable
+          </label>
+
+          <input
+            id="consultaResponsable"
+            name="responsable"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="consultaPlaca">
+            Placa
+          </label>
+
+          <input
+            id="consultaPlaca"
+            name="placa"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="consultaTiempo">
+            Situación de tiempo
+          </label>
+
+          <select
+            id="consultaTiempo"
+            name="tiempo"
+          >
+            <option value="">
+              Todas
+            </option>
+
+            <option value="EN_TIEMPO">
+              En tiempo
+            </option>
+
+            <option value="FUERA_TOLERANCIA">
+              Fuera de tolerancia
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="consultaIncidencia">
+            Incidencia
+          </label>
+
+          <select
+            id="consultaIncidencia"
+            name="incidencia"
+          >
+            <option value="">
+              Todas
+            </option>
+
+            <option value="CON_INCIDENCIA">
+              Con incidencia abierta
+            </option>
+
+            <option value="SIN_INCIDENCIA">
+              Sin incidencia abierta
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="consultaVista">
+            Vista
+          </label>
+
+          <select
+            id="consultaVista"
+            name="vista"
+          >
+            <option value="LISTA">
+              Lista
+            </option>
+
+            <option value="CALENDARIO">
+              Calendario
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="logistica-form-actions">
+        <button
+          type="submit"
+          class="button-primary"
+        >
+          Consultar
+        </button>
+
+        <button
+          id="consultaLimpiar"
+          type="button"
+          class="button-secondary"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <div
+    id="consultaEstado"
+    class="logistica-estado"
+    aria-live="polite"
+  ></div>
+
+  <section
+    id="consultaLista"
+    class="card logistica-panel"
+    aria-labelledby="consultaListaTitulo"
+  >
+    <header class="logistica-panel-header">
+      <h2 id="consultaListaTitulo">
+        Operación logística
+      </h2>
+    </header>
+
+    <div class="table-responsive">
+      <table class="logistica-table logistica-table-clickable">
+        <thead>
+          <tr>
+            <th scope="col">Fecha y hora</th>
+            <th scope="col">Orden / Ruta</th>
+            <th scope="col">Cliente / Destino</th>
+            <th scope="col">Fase</th>
+            <th scope="col">Responsable</th>
+            <th scope="col">Placa</th>
+            <th scope="col">Situación de tiempo</th>
+            <th scope="col">Incidencias abiertas</th>
+          </tr>
+        </thead>
+
+        <tbody id="consultaListaBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section
+    id="consultaCalendario"
+    class="logistica-calendario"
+    hidden
+    aria-label="Calendario logístico"
+  ></section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/consulta.js';
+
+  init();
+</script>

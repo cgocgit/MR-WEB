@@ -1,0 +1,264 @@
+<section
+  id="logistica-programacion-root"
+  class="container logistica-page"
+>
+  <nav
+    class="logistica-breadcrumb"
+    aria-label="Ruta de navegación"
+  >
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Programación</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Programación logística</h1>
+
+      <p class="logistica-page-description">
+        Consulta las Órdenes disponibles, su programación
+        y los recursos asignados.
+      </p>
+    </div>
+
+    <button
+      id="programacionActualizar"
+      type="button"
+      class="button-secondary"
+    >
+      Actualizar
+    </button>
+  </header>
+
+  <section
+    class="card logistica-filtros"
+    aria-labelledby="programacionFiltrosTitulo"
+  >
+    <h2 id="programacionFiltrosTitulo">
+      Filtros
+    </h2>
+
+    <form id="programacionForm">
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="programacionFolio">
+            Folio de Orden
+          </label>
+
+          <input
+            id="programacionFolio"
+            name="folio"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="programacionCliente">
+            Cliente
+          </label>
+
+          <input
+            id="programacionCliente"
+            name="cliente"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="programacionFechaInicio">
+            Fecha inicial
+          </label>
+
+          <input
+            id="programacionFechaInicio"
+            name="fechaInicio"
+            type="date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="programacionFechaFin">
+            Fecha final
+          </label>
+
+          <input
+            id="programacionFechaFin"
+            name="fechaFin"
+            type="date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="programacionTipo">
+            Tipo de Orden
+          </label>
+
+          <select
+            id="programacionTipo"
+            name="tipoOrden"
+          >
+            <option value="">
+              Todos
+            </option>
+            <option value="PRODUCTOS">
+              Productos
+            </option>
+            <option value="SERVICIOS">
+              Servicios
+            </option>
+            <option value="MIXTA">
+              Mixta
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="programacionSituacion">
+            Situación
+          </label>
+
+          <select
+            id="programacionSituacion"
+            name="situacion"
+          >
+            <option value="">
+              Todas
+            </option>
+            <option value="PENDIENTE_PROGRAMACION">
+              Pendiente de programación
+            </option>
+            <option value="PROGRAMADA">
+              Programada
+            </option>
+            <option value="REPROGRAMADA">
+              Con reprogramación
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="programacionPlaca">
+            Placa
+          </label>
+
+          <input
+            id="programacionPlaca"
+            name="placa"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="programacionChofer">
+            Chófer
+          </label>
+
+          <input
+            id="programacionChofer"
+            name="chofer"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="programacionRepresentante">
+            Representante
+          </label>
+
+          <input
+            id="programacionRepresentante"
+            name="representante"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="logistica-form-actions">
+        <button
+          type="submit"
+          class="button-primary"
+        >
+          Aplicar filtros
+        </button>
+
+        <button
+          id="programacionLimpiar"
+          type="button"
+          class="button-secondary"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <div
+    id="programacionEstado"
+    class="logistica-estado"
+    aria-live="polite"
+  ></div>
+
+  <section
+    class="card logistica-panel"
+    aria-labelledby="programacionResultadosTitulo"
+  >
+    <header class="logistica-panel-header">
+      <div>
+        <h2 id="programacionResultadosTitulo">
+          Órdenes para atención logística
+        </h2>
+
+        <p>
+          La información comercial de la Orden
+          se presenta únicamente para consulta.
+        </p>
+      </div>
+    </header>
+
+    <div class="table-responsive">
+      <table class="logistica-table">
+        <thead>
+          <tr>
+            <th scope="col">Orden</th>
+            <th scope="col">Fecha y hora</th>
+            <th scope="col">Cliente</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Destino</th>
+            <th scope="col">Ruta</th>
+            <th scope="col">Placa</th>
+            <th scope="col">Chófer</th>
+            <th scope="col">Representante</th>
+            <th scope="col">Situación</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody id="programacionBody"></tbody>
+      </table>
+    </div>
+
+    <div
+      id="programacionVacio"
+      class="logistica-empty-state"
+      hidden
+    >
+      No existen Órdenes que coincidan con los
+      criterios seleccionados.
+    </div>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/programacion.js';
+
+  init();
+</script>

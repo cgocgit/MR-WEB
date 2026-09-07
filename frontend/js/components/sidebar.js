@@ -112,7 +112,21 @@ export function renderSidebar(container, session){
     key: 'logistica',
     href: '#/logistica',
     label: 'Logística',
-    permission: 'logistica.consultar'
+    permission:
+      [
+        'logistica.consultar',
+        'logistica.gestionar',
+        'logistica.asignadas',
+        'logistica.proceso.gestion',
+        'logistica.traslado',
+        'logistica.tolerancias.gestionar'
+      ].find(
+        permission =>
+          hasPermission(
+            session,
+            permission
+          )
+      ) || 'logistica.consultar'
   },
   {
     key: 'pagos',

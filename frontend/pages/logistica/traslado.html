@@ -1,0 +1,121 @@
+<section
+  id="logistica-traslado-root"
+  class="container logistica-page"
+>
+  <nav class="logistica-breadcrumb" aria-label="Ruta de navegación">
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Traslado</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Control de traslado</h1>
+
+      <p class="logistica-page-description">
+        Registra los hitos de carga, salida,
+        llegada y retorno de la ruta asignada.
+      </p>
+    </div>
+
+    <a
+      id="trasladoReportarIncidencia"
+      href="#/logistica/incidencias"
+      class="button-secondary"
+    >
+      Reportar incidencia
+    </a>
+  </header>
+
+  <div
+    id="trasladoEstado"
+    class="logistica-estado"
+    tabindex="-1"
+    aria-live="polite"
+  ></div>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <h2>Información del traslado</h2>
+    </header>
+
+    <div class="logistica-detail-grid">
+      <div class="logistica-detail-item">
+        <span>Ruta</span>
+        <strong id="trasladoRuta">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Placa</span>
+        <strong id="trasladoPlaca">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Chófer</span>
+        <strong id="trasladoChofer">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Representante</span>
+        <strong id="trasladoRepresentante">—</strong>
+      </div>
+
+      <div class="logistica-detail-item logistica-detail-wide">
+        <span>Órdenes transportadas</span>
+        <strong id="trasladoOrdenes">—</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <div>
+        <h2>Secuencia del traslado</h2>
+        <p>
+          Los hitos deben registrarse en orden.
+          No se habilitará el siguiente hasta
+          registrar el anterior.
+        </p>
+      </div>
+    </header>
+
+    <ol
+      id="trasladoHitos"
+      class="logistica-traslado-hitos"
+    ></ol>
+  </section>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <h2>Comentario del hito</h2>
+    </header>
+
+    <div class="form-group">
+      <label for="trasladoComentario">
+        Comentario
+      </label>
+
+      <textarea
+        id="trasladoComentario"
+        rows="4"
+        maxlength="500"
+        placeholder="Registra información relevante del traslado."
+      ></textarea>
+    </div>
+
+    <p class="logistica-help-text">
+      Los traslados se controlan mediante fecha y hora
+      real y no utilizan tolerancia en minutos.
+    </p>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/traslado.js';
+
+  init();
+</script>

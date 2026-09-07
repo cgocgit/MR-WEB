@@ -63,6 +63,7 @@ export const ROLE_PERMISSIONS = {
     'ordenes.logistica.consultar',
 
     'logistica.consultar',
+    'logistica.tolerancias.gestionar',
 
     'pagos.consultar',
     'pagos.alertas.consultar',
@@ -176,6 +177,7 @@ export const ROLE_PERMISSIONS = {
     'ordenes.logistica.consultar',
 
     'logistica.consultar',
+    'logistica.tolerancias.gestionar',
 
     'pagos.consultar',
     'pagos.gestionar',
@@ -193,10 +195,6 @@ export const ROLE_PERMISSIONS = {
 
     'ordenes.asignadas',
     'ordenes.logistica.consultar',
-
-    'logistica.consultar',
-    'logistica.ejecutar',
-    'logistica.asignadas',
 
     'alertas.consultar',
     'alertas.asignadas'
@@ -241,6 +239,27 @@ export const ROLE_PERMISSIONS = {
     'reportes.consultar',
 
     'alertas.consultar'
+  ],
+
+  REPRESENTANTE: [
+    'dashboard.consultar',
+
+    'logistica.asignadas',
+    'logistica.proceso.gestion',
+    'logistica.traslado',
+
+    'alertas.consultar',
+    'alertas.asignadas'
+  ],
+
+  CHOFER: [
+    'dashboard.consultar',
+
+    'logistica.asignadas',
+    'logistica.traslado',
+
+    'alertas.consultar',
+    'alertas.asignadas'
   ],
 
   DIRECCION: [

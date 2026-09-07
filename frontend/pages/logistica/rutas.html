@@ -1,0 +1,117 @@
+<section
+  id="logistica-rutas-root"
+  class="container logistica-page"
+>
+  <nav class="logistica-breadcrumb" aria-label="Ruta de navegación">
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Rutas</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Rutas logísticas</h1>
+      <p class="logistica-page-description">
+        Consulta las rutas programadas, recursos asignados,
+        avance, paradas e incidencias relacionadas.
+      </p>
+    </div>
+  </header>
+
+  <section class="card logistica-filtros">
+    <h2>Filtros</h2>
+
+    <form id="rutasForm">
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="rutasFecha">Fecha</label>
+          <input
+            id="rutasFecha"
+            name="fecha"
+            type="date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="rutasPlaca">Placa</label>
+          <input
+            id="rutasPlaca"
+            name="placa"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="rutasResponsable">Responsable</label>
+          <input
+            id="rutasResponsable"
+            name="responsable"
+            type="search"
+            autocomplete="off"
+            placeholder="Chófer o Representante"
+          />
+        </div>
+      </div>
+
+      <div class="logistica-form-actions">
+        <button type="submit" class="button-primary">
+          Consultar
+        </button>
+
+        <button
+          id="rutasLimpiar"
+          type="button"
+          class="button-secondary"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <div
+    id="rutasEstado"
+    class="logistica-estado"
+    aria-live="polite"
+  ></div>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <h2>Rutas programadas</h2>
+    </header>
+
+    <div class="table-responsive">
+      <table class="logistica-table">
+        <thead>
+          <tr>
+            <th scope="col">Ruta</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Placa</th>
+            <th scope="col">Chófer</th>
+            <th scope="col">Representante</th>
+            <th scope="col">Órdenes</th>
+            <th scope="col">Paradas</th>
+            <th scope="col">Primera salida</th>
+            <th scope="col">Retorno previsto</th>
+            <th scope="col">Avance</th>
+            <th scope="col">Incidencias</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody id="rutasBody"></tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/rutas.js';
+
+  init();
+</script>

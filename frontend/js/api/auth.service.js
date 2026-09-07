@@ -11,6 +11,14 @@ export async function login(username, password){
   else if(uname === 'inventario') role = 'INVENTARIO';
   else if(uname === 'tech' || uname === 'tecnico') role = 'TECH';
   else if(uname === 'supervisor') role = 'SUPERVISOR';
+  else if(
+    uname === 'representante' ||
+    uname === 'representante2'
+  ) role = 'REPRESENTANTE';
+  else if(
+    uname === 'chofer' ||
+    uname === 'chofer2'
+  ) role = 'CHOFER';
   else if(uname === 'administrativo') role = 'ADMINISTRATIVO';
   else if(uname === 'direccion' || uname === 'direccion') role = 'DIRECCION';
   else if(uname === 'ventas' || uname === 'vendedor') role = 'USER';

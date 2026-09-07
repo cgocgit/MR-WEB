@@ -1,1 +1,946 @@
-.logistica-list .card{overflow:auto}
+/* ============================================
+   Logística
+   Mesa Regia
+   ============================================ */
+
+.logistica-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--text);
+}
+
+.logistica-page [hidden] {
+  display: none !important;
+}
+
+/* ============================================
+   Breadcrumb
+   ============================================ */
+
+.logistica-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.logistica-breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.logistica-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   Encabezado
+   ============================================ */
+
+.logistica-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.logistica-page-header h1 {
+  margin: 0;
+}
+
+.logistica-page-description {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.logistica-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ============================================
+   Botones
+   ============================================ */
+
+.logistica-page .button-primary,
+.logistica-page .button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+  padding: 9px 14px;
+
+  border-radius: var(--radius);
+
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.2;
+
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.logistica-page .button-primary {
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+}
+
+.logistica-page .button-secondary {
+  border: 1px solid #d1d5db;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.logistica-page .button-primary:hover,
+.logistica-page .button-primary:focus-visible {
+  filter: brightness(.96);
+}
+
+.logistica-page .button-secondary:hover,
+.logistica-page .button-secondary:focus-visible {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.logistica-page button:disabled,
+.logistica-page .button-primary[aria-disabled="true"],
+.logistica-page .button-secondary[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+/* ============================================
+   Paneles
+   ============================================ */
+
+.logistica-panel {
+  border: 1px solid #e5e7eb;
+}
+
+.logistica-panel-header,
+.logistica-section-header,
+.logistica-subsection-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.logistica-panel-header {
+  margin-bottom: 16px;
+}
+
+.logistica-panel-header h2,
+.logistica-panel-header h3,
+.logistica-section-header h2,
+.logistica-subsection-header h3 {
+  margin: 0;
+}
+
+.logistica-panel-header p,
+.logistica-section-header p,
+.logistica-subsection-header p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.logistica-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logistica-section-divider {
+  height: 1px;
+  margin: 16px 0;
+  background: #e5e7eb;
+}
+
+/* ============================================
+   Estados y avisos
+   ============================================ */
+
+.logistica-estado {
+  min-height: 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.logistica-estado[role="alert"] {
+  padding: 12px 14px;
+
+  border: 1px solid #fecaca;
+  border-radius: var(--radius);
+
+  background: #fef2f2;
+  color: var(--danger);
+}
+
+.logistica-aviso {
+  padding: 12px 14px;
+
+  border: 1px solid;
+  border-radius: var(--radius);
+}
+
+.logistica-aviso-info {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.logistica-aviso-warning {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.logistica-aviso-danger {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.logistica-empty-state {
+  padding: 28px 16px;
+  text-align: center;
+}
+
+.logistica-empty-state p {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+/* ============================================
+   Formularios
+   ============================================ */
+
+.logistica-filtros {
+  border: 1px solid #e5e7eb;
+}
+
+.logistica-filtros > h2 {
+  margin-bottom: 16px;
+}
+
+.logistica-form-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.logistica-page .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.logistica-page .form-group label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.logistica-page .form-group input,
+.logistica-page .form-group select,
+.logistica-page .form-group textarea {
+  width: 100%;
+
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius);
+
+  padding: 9px 10px;
+
+  background: var(--panel);
+  color: var(--text);
+
+  font: inherit;
+}
+
+.logistica-page .form-group textarea {
+  resize: vertical;
+}
+
+.logistica-page .form-group input:disabled,
+.logistica-page .form-group select:disabled,
+.logistica-page .form-group textarea:disabled {
+  cursor: not-allowed;
+  background: #f3f4f6;
+  color: var(--muted);
+}
+
+.logistica-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+
+  margin-top: 16px;
+}
+
+.logistica-form-actions-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+
+  padding: 12px 0;
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(246, 247, 251, 0),
+      var(--bg) 24%
+    );
+}
+
+.logistica-help-text {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.logistica-check-field {
+  justify-content: flex-end;
+  min-height: 42px;
+}
+
+.logistica-check-field label,
+.logistica-confirmacion label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  cursor: pointer;
+}
+
+.logistica-check-field input,
+.logistica-confirmacion input {
+  width: auto;
+  margin-top: 2px;
+}
+
+.logistica-readonly-control {
+  min-height: 40px;
+  padding: 9px 10px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+
+  background: #f9fafb;
+}
+
+/* ============================================
+   Tablas
+   ============================================ */
+
+.logistica-page .table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.logistica-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.logistica-table th,
+.logistica-table td {
+  padding: 10px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  text-align: left;
+  vertical-align: top;
+}
+
+.logistica-table th {
+  background: #f9fafb;
+  color: var(--muted);
+
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.logistica-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.logistica-table-clickable tbody tr {
+  cursor: pointer;
+}
+
+.logistica-table-clickable tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ============================================
+   Inicio - Indicadores
+   ============================================ */
+
+.logistica-indicadores {
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.logistica-indicador {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  min-height: 100px;
+
+  border: 1px solid #e5e7eb;
+
+  color: var(--text);
+  text-decoration: none;
+}
+
+.logistica-indicador:hover,
+.logistica-indicador:focus-visible {
+  border-color: var(--primary);
+}
+
+.logistica-indicador > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logistica-indicador-titulo {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.logistica-indicador-valor {
+  font-size: 26px;
+  line-height: 1;
+}
+
+.logistica-indicador > span:last-child {
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.logistica-inicio-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+/* ============================================
+   Inicio - Accesos
+   ============================================ */
+
+.logistica-inicio-accesos {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logistica-accesos-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.logistica-acceso-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  min-height: 130px;
+
+  border: 1px solid #e5e7eb;
+
+  color: var(--text);
+}
+
+.logistica-acceso-card:hover,
+.logistica-acceso-card:focus-visible {
+  border-color: var(--primary);
+}
+
+.logistica-acceso-card h3 {
+  margin: 0;
+}
+
+.logistica-acceso-card p {
+  flex: 1;
+
+  margin: 0;
+
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.logistica-acceso-card > span {
+  align-self: flex-end;
+
+  color: var(--primary);
+  font-size: 20px;
+}
+
+/* ============================================
+   Detalle
+   ============================================ */
+
+.logistica-detail-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.logistica-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.logistica-detail-item > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.logistica-detail-item > strong {
+  overflow-wrap: anywhere;
+}
+
+.logistica-detail-wide {
+  grid-column: span 2;
+}
+
+.logistica-two-columns {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+/* ============================================
+   Fases
+   ============================================ */
+
+.logistica-fases-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.logistica-fases-config {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logistica-fases-config > * {
+  padding: 12px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+
+  background: var(--panel);
+}
+
+/* ============================================
+   Check lists
+   ============================================ */
+
+.logistica-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logistica-check-list > * {
+  padding: 10px 12px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+}
+
+/* ============================================
+   Rutas
+   ============================================ */
+
+.logistica-ruta-paradas,
+.logistica-traslado-hitos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.logistica-ruta-paradas > li,
+.logistica-traslado-hitos > li {
+  padding: 14px;
+
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid var(--primary);
+  border-radius: var(--radius);
+
+  background: var(--panel);
+}
+
+.logistica-ruta-paradas button,
+.logistica-traslado-hitos button {
+  min-height: 36px;
+}
+
+/* ============================================
+   Asignaciones
+   ============================================ */
+
+.logistica-asignaciones-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.logistica-asignacion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  border: 1px solid #e5e7eb;
+}
+
+.logistica-asignacion-card h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.logistica-asignacion-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.logistica-asignacion-card a {
+  margin-top: auto;
+
+  font-weight: 600;
+}
+
+/* ============================================
+   Ejecución - Evidencias
+   ============================================ */
+
+.logistica-evidencias-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+}
+
+.logistica-evidencia {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logistica-evidencia > label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.logistica-evidencia input[type="file"] {
+  width: 100%;
+}
+
+.logistica-preview {
+  display: grid;
+  place-items: center;
+
+  min-height: 160px;
+
+  overflow: hidden;
+
+  border: 1px dashed #d1d5db;
+  border-radius: var(--radius);
+
+  background: #f9fafb;
+}
+
+.logistica-preview img:not([src]) {
+  display: none;
+}
+
+.logistica-preview img {
+  width: 100%;
+  max-height: 240px;
+
+  object-fit: cover;
+}
+
+.logistica-confirmacion {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+/* ============================================
+   Listas
+   ============================================ */
+
+.logistica-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.logistica-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.logistica-list li:last-child {
+  border-bottom: 0;
+}
+
+/* ============================================
+   Calendario
+   ============================================ */
+
+.logistica-calendario {
+  display: grid;
+  grid-template-columns:
+    repeat(7, minmax(0, 1fr));
+  gap: 1px;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e7eb;
+  border-radius: var(--radius);
+
+  background: #e5e7eb;
+}
+
+.logistica-calendario > * {
+  min-height: 120px;
+  padding: 8px;
+
+  background: var(--panel);
+}
+
+/* ============================================
+   Estados visuales
+   ============================================ */
+
+.logistica-badge {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+  min-height: 24px;
+
+  padding: 3px 8px;
+
+  border: 1px solid transparent;
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.logistica-badge-info {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.logistica-badge-success {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.logistica-badge-warning {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.logistica-badge-danger {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.logistica-badge-neutral {
+  border-color: #e5e7eb;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* ============================================
+   Tolerancias
+   ============================================ */
+
+.logistica-page input[data-codigo-fase] {
+  min-width: 90px;
+}
+
+/* ============================================
+   Accesibilidad
+   ============================================ */
+
+.logistica-page a:focus-visible,
+.logistica-page button:focus-visible,
+.logistica-page input:focus-visible,
+.logistica-page select:focus-visible,
+.logistica-page textarea:focus-visible {
+  outline: 3px solid rgba(11, 110, 253, .25);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Tableta
+   ============================================ */
+
+@media (max-width: 900px) {
+  .logistica-form-grid,
+  .logistica-detail-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .logistica-indicadores {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .logistica-accesos-grid,
+  .logistica-asignaciones-grid,
+  .logistica-fases-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .logistica-inicio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .logistica-evidencias-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ============================================
+   Móvil
+   ============================================ */
+
+@media (max-width: 720px) {
+  .logistica-page-header {
+    flex-direction: column;
+  }
+
+  .logistica-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .logistica-page-header >
+    .button-primary,
+  .logistica-page-header >
+    .button-secondary {
+    width: 100%;
+  }
+
+  .logistica-form-grid,
+  .logistica-detail-grid,
+  .logistica-two-columns,
+  .logistica-indicadores,
+  .logistica-accesos-grid,
+  .logistica-asignaciones-grid,
+  .logistica-fases-grid,
+  .logistica-evidencias-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .logistica-detail-wide {
+    grid-column: auto;
+  }
+
+  .logistica-panel-header,
+  .logistica-section-header,
+  .logistica-subsection-header {
+    flex-direction: column;
+  }
+
+  .logistica-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .logistica-form-actions
+    .button-primary,
+  .logistica-form-actions
+    .button-secondary,
+  .logistica-form-actions
+    button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .logistica-indicador {
+    min-height: 84px;
+  }
+
+  .logistica-acceso-card {
+    min-height: auto;
+  }
+
+  .logistica-calendario {
+    display: flex;
+    flex-direction: column;
+
+    border: 0;
+    background: transparent;
+  }
+
+  .logistica-calendario > * {
+    min-height: auto;
+
+    border: 1px solid #e5e7eb;
+    border-radius: var(--radius);
+  }
+
+  .logistica-table th,
+  .logistica-table td {
+    padding: 9px 8px;
+  }
+
+  .logistica-preview {
+    min-height: 140px;
+  }
+}

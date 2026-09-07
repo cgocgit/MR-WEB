@@ -1,0 +1,351 @@
+<section
+  id="logistica-programacion-form-root"
+  class="container logistica-page"
+>
+  <nav
+    class="logistica-breadcrumb"
+    aria-label="Ruta de navegación"
+  >
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica/programacion">Programación</a>
+    <span aria-hidden="true">/</span>
+    <span>Formulario</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Programación logística</h1>
+
+      <p class="logistica-page-description">
+        Define la planeación, asignación de recursos,
+        fases y ruta para la atención de la Orden.
+      </p>
+    </div>
+  </header>
+
+  <div
+    id="programacionFormularioEstado"
+    class="logistica-estado"
+    tabindex="-1"
+    aria-live="polite"
+  ></div>
+
+  <form id="programacionFormulario">
+    <section
+      class="card logistica-panel"
+      aria-labelledby="programacionOrdenTitulo"
+    >
+      <header class="logistica-panel-header">
+        <div>
+          <h2 id="programacionOrdenTitulo">
+            Información de la Orden
+          </h2>
+
+          <p>
+            Información de solo lectura proporcionada
+            por Órdenes de servicio.
+          </p>
+        </div>
+      </header>
+
+      <div class="logistica-detail-grid">
+        <div class="logistica-detail-item">
+          <span>Orden</span>
+          <strong id="pfFolioOrden">—</strong>
+        </div>
+
+        <div class="logistica-detail-item">
+          <span>Cotización</span>
+          <strong id="pfCotizacion">—</strong>
+        </div>
+
+        <div class="logistica-detail-item">
+          <span>Estado</span>
+          <strong id="pfEstadoOrden">—</strong>
+        </div>
+
+        <div class="logistica-detail-item">
+          <span>Tipo</span>
+          <strong id="pfTipoOrden">—</strong>
+        </div>
+
+        <div class="logistica-detail-item">
+          <span>Cliente</span>
+          <strong id="pfCliente">—</strong>
+        </div>
+
+        <div class="logistica-detail-item">
+          <span>Contacto</span>
+          <strong id="pfContacto">—</strong>
+        </div>
+
+        <div class="logistica-detail-item logistica-detail-wide">
+          <span>Domicilio del evento</span>
+          <strong id="pfDomicilio">—</strong>
+        </div>
+
+        <div class="logistica-detail-item">
+          <span>Fecha y horario</span>
+          <strong id="pfEvento">—</strong>
+        </div>
+
+        <div class="logistica-detail-item logistica-detail-wide">
+          <span>Observaciones</span>
+          <strong id="pfObservaciones">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="card logistica-panel"
+      aria-labelledby="programacionPlaneacionTitulo"
+    >
+      <header class="logistica-panel-header">
+        <h2 id="programacionPlaneacionTitulo">
+          Planeación
+        </h2>
+      </header>
+
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="programacionFechaHora">
+            Fecha y hora de preparación *
+          </label>
+
+          <input
+            id="programacionFechaHora"
+            name="fechaHoraPreparacion"
+            type="datetime-local"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>
+            Supervisor responsable
+          </label>
+
+          <div
+            id="pfSupervisor"
+            class="logistica-readonly-control"
+          >
+            —
+          </div>
+        </div>
+      </div>
+
+      <div class="logistica-section-divider"></div>
+
+      <h3>Fases aplicables</h3>
+
+      <p class="logistica-help-text">
+        Las fases de traslado se controlan mediante
+        fecha y hora. Las demás fases requieren una
+        duración estimada en minutos.
+      </p>
+
+      <div
+        id="programacionFases"
+        class="logistica-fases-config"
+      ></div>
+    </section>
+
+    <section
+      class="card logistica-panel"
+      aria-labelledby="programacionAsignacionTitulo"
+    >
+      <header class="logistica-panel-header">
+        <h2 id="programacionAsignacionTitulo">
+          Asignación de recursos
+        </h2>
+      </header>
+
+      <p class="logistica-help-text">
+        La disponibilidad se actualiza de acuerdo
+        con la fecha y horario seleccionados.
+      </p>
+
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="programacionRepresentante">
+            Representante *
+          </label>
+
+          <select
+            id="programacionRepresentante"
+            name="idRepresentante"
+            required
+          >
+            <option value="">
+              Seleccione
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="programacionChofer">
+            Chófer *
+          </label>
+
+          <select
+            id="programacionChofer"
+            name="idChofer"
+            required
+          >
+            <option value="">
+              Seleccione
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="programacionVehiculo">
+            Placa del vehículo *
+          </label>
+
+          <select
+            id="programacionVehiculo"
+            name="placaVehiculo"
+            required
+          >
+            <option value="">
+              Seleccione
+            </option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="card logistica-panel"
+      aria-labelledby="programacionRutaTitulo"
+    >
+      <header class="logistica-panel-header">
+        <h2 id="programacionRutaTitulo">
+          Ruta y Órdenes agrupadas
+        </h2>
+      </header>
+
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="programacionRutaNombre">
+            Nombre o identificador de ruta
+          </label>
+
+          <input
+            id="programacionRutaNombre"
+            name="nombreRuta"
+            type="text"
+            autocomplete="off"
+            maxlength="100"
+          />
+        </div>
+      </div>
+
+      <div class="logistica-section-divider"></div>
+
+      <h3>Órdenes incluidas</h3>
+
+      <p class="logistica-help-text">
+        La Orden principal permanece seleccionada.
+        Las Órdenes adicionales conservan sus propias
+        referencias y cantidades.
+      </p>
+
+      <div
+        id="programacionOrdenesAgrupables"
+        class="logistica-check-list"
+      ></div>
+
+      <div class="logistica-section-divider"></div>
+
+      <div class="logistica-subsection-header">
+        <div>
+          <h3>Paradas</h3>
+
+          <p class="logistica-help-text">
+            El orden se administra manualmente mediante
+            las acciones Subir y Bajar.
+          </p>
+        </div>
+
+        <button
+          id="programacionAgregarParada"
+          type="button"
+          class="button-secondary"
+        >
+          Agregar parada
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="logistica-table">
+          <thead>
+            <tr>
+              <th scope="col">Posición</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Domicilio</th>
+              <th scope="col">Orden</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody id="programacionParadasBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section
+      id="programacionMotivoGrupo"
+      class="card logistica-panel"
+      hidden
+      aria-labelledby="programacionMotivoTitulo"
+    >
+      <header class="logistica-panel-header">
+        <h2 id="programacionMotivoTitulo">
+          Reprogramación
+        </h2>
+      </header>
+
+      <div class="form-group">
+        <label for="programacionMotivo">
+          Motivo de reprogramación *
+        </label>
+
+        <textarea
+          id="programacionMotivo"
+          name="motivoReprogramacion"
+          rows="4"
+          maxlength="500"
+        ></textarea>
+      </div>
+    </section>
+
+    <div class="logistica-form-actions logistica-form-actions-sticky">
+      <a
+        href="#/logistica/programacion"
+        class="button-secondary"
+      >
+        Cancelar
+      </a>
+
+      <button
+        type="submit"
+        class="button-primary"
+      >
+        Confirmar programación
+      </button>
+    </div>
+  </form>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/programacion-formulario.js';
+
+  init();
+</script>
