@@ -689,14 +689,246 @@ function usuarioAsignadoARuta(
   );
 }
 
+const ROLES_CONSULTA_GENERAL =
+  new Set([
+    'ADMIN',
+    'ADMINISTRATIVO',
+    'SUPERVISOR',
+    'DIRECCION'
+  ]);
+
+const FASES_ALCANCE_INVENTARIO =
+  new Set([
+    'PREPARACION',
+    'CARGA_DESPACHO',
+    'RECOLECCION',
+    'TRASLADO_RETORNO',
+    'ENTREGA_ALMACEN',
+    'INSPECCION',
+    'LIMPIEZA_REACONDICIONAMIENTO',
+    'REINGRESO_INVENTARIO'
+  ]);
+
+function tieneRolActual(
+  rol
+) {
+  return usuarioActual()
+    .roles
+    .includes(rol);
+}
+
 function puedeConsultarGeneral() {
-  return hasAnyPermission(
-    sesion(),
-    [
-      'logistica.consultar',
-      'logistica.gestionar',
-      'logistica.tolerancias.gestionar'
-    ]
+  return usuarioActual()
+    .roles
+    .some(
+      rol =>
+        ROLES_CONSULTA_GENERAL
+          .has(rol)
+    );
+}
+
+function usernameVentasCanonico(
+  username
+) {
+  const valor =
+    String(
+      username || ''
+    ).toLowerCase();
+
+  return valor === 'vendedor'
+    ? 'ventas'
+    : valor;
+}
+
+function ordenVisibleParaUsuario(
+  orden
+) {
+  if (!orden) {
+    return false;
+  }
+
+  if (puedeConsultarGeneral()) {
+    return true;
+  }
+
+  const user =
+    usuarioActual();
+
+  if (
+    user.roles.includes(
+      'USER'
+    )
+  ) {
+    return (
+      String(
+        orden.usuarioVentas ||
+        ''
+      ).toLowerCase() ===
+      usernameVentasCanonico(
+        user.username
+      )
+    );
+  }
+
+  if (
+    user.roles.includes(
+      'INVENTARIO'
+    )
+  ) {
+    return (
+      Array.isArray(
+        orden.productos
+      ) &&
+      orden.productos.length > 0
+    );
+  }
+
+  const programacion =
+    obtenerProgramacionInternaPorOrden(
+      orden.idOrden
+    );
+
+  return Boolean(
+    programacion &&
+    usuarioAsignadoAProgramacion(
+      programacion
+    )
+  );
+}
+
+function programacionVisibleParaUsuario(
+  programacion
+) {
+  if (!programacion) {
+    return false;
+  }
+
+  if (puedeConsultarGeneral()) {
+    return true;
+  }
+
+  return programacion.idOrdenes
+    .some(
+      idOrden => {
+        const orden =
+          state.ordenes.find(
+            item =>
+              Number(
+                item.idOrden
+              ) ===
+              Number(idOrden)
+          );
+
+        return (
+          orden &&
+          ordenVisibleParaUsuario(
+            orden
+          )
+        );
+      }
+    );
+}
+
+function rutaVisibleParaUsuario(
+  ruta
+) {
+  if (!ruta) {
+    return false;
+  }
+
+  if (puedeConsultarGeneral()) {
+    return true;
+  }
+
+  if (
+    usuarioAsignadoARuta(
+      ruta
+    )
+  ) {
+    return true;
+  }
+
+  return (
+    ruta.ordenes || []
+  ).some(
+    idOrden => {
+      const orden =
+        state.ordenes.find(
+          item =>
+            Number(
+              item.idOrden
+            ) ===
+            Number(idOrden)
+        );
+
+      return (
+        orden &&
+        ordenVisibleParaUsuario(
+          orden
+        )
+      );
+    }
+  );
+}
+
+function faseVisibleParaUsuario(
+  fase
+) {
+  if (
+    !tieneRolActual(
+      'INVENTARIO'
+    )
+  ) {
+    return true;
+  }
+
+  return FASES_ALCANCE_INVENTARIO
+    .has(
+      fase.codigoFase
+    );
+}
+
+function incidenciaRelacionadaInventario(
+  incidencia
+) {
+  if (
+    (
+      TIPOS_INCIDENCIA_POR_ROL
+        .REPRESENTANTE ||
+      []
+    ).includes(
+      incidencia.tipoIncidencia
+    )
+  ) {
+    return true;
+  }
+
+  if (!incidencia.idFase) {
+    return false;
+  }
+
+  const fase =
+    state.programaciones
+      .flatMap(
+        item =>
+          item.fases
+      )
+      .find(
+        item =>
+          Number(
+            item.idFase
+          ) ===
+          Number(
+            incidencia.idFase
+          )
+      );
+
+  return Boolean(
+    fase &&
+    FASES_ALCANCE_INVENTARIO
+      .has(
+        fase.codigoFase
+      )
   );
 }
 
@@ -825,6 +1057,40 @@ function incidenciaVisibleParaUsuario(
     usuarioActual();
 
   if (
+    user.roles.includes(
+      'USER'
+    )
+  ) {
+    const orden =
+      state.ordenes.find(
+        item =>
+          Number(
+            item.idOrden
+          ) ===
+          Number(
+            incidencia.idOrden
+          )
+      );
+
+    return (
+      orden &&
+      ordenVisibleParaUsuario(
+        orden
+      )
+    );
+  }
+
+  if (
+    user.roles.includes(
+      'INVENTARIO'
+    )
+  ) {
+    return incidenciaRelacionadaInventario(
+      incidencia
+    );
+  }
+
+  if (
     String(
       incidencia.reportadoPor
         ?.username ||
@@ -837,7 +1103,7 @@ function incidenciaVisibleParaUsuario(
 
   if (incidencia.idRuta) {
     try {
-      return usuarioAsignadoARuta(
+      return rutaVisibleParaUsuario(
         obtenerRutaInterna(
           incidencia.idRuta
         )
@@ -845,6 +1111,20 @@ function incidenciaVisibleParaUsuario(
     } catch {
       return false;
     }
+  }
+
+  if (incidencia.idOrden) {
+    const programacion =
+      obtenerProgramacionInternaPorOrden(
+        incidencia.idOrden
+      );
+
+    return Boolean(
+      programacion &&
+      usuarioAsignadoAProgramacion(
+        programacion
+      )
+    );
   }
 
   return false;
@@ -855,15 +1135,10 @@ export async function obtenerInicioLogistica() {
     PERMISOS_CONSULTA
   );
 
-  const consultaGeneral =
-    puedeConsultarGeneral();
-
   const programacionesBase =
-    consultaGeneral
-      ? state.programaciones
-      : state.programaciones.filter(
-          usuarioAsignadoAProgramacion
-        );
+    state.programaciones.filter(
+      programacionVisibleParaUsuario
+    );
 
   const incidenciasAbiertas =
     state.incidencias.filter(
@@ -898,6 +1173,9 @@ export async function obtenerInicioLogistica() {
           return programacion.fases
             .filter(
               fase =>
+                faseVisibleParaUsuario(
+                  fase
+                ) &&
                 fase.estadoFase !==
                 ESTADOS_FASE_LOGISTICA
                   .CONCLUIDA
@@ -967,19 +1245,40 @@ export async function obtenerInicioLogistica() {
         ).length,
 
       rutasActivas:
-        consultaGeneral
-          ? state.rutas.length
-          : state.rutas.filter(
-              usuarioAsignadoARuta
-            ).length,
+        state.rutas.filter(
+          rutaVisibleParaUsuario
+        ).length,
 
       incidenciasAbiertas:
         incidenciasAbiertas.length,
 
-      retornosPendientes:
+            retornosPendientes:
         state.traslados.filter(
-          item =>
-            !item.retornoTerminadoEn
+          item => {
+            if (
+              item.retornoTerminadoEn
+            ) {
+              return false;
+            }
+
+            const ruta =
+              state.rutas.find(
+                rutaItem =>
+                  Number(
+                    rutaItem.idRuta
+                  ) ===
+                  Number(
+                    item.idRuta
+                  )
+              );
+
+            return (
+              ruta &&
+              rutaVisibleParaUsuario(
+                ruta
+              )
+            );
+          }
         ).length,
 
       fasesFueraTolerancia:
@@ -1039,6 +1338,9 @@ export async function listarOrdenesProgramacion(
 
   const items =
     state.ordenes
+      .filter(
+        ordenVisibleParaUsuario
+      )
       .map(
         orden => {
           const programacion =
@@ -1184,6 +1486,17 @@ export async function obtenerOrdenLogistica(
       idOrden
     );
 
+      if (
+    !ordenVisibleParaUsuario(
+      orden
+    )
+  ) {
+    throw crearError(
+      'No cuenta con acceso a esta Orden.',
+      'ACCESO_DENEGADO'
+    );
+  }
+
   return clonar({
     ...orden,
 
@@ -1200,6 +1513,22 @@ export async function obtenerProgramacionPorOrden(
   exigirPermiso(
     PERMISOS_CONSULTA
   );
+
+  const orden =
+    obtenerOrdenInterna(
+      idOrden
+    );
+
+  if (
+    !ordenVisibleParaUsuario(
+      orden
+    )
+  ) {
+    throw crearError(
+      'No cuenta con acceso a esta programación.',
+      'ACCESO_DENEGADO'
+    );
+  }
 
   const programacion =
     obtenerProgramacionInternaPorOrden(
@@ -1479,6 +1808,127 @@ function construirParadas(
         indice + 1
     })
   );
+}
+
+function sincronizarTrasladoRuta(
+  ruta,
+  programacion
+) {
+  let traslado =
+    state.traslados.find(
+      item =>
+        Number(item.idRuta) ===
+        Number(ruta.idRuta)
+    );
+
+  const ordenesTransportadas =
+    [
+      ...programacion.idOrdenes
+    ];
+
+  if (!traslado) {
+    traslado = {
+      idTraslado:
+        siguienteId(
+          state.traslados,
+          'idTraslado',
+          9000
+        ),
+
+      idRuta:
+        ruta.idRuta,
+
+      placaVehiculo:
+        ruta.placaVehiculo,
+
+      idChofer:
+        ruta.idChofer,
+
+      idRepresentante:
+        ruta.idRepresentante,
+
+      ordenesTransportadas,
+
+      cargaRealizadaEn: null,
+      salidaIniciadaEn: null,
+      salidaTerminadaEn: null,
+      retornoIniciadoEn: null,
+      retornoTerminadoEn: null,
+
+      evidencias: [],
+      comentarios: [],
+
+      auditoria: [
+        {
+          hito:
+            'TRASLADO_CREADO',
+
+          usuario:
+            usuarioActual().nombre,
+
+          fechaHora:
+            ahora()
+        }
+      ],
+
+      version: 1
+    };
+
+    state.traslados.push(
+      traslado
+    );
+
+    return traslado;
+  }
+
+  const cambio =
+    traslado.placaVehiculo !==
+      ruta.placaVehiculo ||
+    Number(traslado.idChofer) !==
+      Number(ruta.idChofer) ||
+    Number(
+      traslado.idRepresentante
+    ) !==
+      Number(
+        ruta.idRepresentante
+      ) ||
+    JSON.stringify(
+      traslado.ordenesTransportadas
+    ) !==
+      JSON.stringify(
+        ordenesTransportadas
+      );
+
+  if (!cambio) {
+    return traslado;
+  }
+
+  traslado.placaVehiculo =
+    ruta.placaVehiculo;
+
+  traslado.idChofer =
+    ruta.idChofer;
+
+  traslado.idRepresentante =
+    ruta.idRepresentante;
+
+  traslado.ordenesTransportadas =
+    ordenesTransportadas;
+
+  traslado.version += 1;
+
+  traslado.auditoria.push({
+    hito:
+      'REPROGRAMACION_RUTA',
+
+    usuario:
+      usuarioActual().nombre,
+
+    fechaHora:
+      ahora()
+  });
+
+  return traslado;
 }
 
 function responsableFase(
@@ -1762,6 +2212,11 @@ export async function crearProgramacion(
 
     version: 1
   };
+
+  sincronizarTrasladoRuta(
+    ruta,
+    programacion
+  );
 
   state.programaciones.push(
     programacion
@@ -2048,6 +2503,11 @@ export async function reprogramar(
 
   ruta.version += 1;
 
+  sincronizarTrasladoRuta(
+    ruta,
+    programacion
+  );
+
   auditoria(
     'REPROGRAMACION_CONFIRMADA',
     {
@@ -2081,11 +2541,9 @@ export async function listarConsultaLogistica(
     puedeConsultarGeneral();
 
   let programaciones =
-    consultaGeneral
-      ? state.programaciones
-      : state.programaciones.filter(
-          usuarioAsignadoAProgramacion
-        );
+    state.programaciones.filter(
+      programacionVisibleParaUsuario
+    );
 
   const hoy =
     new Date();
@@ -2173,6 +2631,9 @@ export async function listarConsultaLogistica(
                 }
 
                 return programacion.fases
+                  .filter(
+                    faseVisibleParaUsuario
+                  )
                   .map(
                     fase => {
                       const incidencias =
@@ -2343,17 +2804,11 @@ export async function listarRutas(
     PERMISOS_CONSULTA
   );
 
-  const consultaGeneral =
-    puedeConsultarGeneral();
-
   const rutas =
-    (
-      consultaGeneral
-        ? state.rutas
-        : state.rutas.filter(
-            usuarioAsignadoARuta
-          )
-    )
+    state.rutas
+      .filter(
+        rutaVisibleParaUsuario
+      )
       .filter(
         ruta =>
           (
@@ -2430,9 +2885,10 @@ export async function obtenerRuta(
       idRuta
     );
 
-  if (
-    !puedeConsultarGeneral() &&
-    !usuarioAsignadoARuta(ruta)
+    if (
+    !rutaVisibleParaUsuario(
+      ruta
+    )
   ) {
     throw crearError(
       'La ruta no está asignada al usuario autenticado.',
@@ -2651,23 +3107,21 @@ export async function obtenerDetalleLogisticoOrden(
       idOrden
     );
 
+  if (
+    !ordenVisibleParaUsuario(
+      orden
+    )
+  ) {
+    throw crearError(
+      'No cuenta con acceso a esta Orden.',
+      'ACCESO_DENEGADO'
+    );
+  }
+
   const programacion =
     obtenerProgramacionInternaPorOrden(
       idOrden
     );
-
-  if (
-    programacion &&
-    !puedeConsultarGeneral() &&
-    !usuarioAsignadoAProgramacion(
-      programacion
-    )
-  ) {
-    throw crearError(
-      'La Orden no está asignada al usuario autenticado.',
-      'ACTIVIDAD_NO_ASIGNADA'
-    );
-  }
 
   const user =
     usuarioActual();
@@ -2681,7 +3135,11 @@ export async function obtenerDetalleLogisticoOrden(
     (
       programacion?.fases ||
       []
-    ).map(
+    )
+    .filter(
+      faseVisibleParaUsuario
+    )
+    .map(
       fase => {
         const propia =
           fase.responsable ===
@@ -2717,7 +3175,10 @@ export async function obtenerDetalleLogisticoOrden(
           Number(
             item.idOrden
           ) ===
-          Number(idOrden)
+            Number(idOrden) &&
+          incidenciaVisibleParaUsuario(
+            item
+          )
       )
       .map(
         item => ({
@@ -2768,6 +3229,19 @@ export async function obtenerDetalleLogisticoOrden(
           )
       );
 
+  const permiteAbrirInventario =
+    hasAnyPermission(
+      sesion(),
+      [
+        'inventario.consultar',
+        'inventario.gestionar'
+      ]
+    ) &&
+    Array.isArray(
+      orden.productos
+    ) &&
+    orden.productos.length > 0;
+
   return clonar({
     orden: {
       ...orden,
@@ -2785,9 +3259,11 @@ export async function obtenerDetalleLogisticoOrden(
           )
         : null,
 
-    fases,
-    incidencias,
-    historial
+        fases,
+        incidencias,
+        historial,
+
+        permiteAbrirInventario
   });
 }
 
@@ -3129,6 +3605,31 @@ function mapearFase(
       idOrden
     );
 
+  const user =
+    usuarioActual();
+
+  const concluida =
+    fase.estadoFase ===
+      ESTADOS_FASE_LOGISTICA
+        .CONCLUIDA;
+
+  const esRepresentante =
+    user.roles.includes(
+      'REPRESENTANTE'
+    );
+
+  const propia =
+    usuarioAsignadoAProgramacion(
+      programacion
+    ) &&
+    fase.responsable ===
+      user.nombre;
+
+  const puedeGestionar =
+    esRepresentante &&
+    propia &&
+    !concluida;
+
   return {
     ...clonar(fase),
 
@@ -3162,7 +3663,12 @@ function mapearFase(
       ESTADOS_FASE_LABELS[
         fase.estadoFase
       ] ||
-      fase.estadoFase
+      fase.estadoFase,
+
+    concluida,
+
+    soloConsulta:
+      !puedeGestionar
   };
 }
 
@@ -4564,7 +5070,8 @@ export async function resolverIncidencia(
 
 export async function listarTolerancias() {
   exigirPermiso([
-    'logistica.tolerancias.gestionar'
+    'logistica.tolerancias.gestionar',
+    'logistica.gestionar'
   ]);
 
   return clonar(
@@ -4669,6 +5176,20 @@ export async function actualizarTolerancias(
           'VALIDACION'
         );
       }
+
+      if (
+        cambio.version == null
+      ) {
+        throw crearError(
+          'La versión de la tolerancia es obligatoria.',
+          'VALIDACION'
+        );
+      }
+
+      validarVersion(
+        tolerancia.version,
+        cambio.version
+      );
     }
   );
 

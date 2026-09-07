@@ -224,16 +224,31 @@ function cambios(
       '[data-codigo-fase]'
     )
   ).map(
-    input => ({
-      codigoFase:
+    input => {
+      const codigoFase =
         input.dataset
-          .codigoFase,
+          .codigoFase;
 
-      valorMinutos:
-        Number(
-          input.value
-        )
-    })
+      const actual =
+        tolerancias.find(
+          item =>
+            item.codigoFase ===
+            codigoFase
+        );
+
+      return {
+        codigoFase,
+
+        valorMinutos:
+          Number(
+            input.value
+          ),
+
+        version:
+          actual?.version ??
+          null
+      };
+    }
   );
 }
 

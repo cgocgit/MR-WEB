@@ -146,15 +146,27 @@ function renderDatos(
     fase.cantidadPendiente
   );
 
-  if (fase.concluida) {
-    contenedor.querySelectorAll(
-      'input, textarea, button[data-operacion]'
-    ).forEach(
-      elemento => {
-        elemento.disabled =
-          true;
-      }
+  const soloConsulta =
+    fase.soloConsulta ||
+    fase.concluida;
+
+  contenedor.querySelectorAll(
+    'input, textarea, button[data-operacion]'
+  ).forEach(
+    elemento => {
+      elemento.disabled =
+        soloConsulta;
+    }
+  );
+
+  const incidencia =
+    contenedor.querySelector(
+      '#ejecucionIncidencia'
     );
+
+  if (incidencia) {
+    incidencia.hidden =
+      soloConsulta;
   }
 }
 

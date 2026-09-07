@@ -108,6 +108,9 @@ const ORDENES =
       versionCotizacion:
         'V1',
 
+      usuarioVentas:
+        'ventas',
+
       estadoOrden:
         ESTADOS_ORDEN_LOGISTICA
           .EN_EJECUCION,
@@ -166,6 +169,9 @@ const ORDENES =
       folioCotizacion: null,
       versionCotizacion: null,
 
+      usuarioVentas:
+        'ventas',
+
       estadoOrden:
         ESTADOS_ORDEN_LOGISTICA
           .PENDIENTE_PROGRAMACION,
@@ -200,6 +206,9 @@ const ORDENES =
 
       versionCotizacion:
         'V1',
+
+      usuarioVentas:
+        'ventas',
 
       estadoOrden:
         ESTADOS_ORDEN_LOGISTICA
@@ -254,6 +263,9 @@ const ORDENES =
 
       versionCotizacion:
         'V2',
+      
+      usuarioVentas:
+        'ventas',
 
       estadoOrden:
         ESTADOS_ORDEN_LOGISTICA
@@ -300,6 +312,9 @@ const ORDENES =
 
       versionCotizacion:
         'V1',
+
+      usuarioVentas:
+        'ventas',
 
       estadoOrden:
         ESTADOS_ORDEN_LOGISTICA
@@ -355,6 +370,9 @@ const ORDENES =
 
       versionCotizacion:
         'V1',
+
+      usuarioVentas:
+        'ventas',
 
       estadoOrden:
         ESTADOS_ORDEN_LOGISTICA
