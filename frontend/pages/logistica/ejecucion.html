@@ -1,4 +1,312 @@
-<section class="container">
-  <h1>Ejecuci�n de servicio</h1>
-  <div class="card mt-12">Placeholder para actualizaci�n de fases y captura de evidencias</div>
+<section
+  id="logistica-ejecucion-root"
+  class="container logistica-page logistica-ejecucion"
+>
+  <nav
+    class="logistica-breadcrumb"
+    aria-label="Ruta de navegación"
+  >
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica/asignadas">
+      Mis asignaciones
+    </a>
+    <span aria-hidden="true">/</span>
+    <span>Ejecución de fase</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Ejecución de fase</h1>
+
+      <p class="logistica-page-description">
+        Registra el avance de la actividad asignada.
+        Una incidencia no detiene el proceso.
+      </p>
+    </div>
+
+    <a
+      id="ejecucionIncidencia"
+      href="#/logistica/incidencias"
+      class="button-secondary"
+    >
+      Reportar incidencia
+    </a>
+  </header>
+
+  <div
+    id="ejecucionEstado"
+    class="logistica-estado"
+    tabindex="-1"
+    aria-live="polite"
+  ></div>
+
+  <section
+    class="card logistica-panel"
+    aria-labelledby="ejecucionResumenTitulo"
+  >
+    <header class="logistica-panel-header">
+      <h2 id="ejecucionResumenTitulo">
+        Información de la fase
+      </h2>
+    </header>
+
+    <div class="logistica-detail-grid">
+      <div class="logistica-detail-item">
+        <span>Orden</span>
+        <strong id="ejecucionOrden">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Fase</span>
+        <strong id="ejecucionFase">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Responsable</span>
+        <strong id="ejecucionResponsable">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Fecha y hora programada</span>
+        <strong id="ejecucionProgramada">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Tiempo previsto</span>
+        <strong id="ejecucionPrevisto">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Tolerancia</span>
+        <strong id="ejecucionTolerancia">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Tiempo transcurrido</span>
+        <strong id="ejecucionTranscurrido">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Estado de la fase</span>
+        <strong id="ejecucionEstadoFase">—</strong>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="card logistica-panel"
+    aria-labelledby="ejecucionAvanceTitulo"
+  >
+    <header class="logistica-panel-header">
+      <div>
+        <h2 id="ejecucionAvanceTitulo">
+          Avance
+        </h2>
+
+        <p>
+          El avance parcial mantiene abierta la fase
+          mientras exista cantidad pendiente.
+        </p>
+      </div>
+    </header>
+
+    <div class="logistica-detail-grid">
+      <div class="logistica-detail-item">
+        <span>Cantidad prevista</span>
+        <strong id="ejecucionCantidadPrevista">
+          —
+        </strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Cantidad atendida</span>
+        <strong id="ejecucionCantidadAtendida">
+          —
+        </strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Cantidad pendiente</span>
+        <strong id="ejecucionCantidadPendiente">
+          —
+        </strong>
+      </div>
+    </div>
+
+    <div class="logistica-section-divider"></div>
+
+    <div class="form-group">
+      <label for="ejecucionCantidad">
+        Cantidad del avance actual *
+      </label>
+
+      <input
+        id="ejecucionCantidad"
+        type="number"
+        min="1"
+        step="1"
+        inputmode="numeric"
+      />
+
+      <small class="logistica-help-text">
+        No puede exceder la cantidad pendiente.
+      </small>
+    </div>
+  </section>
+
+  <section
+    class="card logistica-panel"
+    aria-labelledby="ejecucionEvidenciasTitulo"
+  >
+    <header class="logistica-panel-header">
+      <div>
+        <h2 id="ejecucionEvidenciasTitulo">
+          Evidencias
+        </h2>
+
+        <p>
+          Para concluir la fase son obligatorias
+          tres fotografías.
+        </p>
+      </div>
+    </header>
+
+    <div class="logistica-evidencias-grid">
+      <div class="logistica-evidencia">
+        <label for="ejecucionFoto1">
+          Fotografía 1
+        </label>
+
+        <input
+          id="ejecucionFoto1"
+          type="file"
+          accept="image/*"
+        />
+
+        <div class="logistica-preview">
+          <img
+            id="ejecucionPreview1"
+            alt=""
+          />
+        </div>
+      </div>
+
+      <div class="logistica-evidencia">
+        <label for="ejecucionFoto2">
+          Fotografía 2
+        </label>
+
+        <input
+          id="ejecucionFoto2"
+          type="file"
+          accept="image/*"
+        />
+
+        <div class="logistica-preview">
+          <img
+            id="ejecucionPreview2"
+            alt=""
+          />
+        </div>
+      </div>
+
+      <div class="logistica-evidencia">
+        <label for="ejecucionFoto3">
+          Fotografía 3
+        </label>
+
+        <input
+          id="ejecucionFoto3"
+          type="file"
+          accept="image/*"
+        />
+
+        <div class="logistica-preview">
+          <img
+            id="ejecucionPreview3"
+            alt=""
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="card logistica-panel"
+    aria-labelledby="ejecucionConfirmacionTitulo"
+  >
+    <header class="logistica-panel-header">
+      <h2 id="ejecucionConfirmacionTitulo">
+        Comentario y confirmación
+      </h2>
+    </header>
+
+    <div class="form-group">
+      <label for="ejecucionComentario">
+        Comentario
+      </label>
+
+      <textarea
+        id="ejecucionComentario"
+        rows="5"
+        maxlength="1000"
+        placeholder="Describe el resultado de la actividad."
+      ></textarea>
+    </div>
+
+    <div class="logistica-confirmacion">
+      <label for="ejecucionConfirmacion">
+        <input
+          id="ejecucionConfirmacion"
+          type="checkbox"
+        />
+
+        Confirmo que la información registrada
+        corresponde al resultado de esta fase.
+      </label>
+    </div>
+
+    <div class="logistica-aviso logistica-aviso-info">
+      Para guardar un avance parcial no se requieren
+      las tres fotografías ni la confirmación final.
+    </div>
+
+    <div class="logistica-form-actions">
+      <a
+        href="#/logistica/asignadas"
+        class="button-secondary"
+      >
+        Volver
+      </a>
+
+      <button
+        id="ejecucionGuardarParcial"
+        type="button"
+        class="button-secondary"
+        data-operacion="parcial"
+      >
+        Guardar avance parcial
+      </button>
+
+      <button
+        id="ejecucionConcluir"
+        type="button"
+        class="button-primary"
+        data-operacion="concluir"
+      >
+        Confirmar conclusión
+      </button>
+    </div>
+  </section>
 </section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/ejecucion.js';
+
+  init();
+</script>

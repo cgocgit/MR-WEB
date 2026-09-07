@@ -1,0 +1,113 @@
+<section
+  id="logistica-ruta-detalle-root"
+  class="container logistica-page"
+>
+  <nav class="logistica-breadcrumb" aria-label="Ruta de navegación">
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica/rutas">Rutas</a>
+    <span aria-hidden="true">/</span>
+    <span>Detalle</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Detalle de ruta</h1>
+      <p class="logistica-page-description">
+        Consulta las Órdenes y paradas que integran
+        la ruta logística.
+      </p>
+    </div>
+
+    <a href="#/logistica/rutas" class="button-secondary">
+      Volver a rutas
+    </a>
+  </header>
+
+  <div
+    id="rutaDetalleEstado"
+    class="logistica-estado"
+    tabindex="-1"
+    aria-live="polite"
+  ></div>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <h2>Información de la ruta</h2>
+    </header>
+
+    <div class="logistica-detail-grid">
+      <div class="logistica-detail-item">
+        <span>Ruta</span>
+        <strong id="rutaIdentificador">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Fecha</span>
+        <strong id="rutaFecha">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Placa</span>
+        <strong id="rutaPlaca">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Chófer</span>
+        <strong id="rutaChofer">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Representante</span>
+        <strong id="rutaRepresentante">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Composición</span>
+        <strong id="rutaResumen">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Avance general</span>
+        <strong id="rutaAvance">—</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <div>
+        <h2>Secuencia de paradas</h2>
+        <p>
+          El Supervisor puede modificar manualmente
+          el orden mediante las acciones Subir y Bajar.
+        </p>
+      </div>
+
+      <button
+        id="rutaGuardarOrden"
+        type="button"
+        class="button-primary"
+        hidden
+        disabled
+      >
+        Guardar orden
+      </button>
+    </header>
+
+    <ol
+      id="rutaParadas"
+      class="logistica-ruta-paradas"
+    ></ol>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/ruta-detalle.js';
+
+  init();
+</script>

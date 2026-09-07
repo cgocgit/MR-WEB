@@ -149,13 +149,40 @@ const routes = {
 
   // Logística
   '#/logistica':
-    'pages/logistica/asignadas.html',
+    'pages/logistica/inicio.html',
+
+  '#/logistica/programacion':
+    'pages/logistica/programacion.html',
+
+  '#/logistica/programacion/formulario':
+    'pages/logistica/programacion-formulario.html',
+
+  '#/logistica/consulta':
+    'pages/logistica/consulta.html',
+
+  '#/logistica/rutas':
+    'pages/logistica/rutas.html',
+
+  '#/logistica/rutas/detalle':
+    'pages/logistica/ruta-detalle.html',
+
+  '#/logistica/orden/detalle':
+    'pages/logistica/orden-detalle.html',
 
   '#/logistica/asignadas':
     'pages/logistica/asignadas.html',
 
   '#/logistica/ejecucion':
     'pages/logistica/ejecucion.html',
+
+  '#/logistica/traslado':
+    'pages/logistica/traslado.html',
+
+  '#/logistica/incidencias':
+    'pages/logistica/incidencias.html',
+
+  '#/logistica/tolerancias':
+    'pages/logistica/tolerancias.html',
 
     // Pagos
   '#/pagos':
@@ -214,6 +241,27 @@ const routes = {
   '#/administracion/documentacion-tecnica':
     'pages/administracion/documentacion-tecnica.html'
 };
+
+/**
+ * Comprueba si la sesión posee al menos uno
+ * de los permisos indicados.
+ *
+ * Se utiliza para rutas de Logística que
+ * admiten distintos perfiles funcionales.
+ */
+function hasAnyPermission(
+  permissions = []
+) {
+  const session = getSession();
+
+  return permissions.some(
+    permission =>
+      hasPermission(
+        session,
+        permission
+      )
+  );
+}
 
 /**
  * Permisos requeridos por ruta.
@@ -434,13 +482,100 @@ const routePermissions = {
 
   // Logística
   '#/logistica':
+    () =>
+      hasAnyPermission([
+        'logistica.consultar',
+        'logistica.gestionar',
+        'logistica.asignadas',
+        'logistica.proceso.gestion',
+        'logistica.traslado',
+        'logistica.tolerancias.gestionar'
+      ])
+        ? null
+        : 'logistica.consultar',
+
+  '#/logistica/programacion':
+    () =>
+      hasAnyPermission([
+        'logistica.consultar',
+        'logistica.gestionar'
+      ])
+        ? null
+        : 'logistica.consultar',
+
+  '#/logistica/programacion/formulario':
+    'logistica.gestionar',
+
+  '#/logistica/consulta':
     'logistica.consultar',
+
+  '#/logistica/rutas':
+    () =>
+      hasAnyPermission([
+        'logistica.consultar',
+        'logistica.gestionar'
+      ])
+        ? null
+        : 'logistica.consultar',
+
+  '#/logistica/rutas/detalle':
+    () =>
+      hasAnyPermission([
+        'logistica.consultar',
+        'logistica.gestionar',
+        'logistica.asignadas',
+        'logistica.traslado'
+      ])
+        ? null
+        : 'logistica.consultar',
+
+  '#/logistica/orden/detalle':
+    () =>
+      hasAnyPermission([
+        'logistica.consultar',
+        'logistica.gestionar',
+        'logistica.asignadas',
+        'logistica.proceso.gestion',
+        'logistica.traslado'
+      ])
+        ? null
+        : 'logistica.consultar',
 
   '#/logistica/asignadas':
-    'logistica.consultar',
+    'logistica.asignadas',
 
   '#/logistica/ejecucion':
-    'logistica.ejecutar',
+    () =>
+      hasAnyPermission([
+        'logistica.proceso.gestion',
+        'logistica.gestionar'
+      ])
+        ? null
+        : 'logistica.proceso.gestion',
+
+  '#/logistica/traslado':
+    () =>
+      hasAnyPermission([
+        'logistica.traslado',
+        'logistica.gestionar'
+      ])
+        ? null
+        : 'logistica.traslado',
+
+  '#/logistica/incidencias':
+    () =>
+      hasAnyPermission([
+        'logistica.consultar',
+        'logistica.gestionar',
+        'logistica.asignadas',
+        'logistica.proceso.gestion',
+        'logistica.traslado'
+      ])
+        ? null
+        : 'logistica.consultar',
+
+  '#/logistica/tolerancias':
+    'logistica.tolerancias.gestionar',
 
     // Pagos
   '#/pagos':

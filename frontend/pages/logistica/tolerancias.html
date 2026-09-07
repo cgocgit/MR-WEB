@@ -1,0 +1,111 @@
+<section
+  id="logistica-tolerancias-root"
+  class="container logistica-page"
+>
+  <nav class="logistica-breadcrumb" aria-label="Ruta de navegación">
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Tolerancias</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Tolerancias operativas</h1>
+
+      <p class="logistica-page-description">
+        Configura el margen operativo permitido
+        para las fases logísticas aplicables.
+      </p>
+    </div>
+  </header>
+
+  <div
+    id="toleranciasEstado"
+    class="logistica-estado"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <div class="logistica-aviso logistica-aviso-info">
+    Los cambios aplican a nuevas programaciones.
+    No modifican fases que ya iniciaron o concluyeron.
+  </div>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <div>
+        <h2>Configuración por fase</h2>
+
+        <p>
+          El valor debe ser un número entero mayor que cero.
+          Los traslados no utilizan tolerancia en minutos.
+        </p>
+      </div>
+    </header>
+
+    <div class="table-responsive">
+      <table class="logistica-table">
+        <thead>
+          <tr>
+            <th scope="col">Fase</th>
+            <th scope="col">Unidad</th>
+            <th scope="col">Valor vigente</th>
+            <th scope="col">Modificado por</th>
+            <th scope="col">Fecha y hora</th>
+            <th scope="col">Historial</th>
+          </tr>
+        </thead>
+
+        <tbody id="toleranciasBody"></tbody>
+      </table>
+    </div>
+
+    <div class="logistica-form-actions">
+      <button
+        id="toleranciasCancelar"
+        type="button"
+        class="button-secondary"
+      >
+        Cancelar cambios
+      </button>
+
+      <button
+        id="toleranciasGuardar"
+        type="button"
+        class="button-primary"
+      >
+        Guardar cambios
+      </button>
+    </div>
+  </section>
+
+  <section
+    class="card logistica-panel"
+    aria-labelledby="toleranciasHistorialTitulo"
+  >
+    <header class="logistica-panel-header">
+      <h2 id="toleranciasHistorialTitulo">
+        Historial de cambios
+      </h2>
+    </header>
+
+    <ul
+      id="toleranciasHistorial"
+      class="logistica-list"
+    >
+      <li>
+        Seleccione Historial en una fase para consultar sus cambios.
+      </li>
+    </ul>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/tolerancias.js';
+
+  init();
+</script>

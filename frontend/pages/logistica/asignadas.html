@@ -1,13 +1,158 @@
-<section class="container logistica-list">
-  <h1>Órdenes asignadas</h1>
-  <div id="asignadas" class="card mt-12"></div>
-  <script type="module">
-    import { listAsignadas } from './js/api/logistica.service.js';
-    import { renderTable } from './js/components/table.js';
-    (async ()=>{
-      const datos = await listAsignadas();
-      renderTable(document.getElementById('asignadas'), ['Id','Orden','Fase','Direccion'], datos.map(d=>({id:d.id,orden:d.orden,fase:d.fase,direccion:d.direccion})));
-    })();
-  </script>
+<section
+  id="logistica-asignadas-root"
+  class="container logistica-page logistica-asignadas"
+>
+  <nav
+    class="logistica-breadcrumb"
+    aria-label="Ruta de navegación"
+  >
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Mis asignaciones</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Mis asignaciones</h1>
+
+      <p class="logistica-page-description">
+        Consulta únicamente las actividades y traslados
+        que tienes asignados.
+      </p>
+    </div>
+  </header>
+
+  <section
+    id="asignadasFiltros"
+    class="card logistica-filtros"
+    aria-labelledby="asignadasFiltrosTitulo"
+  >
+    <header class="logistica-panel-header">
+      <h2 id="asignadasFiltrosTitulo">
+        Filtros
+      </h2>
+    </header>
+
+    <div class="logistica-form-grid">
+      <div class="form-group">
+        <label for="asignadasPeriodo">
+          Periodo
+        </label>
+
+        <select id="asignadasPeriodo">
+          <option value="">
+            Todas
+          </option>
+
+          <option value="HOY">
+            Hoy
+          </option>
+
+          <option value="PROXIMAS">
+            Próximas
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="asignadasEstado">
+          Estado
+        </label>
+
+        <select id="asignadasEstado">
+          <option value="">
+            Todos
+          </option>
+
+          <option value="PENDIENTE">
+            Pendiente
+          </option>
+
+          <option value="EN_PROCESO">
+            En proceso
+          </option>
+
+          <option value="PARCIAL">
+            Parcial
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group logistica-check-field">
+        <label for="asignadasIncidencia">
+          <input
+            id="asignadasIncidencia"
+            type="checkbox"
+          />
+
+          Con incidencia abierta
+        </label>
+      </div>
+
+      <div class="form-group logistica-check-field">
+        <label for="asignadasEvidencia">
+          <input
+            id="asignadasEvidencia"
+            type="checkbox"
+          />
+
+          Con evidencia pendiente
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <div
+    id="asignadasEstadoCarga"
+    class="logistica-estado"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <section
+    class="logistica-section"
+    aria-labelledby="asignadasListaTitulo"
+  >
+    <header class="logistica-section-header">
+      <div>
+        <h2 id="asignadasListaTitulo">
+          Actividades asignadas
+        </h2>
+
+        <p>
+          Selecciona una asignación para registrar
+          avances o controlar el traslado correspondiente.
+        </p>
+      </div>
+    </header>
+
+    <div
+      id="asignadasLista"
+      class="logistica-asignaciones-grid"
+    ></div>
+
+    <div
+      id="asignadasVacio"
+      class="card logistica-empty-state"
+      hidden
+    >
+      <strong>
+        No existen asignaciones para los filtros seleccionados.
+      </strong>
+
+      <p>
+        Modifica los filtros o consulta nuevamente más adelante.
+      </p>
+    </div>
+  </section>
 </section>
 
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/asignadas.js';
+
+  init();
+</script>

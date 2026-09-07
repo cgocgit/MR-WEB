@@ -1,0 +1,196 @@
+<section
+  id="logistica-orden-detalle-root"
+  class="container logistica-page"
+>
+  <nav class="logistica-breadcrumb" aria-label="Ruta de navegación">
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Detalle de Orden</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Detalle logístico de la Orden</h1>
+      <p class="logistica-page-description">
+        Consulta la programación, recursos, fases,
+        incidencias e historial de atención.
+      </p>
+    </div>
+
+    <div class="logistica-header-actions">
+      <a
+        id="ordenDetalleVerRuta"
+        href="#/logistica/rutas"
+        class="button-secondary"
+      >
+        Ver ruta
+      </a>
+
+      <a
+        id="ordenDetalleTraslado"
+        href="#/logistica"
+        class="button-secondary"
+      >
+        Abrir traslado
+      </a>
+
+      <a
+        id="ordenDetalleReprogramar"
+        href="#/logistica/programacion"
+        class="button-primary"
+        hidden
+      >
+        Reprogramar
+      </a>
+    </div>
+  </header>
+
+  <div
+    id="ordenDetalleEstado"
+    class="logistica-estado"
+    tabindex="-1"
+    aria-live="polite"
+  ></div>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <h2>Orden de servicio</h2>
+    </header>
+
+    <div class="logistica-detail-grid">
+      <div class="logistica-detail-item">
+        <span>Folio</span>
+        <strong id="ordenDetalleFolio">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Cliente</span>
+        <strong id="ordenDetalleCliente">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Estado de la Orden</span>
+        <strong id="ordenDetalleEstadoOrden">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Tipo</span>
+        <strong id="ordenDetalleTipo">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Fecha y hora del evento</span>
+        <strong id="ordenDetalleEvento">—</strong>
+      </div>
+
+      <div class="logistica-detail-item logistica-detail-wide">
+        <span>Domicilio</span>
+        <strong id="ordenDetalleDomicilio">—</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <h2>Programación y recursos</h2>
+    </header>
+
+    <div class="logistica-detail-grid">
+      <div class="logistica-detail-item">
+        <span>Ruta</span>
+        <strong id="ordenDetalleRuta">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Placa</span>
+        <strong id="ordenDetallePlaca">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Chófer</span>
+        <strong id="ordenDetalleChofer">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Representante</span>
+        <strong id="ordenDetalleRepresentante">—</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="logistica-section">
+    <header class="logistica-section-header">
+      <div>
+        <h2>Fases logísticas</h2>
+        <p>
+          Las fases se mantienen independientes
+          del estado de la Orden de servicio.
+        </p>
+      </div>
+    </header>
+
+    <div
+      id="ordenDetalleFases"
+      class="logistica-fases-grid"
+    ></div>
+  </section>
+
+  <div class="logistica-two-columns">
+    <section class="card logistica-panel">
+      <header class="logistica-panel-header">
+        <h2>Incidencias</h2>
+
+        <a href="#/logistica/incidencias">
+          Ver todas
+        </a>
+      </header>
+
+      <ul
+        id="ordenDetalleIncidencias"
+        class="logistica-list"
+      ></ul>
+    </section>
+
+    <section class="card logistica-panel">
+      <header class="logistica-panel-header">
+        <h2>Historial y auditoría</h2>
+      </header>
+
+      <ul
+        id="ordenDetalleHistorial"
+        class="logistica-list"
+      ></ul>
+    </section>
+  </div>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <div>
+        <h2>Retorno e inspección</h2>
+        <p>
+          Las operaciones físicas y la confirmación
+          corresponden al módulo Inventario.
+        </p>
+      </div>
+
+      <a
+        id="ordenDetalleInventario"
+        href="#/inventario"
+        class="button-secondary"
+        hidden
+      >
+        Abrir Inventario
+      </a>
+    </header>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/orden-detalle.js';
+
+  init();
+</script>

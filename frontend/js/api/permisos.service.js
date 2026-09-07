@@ -231,24 +231,34 @@ const PERMISSION_METADATA = {
   },
 
   'logistica.consultar': {
-    modulo: 'Logística operativa',
-    accion: 'Consultar'
-  },
+      modulo: 'Logística',
+      accion: 'Consultar'
+    },
 
-  'logistica.gestionar': {
-    modulo: 'Logística operativa',
-    accion: 'Administrar'
-  },
+    'logistica.gestionar': {
+      modulo: 'Logística',
+      accion: 'Gestionar operación'
+    },
 
-  'logistica.ejecutar': {
-    modulo: 'Logística operativa',
-    accion: 'Ejecutar'
-  },
+    'logistica.asignadas': {
+      modulo: 'Logística',
+      accion: 'Consultar asignaciones'
+    },
 
-  'logistica.asignadas': {
-    modulo: 'Logística operativa',
-    accion: 'Ejecutar'
-  },
+    'logistica.proceso.gestion': {
+      modulo: 'Logística',
+      accion: 'Gestionar fases asignadas'
+    },
+
+    'logistica.traslado': {
+      modulo: 'Logística',
+      accion: 'Gestionar traslado asignado'
+    },
+
+    'logistica.tolerancias.gestionar': {
+      modulo: 'Logística',
+      accion: 'Gestionar tolerancias'
+    },
 
   'pagos.consultar': {
     modulo: 'Pagos manuales',
@@ -278,14 +288,48 @@ const PERMISSION_METADATA = {
 
 const PERMISSION_SCOPE = {
   TECH: {
-    'ordenes.consultar': 'Órdenes asignadas',
-    'ordenes.asignadas': 'Órdenes asignadas',
+    'ordenes.consultar':
+      'Órdenes asignadas',
 
-    'logistica.ejecutar': 'Órdenes asignadas',
-    'logistica.asignadas': 'Órdenes asignadas',
+    'ordenes.asignadas':
+      'Órdenes asignadas',
 
-    'alertas.consultar': 'Asignadas',
-    'alertas.asignadas': 'Asignadas'
+    'alertas.consultar':
+      'Asignadas',
+
+    'alertas.asignadas':
+      'Asignadas'
+  },
+
+  REPRESENTANTE: {
+    'logistica.asignadas':
+      'Asignaciones propias',
+
+    'logistica.proceso.gestion':
+      'Fases asignadas',
+
+    'logistica.traslado':
+      'Traslados asignados',
+
+    'alertas.consultar':
+      'Asignadas',
+
+    'alertas.asignadas':
+      'Asignadas'
+  },
+
+  CHOFER: {
+    'logistica.asignadas':
+      'Asignaciones propias',
+
+    'logistica.traslado':
+      'Traslados asignados',
+
+    'alertas.consultar':
+      'Asignadas',
+
+    'alertas.asignadas':
+      'Asignadas'
   }
 };
 

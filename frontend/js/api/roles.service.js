@@ -32,6 +32,16 @@ const ROLES_MOCK = [
     desc: 'Supervisión de operaciones'
   },
   {
+    id: 'REPRESENTANTE',
+    nombre: 'Representante',
+    desc: 'Ejecución y seguimiento de actividades logísticas'
+  },
+  {
+    id: 'CHOFER',
+    nombre: 'Chófer',
+    desc: 'Operación de traslados logísticos'
+  },
+  {
     id: 'DIRECCION',
     nombre: 'Dirección',
     desc: 'Gerencia y dirección ejecutiva'

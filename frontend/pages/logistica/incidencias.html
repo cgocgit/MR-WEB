@@ -1,0 +1,388 @@
+<section
+  id="logistica-incidencias-root"
+  class="container logistica-page"
+>
+  <nav class="logistica-breadcrumb" aria-label="Ruta de navegación">
+    <a href="#/">Panel</a>
+    <span aria-hidden="true">/</span>
+    <a href="#/logistica">Logística</a>
+    <span aria-hidden="true">/</span>
+    <span>Incidencias</span>
+  </nav>
+
+  <header class="logistica-page-header">
+    <div>
+      <h1>Incidencias logísticas</h1>
+      <p class="logistica-page-description">
+        Consulta, reporta y da seguimiento a las incidencias
+        de la operación conforme a tu perfil.
+      </p>
+    </div>
+  </header>
+
+  <div
+    id="incidenciasEstado"
+    class="logistica-estado"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <section
+    id="incidenciaReportePanel"
+    class="card logistica-panel"
+    hidden
+    aria-labelledby="incidenciaReporteTitulo"
+  >
+    <header class="logistica-panel-header">
+      <div>
+        <h2 id="incidenciaReporteTitulo">
+          Reportar incidencia
+        </h2>
+
+        <p>
+          La incidencia quedará relacionada con la Orden,
+          ruta o fase desde la que fue abierta.
+        </p>
+      </div>
+    </header>
+
+    <form id="incidenciaReporteForm">
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="incidenciaTipoReporte">
+            Tipo de incidencia *
+          </label>
+
+          <select
+            id="incidenciaTipoReporte"
+            name="tipoIncidencia"
+            required
+          ></select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="incidenciaDescripcion">
+          Descripción de lo ocurrido *
+        </label>
+
+        <textarea
+          id="incidenciaDescripcion"
+          name="descripcion"
+          rows="5"
+          maxlength="1000"
+          required
+        ></textarea>
+      </div>
+
+      <div class="logistica-aviso logistica-aviso-info">
+        La incidencia no detiene la operación.
+        Después de registrarla el proceso puede continuar.
+      </div>
+
+      <div class="logistica-form-actions">
+        <button
+          type="submit"
+          class="button-primary"
+        >
+          Registrar incidencia
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section
+    class="card logistica-filtros"
+    aria-labelledby="incidenciasFiltrosTitulo"
+  >
+    <header class="logistica-panel-header">
+      <h2 id="incidenciasFiltrosTitulo">
+        Filtros
+      </h2>
+    </header>
+
+    <form id="incidenciasFiltros">
+      <div class="logistica-form-grid">
+        <div class="form-group">
+          <label for="incidenciasFolio">
+            Folio de incidencia
+          </label>
+
+          <input
+            id="incidenciasFolio"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasOrden">
+            Orden
+          </label>
+
+          <input
+            id="incidenciasOrden"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasRuta">
+            Ruta
+          </label>
+
+          <input
+            id="incidenciasRuta"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasTipo">
+            Tipo
+          </label>
+
+          <select id="incidenciasTipo">
+            <option value="">Todos</option>
+            <option value="MATERIAL_INCORRECTO">
+              Material incorrecto
+            </option>
+            <option value="MATERIAL_DANADO">
+              Material dañado
+            </option>
+            <option value="INCIDENTE_VIAL">
+              Incidente vial
+            </option>
+            <option value="DANO_VEHICULO">
+              Daño en vehículo
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasEstadoFiltro">
+            Estado
+          </label>
+
+          <select id="incidenciasEstadoFiltro">
+            <option value="">Todos</option>
+            <option value="REPORTADA">Reportada</option>
+            <option value="EN_SEGUIMIENTO">
+              En seguimiento
+            </option>
+            <option value="RESUELTA">Resuelta</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasPerfil">
+            Perfil que reportó
+          </label>
+
+          <select id="incidenciasPerfil">
+            <option value="">Todos</option>
+            <option value="REPRESENTANTE">
+              Representante
+            </option>
+            <option value="CHOFER">
+              Chófer
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasFechaInicio">
+            Fecha inicial
+          </label>
+
+          <input
+            id="incidenciasFechaInicio"
+            type="date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasFechaFin">
+            Fecha final
+          </label>
+
+          <input
+            id="incidenciasFechaFin"
+            type="date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="incidenciasSupervisor">
+            Supervisor
+          </label>
+
+          <input
+            id="incidenciasSupervisor"
+            type="search"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <div class="logistica-form-actions">
+        <button type="submit" class="button-primary">
+          Consultar
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="card logistica-panel">
+    <header class="logistica-panel-header">
+      <h2>Incidencias registradas</h2>
+    </header>
+
+    <div class="table-responsive">
+      <table class="logistica-table">
+        <thead>
+          <tr>
+            <th scope="col">Incidencia</th>
+            <th scope="col">Fecha y hora</th>
+            <th scope="col">Orden / Ruta</th>
+            <th scope="col">Fase</th>
+            <th scope="col">Tipo</th>
+            <th scope="col">Reportó</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Supervisor</th>
+            <th scope="col">Actualización</th>
+            <th scope="col">Acción</th>
+          </tr>
+        </thead>
+
+        <tbody id="incidenciasBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section
+    id="incidenciaDetallePanel"
+    class="card logistica-panel"
+    hidden
+    aria-labelledby="incidenciaDetalleTitulo"
+  >
+    <header class="logistica-panel-header">
+      <h2 id="incidenciaDetalleTitulo">
+        Detalle de incidencia
+      </h2>
+    </header>
+
+    <div class="logistica-detail-grid">
+      <div class="logistica-detail-item">
+        <span>Folio</span>
+        <strong id="incidenciaDetalleFolio">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Tipo</span>
+        <strong id="incidenciaDetalleTipo">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Estado</span>
+        <strong id="incidenciaDetalleEstado">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Reportado por</span>
+        <strong id="incidenciaDetalleReportadoPor">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Fecha y hora</span>
+        <strong id="incidenciaDetalleFecha">—</strong>
+      </div>
+
+      <div class="logistica-detail-item">
+        <span>Supervisor responsable</span>
+        <strong id="incidenciaDetalleSupervisor">—</strong>
+      </div>
+
+      <div class="logistica-detail-item logistica-detail-wide">
+        <span>Reporte original</span>
+        <strong id="incidenciaDetalleReporte">—</strong>
+      </div>
+    </div>
+
+    <div class="logistica-section-divider"></div>
+
+    <div class="form-group">
+      <label for="incidenciaSeguimientoAcciones">
+        Acciones de seguimiento
+      </label>
+
+      <textarea
+        id="incidenciaSeguimientoAcciones"
+        rows="5"
+        maxlength="1000"
+      ></textarea>
+    </div>
+
+    <div class="logistica-form-actions">
+      <button
+        id="incidenciaIniciarSeguimiento"
+        type="button"
+        class="button-primary"
+        hidden
+      >
+        Iniciar seguimiento
+      </button>
+
+      <button
+        id="incidenciaGuardarSeguimiento"
+        type="button"
+        class="button-secondary"
+        hidden
+      >
+        Guardar seguimiento
+      </button>
+    </div>
+
+    <div class="logistica-section-divider"></div>
+
+    <div class="form-group">
+      <label for="incidenciaResolucion">
+        Resolución
+      </label>
+
+      <textarea
+        id="incidenciaResolucion"
+        rows="5"
+        maxlength="1000"
+      ></textarea>
+    </div>
+
+    <div class="logistica-form-actions">
+      <button
+        id="incidenciaResolver"
+        type="button"
+        class="button-primary"
+        hidden
+      >
+        Resolver incidencia
+      </button>
+    </div>
+
+    <div class="logistica-section-divider"></div>
+
+    <div class="logistica-detail-item logistica-detail-wide">
+      <span>Resolución registrada</span>
+      <strong id="incidenciaDetalleResolucion">—</strong>
+    </div>
+  </section>
+</section>
+
+<script type="module">
+  import {
+    init
+  } from './js/modules/logistica/incidencias.js';
+
+  init();
+</script>
