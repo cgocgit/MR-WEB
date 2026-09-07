@@ -1,0 +1,70 @@
+spring:
+  application:
+    name: mr-logistica-service
+  profiles:
+    default: local
+  jpa:
+    open-in-view: false
+
+server:
+  port: ${SERVER_PORT:8088}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${MR_LOGISTICA_DB_URL:jdbc:mariadb://localhost:3306/mr_logistica}
+    username: ${MR_LOGISTICA_DB_USERNAME}
+    password: ${MR_LOGISTICA_DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:mr_logistica;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${MR_LOGISTICA_DB_URL}
+    username: ${MR_LOGISTICA_DB_USERNAME}
+    password: ${MR_LOGISTICA_DB_PASSWORD}
+    driver-class-name: org.mariadb.jdbc.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    hibernate:
+      ddl-auto: validate

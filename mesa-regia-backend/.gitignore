@@ -1,0 +1,33 @@
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Secrets / local overrides
+.env
+.env.*
+!.env.example
+application-local-override.yml
+**/application-local-override.yml
+
+# Testcontainers / temp
+.testcontainers.properties
+.tmp/
