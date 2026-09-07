@@ -1228,8 +1228,13 @@ export async function obtenerInicioLogistica() {
       )
       .filter(
         fase =>
-          situacionTiempo(fase) ===
-          'Fuera de tolerancia'
+          faseVisibleParaUsuario(
+            fase
+          ) &&
+          situacionTiempo(
+            fase
+          ) ===
+            'Fuera de tolerancia'
       )
       .length;
 
@@ -1238,6 +1243,9 @@ export async function obtenerInicioLogistica() {
       pendientesProgramacion:
         state.ordenes.filter(
           item =>
+            ordenVisibleParaUsuario(
+              item
+            ) &&
             item.estadoOrden ===
               ESTADOS_ORDEN_LOGISTICA
                 .PENDIENTE_PROGRAMACION &&
