@@ -1,0 +1,3 @@
+package mx.com.mesaregia.seguridad.mapper;
+import mx.com.mesaregia.seguridad.api.response.AuditoriaResponse; import mx.com.mesaregia.seguridad.domain.entity.EventoAuditoria; import org.springframework.stereotype.Component;
+@Component public class AuditoriaMapper { public AuditoriaResponse toResponse(EventoAuditoria e){var u=e.getUsuario();return new AuditoriaResponse(e.getId(),e.getFechaHora(),u==null?null:u.getId(),u==null?null:u.getIdentificador(),e.getModulo(),e.getAccion(),e.getTipoRecurso(),e.getIdentificadorRecurso(),e.getResultado().name(),e.getMotivo(),e.getValorAnterior(),e.getValorNuevo(),e.getDetalle(),e.getIdCorrelacion());}}
