@@ -1,0 +1,1 @@
+package mx.com.mesaregia.logistica.api.response; import mx.com.mesaregia.logistica.domain.enums.EstadoAsignacion; import java.time.LocalDateTime; public record AsignacionResponse(Long id,Long idOrden,Integer ordenParada,LocalDateTime fechaHoraProgramada,String domicilioSnapshot,EstadoAsignacion estado){}

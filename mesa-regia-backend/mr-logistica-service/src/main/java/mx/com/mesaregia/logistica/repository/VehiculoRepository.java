@@ -1,0 +1,1 @@
+package mx.com.mesaregia.logistica.repository; import mx.com.mesaregia.logistica.domain.entity.Vehiculo; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface VehiculoRepository extends JpaRepository<Vehiculo,Long>{Optional<Vehiculo> findByPlacaIgnoreCase(String placa); List<Vehiculo> findAllByActivoTrueOrderByPlacaAsc();}

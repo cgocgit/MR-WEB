@@ -1,0 +1,1 @@
+package mx.com.mesaregia.logistica.domain.enums; public enum HitoOrden { PROGRAMACION_CONFIRMADA,PREPARACION_INICIADA,SERVICIOS_CONCLUIDOS,INSPECCION_RETORNO_CONFIRMADA }

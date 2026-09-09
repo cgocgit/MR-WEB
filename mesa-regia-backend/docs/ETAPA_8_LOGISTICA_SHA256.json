@@ -1,0 +1,545 @@
+{
+  "stage": "ETAPA 8 - mr-logistica-service",
+  "files": [
+    {
+      "file": "docs/ETAPA_8_LOGISTICA_ENTREGA.md",
+      "sha256": "56344a46502e1e04d1a97daef2d8177f1832e83a3c07824991107cbd0cd7a623",
+      "bytes": 2709
+    },
+    {
+      "file": "mr-logistica-service/pom.xml",
+      "sha256": "9da18152526af2fc5b66d942f658e16b1071487146e45a6898bdb6bd69f942ba",
+      "bytes": 2750
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/LogisticaApplication.java",
+      "sha256": "eaf13ad8e3c12d62e1a282eb2d20866cefc87c335c2a695caae38191216ae50f",
+      "bytes": 313
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/controller/EtapaController.java",
+      "sha256": "dea50e97f8bcc6bc040ce58c1e288547f0d8e191046057693b34fcd774ef0462",
+      "bytes": 1755
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/controller/IncidenciaController.java",
+      "sha256": "0bcf567e599e34aedc0dfb86fef3561588dd77285615f9f5be29e79ffabdf4ff",
+      "bytes": 2225
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/controller/InternalLogisticaController.java",
+      "sha256": "af14b5a32f1ad0e5c4da514fb508dca1623558296f43ac897ebfee366c464071",
+      "bytes": 808
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/controller/ProgramacionController.java",
+      "sha256": "38d64224b8e066a8a9ecbddee1d2e5796d37ffaedd411bed14237096240d10d8",
+      "bytes": 2787
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/controller/RutaController.java",
+      "sha256": "7bb7109628a8b74c88c62f5610568afb1dcea9c5761098f3e69c71dff8fe5ed6",
+      "bytes": 1487
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/controller/ToleranciaController.java",
+      "sha256": "84c9925440c25040d247a8d85833f6071c8bdd4f5f273349e1a7c1a8ccd4c916",
+      "bytes": 1001
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/controller/VehiculoController.java",
+      "sha256": "1404a5e4e04e64f944202fc7e0c1b6ba618b215e71fd5ff78b837ae779460270",
+      "bytes": 1392
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/AsignacionCreateRequest.java",
+      "sha256": "f0ffb15b11df769461ebd51a3f5aefc2372afa05478b1c0fb9032d9de3391b9b",
+      "bytes": 305
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/EtapaAvanceRequest.java",
+      "sha256": "f8f541b8831e6f42b1c9a3553b4d41b539f47ec55ad59f24ed3f29623f0c9070",
+      "bytes": 272
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/EtapaConfirmarRequest.java",
+      "sha256": "f97e209484772dea781cba997d8a5a4da83cc72e01f836e0405520956b01ff62",
+      "bytes": 231
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/EtapaEvidenciaRequest.java",
+      "sha256": "54b1127b4443372283bf28019ce7c8fee7d3546087bb72b3e7fedc5d6009f919",
+      "bytes": 373
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/EtapaIniciarRequest.java",
+      "sha256": "8441d51f3cfc0231a376cb89bdb84acfca6e3b04f8efa61994c200834db11bd4",
+      "bytes": 198
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/FasePlanRequest.java",
+      "sha256": "5fbada47e46a3b5b085a9bf605da85168157f856422f1c12feb13d39302b391d",
+      "bytes": 292
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/IncidenciaCreateRequest.java",
+      "sha256": "94930d10d63d9b5aef032169eee7655cad1cf5e9546f4f1b1b243ddeb9d8c1b3",
+      "bytes": 483
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/OrdenParadaItem.java",
+      "sha256": "023f8495662c2296e007f02063f9c02c6598d515a36b14e58e2b42cdfd5e2181",
+      "bytes": 198
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/OrdenParadasRequest.java",
+      "sha256": "3565642f6a0838af6ce0aac5d9780570449642ba501dc91217c33128537d81fd",
+      "bytes": 267
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/ProgramacionCreateRequest.java",
+      "sha256": "583bf9aa82c2589c838307a0f144d6986d4777afaecf8d69309f9ee9ead63bca",
+      "bytes": 378
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/RecursosRequest.java",
+      "sha256": "c6135a744959e6246a0187e7ba17bd659583b3351067f50c4ce3acb36f438fc1",
+      "bytes": 305
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/ReprogramarRequest.java",
+      "sha256": "fed5eb42326062786b53904b2f253a077f412cc6f4bf9f209bef1cc8fa4dac3e",
+      "bytes": 278
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/ResolverIncidenciaRequest.java",
+      "sha256": "50a66f44e195bbbed6c2a126f802af5565add352eabc0a495688ae72c72cd258",
+      "bytes": 251
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/SeguimientoRequest.java",
+      "sha256": "ee8c411eec47933e2d4cabb0a11e6e040e0554171d74410dd68c6af6341dfc5f",
+      "bytes": 241
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/ToleranciaUpdateRequest.java",
+      "sha256": "cc038276fb709942790d1f7381447b01d342d902304862ecda3247bd855dbd02",
+      "bytes": 203
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/VehiculoCreateRequest.java",
+      "sha256": "4bb0460516845bb2b37adba6edf761c6936af1f55f4b012735a1c06daa9ff088",
+      "bytes": 165
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/VehiculoEstadoRequest.java",
+      "sha256": "d2d1e349aa8f545433e93d5caa5fdd64dd837c780861b8e5828b7437ea003e6d",
+      "bytes": 181
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/request/VehiculoUpdateRequest.java",
+      "sha256": "cb3061ba6e82affb3acf0029d722cc6b5e0a601ab946b958f657f49b75d73145",
+      "bytes": 203
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/AsignacionResponse.java",
+      "sha256": "41e36d083382f616ad04a0743162c5129f584d30cbbff9bfb5dd9bd00be6af28",
+      "bytes": 306
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/EtapaResponse.java",
+      "sha256": "04049715750786f0aec5b9ce3b5f14c31e7c10f8bc748073466080aa29dd26af",
+      "bytes": 582
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/IncidenciaResponse.java",
+      "sha256": "1d931a725d8a513131e949c9b19a39d0d763c67d2212b4db0e9ff24d8bc4dd81",
+      "bytes": 556
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/MisOperacionResponse.java",
+      "sha256": "6a72d58570f3c5a2832de0fdbf14a5f5651f7cdcc36954578faa5155b0d5258d",
+      "bytes": 394
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/PageResponse.java",
+      "sha256": "27cc00c41ce6c4a1a2d0645d06c8d5efdce89681f72171c2f752214fc39137ae",
+      "bytes": 372
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/ProgramacionResponse.java",
+      "sha256": "c08ab29a81e773bbbbe75e3d029aff700064e8a3d8a6e83e0eef162e976fb016",
+      "bytes": 463
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/RutaResponse.java",
+      "sha256": "76791b78aba71b536e7106fef4d5e501e12449621013cb36a7bde03563d6b8e0",
+      "bytes": 390
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/SeguimientoResponse.java",
+      "sha256": "aee10b94554aed196c198391a7433f2c2ba5a68dee6d7458c8f8bbfeb3d74c2b",
+      "bytes": 309
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/TipoIncidenciaResponse.java",
+      "sha256": "d3ac5f8a2ed6c8d46e762ffe355709460a3f46bcb3cc0f183a87f0626d76e069",
+      "bytes": 224
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/ToleranciaResponse.java",
+      "sha256": "9741cbfc13208f31f2524003b790fdd5ac52b356a21772e024133337baf70ef3",
+      "bytes": 250
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/api/response/VehiculoResponse.java",
+      "sha256": "ca9219e3653ec6e0c366f89607c7be3e163c115a7cbef05cbccc375101d6ae32",
+      "bytes": 132
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/AsignacionLogisticaQueryService.java",
+      "sha256": "5eed94eff2434f6912833eb6a9c2c8c630b650537b99b05df9e46ef227d9c60e",
+      "bytes": 347
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/EtapaLogisticaService.java",
+      "sha256": "545b173a0cf4b176f879608027981cbb0ebb76d641f5928fa2bfe4b50c155671",
+      "bytes": 506
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/IncidenciaService.java",
+      "sha256": "350dd13810de1d02bfee9057bb530b03900cd3368c4dd3117c09f6f586fd926b",
+      "bytes": 701
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/LogisticaCancellationService.java",
+      "sha256": "9b5882f324720663bb9bb33269e91b598146ae1ff43209d1885e88ef256a7a06",
+      "bytes": 141
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/ProgramacionLogisticaQueryService.java",
+      "sha256": "aae22eca5ce1bd2ba8912eae0843b31510c2088d3a6f02521183ff28794ff970",
+      "bytes": 474
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/ProgramacionLogisticaService.java",
+      "sha256": "98bde0f21b7047a0b4e962f76fe71c63ad191c70cb70e1bce062bf63e79f3b85",
+      "bytes": 412
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/RutaLogisticaQueryService.java",
+      "sha256": "dd414ed2774796f92bb3fb8ba270d53b822483c00d962b800d6b4329f51f7f91",
+      "bytes": 193
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/RutaLogisticaService.java",
+      "sha256": "eb5b86692e72a5d6fbb91a886262165bf26fddaec903323d2b596547b83a644a",
+      "bytes": 406
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/ToleranciaService.java",
+      "sha256": "14cf002cc904321191e8005668d3bfd44dc7d068c1035ddce3ab2cd7b3a064df",
+      "bytes": 426
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/VehiculoService.java",
+      "sha256": "d02a86cfbccb58aa47e3ed3b57dcdacac1bef7e963d037d6d3d343e332bcd9c1",
+      "bytes": 430
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/AsignacionLogisticaQueryServiceImpl.java",
+      "sha256": "7480c2e241775dc3e176ffc08cf065077a9485de29a83d1d38b0a0f8fc9b74f2",
+      "bytes": 1095
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/EtapaLogisticaServiceImpl.java",
+      "sha256": "46d9a99bfaa76a679f388b16fe7165c5b2fd11e6b59ca2339151563d7a0bc324",
+      "bytes": 7015
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/IncidenciaServiceImpl.java",
+      "sha256": "6ef1d602ce9fd927456c44700808e1be7d3dd97b506f8ba9154041f3c2358378",
+      "bytes": 5560
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/LogisticaCancellationServiceImpl.java",
+      "sha256": "d50084b67d40c748765c8d22e5db8cdbcf333afa4db39053ab2fac9d6105056a",
+      "bytes": 1123
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/ProgramacionLogisticaQueryServiceImpl.java",
+      "sha256": "0f1a5c35e33e89d8ed9a0d5c5ce6c3882bb6a456d5b5347b10ed834445333ae6",
+      "bytes": 1959
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/ProgramacionLogisticaServiceImpl.java",
+      "sha256": "69769b1d35e09d57d4fd778b748cddeede2244cdf4ddc059faa652fea3dc2ae5",
+      "bytes": 6986
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/RutaLogisticaQueryServiceImpl.java",
+      "sha256": "674896aa7a4759f9f5f774d34fbb0b0cbc263dc4d75e4ee3a4bf4dbebc6b76b2",
+      "bytes": 1242
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/RutaLogisticaServiceImpl.java",
+      "sha256": "429cc197d714909f509bba3487cab05c2015a526b31fbd40ce6427b4ca314d37",
+      "bytes": 5212
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/ServiceSupport.java",
+      "sha256": "bbed7dde8f673c40018d2512e2de77801f28a52551bdea3b0d49c6b14daeb78c",
+      "bytes": 408
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/ToleranciaServiceImpl.java",
+      "sha256": "83349ec0ba8061765f8e431fe571a29a79707b0bb99acde4967718e138773d9c",
+      "bytes": 1524
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/application/service/impl/VehiculoServiceImpl.java",
+      "sha256": "5651f76d5c8f11d79506a5d2bee8262c88f27b5ae68ef92831eb5e606027e91d",
+      "bytes": 2037
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/config/CorrelationIdFilter.java",
+      "sha256": "02bd54b69c815a3972d4132ce54271ec34122381be53d4e6cad7f56ba7f18ec0",
+      "bytes": 1200
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/config/OpenApiConfig.java",
+      "sha256": "0eab0a93acee3ec9c706305258a773c2411dad7e8282736c7c5ecf317a1c755b",
+      "bytes": 455
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/AsignacionLogistica.java",
+      "sha256": "0d25fc45fd5cd4ac014be393bc5ffa696339a7e098854f57cfa45e3324eb3470",
+      "bytes": 1051
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/EtapaLogistica.java",
+      "sha256": "5020d2246e7e3e7c1f222166c3e3b1105f9311a5feb3d8c74a1c5bccbcdf537a",
+      "bytes": 1978
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/Incidencia.java",
+      "sha256": "74963a8342a893ad3306a76775a3b2c2b923711d567460f242c8b499602ebb0b",
+      "bytes": 1816
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/ProgramacionLogistica.java",
+      "sha256": "3c0dfa5d7a204416cb7548406b872f0e15d5b25f8f64d8421381baf6f03a0234",
+      "bytes": 1418
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/SeguimientoIncidencia.java",
+      "sha256": "0e921dc8887dec38b5d25b4f3612abc313bbab8cbd88f0c802a860a42eed22ac",
+      "bytes": 1070
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/TipoIncidencia.java",
+      "sha256": "3a0b899cc54b6255bc5b1cc19af24a9c39dfbba5f3bedf7764eb1d47dec56664",
+      "bytes": 1070
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/Tolerancia.java",
+      "sha256": "5a047cb23a79910e57609781729be0b07f0c4a63718e88734039784af765d82a",
+      "bytes": 1132
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/entity/Vehiculo.java",
+      "sha256": "fdfcc3196a0c81bf940adda7d7c05314ce6dddd6ebaa49ef0562fa66b0a722cc",
+      "bytes": 797
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/CodigoEtapa.java",
+      "sha256": "faa36b85c1e480d257c980c400c511506ce7ccd8cfa1df814fcad9773fe05c51",
+      "bytes": 819
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/EstadoAsignacion.java",
+      "sha256": "4bb3b393cf61e62182d8b62e8710a0528f770b29e0e361f4227669d76d6a0d1f",
+      "bytes": 134
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/EstadoEtapa.java",
+      "sha256": "380c7877b02678ed77fe628af6537d0e50c55fc96b4f751917b6dc2c43da7dc6",
+      "bytes": 126
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/EstadoIncidencia.java",
+      "sha256": "46a66b8a184bcd5d3d51c4121071b277b518c397593c335900dfc68772389ad5",
+      "bytes": 116
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/EstadoProgramacion.java",
+      "sha256": "5f870414a681a16697f7b4eae28ab668ae96d0100af242287252d5707474d8ad",
+      "bytes": 128
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/HitoOrden.java",
+      "sha256": "2a58a3db8f3df73c0e1bbacd4ccaec494bcaaad8e95e79e580745b3a08447c67",
+      "bytes": 171
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/PerfilReportante.java",
+      "sha256": "2fdf84285d141871abfa6c34678566bb407bdcbc88f2b3e291276248ecc58aa8",
+      "bytes": 103
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/domain/enums/UnidadTolerancia.java",
+      "sha256": "0485b1247fe233ba249f283930ba95cf12a44156857b0ac979e9adb3571033dd",
+      "bytes": 101
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/exception/ApiError.java",
+      "sha256": "fba2f28952e6c3044ae4a52c7bd034b01c9d58bb2b447e1677202c52402712e3",
+      "bytes": 250
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/exception/BusinessRuleException.java",
+      "sha256": "48596d1b2ced2a01330036fb807dd3b25f9707e957d0ce4cd6737e37ad52a480",
+      "bytes": 160
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/exception/ConflictException.java",
+      "sha256": "0d1e8be4a296c3e06b0d8a6cfe7727739b7d5e066b025abe9c0ebe2f67826561",
+      "bytes": 152
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/exception/GlobalExceptionHandler.java",
+      "sha256": "f37aef422a2ecb584e062d5a566ee79cb6d4b0dc69db585675985f6ee05f44e8",
+      "bytes": 2829
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/exception/IntegrationUnavailableException.java",
+      "sha256": "1fb8b9e0e8cdd1c03a8d99a4e94873c917edb451e34d09074c6c0228184c9dd5",
+      "bytes": 180
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/exception/ResourceNotFoundException.java",
+      "sha256": "53da8763a525b8e62f0e17f604b907886783f319dd9ac2f409aef7327c951982",
+      "bytes": 168
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/integration/client/InventarioLogisticaPort.java",
+      "sha256": "90670da66a390d16325b61bfdca97fdcf2c111c6c5e1772d58aa01ab7c12fb96",
+      "bytes": 233
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/integration/client/OrdenesLogisticaPort.java",
+      "sha256": "16c24dfb08c80e91b1defd3857b14a051d51fb9d0e3d889d698b7f612bce2a44",
+      "bytes": 367
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/integration/client/PendingOrdenesLogisticaAdapter.java",
+      "sha256": "49490540fb4dda04cd45c3dd5e43731341004f8397fe6aca7413b12f3b3dd98f",
+      "bytes": 742
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/integration/dto/InventarioOrdenContext.java",
+      "sha256": "ae3a388c0fff2efae30de4f4003ae7e5050ffda22e834474dd4e24d1693563e7",
+      "bytes": 171
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/integration/dto/OrdenLogisticaContext.java",
+      "sha256": "7f324f56bd003261c7f265d670cbb8a08a109375428648fabe5ca3d84fd97bdd",
+      "bytes": 346
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/integration/event/LogisticaEvent.java",
+      "sha256": "a128081d4788cc7c57c822a7c18571ccbae4fd46ec59fc09e7cd4d6b2e753596",
+      "bytes": 225
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/integration/event/LogisticaEventPublisher.java",
+      "sha256": "f8a910aaa1dd81f03e9bd2a99b8abe45fbf76d921afa19ee7576c6a15d40e4b6",
+      "bytes": 135
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/mapper/LogisticaMapper.java",
+      "sha256": "10eb561b853dbf74c9cc2b4d44689f75e7283816b1ce0fc6a061549c09c51bfc",
+      "bytes": 3877
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/AsignacionLogisticaRepository.java",
+      "sha256": "45c56e1382c4afd723a1ce95c115a1b565900f9d4e6c14f1780cf6cc49647db9",
+      "bytes": 1269
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/EtapaLogisticaRepository.java",
+      "sha256": "0a45bedec5d53d01068cb912eace5c66fcc3d2beb8532083e9393b0f322def63",
+      "bytes": 497
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/IncidenciaRepository.java",
+      "sha256": "1c4f0a2cc39176f94336250ca22b97d3a36412ce43a22e6fa384b29e852e0f0d",
+      "bytes": 835
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/ProgramacionLogisticaRepository.java",
+      "sha256": "30dde80bf5fd35451892589ce1e668cecf4399db0257fd740de854f127be5a2d",
+      "bytes": 1488
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/SeguimientoIncidenciaRepository.java",
+      "sha256": "75d90a92b1d9f8fc6d9c22df12965351c1db668413e6c5facce2a5999f3d3d8f",
+      "bytes": 379
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/TipoIncidenciaRepository.java",
+      "sha256": "486f186594b2f16258ed9eb16da90ac2310acf65ddc144fd36e1cdd2d6acd5a7",
+      "bytes": 490
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/ToleranciaRepository.java",
+      "sha256": "63041f4e1d1fb93ef5778a739f9ff221eac055fae428401d86e9f9f50c540e87",
+      "bytes": 439
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/repository/VehiculoRepository.java",
+      "sha256": "597f69fa42ca25f71b7e7c7585f3cd7a0d23e5965cf45e78a569b6bd6744b2f3",
+      "bytes": 370
+    },
+    {
+      "file": "mr-logistica-service/src/main/java/mx/com/mesaregia/logistica/security/SecurityConfig.java",
+      "sha256": "073abebcec1fde3bdd325ea17161916198bafaf6fafd3c686f9e1c809ddcee16",
+      "bytes": 862
+    },
+    {
+      "file": "mr-logistica-service/src/main/resources/application.yml",
+      "sha256": "a074838990c7b98d25ff83671efc1f4309284a25c93080c603792e0248267b06",
+      "bytes": 1541
+    },
+    {
+      "file": "mr-logistica-service/src/main/resources/db/migration/V1__baseline_logistica.sql",
+      "sha256": "ef783d14c36bf67fcba2160b854bb16d80524e7e1eefc3a9cf06e549602c0bde",
+      "bytes": 9818
+    },
+    {
+      "file": "mr-logistica-service/src/main/resources/db/migration/V2__duracion_prevista_etapa.sql",
+      "sha256": "721f224042e4013020cb831baceeec1fd611926027b772550be60a2bac41e863",
+      "bytes": 245
+    },
+    {
+      "file": "mr-logistica-service/src/main/resources/logback-spring.xml",
+      "sha256": "0aefb8a45cadefdb3720528601159e72a93af25334684483d571c535061780a3",
+      "bytes": 460
+    },
+    {
+      "file": "mr-logistica-service/src/test/java/mx/com/mesaregia/logistica/IncidenciaServiceImplTest.java",
+      "sha256": "04a8cf448bc05aec8ecc08316e78f7f2eced53a9edf1a2c5d9506931bffaa454",
+      "bytes": 1685
+    },
+    {
+      "file": "mr-logistica-service/src/test/java/mx/com/mesaregia/logistica/LogisticaApplicationTests.java",
+      "sha256": "0fa641cf46191410ecd39b94c00f6dbdd56c9dff45860351ded42fb5a00f93e3",
+      "bytes": 290
+    },
+    {
+      "file": "mr-logistica-service/src/test/java/mx/com/mesaregia/logistica/ToleranciaServiceImplTest.java",
+      "sha256": "6bb2344e2c2240eb56fb1fcaa7452323b35eec42cbcf9b8711dc399f38e91ab6",
+      "bytes": 1379
+    }
+  ]
+}

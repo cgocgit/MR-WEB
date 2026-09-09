@@ -1,0 +1,1 @@
+package mx.com.mesaregia.logistica.integration.event; import java.time.OffsetDateTime; public record LogisticaEvent(String tipo,String recurso,String idRecurso,String detalle,String correlationId,OffsetDateTime ocurridoEn){}

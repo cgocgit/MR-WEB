@@ -5,10 +5,8 @@ spring:
     default: local
   jpa:
     open-in-view: false
-
 server:
   port: ${SERVER_PORT:8088}
-
 management:
   endpoints:
     web:
@@ -18,7 +16,9 @@ management:
     health:
       probes:
         enabled: true
-
+mesaregia:
+  internal-endpoints:
+    enabled: false
 ---
 spring:
   config:
@@ -35,7 +35,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-
+mesaregia:
+  internal-endpoints:
+    enabled: true
 ---
 spring:
   config:
@@ -51,7 +53,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-
+mesaregia:
+  internal-endpoints:
+    enabled: true
 ---
 spring:
   config:
@@ -68,3 +72,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+mesaregia:
+  internal-endpoints:
+    enabled: false

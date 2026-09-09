@@ -1,0 +1,1 @@
+package mx.com.mesaregia.logistica.api.request; import jakarta.validation.constraints.*; public record VehiculoUpdateRequest(@NotBlank @Size(max=20) String placa,@NotNull @PositiveOrZero Long version){}
