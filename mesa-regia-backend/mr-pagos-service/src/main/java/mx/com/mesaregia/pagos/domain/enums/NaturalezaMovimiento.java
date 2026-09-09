@@ -1,0 +1,1 @@
+package mx.com.mesaregia.pagos.domain.enums; public enum NaturalezaMovimiento { CARGO, ABONO, NEUTRO }

@@ -1,0 +1,3 @@
+package mx.com.mesaregia.pagos.api.request;
+import jakarta.validation.constraints.*; import mx.com.mesaregia.pagos.domain.enums.MetodoPago; import java.math.BigDecimal; import java.time.LocalDate;
+public record PagoCreateRequest(@NotNull @Positive Long idCotizacion,@NotNull @Positive Long idCotizacionVersion,@NotNull LocalDate fechaPago,@NotNull @DecimalMin(value="0.01") @Digits(integer=12,fraction=2) BigDecimal monto,@NotNull MetodoPago metodoPago,@Size(max=150) String referenciaPago,@Size(max=500) String observaciones,@Size(max=500) String comprobanteReferencia,@NotNull @Positive Long idUsuarioExterno) {}
