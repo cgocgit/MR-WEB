@@ -1,0 +1,3 @@
+package mx.com.mesaregia.inventario.application.service;
+import mx.com.mesaregia.inventario.api.response.*; import mx.com.mesaregia.inventario.domain.enums.TipoMovimiento; import org.springframework.data.domain.Pageable; import java.time.LocalDateTime;
+public interface MovimientoInventarioQueryService { PageResponse<MovimientoResponse> buscar(Long producto, Long orden, TipoMovimiento tipo, LocalDateTime desde, LocalDateTime hasta, Pageable pageable); }

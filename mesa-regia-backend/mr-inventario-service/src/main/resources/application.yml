@@ -19,6 +19,10 @@ management:
       probes:
         enabled: true
 
+mesaregia:
+  internal-endpoints:
+    enabled: ${MR_INTERNAL_ENDPOINTS_ENABLED:true}
+
 ---
 spring:
   config:
@@ -32,6 +36,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    baseline-on-migrate: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:false}
+    baseline-version: ${SPRING_FLYWAY_BASELINE_VERSION:1}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -51,6 +57,9 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+mesaregia:
+  internal-endpoints:
+    enabled: true
 
 ---
 spring:
@@ -65,6 +74,11 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+    baseline-on-migrate: ${SPRING_FLYWAY_BASELINE_ON_MIGRATE:false}
+    baseline-version: ${SPRING_FLYWAY_BASELINE_VERSION:1}
   jpa:
     hibernate:
       ddl-auto: validate
+mesaregia:
+  internal-endpoints:
+    enabled: ${MR_INTERNAL_ENDPOINTS_ENABLED:false}

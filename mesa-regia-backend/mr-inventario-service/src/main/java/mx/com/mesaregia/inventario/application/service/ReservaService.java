@@ -1,0 +1,3 @@
+package mx.com.mesaregia.inventario.application.service;
+import mx.com.mesaregia.inventario.api.request.*; import mx.com.mesaregia.inventario.api.response.ReservaResponse;
+public interface ReservaService { ReservaResponse crearConfirmada(String idempotencyKey, ReservaCrearRequest request); ReservaResponse activar(Long idOrden, Long usuario); ReservaResponse liberarPorOrden(Long idOrden, ReservaLiberarRequest request); }

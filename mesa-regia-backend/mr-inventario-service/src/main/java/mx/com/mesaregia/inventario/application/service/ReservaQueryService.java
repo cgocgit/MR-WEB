@@ -1,0 +1,3 @@
+package mx.com.mesaregia.inventario.application.service;
+import mx.com.mesaregia.inventario.api.response.*; import mx.com.mesaregia.inventario.domain.enums.EstadoReserva; import org.springframework.data.domain.Pageable; import java.time.LocalDate;
+public interface ReservaQueryService { PageResponse<ReservaResponse> buscar(Long orden, EstadoReserva estado, LocalDate desde, LocalDate hasta, Pageable pageable); ReservaResponse obtenerPorOrden(Long idOrden); }
