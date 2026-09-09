@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.api.response; import mx.com.mesaregia.cotizaciones.integration.dto.DisponibilidadItem; import java.util.List; public record DisponibilidadResponse(Long idCotizacion,Long idVersion,List<DisponibilidadItem> productos,String observacion){}

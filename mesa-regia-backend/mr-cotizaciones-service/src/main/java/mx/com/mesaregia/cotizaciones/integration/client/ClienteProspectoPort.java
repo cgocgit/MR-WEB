@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.integration.client; public interface ClienteProspectoPort { void validarExistencia(Long idClienteProspecto); }

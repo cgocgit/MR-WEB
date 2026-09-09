@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.repository; import mx.com.mesaregia.cotizaciones.domain.entity.Domicilio; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface DomicilioRepository extends JpaRepository<Domicilio,Long>{Optional<Domicilio> findByIdCotizacion(Long id);}

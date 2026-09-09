@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.api.request; import jakarta.validation.Valid; import jakarta.validation.constraints.*; import java.util.*; public record VersionUpsertRequest(@NotNull @Positive Long idListaPrecio,@Size(max=1000) String observaciones,@NotNull @Valid List<ConceptoRequest> conceptos,@Positive Long idUsuario,Long version){}

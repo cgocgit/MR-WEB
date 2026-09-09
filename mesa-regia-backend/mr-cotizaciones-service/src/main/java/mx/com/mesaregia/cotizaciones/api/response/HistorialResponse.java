@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.api.response; import java.time.LocalDateTime; public record HistorialResponse(Long id,Long idVersion,String evento,String estadoAnterior,String estadoNuevo,String motivo,LocalDateTime fechaHora,Long idUsuario){}

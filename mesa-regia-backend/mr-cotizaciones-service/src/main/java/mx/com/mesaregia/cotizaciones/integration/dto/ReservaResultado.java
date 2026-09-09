@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.integration.dto; public record ReservaResultado(String referenciaReserva){}

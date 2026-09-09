@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.integration.client; import mx.com.mesaregia.cotizaciones.integration.dto.OrdenResultado; public interface OrdenCommandPort { OrdenResultado generar(String idempotencyKey,Long idCotizacion,Long idVersion,String referenciaPago,String referenciaReserva); }
