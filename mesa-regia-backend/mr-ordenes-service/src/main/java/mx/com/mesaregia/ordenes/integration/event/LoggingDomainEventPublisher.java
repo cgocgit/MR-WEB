@@ -1,0 +1,2 @@
+package mx.com.mesaregia.ordenes.integration.event; import org.slf4j.*; import org.springframework.stereotype.Component;
+@Component public class LoggingDomainEventPublisher implements DomainEventPublisher { private static final Logger log=LoggerFactory.getLogger(LoggingDomainEventPublisher.class); public void publish(OrdenEstadoCambiadoEvent e){log.info("event=ORDEN_ESTADO_CAMBIADO idOrden={} folio={} anterior={} nuevo={} accion={} correlationId={}",e.idOrden(),e.folio(),e.estadoAnterior(),e.estadoNuevo(),e.accion(),e.correlationId());} }

@@ -1,0 +1,2 @@
+package mx.com.mesaregia.ordenes.integration.client; import mx.com.mesaregia.ordenes.exception.IntegrationUnavailableException; import org.springframework.stereotype.Component;
+@Component public class InventarioCancellationUnavailableAdapter implements InventarioCancellationPort { public void liberarReserva(Long idOrden,String motivo,String correlationId){throw new IntegrationUnavailableException("Integración con Inventario pendiente de Etapa 10");} }

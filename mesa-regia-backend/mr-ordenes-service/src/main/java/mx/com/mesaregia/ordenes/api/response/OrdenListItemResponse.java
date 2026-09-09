@@ -1,0 +1,2 @@
+package mx.com.mesaregia.ordenes.api.response; import mx.com.mesaregia.ordenes.domain.enums.*; import java.time.*;
+public record OrdenListItemResponse(Long id,String folio,EstadoOrden estado,TipoCompromiso tipoCompromiso,Long idCotizacion,Long idCotizacionVersion,Long idCliente,String cliente,String contacto,String evento,LocalDateTime fechaHoraEvento,LocalDateTime fechaGeneracion,Long version) {}
