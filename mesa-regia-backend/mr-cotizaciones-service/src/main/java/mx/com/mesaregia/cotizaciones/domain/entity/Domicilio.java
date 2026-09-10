@@ -1,2 +1,22 @@
-package mx.com.mesaregia.cotizaciones.domain.entity; import jakarta.persistence.*; import lombok.*; import java.time.*; import java.math.BigDecimal;
-@Entity @Table(name="domicilio") @Getter @Setter @NoArgsConstructor public class Domicilio {@Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="id_domicilio") private Long id; @Column(name="id_cotizacion",nullable=false,unique=true) private Long idCotizacion; @Column(nullable=false,length=500) private String direccion; @Column(length=500) private String referencias;}
+package mx.com.mesaregia.cotizaciones.domain.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "domicilio")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Domicilio {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id_domicilio")
+  private Long id;
+  @Column(name = "id_cotizacion", nullable = false, unique = true)
+  private Long idCotizacion;
+  @Column(nullable = false, length = 500)
+  private String direccion;
+  @Column(length = 500)
+  private String referencias;
+}

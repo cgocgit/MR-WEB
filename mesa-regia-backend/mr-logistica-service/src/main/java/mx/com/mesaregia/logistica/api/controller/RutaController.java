@@ -1,2 +1,44 @@
-package mx.com.mesaregia.logistica.api.controller; import jakarta.validation.Valid; import mx.com.mesaregia.logistica.api.request.*; import mx.com.mesaregia.logistica.api.response.RutaResponse; import mx.com.mesaregia.logistica.application.service.*; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*;
-@RestController @RequestMapping("/api/v1/logistica/programaciones/{id}") public class RutaController {private final RutaLogisticaService cmd;private final RutaLogisticaQueryService query;public RutaController(RutaLogisticaService c,RutaLogisticaQueryService q){cmd=c;query=q;} @PostMapping("/asignaciones") @PreAuthorize("hasAuthority('logistica.gestionar')") public RutaResponse agregar(@PathVariable Long id,@Valid @RequestBody AsignacionCreateRequest r){return cmd.agregarAsignacion(id,r);} @DeleteMapping("/asignaciones/{aid}") @PreAuthorize("hasAuthority('logistica.gestionar')") public RutaResponse cancelar(@PathVariable Long id,@PathVariable Long aid,@RequestParam Long version){return cmd.cancelarAsignacion(id,aid,version);} @PutMapping("/orden-paradas") @PreAuthorize("hasAuthority('logistica.gestionar')") public RutaResponse ordenar(@PathVariable Long id,@Valid @RequestBody OrdenParadasRequest r){return cmd.ordenarParadas(id,r);} @GetMapping("/ruta") @PreAuthorize("hasAnyAuthority('logistica.consultar','logistica.gestionar')") public RutaResponse ruta(@PathVariable Long id){return query.detalle(id);} }
+package mx.com.mesaregia.logistica.api.controller;
+
+import jakarta.validation.Valid;
+import mx.com.mesaregia.logistica.api.request.*;
+import mx.com.mesaregia.logistica.api.response.RutaResponse;
+import mx.com.mesaregia.logistica.application.service.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/v1/logistica/programaciones/{id}")
+public class RutaController {
+  private final RutaLogisticaService cmd;
+  private final RutaLogisticaQueryService query;
+
+  public RutaController(RutaLogisticaService c, RutaLogisticaQueryService q) {
+    cmd = c;
+    query = q;
+  }
+
+  @PostMapping("/asignaciones")
+  @PreAuthorize("hasAuthority('logistica.gestionar')")
+  public RutaResponse agregar(@PathVariable Long id, @Valid @RequestBody AsignacionCreateRequest r) {
+    return cmd.agregarAsignacion(id, r);
+  }
+
+  @DeleteMapping("/asignaciones/{aid}")
+  @PreAuthorize("hasAuthority('logistica.gestionar')")
+  public RutaResponse cancelar(@PathVariable Long id, @PathVariable Long aid, @RequestParam Long version) {
+    return cmd.cancelarAsignacion(id, aid, version);
+  }
+
+  @PutMapping("/orden-paradas")
+  @PreAuthorize("hasAuthority('logistica.gestionar')")
+  public RutaResponse ordenar(@PathVariable Long id, @Valid @RequestBody OrdenParadasRequest r) {
+    return cmd.ordenarParadas(id, r);
+  }
+
+  @GetMapping("/ruta")
+  @PreAuthorize("hasAnyAuthority('logistica.consultar','logistica.gestionar')")
+  public RutaResponse ruta(@PathVariable Long id) {
+    return query.detalle(id);
+  }
+}

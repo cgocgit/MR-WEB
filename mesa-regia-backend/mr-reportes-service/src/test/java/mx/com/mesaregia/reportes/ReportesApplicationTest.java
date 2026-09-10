@@ -5,5 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(properties = "spring.profiles.active=test")
 class ReportesApplicationTest {
-    @Test void contextLoads() { }
+  @Test
+  void contextLoads() {
+  }
 }

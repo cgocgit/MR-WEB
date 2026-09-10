@@ -15,25 +15,25 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ClienteProspectoServiceImplTest {
-    @Test
-    void clasificaProspectoPendienteComoCliente() {
-        ClienteProspectoRepository cr = mock(ClienteProspectoRepository.class);
-        ContactoRepository cor = mock(ContactoRepository.class);
-        DomainEventPublisher events = mock(DomainEventPublisher.class);
-        ClientesMapper mapper = new ClientesMapper();
-        var service = new ClienteProspectoServiceImpl(cr, cor, mapper, events);
+  @Test
+  void clasificaProspectoPendienteComoCliente() {
+    ClienteProspectoRepository cr = mock(ClienteProspectoRepository.class);
+    ContactoRepository cor = mock(ContactoRepository.class);
+    DomainEventPublisher events = mock(DomainEventPublisher.class);
+    ClientesMapper mapper = new ClientesMapper();
+    var service = new ClienteProspectoServiceImpl(cr, cor, mapper, events);
 
-        ClienteProspecto e = new ClienteProspecto();
-        e.setId(1L);
-        e.setClasificacion(Clasificacion.PROSPECTO);
-        e.setEstadoProspecto(EstadoProspecto.PENDIENTE);
-        e.setVersion(2L);
-        when(cr.findById(1L)).thenReturn(Optional.of(e));
+    ClienteProspecto e = new ClienteProspecto();
+    e.setId(1L);
+    e.setClasificacion(Clasificacion.PROSPECTO);
+    e.setEstadoProspecto(EstadoProspecto.PENDIENTE);
+    e.setVersion(2L);
+    when(cr.findById(1L)).thenReturn(Optional.of(e));
 
-        var out = service.clasificar(1L, new ClasificacionRequest(EstadoClienteProspecto.CLIENTE, 2L));
-        assertEquals(EstadoClienteProspecto.CLIENTE, out.estadoNuevo());
-        assertEquals(Clasificacion.CLIENTE, e.getClasificacion());
-        assertNull(e.getEstadoProspecto());
-        verify(cr).flush();
-    }
+    var out = service.clasificar(1L, new ClasificacionRequest(EstadoClienteProspecto.CLIENTE, 2L));
+    assertEquals(EstadoClienteProspecto.CLIENTE, out.estadoNuevo());
+    assertEquals(Clasificacion.CLIENTE, e.getClasificacion());
+    assertNull(e.getEstadoProspecto());
+    verify(cr).flush();
+  }
 }

@@ -1,2 +1,15 @@
-package mx.com.mesaregia.cotizaciones.repository; import mx.com.mesaregia.cotizaciones.domain.entity.CotizacionVersion; import org.springframework.data.jpa.repository.*; import org.springframework.data.repository.query.Param; import java.util.*;
-public interface CotizacionVersionRepository extends JpaRepository<CotizacionVersion,Long>{ List<CotizacionVersion> findByIdCotizacionOrderByNumeroVersionAsc(Long idCotizacion); Optional<CotizacionVersion> findByIdAndIdCotizacion(Long id,Long idCotizacion); @Query("select max(v.numeroVersion) from CotizacionVersion v where v.idCotizacion=:id") Integer maxNumero(@Param("id") Long idCotizacion); }
+package mx.com.mesaregia.cotizaciones.repository;
+
+import mx.com.mesaregia.cotizaciones.domain.entity.CotizacionVersion;
+import org.springframework.data.jpa.repository.*;
+import org.springframework.data.repository.query.Param;
+import java.util.*;
+
+public interface CotizacionVersionRepository extends JpaRepository<CotizacionVersion, Long> {
+  List<CotizacionVersion> findByIdCotizacionOrderByNumeroVersionAsc(Long idCotizacion);
+
+  Optional<CotizacionVersion> findByIdAndIdCotizacion(Long id, Long idCotizacion);
+
+  @Query("select max(v.numeroVersion) from CotizacionVersion v where v.idCotizacion=:id")
+  Integer maxNumero(@Param("id") Long idCotizacion);
+}

@@ -1,1 +1,12 @@
-package mx.com.mesaregia.logistica.repository; import mx.com.mesaregia.logistica.domain.entity.Tolerancia; import mx.com.mesaregia.logistica.domain.enums.CodigoEtapa; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface ToleranciaRepository extends JpaRepository<Tolerancia,Long>{Optional<Tolerancia> findByCodigoEtapa(CodigoEtapa codigo); List<Tolerancia> findAllByActivoTrueOrderByIdAsc();}
+package mx.com.mesaregia.logistica.repository;
+
+import mx.com.mesaregia.logistica.domain.entity.Tolerancia;
+import mx.com.mesaregia.logistica.domain.enums.CodigoEtapa;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.*;
+
+public interface ToleranciaRepository extends JpaRepository<Tolerancia, Long> {
+  Optional<Tolerancia> findByCodigoEtapa(CodigoEtapa codigo);
+
+  List<Tolerancia> findAllByActivoTrueOrderByIdAsc();
+}

@@ -1,1 +1,12 @@
-package mx.com.mesaregia.logistica.application.service; import mx.com.mesaregia.logistica.api.request.*; import mx.com.mesaregia.logistica.api.response.ProgramacionResponse; public interface ProgramacionLogisticaService {ProgramacionResponse programar(ProgramacionCreateRequest r); ProgramacionResponse reprogramar(Long id,ReprogramarRequest r); ProgramacionResponse asignarRecursos(Long id,RecursosRequest r);}
+package mx.com.mesaregia.logistica.application.service;
+
+import mx.com.mesaregia.logistica.api.request.*;
+import mx.com.mesaregia.logistica.api.response.ProgramacionResponse;
+
+public interface ProgramacionLogisticaService {
+  ProgramacionResponse programar(ProgramacionCreateRequest r);
+
+  ProgramacionResponse reprogramar(Long id, ReprogramarRequest r);
+
+  ProgramacionResponse asignarRecursos(Long id, RecursosRequest r);
+}

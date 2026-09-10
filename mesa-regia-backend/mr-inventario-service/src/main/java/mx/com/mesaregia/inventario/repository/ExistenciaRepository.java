@@ -13,13 +13,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ExistenciaRepository extends JpaRepository<Existencia, Long> {
-    @EntityGraph(attributePaths="almacen")
-    Page<Existencia> findAllByAlmacenId(Long idAlmacen, Pageable pageable);
-    @EntityGraph(attributePaths="almacen")
-    Optional<Existencia> findByAlmacenIdAndIdProductoExterno(Long idAlmacen, Long idProductoExterno);
-    @EntityGraph(attributePaths="almacen")
-    List<Existencia> findAllByAlmacenIdOrderByIdProductoExterno(Long idAlmacen);
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select e from Existencia e join fetch e.almacen where e.almacen.id=:almacen and e.idProductoExterno=:producto")
-    Optional<Existencia> findForUpdate(@Param("almacen") Long idAlmacen, @Param("producto") Long idProductoExterno);
+  @EntityGraph(attributePaths = "almacen")
+  Page<Existencia> findAllByAlmacenId(Long idAlmacen, Pageable pageable);
+
+  @EntityGraph(attributePaths = "almacen")
+  Optional<Existencia> findByAlmacenIdAndIdProductoExterno(Long idAlmacen, Long idProductoExterno);
+
+  @EntityGraph(attributePaths = "almacen")
+  List<Existencia> findAllByAlmacenIdOrderByIdProductoExterno(Long idAlmacen);
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select e from Existencia e join fetch e.almacen where e.almacen.id=:almacen and e.idProductoExterno=:producto")
+  Optional<Existencia> findForUpdate(@Param("almacen") Long idAlmacen, @Param("producto") Long idProductoExterno);
 }

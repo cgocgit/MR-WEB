@@ -2,12 +2,8 @@ package mx.com.mesaregia.inventario.repository;
 
 import mx.com.mesaregia.inventario.domain.entity.MovimientoInventario;
 import mx.com.mesaregia.inventario.domain.enums.OrigenOperacion;
-import mx.com.mesaregia.inventario.domain.enums.TipoMovimiento;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 

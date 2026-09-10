@@ -1,1 +1,5 @@
-package mx.com.mesaregia.ordenes.integration.client; public interface InventarioCancellationPort { void liberarReserva(Long idOrden,String motivo,String correlationId); }
+package mx.com.mesaregia.ordenes.integration.client;
+
+public interface InventarioCancellationPort {
+  void liberarReserva(Long idOrden, String motivo, String correlationId);
+}

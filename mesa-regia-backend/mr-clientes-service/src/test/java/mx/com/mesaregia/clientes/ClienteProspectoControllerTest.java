@@ -23,20 +23,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ClienteProspectoController.class)
 @Import(SecurityConfig.class)
 class ClienteProspectoControllerTest {
-    @Autowired MockMvc mvc;
-    @MockitoBean ClienteProspectoService service;
+  @Autowired
+  MockMvc mvc;
+  @MockitoBean
+  ClienteProspectoService service;
 
-    @Test
-    @WithMockUser(authorities = "clientes.consultar")
-    void permiteConsultarConPermiso() throws Exception {
-        when(service.buscar(isNull(), isNull(), isNull(), isNull(), any(Pageable.class)))
-                .thenReturn(new PageResponse<>(List.of(), 0, 20, 0, 0, true, true));
-        mvc.perform(get("/api/v1/clientes-prospectos")).andExpect(status().isOk());
-    }
+  @Test
+  @WithMockUser(authorities = "clientes.consultar")
+  void permiteConsultarConPermiso() throws Exception {
+    when(service.buscar(isNull(), isNull(), isNull(), isNull(), any(Pageable.class)))
+        .thenReturn(new PageResponse<>(List.of(), 0, 20, 0, 0, true, true));
+    mvc.perform(get("/api/v1/clientes-prospectos")).andExpect(status().isOk());
+  }
 
-    @Test
-    @WithMockUser(authorities = "catalogo.consultar")
-    void rechazaConsultaSinPermiso() throws Exception {
-        mvc.perform(get("/api/v1/clientes-prospectos")).andExpect(status().isForbidden());
-    }
+  @Test
+  @WithMockUser(authorities = "catalogo.consultar")
+  void rechazaConsultaSinPermiso() throws Exception {
+    mvc.perform(get("/api/v1/clientes-prospectos")).andExpect(status().isForbidden());
+  }
 }

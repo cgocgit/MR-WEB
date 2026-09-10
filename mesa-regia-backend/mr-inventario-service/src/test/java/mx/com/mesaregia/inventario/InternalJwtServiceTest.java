@@ -11,19 +11,19 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InternalJwtServiceTest {
-    @Test
-    void emiteYValidaIdentidadInternaLocal() {
-        var env = new MockEnvironment().withProperty("spring.application.name", "mr-inventario-service");
-        var jwt = new InternalJwtService(new ObjectMapper(), env);
-        String token = jwt.issue();
-        assertEquals("mr-inventario-service", jwt.verifyIfInternal(token, Set.of("mr-inventario-service")).orElseThrow());
-    }
+  @Test
+  void emiteYValidaIdentidadInternaLocal() {
+    var env = new MockEnvironment().withProperty("spring.application.name", "mr-inventario-service");
+    var jwt = new InternalJwtService(new ObjectMapper(), env);
+    String token = jwt.issue();
+    assertEquals("mr-inventario-service", jwt.verifyIfInternal(token, Set.of("mr-inventario-service")).orElseThrow());
+  }
 
-    @Test
-    void rechazaCallerNoAutorizado() {
-        var env = new MockEnvironment().withProperty("spring.application.name", "mr-inventario-service");
-        var jwt = new InternalJwtService(new ObjectMapper(), env);
-        String token = jwt.issue();
-        assertThrows(BadCredentialsException.class, () -> jwt.verifyIfInternal(token, Set.of("otro-service")));
-    }
+  @Test
+  void rechazaCallerNoAutorizado() {
+    var env = new MockEnvironment().withProperty("spring.application.name", "mr-inventario-service");
+    var jwt = new InternalJwtService(new ObjectMapper(), env);
+    String token = jwt.issue();
+    assertThrows(BadCredentialsException.class, () -> jwt.verifyIfInternal(token, Set.of("otro-service")));
+  }
 }

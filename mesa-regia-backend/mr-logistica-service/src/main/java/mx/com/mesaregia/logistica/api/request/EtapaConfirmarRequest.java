@@ -1,1 +1,7 @@
-package mx.com.mesaregia.logistica.api.request; import jakarta.validation.constraints.*; public record EtapaConfirmarRequest(@NotNull @Positive Long idUsuario,@AssertTrue boolean autorizada,@NotNull @PositiveOrZero Long version){}
+package mx.com.mesaregia.logistica.api.request;
+
+import jakarta.validation.constraints.*;
+
+public record EtapaConfirmarRequest(@NotNull @Positive Long idUsuario, @AssertTrue boolean autorizada,
+    @NotNull @PositiveOrZero Long version) {
+}

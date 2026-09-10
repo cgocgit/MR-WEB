@@ -18,50 +18,63 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/reportes")
 public class ReporteController {
-    private final ReporteVentasService ventas;
-    private final ReporteClientesService clientes;
-    private final ReporteCotizacionesService cotizaciones;
-    private final ReporteInventarioService inventario;
-    private final ReporteExportService export;
-    private final ReporteMapper mapper;
+  private final ReporteVentasService ventas;
+  private final ReporteClientesService clientes;
+  private final ReporteCotizacionesService cotizaciones;
+  private final ReporteInventarioService inventario;
+  private final ReporteExportService export;
+  private final ReporteMapper mapper;
 
-    public ReporteController(ReporteVentasService ventas, ReporteClientesService clientes,
-            ReporteCotizacionesService cotizaciones, ReporteInventarioService inventario,
-            ReporteExportService export, ReporteMapper mapper) {
-        this.ventas = ventas; this.clientes = clientes; this.cotizaciones = cotizaciones;
-        this.inventario = inventario; this.export = export; this.mapper = mapper;
-    }
+  public ReporteController(ReporteVentasService ventas, ReporteClientesService clientes,
+      ReporteCotizacionesService cotizaciones, ReporteInventarioService inventario,
+      ReporteExportService export, ReporteMapper mapper) {
+    this.ventas = ventas;
+    this.clientes = clientes;
+    this.cotizaciones = cotizaciones;
+    this.inventario = inventario;
+    this.export = export;
+    this.mapper = mapper;
+  }
 
-    @GetMapping("/ventas")
-    @PreAuthorize("hasAuthority('reportes.consultar')")
-    @Operation(summary = "Generar reporte de ventas")
-    public ReporteResponse ventas(@ModelAttribute ReporteQueryRequest request) { return mapper.toResponse(ventas.generar(request.toCriterios())); }
+  @GetMapping("/ventas")
+  @PreAuthorize("hasAuthority('reportes.consultar')")
+  @Operation(summary = "Generar reporte de ventas")
+  public ReporteResponse ventas(@ModelAttribute ReporteQueryRequest request) {
+    return mapper.toResponse(ventas.generar(request.toCriterios()));
+  }
 
-    @GetMapping("/clientes")
-    @PreAuthorize("hasAuthority('reportes.consultar')")
-    @Operation(summary = "Generar reporte de clientes")
-    public ReporteResponse clientes(@ModelAttribute ReporteQueryRequest request) { return mapper.toResponse(clientes.generar(request.toCriterios())); }
+  @GetMapping("/clientes")
+  @PreAuthorize("hasAuthority('reportes.consultar')")
+  @Operation(summary = "Generar reporte de clientes")
+  public ReporteResponse clientes(@ModelAttribute ReporteQueryRequest request) {
+    return mapper.toResponse(clientes.generar(request.toCriterios()));
+  }
 
-    @GetMapping("/cotizaciones")
-    @PreAuthorize("hasAuthority('reportes.consultar')")
-    @Operation(summary = "Generar reporte de cotizaciones")
-    public ReporteResponse cotizaciones(@ModelAttribute ReporteQueryRequest request) { return mapper.toResponse(cotizaciones.generar(request.toCriterios())); }
+  @GetMapping("/cotizaciones")
+  @PreAuthorize("hasAuthority('reportes.consultar')")
+  @Operation(summary = "Generar reporte de cotizaciones")
+  public ReporteResponse cotizaciones(@ModelAttribute ReporteQueryRequest request) {
+    return mapper.toResponse(cotizaciones.generar(request.toCriterios()));
+  }
 
-    @GetMapping("/inventario")
-    @PreAuthorize("hasAuthority('reportes.consultar')")
-    @Operation(summary = "Generar reporte de inventario")
-    public ReporteResponse inventario(@ModelAttribute ReporteQueryRequest request) { return mapper.toResponse(inventario.generar(request.toCriterios())); }
+  @GetMapping("/inventario")
+  @PreAuthorize("hasAuthority('reportes.consultar')")
+  @Operation(summary = "Generar reporte de inventario")
+  public ReporteResponse inventario(@ModelAttribute ReporteQueryRequest request) {
+    return mapper.toResponse(inventario.generar(request.toCriterios()));
+  }
 
-    @GetMapping("/{tipo}/exportacion")
-    @PreAuthorize("hasAuthority('reportes.consultar')")
-    @Operation(summary = "Exportar reporte en PDF, XLSX o CSV")
-    public ResponseEntity<byte[]> exportar(@PathVariable String tipo, @RequestParam String format,
-            @ModelAttribute ReporteQueryRequest request) {
-        ReporteArchivo archivo = export.exportar(TipoReporte.fromPath(tipo), FormatoExportacion.from(format), request.toCriterios());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(archivo.mediaType()));
-        headers.setContentDisposition(ContentDisposition.attachment().filename(archivo.nombreArchivo()).build());
-        headers.setContentLength(archivo.contenido().length);
-        return ResponseEntity.ok().headers(headers).body(archivo.contenido());
-    }
+  @GetMapping("/{tipo}/exportacion")
+  @PreAuthorize("hasAuthority('reportes.consultar')")
+  @Operation(summary = "Exportar reporte en PDF, XLSX o CSV")
+  public ResponseEntity<byte[]> exportar(@PathVariable String tipo, @RequestParam String format,
+      @ModelAttribute ReporteQueryRequest request) {
+    ReporteArchivo archivo = export.exportar(TipoReporte.fromPath(tipo), FormatoExportacion.from(format),
+        request.toCriterios());
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.parseMediaType(archivo.mediaType()));
+    headers.setContentDisposition(ContentDisposition.attachment().filename(archivo.nombreArchivo()).build());
+    headers.setContentLength(archivo.contenido().length);
+    return ResponseEntity.ok().headers(headers).body(archivo.contenido());
+  }
 }

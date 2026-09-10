@@ -1,8 +1,127 @@
 package mx.com.mesaregia.logistica.application.service.impl;
-import jakarta.persistence.*; import mx.com.mesaregia.logistica.api.request.*; import mx.com.mesaregia.logistica.api.response.RutaResponse; import mx.com.mesaregia.logistica.application.service.RutaLogisticaService; import mx.com.mesaregia.logistica.domain.entity.*; import mx.com.mesaregia.logistica.domain.enums.*; import mx.com.mesaregia.logistica.exception.*; import mx.com.mesaregia.logistica.integration.client.OrdenesLogisticaPort; import mx.com.mesaregia.logistica.mapper.LogisticaMapper; import mx.com.mesaregia.logistica.repository.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.*;
-@Service public class RutaLogisticaServiceImpl implements RutaLogisticaService {private final ProgramacionLogisticaRepository repo;private final AsignacionLogisticaRepository asig;private final EtapaLogisticaRepository etapas;private final OrdenesLogisticaPort ordenes;private final LogisticaMapper map;private final EntityManager em;public RutaLogisticaServiceImpl(ProgramacionLogisticaRepository r,AsignacionLogisticaRepository a,EtapaLogisticaRepository e,OrdenesLogisticaPort o,LogisticaMapper m,EntityManager em){repo=r;asig=a;etapas=e;ordenes=o;map=m;this.em=em;}
- @Transactional public RutaResponse agregarAsignacion(Long id,AsignacionCreateRequest r){var p=get(id);ServiceSupport.version(p.getVersion(),r.version());if(p.getEstado()!=EstadoProgramacion.PROGRAMADA)throw new BusinessRuleException("La ruta ya no admite nuevas Órdenes");if(asig.findByProgramacionIdAndIdOrdenExterno(id,r.idOrden()).filter(x->x.getEstado()!=EstadoAsignacion.CANCELADA).isPresent())throw new ConflictException("La Orden ya forma parte de esta ruta");if(asig.existsByProgramacionIdAndOrdenParadaAndEstadoNot(id,r.ordenParada(),EstadoAsignacion.CANCELADA))throw new ConflictException("El número de parada ya está ocupado");var oc=ordenes.obtenerOrden(r.idOrden());if(!"PENDIENTE_PROGRAMACION".equals(oc.estado()))throw new BusinessRuleException("La Orden debe estar PENDIENTE_PROGRAMACION");var a=new AsignacionLogistica();a.setProgramacion(p);a.setIdOrdenExterno(r.idOrden());a.setOrdenParada(r.ordenParada());a.setFechaHoraProgramada(r.fechaHoraProgramada()!=null?r.fechaHoraProgramada():oc.fechaHoraEvento());a.setDomicilioSnapshot(oc.domicilioSnapshot());boolean completa=p.getVehiculo()!=null&&p.getIdChoferExterno()!=null&&p.getIdRepresentanteExterno()!=null;a.setEstado(completa?EstadoAsignacion.PROGRAMADA:EstadoAsignacion.PENDIENTE);asig.saveAndFlush(a);if(completa)ordenes.aplicarHito(r.idOrden(),HitoOrden.PROGRAMACION_CONFIRMADA,oc.version(),p.getIdSupervisorExterno(),"Orden agregada a ruta programada");touch(p);return full(p);}
- @Transactional public RutaResponse cancelarAsignacion(Long id,Long aid,Long version){var p=get(id);ServiceSupport.version(p.getVersion(),version);var a=asig.findById(aid).orElseThrow(()->new ResourceNotFoundException("Asignación no encontrada"));if(!a.getProgramacion().getId().equals(id))throw new BusinessRuleException("La asignación no pertenece a la programación");if(a.getEstado()!=EstadoAsignacion.CANCELADA)a.setEstado(EstadoAsignacion.CANCELADA);asig.saveAndFlush(a);boolean ninguna=asig.findAllByProgramacionIdOrderByOrdenParadaAsc(id).stream().noneMatch(x->x.getEstado()!=EstadoAsignacion.CANCELADA);if(ninguna){p.setEstado(EstadoProgramacion.CANCELADA);p=repo.saveAndFlush(p);}else touch(p);return full(p);}
- @Transactional public RutaResponse ordenarParadas(Long id,OrdenParadasRequest r){var p=get(id);ServiceSupport.version(p.getVersion(),r.version());var activas=asig.findAllByProgramacionIdOrderByOrdenParadaAsc(id).stream().filter(x->x.getEstado()!=EstadoAsignacion.CANCELADA).toList();if(activas.size()!=r.paradas().size())throw new BusinessRuleException("Debe enviar todas las paradas activas");var ids=r.paradas().stream().map(OrdenParadaItem::idAsignacion).collect(java.util.stream.Collectors.toSet());if(ids.size()!=activas.size()||!ids.equals(activas.stream().map(AsignacionLogistica::getId).collect(java.util.stream.Collectors.toSet())))throw new BusinessRuleException("El conjunto de asignaciones es inválido");var ord=r.paradas().stream().map(OrdenParadaItem::ordenParada).sorted().toList();for(int i=0;i<ord.size();i++)if(ord.get(i)!=i+1)throw new BusinessRuleException("Las paradas deben formar una secuencia continua desde 1");int tmp=60000;for(var a:activas)a.setOrdenParada(tmp++);asig.saveAllAndFlush(activas);var porId=activas.stream().collect(java.util.stream.Collectors.toMap(AsignacionLogistica::getId,x->x));for(var x:r.paradas())porId.get(x.idAsignacion()).setOrdenParada(x.ordenParada());asig.saveAllAndFlush(activas);touch(p);return full(p);}
- private void touch(ProgramacionLogistica p){em.lock(p,LockModeType.OPTIMISTIC_FORCE_INCREMENT);em.flush();} private ProgramacionLogistica get(Long id){return repo.findById(id).orElseThrow(()->new ResourceNotFoundException("Programación no encontrada"));} private RutaResponse full(ProgramacionLogistica p){return map.ruta(p,asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId()),etapas.findAllByProgramacionIdOrderByOrdenEtapaAsc(p.getId()));}
+
+import jakarta.persistence.*;
+import mx.com.mesaregia.logistica.api.request.*;
+import mx.com.mesaregia.logistica.api.response.RutaResponse;
+import mx.com.mesaregia.logistica.application.service.RutaLogisticaService;
+import mx.com.mesaregia.logistica.domain.entity.*;
+import mx.com.mesaregia.logistica.domain.enums.*;
+import mx.com.mesaregia.logistica.exception.*;
+import mx.com.mesaregia.logistica.integration.client.OrdenesLogisticaPort;
+import mx.com.mesaregia.logistica.mapper.LogisticaMapper;
+import mx.com.mesaregia.logistica.repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class RutaLogisticaServiceImpl implements RutaLogisticaService {
+  private final ProgramacionLogisticaRepository repo;
+  private final AsignacionLogisticaRepository asig;
+  private final EtapaLogisticaRepository etapas;
+  private final OrdenesLogisticaPort ordenes;
+  private final LogisticaMapper map;
+  private final EntityManager em;
+
+  public RutaLogisticaServiceImpl(ProgramacionLogisticaRepository r, AsignacionLogisticaRepository a,
+      EtapaLogisticaRepository e, OrdenesLogisticaPort o, LogisticaMapper m, EntityManager em) {
+    repo = r;
+    asig = a;
+    etapas = e;
+    ordenes = o;
+    map = m;
+    this.em = em;
+  }
+
+  @Transactional
+  public RutaResponse agregarAsignacion(Long id, AsignacionCreateRequest r) {
+    var p = get(id);
+    ServiceSupport.version(p.getVersion(), r.version());
+    if (p.getEstado() != EstadoProgramacion.PROGRAMADA)
+      throw new BusinessRuleException("La ruta ya no admite nuevas Órdenes");
+    if (asig.findByProgramacionIdAndIdOrdenExterno(id, r.idOrden())
+        .filter(x -> x.getEstado() != EstadoAsignacion.CANCELADA).isPresent())
+      throw new ConflictException("La Orden ya forma parte de esta ruta");
+    if (asig.existsByProgramacionIdAndOrdenParadaAndEstadoNot(id, r.ordenParada(), EstadoAsignacion.CANCELADA))
+      throw new ConflictException("El número de parada ya está ocupado");
+    var oc = ordenes.obtenerOrden(r.idOrden());
+    if (!"PENDIENTE_PROGRAMACION".equals(oc.estado()))
+      throw new BusinessRuleException("La Orden debe estar PENDIENTE_PROGRAMACION");
+    var a = new AsignacionLogistica();
+    a.setProgramacion(p);
+    a.setIdOrdenExterno(r.idOrden());
+    a.setOrdenParada(r.ordenParada());
+    a.setFechaHoraProgramada(r.fechaHoraProgramada() != null ? r.fechaHoraProgramada() : oc.fechaHoraEvento());
+    a.setDomicilioSnapshot(oc.domicilioSnapshot());
+    boolean completa = p.getVehiculo() != null && p.getIdChoferExterno() != null
+        && p.getIdRepresentanteExterno() != null;
+    a.setEstado(completa ? EstadoAsignacion.PROGRAMADA : EstadoAsignacion.PENDIENTE);
+    asig.saveAndFlush(a);
+    if (completa)
+      ordenes.aplicarHito(r.idOrden(), HitoOrden.PROGRAMACION_CONFIRMADA, oc.version(), p.getIdSupervisorExterno(),
+          "Orden agregada a ruta programada");
+    touch(p);
+    return full(p);
+  }
+
+  @Transactional
+  public RutaResponse cancelarAsignacion(Long id, Long aid, Long version) {
+    var p = get(id);
+    ServiceSupport.version(p.getVersion(), version);
+    var a = asig.findById(aid).orElseThrow(() -> new ResourceNotFoundException("Asignación no encontrada"));
+    if (!a.getProgramacion().getId().equals(id))
+      throw new BusinessRuleException("La asignación no pertenece a la programación");
+    if (a.getEstado() != EstadoAsignacion.CANCELADA)
+      a.setEstado(EstadoAsignacion.CANCELADA);
+    asig.saveAndFlush(a);
+    boolean ninguna = asig.findAllByProgramacionIdOrderByOrdenParadaAsc(id).stream()
+        .noneMatch(x -> x.getEstado() != EstadoAsignacion.CANCELADA);
+    if (ninguna) {
+      p.setEstado(EstadoProgramacion.CANCELADA);
+      p = repo.saveAndFlush(p);
+    } else
+      touch(p);
+    return full(p);
+  }
+
+  @Transactional
+  public RutaResponse ordenarParadas(Long id, OrdenParadasRequest r) {
+    var p = get(id);
+    ServiceSupport.version(p.getVersion(), r.version());
+    var activas = asig.findAllByProgramacionIdOrderByOrdenParadaAsc(id).stream()
+        .filter(x -> x.getEstado() != EstadoAsignacion.CANCELADA).toList();
+    if (activas.size() != r.paradas().size())
+      throw new BusinessRuleException("Debe enviar todas las paradas activas");
+    var ids = r.paradas().stream().map(OrdenParadaItem::idAsignacion).collect(java.util.stream.Collectors.toSet());
+    if (ids.size() != activas.size()
+        || !ids.equals(activas.stream().map(AsignacionLogistica::getId).collect(java.util.stream.Collectors.toSet())))
+      throw new BusinessRuleException("El conjunto de asignaciones es inválido");
+    var ord = r.paradas().stream().map(OrdenParadaItem::ordenParada).sorted().toList();
+    for (int i = 0; i < ord.size(); i++)
+      if (ord.get(i) != i + 1)
+        throw new BusinessRuleException("Las paradas deben formar una secuencia continua desde 1");
+    int tmp = 60000;
+    for (var a : activas)
+      a.setOrdenParada(tmp++);
+    asig.saveAllAndFlush(activas);
+    var porId = activas.stream().collect(java.util.stream.Collectors.toMap(AsignacionLogistica::getId, x -> x));
+    for (var x : r.paradas())
+      porId.get(x.idAsignacion()).setOrdenParada(x.ordenParada());
+    asig.saveAllAndFlush(activas);
+    touch(p);
+    return full(p);
+  }
+
+  private void touch(ProgramacionLogistica p) {
+    em.lock(p, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+    em.flush();
+  }
+
+  private ProgramacionLogistica get(Long id) {
+    return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Programación no encontrada"));
+  }
+
+  private RutaResponse full(ProgramacionLogistica p) {
+    return map.ruta(p, asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId()),
+        etapas.findAllByProgramacionIdOrderByOrdenEtapaAsc(p.getId()));
+  }
 }

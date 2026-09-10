@@ -1,5 +1,36 @@
 package mx.com.mesaregia.cotizaciones.application.service.impl;
-import mx.com.mesaregia.cotizaciones.api.response.InternalPagoContextResponse; import mx.com.mesaregia.cotizaciones.application.service.CotizacionIntegrationQueryService; import mx.com.mesaregia.cotizaciones.integration.client.ClienteProspectoPort; import mx.com.mesaregia.cotizaciones.repository.CotizacionDetalleRepository; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.math.BigDecimal;
-@Service public class CotizacionIntegrationQueryServiceImpl implements CotizacionIntegrationQueryService {private final CotizacionSupport support;private final CotizacionDetalleRepository detalles;private final ClienteProspectoPort clientes;public CotizacionIntegrationQueryServiceImpl(CotizacionSupport s,CotizacionDetalleRepository d,ClienteProspectoPort c){support=s;detalles=d;clientes=c;}
- @Override @Transactional(readOnly=true) public InternalPagoContextResponse pagoContexto(Long c,Long v){var q=support.get(c);var ver=support.version(c,v);var cli=clientes.obtener(q.getIdClienteProspectoExterno());BigDecimal total=detalles.findByIdCotizacionVersionOrderByOrdenAsc(v).stream().map(d->d.getPrecioUnitarioAplicado().multiply(d.getCantidad())).reduce(BigDecimal.ZERO,BigDecimal::add);return new InternalPagoContextResponse(c,v,q.getIdClienteProspectoExterno(),q.getFolio(),ver.getNumeroVersion(),cli.nombreCompleto(),total,q.getPorcentajeConfirmacion(),java.util.Objects.equals(q.getIdVersionElegida(),v));}
+
+import mx.com.mesaregia.cotizaciones.api.response.InternalPagoContextResponse;
+import mx.com.mesaregia.cotizaciones.application.service.CotizacionIntegrationQueryService;
+import mx.com.mesaregia.cotizaciones.integration.client.ClienteProspectoPort;
+import mx.com.mesaregia.cotizaciones.repository.CotizacionDetalleRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+
+@Service
+public class CotizacionIntegrationQueryServiceImpl implements CotizacionIntegrationQueryService {
+  private final CotizacionSupport support;
+  private final CotizacionDetalleRepository detalles;
+  private final ClienteProspectoPort clientes;
+
+  public CotizacionIntegrationQueryServiceImpl(CotizacionSupport s, CotizacionDetalleRepository d,
+      ClienteProspectoPort c) {
+    support = s;
+    detalles = d;
+    clientes = c;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public InternalPagoContextResponse pagoContexto(Long c, Long v) {
+    var q = support.get(c);
+    var ver = support.version(c, v);
+    var cli = clientes.obtener(q.getIdClienteProspectoExterno());
+    BigDecimal total = detalles.findByIdCotizacionVersionOrderByOrdenAsc(v).stream()
+        .map(d -> d.getPrecioUnitarioAplicado().multiply(d.getCantidad())).reduce(BigDecimal.ZERO, BigDecimal::add);
+    return new InternalPagoContextResponse(c, v, q.getIdClienteProspectoExterno(), q.getFolio(), ver.getNumeroVersion(),
+        cli.nombreCompleto(), total, q.getPorcentajeConfirmacion(),
+        java.util.Objects.equals(q.getIdVersionElegida(), v));
+  }
 }

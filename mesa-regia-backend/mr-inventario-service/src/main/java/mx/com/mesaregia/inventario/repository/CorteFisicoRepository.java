@@ -14,15 +14,15 @@ import java.util.Optional;
 
 public interface CorteFisicoRepository extends JpaRepository<CorteFisico, Long> {
 
-    @EntityGraph(attributePaths = "almacen")
-    Page<CorteFisico> findAllByOrderByIdDesc(Pageable pageable);
+  @EntityGraph(attributePaths = "almacen")
+  Page<CorteFisico> findAllByOrderByIdDesc(Pageable pageable);
 
-    @EntityGraph(attributePaths = {"almacen", "detalles", "detalles.existencia"})
-    @Query("select distinct c from CorteFisico c where c.id = :id")
-    Optional<CorteFisico> findWithDetailsById(@Param("id") Long id);
+  @EntityGraph(attributePaths = { "almacen", "detalles", "detalles.existencia" })
+  @Query("select distinct c from CorteFisico c where c.id = :id")
+  Optional<CorteFisico> findWithDetailsById(@Param("id") Long id);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @EntityGraph(attributePaths = {"almacen", "detalles", "detalles.existencia"})
-    @Query("select distinct c from CorteFisico c where c.id = :id")
-    Optional<CorteFisico> findForUpdate(@Param("id") Long id);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @EntityGraph(attributePaths = { "almacen", "detalles", "detalles.existencia" })
+  @Query("select distinct c from CorteFisico c where c.id = :id")
+  Optional<CorteFisico> findForUpdate(@Param("id") Long id);
 }

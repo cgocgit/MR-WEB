@@ -1,9 +1,92 @@
 package mx.com.mesaregia.seguridad.application.service.impl;
-import lombok.RequiredArgsConstructor; import mx.com.mesaregia.seguridad.api.request.*; import mx.com.mesaregia.seguridad.api.response.RolResponse; import mx.com.mesaregia.seguridad.application.service.*; import mx.com.mesaregia.seguridad.domain.entity.Rol; import mx.com.mesaregia.seguridad.exception.*; import mx.com.mesaregia.seguridad.mapper.RolMapper; import mx.com.mesaregia.seguridad.repository.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.*;
-@Service @RequiredArgsConstructor public class RolServiceImpl implements RolService {private final RolRepository repo;private final UsuarioRepository usuarios;private final RolMapper mapper;private final AuditoriaService auditoria;
- @Override @Transactional(readOnly=true) public List<RolResponse> buscar(Boolean activo){return repo.findAll().stream().filter(r->activo==null||r.isActivo()==activo).map(this::map).toList();}
- @Override @Transactional(readOnly=true) public RolResponse obtener(Long id){return map(entity(id));}
- @Override @Transactional public RolResponse registrar(RolCreateRequest r){if(repo.findByCodigo(r.codigo().trim()).isPresent())throw new ConflictException("El código de rol ya existe");Rol x=new Rol();x.setCodigo(r.codigo().trim());x.setNombre(r.nombre().trim());x.setDescripcion(trim(r.descripcion()));x.setActivo(r.activo());x=repo.save(x);auditoria.registrar("Administración","Registrar rol","Rol",x.getId().toString(),null,null,x.getCodigo(),"Rol registrado");return map(x);}
- @Override @Transactional public RolResponse actualizar(Long id,RolUpdateRequest r){Rol x=entity(id);ver(x.getVersion(),r.version());x.setNombre(r.nombre().trim());x.setDescripcion(trim(r.descripcion()));auditoria.registrar("Administración","Modificar rol","Rol",id.toString(),null,null,x.getCodigo(),"Rol actualizado");return map(x);}
- @Override @Transactional public RolResponse cambiarEstado(Long id,EstadoRequest r){Rol x=entity(id);ver(x.getVersion(),r.version());if(!r.activo()&&usuarios.countByRolCodigoAndActivoTrue(x.getCodigo())>0)throw new BusinessRuleException("No se puede desactivar un rol con usuarios activos asociados");x.setActivo(r.activo());auditoria.registrar("Administración","Cambiar estado rol","Rol",id.toString(),null,null,r.activo(),"Baja lógica de rol");return map(x);}
- private Rol entity(Long id){return repo.findById(id).orElseThrow(()->new ResourceNotFoundException("El rol no existe"));}private RolResponse map(Rol r){return mapper.toResponse(r,usuarios.countByRolCodigoAndActivoTrue(r.getCodigo()));}private void ver(Long a,Long e){if(!a.equals(e))throw new ConflictException("El registro fue modificado por otra operación");}private String trim(String s){return s==null?null:s.trim();}}
+
+import lombok.RequiredArgsConstructor;
+import mx.com.mesaregia.seguridad.api.request.*;
+import mx.com.mesaregia.seguridad.api.response.RolResponse;
+import mx.com.mesaregia.seguridad.application.service.*;
+import mx.com.mesaregia.seguridad.domain.entity.Rol;
+import mx.com.mesaregia.seguridad.exception.*;
+import mx.com.mesaregia.seguridad.mapper.RolMapper;
+import mx.com.mesaregia.seguridad.repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class RolServiceImpl implements RolService {
+  private final RolRepository repo;
+  private final UsuarioRepository usuarios;
+  private final RolMapper mapper;
+  private final AuditoriaService auditoria;
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<RolResponse> buscar(Boolean activo) {
+    return repo.findAll().stream().filter(r -> activo == null || r.isActivo() == activo).map(this::map).toList();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public RolResponse obtener(Long id) {
+    return map(entity(id));
+  }
+
+  @Override
+  @Transactional
+  public RolResponse registrar(RolCreateRequest r) {
+    if (repo.findByCodigo(r.codigo().trim()).isPresent())
+      throw new ConflictException("El código de rol ya existe");
+    Rol x = new Rol();
+    x.setCodigo(r.codigo().trim());
+    x.setNombre(r.nombre().trim());
+    x.setDescripcion(trim(r.descripcion()));
+    x.setActivo(r.activo());
+    x = repo.save(x);
+    auditoria.registrar("Administración", "Registrar rol", "Rol", x.getId().toString(), null, null, x.getCodigo(),
+        "Rol registrado");
+    return map(x);
+  }
+
+  @Override
+  @Transactional
+  public RolResponse actualizar(Long id, RolUpdateRequest r) {
+    Rol x = entity(id);
+    ver(x.getVersion(), r.version());
+    x.setNombre(r.nombre().trim());
+    x.setDescripcion(trim(r.descripcion()));
+    auditoria.registrar("Administración", "Modificar rol", "Rol", id.toString(), null, null, x.getCodigo(),
+        "Rol actualizado");
+    return map(x);
+  }
+
+  @Override
+  @Transactional
+  public RolResponse cambiarEstado(Long id, EstadoRequest r) {
+    Rol x = entity(id);
+    ver(x.getVersion(), r.version());
+    if (!r.activo() && usuarios.countByRolCodigoAndActivoTrue(x.getCodigo()) > 0)
+      throw new BusinessRuleException("No se puede desactivar un rol con usuarios activos asociados");
+    x.setActivo(r.activo());
+    auditoria.registrar("Administración", "Cambiar estado rol", "Rol", id.toString(), null, null, r.activo(),
+        "Baja lógica de rol");
+    return map(x);
+  }
+
+  private Rol entity(Long id) {
+    return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("El rol no existe"));
+  }
+
+  private RolResponse map(Rol r) {
+    return mapper.toResponse(r, usuarios.countByRolCodigoAndActivoTrue(r.getCodigo()));
+  }
+
+  private void ver(Long a, Long e) {
+    if (!a.equals(e))
+      throw new ConflictException("El registro fue modificado por otra operación");
+  }
+
+  private String trim(String s) {
+    return s == null ? null : s.trim();
+  }
+}

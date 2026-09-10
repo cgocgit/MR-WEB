@@ -1,7 +1,50 @@
-package mx.com.mesaregia.cotizaciones.api.controller; import jakarta.validation.Valid; import mx.com.mesaregia.cotizaciones.api.request.ImporteCubiertoEventRequest; import mx.com.mesaregia.cotizaciones.api.response.*; import mx.com.mesaregia.cotizaciones.application.service.*; import mx.com.mesaregia.cotizaciones.domain.enums.EstadoCotizacion; import org.springframework.http.HttpStatus; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.time.LocalDate;
-@RestController @RequestMapping("/internal/v1/cotizaciones") @PreAuthorize("hasAuthority('ROLE_INTERNAL_SERVICE')") public class InternalCotizacionesController {private final CotizacionIntegrationQueryService integration;private final CotizacionQueryService query;private final IntegrationInboxService inbox;public InternalCotizacionesController(CotizacionIntegrationQueryService i,CotizacionQueryService q,IntegrationInboxService in){integration=i;query=q;inbox=in;}
- @GetMapping("/{c}/versiones/{v}/pago-contexto") public InternalPagoContextResponse pago(@PathVariable Long c,@PathVariable Long v){return integration.pagoContexto(c,v);}
- @GetMapping public PageResponse<CotizacionListItemResponse> buscar(@RequestParam(required=false)EstadoCotizacion estado,@RequestParam(required=false)LocalDate desde,@RequestParam(required=false)LocalDate hasta,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="200")int size){return query.buscar(null,null,estado,desde,hasta,page,Math.min(size,200));}
- @GetMapping("/{id}") public CotizacionResponse detalle(@PathVariable Long id){return query.detalle(id);}
- @PostMapping("/eventos/importe-requerido-cubierto") @ResponseStatus(HttpStatus.ACCEPTED) public void importe(@Valid @RequestBody ImporteCubiertoEventRequest r){inbox.importeCubierto(r);}
+package mx.com.mesaregia.cotizaciones.api.controller;
+
+import jakarta.validation.Valid;
+import mx.com.mesaregia.cotizaciones.api.request.ImporteCubiertoEventRequest;
+import mx.com.mesaregia.cotizaciones.api.response.*;
+import mx.com.mesaregia.cotizaciones.application.service.*;
+import mx.com.mesaregia.cotizaciones.domain.enums.EstadoCotizacion;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
+
+@RestController
+@RequestMapping("/internal/v1/cotizaciones")
+@PreAuthorize("hasAuthority('ROLE_INTERNAL_SERVICE')")
+public class InternalCotizacionesController {
+  private final CotizacionIntegrationQueryService integration;
+  private final CotizacionQueryService query;
+  private final IntegrationInboxService inbox;
+
+  public InternalCotizacionesController(CotizacionIntegrationQueryService i, CotizacionQueryService q,
+      IntegrationInboxService in) {
+    integration = i;
+    query = q;
+    inbox = in;
+  }
+
+  @GetMapping("/{c}/versiones/{v}/pago-contexto")
+  public InternalPagoContextResponse pago(@PathVariable Long c, @PathVariable Long v) {
+    return integration.pagoContexto(c, v);
+  }
+
+  @GetMapping
+  public PageResponse<CotizacionListItemResponse> buscar(@RequestParam(required = false) EstadoCotizacion estado,
+      @RequestParam(required = false) LocalDate desde, @RequestParam(required = false) LocalDate hasta,
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "200") int size) {
+    return query.buscar(null, null, estado, desde, hasta, page, Math.min(size, 200));
+  }
+
+  @GetMapping("/{id}")
+  public CotizacionResponse detalle(@PathVariable Long id) {
+    return query.detalle(id);
+  }
+
+  @PostMapping("/eventos/importe-requerido-cubierto")
+  @ResponseStatus(HttpStatus.ACCEPTED)
+  public void importe(@Valid @RequestBody ImporteCubiertoEventRequest r) {
+    inbox.importeCubierto(r);
+  }
 }

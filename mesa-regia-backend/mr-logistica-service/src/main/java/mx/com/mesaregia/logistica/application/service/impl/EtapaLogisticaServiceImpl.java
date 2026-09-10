@@ -1,12 +1,175 @@
 package mx.com.mesaregia.logistica.application.service.impl;
-import mx.com.mesaregia.logistica.api.request.*; import mx.com.mesaregia.logistica.api.response.EtapaResponse; import mx.com.mesaregia.logistica.application.service.EtapaLogisticaService; import mx.com.mesaregia.logistica.domain.entity.*; import mx.com.mesaregia.logistica.domain.enums.*; import mx.com.mesaregia.logistica.exception.*; import mx.com.mesaregia.logistica.integration.client.OrdenesLogisticaPort; import mx.com.mesaregia.logistica.mapper.LogisticaMapper; import mx.com.mesaregia.logistica.repository.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.time.LocalDateTime; import java.util.*;
-@Service public class EtapaLogisticaServiceImpl implements EtapaLogisticaService {private final EtapaLogisticaRepository repo;private final ProgramacionLogisticaRepository prog;private final AsignacionLogisticaRepository asig;private final OrdenesLogisticaPort ordenes;private final LogisticaMapper map;public EtapaLogisticaServiceImpl(EtapaLogisticaRepository r,ProgramacionLogisticaRepository p,AsignacionLogisticaRepository a,OrdenesLogisticaPort o,LogisticaMapper m){repo=r;prog=p;asig=a;ordenes=o;map=m;}
- @Transactional(readOnly=true) public List<EtapaResponse> listarPorProgramacion(Long id){if(!prog.existsById(id))throw new ResourceNotFoundException("Programación no encontrada");return repo.findAllByProgramacionIdOrderByOrdenEtapaAsc(id).stream().map(map::etapa).toList();}
- @Transactional public EtapaResponse iniciar(Long id,EtapaIniciarRequest r){var e=get(id);ServiceSupport.version(e.getVersion(),r.version());operable(e,r.idUsuario());if(e.getEstado()!=EstadoEtapa.PENDIENTE)throw new BusinessRuleException("La fase debe estar PENDIENTE");e.setEstado(EstadoEtapa.EN_PROCESO);e.setFechaHoraInicio(LocalDateTime.now());e.setIdResponsableExterno(r.idUsuario());e=repo.saveAndFlush(e);var p=e.getProgramacion();if(p.getEstado()==EstadoProgramacion.PROGRAMADA){p.setEstado(EstadoProgramacion.EN_EJECUCION);prog.saveAndFlush(p);}if(e.getCodigoEtapa()==CodigoEtapa.PREPARACION)enviarHito(p,HitoOrden.PREPARACION_INICIADA,r.idUsuario(),"Preparación iniciada");var aa=asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId());for(var a:aa)if(a.getEstado()==EstadoAsignacion.PROGRAMADA)a.setEstado(EstadoAsignacion.EN_PROCESO);asig.saveAll(aa);return map.etapa(e);}
- @Transactional public EtapaResponse avance(Long id,EtapaAvanceRequest r){var e=get(id);ServiceSupport.version(e.getVersion(),r.version());operable(e,r.idUsuario());if(e.getEstado()!=EstadoEtapa.EN_PROCESO&&e.getEstado()!=EstadoEtapa.PARCIAL)throw new BusinessRuleException("La fase no admite avances");if(r.cantidadAtendida()!=null){if(e.getCantidadPrevista()==null)throw new BusinessRuleException("La fase no tiene cantidad prevista");if(r.cantidadAtendida()>e.getCantidadPrevista())throw new BusinessRuleException("La cantidad atendida no puede superar la prevista");e.setCantidadAtendida(r.cantidadAtendida());e.setEstado(r.cantidadAtendida()<e.getCantidadPrevista()?EstadoEtapa.PARCIAL:EstadoEtapa.EN_PROCESO);}if(r.comentario()!=null&&!r.comentario().isBlank())e.setComentario(r.comentario().trim());e.setIdResponsableExterno(r.idUsuario());return map.etapa(repo.saveAndFlush(e));}
- @Transactional public EtapaResponse evidencias(Long id,EtapaEvidenciaRequest r){var e=get(id);ServiceSupport.version(e.getVersion(),r.version());operable(e,r.idUsuario());if(e.getEstado()!=EstadoEtapa.EN_PROCESO&&e.getEstado()!=EstadoEtapa.PARCIAL)throw new BusinessRuleException("La fase no admite evidencias");var set=new HashSet<>(List.of(r.evidencia1().trim(),r.evidencia2().trim(),r.evidencia3().trim()));if(set.size()!=3)throw new BusinessRuleException("Las tres evidencias deben ser distintas");e.setEvidencia1Referencia(r.evidencia1().trim());e.setEvidencia2Referencia(r.evidencia2().trim());e.setEvidencia3Referencia(r.evidencia3().trim());e.setComentario(r.comentario().trim());e.setIdResponsableExterno(r.idUsuario());return map.etapa(repo.saveAndFlush(e));}
- @Transactional public EtapaResponse confirmar(Long id,EtapaConfirmarRequest r){var e=get(id);ServiceSupport.version(e.getVersion(),r.version());operable(e,r.idUsuario());if(e.getEstado()!=EstadoEtapa.EN_PROCESO&&e.getEstado()!=EstadoEtapa.PARCIAL)throw new BusinessRuleException("La fase no puede confirmarse en su estado actual");if(!r.autorizada())throw new BusinessRuleException("La confirmación es obligatoria");if(blank(e.getEvidencia1Referencia())||blank(e.getEvidencia2Referencia())||blank(e.getEvidencia3Referencia())||blank(e.getComentario()))throw new BusinessRuleException("Se requieren exactamente tres evidencias y comentario");if(e.getCantidadPrevista()!=null&&(e.getCantidadAtendida()==null||!e.getCantidadPrevista().equals(e.getCantidadAtendida())))throw new BusinessRuleException("La cantidad atendida debe completar la cantidad prevista");if(e.getFechaHoraInicio()==null)e.setFechaHoraInicio(LocalDateTime.now());e.setFechaHoraTermino(LocalDateTime.now());e.setEstado(EstadoEtapa.CONCLUIDA);e.setConfirmada(true);e.setIdResponsableExterno(r.idUsuario());e=repo.saveAndFlush(e);if(e.getCodigoEtapa()==CodigoEtapa.EJECUCION)enviarHito(e.getProgramacion(),HitoOrden.SERVICIOS_CONCLUIDOS,r.idUsuario(),"Servicios concluidos");if(e.getCodigoEtapa()==CodigoEtapa.CIERRE){var p=e.getProgramacion();p.setEstado(EstadoProgramacion.REALIZADA);prog.saveAndFlush(p);var aa=asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId());for(var a:aa)if(a.getEstado()!=EstadoAsignacion.CANCELADA)a.setEstado(EstadoAsignacion.CONCLUIDA);asig.saveAll(aa);}return map.etapa(e);}
- private void operable(EtapaLogistica e,Long u){var c=e.getCodigoEtapa();if(c.esSistema())throw new BusinessRuleException("La fase es administrada por el sistema");if(c.esInventario())throw new BusinessRuleException("La fase pertenece a Inventario y se sincronizará mediante integración interna");var p=e.getProgramacion();if(p.getEstado()==EstadoProgramacion.CANCELADA||p.getEstado()==EstadoProgramacion.REALIZADA)throw new BusinessRuleException("La programación ya no admite ejecución");boolean ok=c.esTraslado()?(Objects.equals(u,p.getIdChoferExterno())||Objects.equals(u,p.getIdRepresentanteExterno())):c.esChofer()?Objects.equals(u,p.getIdChoferExterno()):c.esRepresentante()&&Objects.equals(u,p.getIdRepresentanteExterno());if(!ok)throw new BusinessRuleException("El usuario no está asignado como responsable de esta fase");}
- private void enviarHito(ProgramacionLogistica p,HitoOrden h,Long u,String m){for(var a:asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId()))if(a.getEstado()!=EstadoAsignacion.CANCELADA){var oc=ordenes.obtenerOrden(a.getIdOrdenExterno());ordenes.aplicarHito(a.getIdOrdenExterno(),h,oc.version(),u,m);}}
- private EtapaLogistica get(Long id){return repo.findById(id).orElseThrow(()->new ResourceNotFoundException("Fase logística no encontrada"));} private boolean blank(String s){return s==null||s.isBlank();}
+
+import mx.com.mesaregia.logistica.api.request.*;
+import mx.com.mesaregia.logistica.api.response.EtapaResponse;
+import mx.com.mesaregia.logistica.application.service.EtapaLogisticaService;
+import mx.com.mesaregia.logistica.domain.entity.*;
+import mx.com.mesaregia.logistica.domain.enums.*;
+import mx.com.mesaregia.logistica.exception.*;
+import mx.com.mesaregia.logistica.integration.client.OrdenesLogisticaPort;
+import mx.com.mesaregia.logistica.mapper.LogisticaMapper;
+import mx.com.mesaregia.logistica.repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Service
+public class EtapaLogisticaServiceImpl implements EtapaLogisticaService {
+  private final EtapaLogisticaRepository repo;
+  private final ProgramacionLogisticaRepository prog;
+  private final AsignacionLogisticaRepository asig;
+  private final OrdenesLogisticaPort ordenes;
+  private final LogisticaMapper map;
+
+  public EtapaLogisticaServiceImpl(EtapaLogisticaRepository r, ProgramacionLogisticaRepository p,
+      AsignacionLogisticaRepository a, OrdenesLogisticaPort o, LogisticaMapper m) {
+    repo = r;
+    prog = p;
+    asig = a;
+    ordenes = o;
+    map = m;
+  }
+
+  @Transactional(readOnly = true)
+  public List<EtapaResponse> listarPorProgramacion(Long id) {
+    if (!prog.existsById(id))
+      throw new ResourceNotFoundException("Programación no encontrada");
+    return repo.findAllByProgramacionIdOrderByOrdenEtapaAsc(id).stream().map(map::etapa).toList();
+  }
+
+  @Transactional
+  public EtapaResponse iniciar(Long id, EtapaIniciarRequest r) {
+    var e = get(id);
+    ServiceSupport.version(e.getVersion(), r.version());
+    operable(e, r.idUsuario());
+    if (e.getEstado() != EstadoEtapa.PENDIENTE)
+      throw new BusinessRuleException("La fase debe estar PENDIENTE");
+    e.setEstado(EstadoEtapa.EN_PROCESO);
+    e.setFechaHoraInicio(LocalDateTime.now());
+    e.setIdResponsableExterno(r.idUsuario());
+    e = repo.saveAndFlush(e);
+    var p = e.getProgramacion();
+    if (p.getEstado() == EstadoProgramacion.PROGRAMADA) {
+      p.setEstado(EstadoProgramacion.EN_EJECUCION);
+      prog.saveAndFlush(p);
+    }
+    if (e.getCodigoEtapa() == CodigoEtapa.PREPARACION)
+      enviarHito(p, HitoOrden.PREPARACION_INICIADA, r.idUsuario(), "Preparación iniciada");
+    var aa = asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId());
+    for (var a : aa)
+      if (a.getEstado() == EstadoAsignacion.PROGRAMADA)
+        a.setEstado(EstadoAsignacion.EN_PROCESO);
+    asig.saveAll(aa);
+    return map.etapa(e);
+  }
+
+  @Transactional
+  public EtapaResponse avance(Long id, EtapaAvanceRequest r) {
+    var e = get(id);
+    ServiceSupport.version(e.getVersion(), r.version());
+    operable(e, r.idUsuario());
+    if (e.getEstado() != EstadoEtapa.EN_PROCESO && e.getEstado() != EstadoEtapa.PARCIAL)
+      throw new BusinessRuleException("La fase no admite avances");
+    if (r.cantidadAtendida() != null) {
+      if (e.getCantidadPrevista() == null)
+        throw new BusinessRuleException("La fase no tiene cantidad prevista");
+      if (r.cantidadAtendida() > e.getCantidadPrevista())
+        throw new BusinessRuleException("La cantidad atendida no puede superar la prevista");
+      e.setCantidadAtendida(r.cantidadAtendida());
+      e.setEstado(r.cantidadAtendida() < e.getCantidadPrevista() ? EstadoEtapa.PARCIAL : EstadoEtapa.EN_PROCESO);
+    }
+    if (r.comentario() != null && !r.comentario().isBlank())
+      e.setComentario(r.comentario().trim());
+    e.setIdResponsableExterno(r.idUsuario());
+    return map.etapa(repo.saveAndFlush(e));
+  }
+
+  @Transactional
+  public EtapaResponse evidencias(Long id, EtapaEvidenciaRequest r) {
+    var e = get(id);
+    ServiceSupport.version(e.getVersion(), r.version());
+    operable(e, r.idUsuario());
+    if (e.getEstado() != EstadoEtapa.EN_PROCESO && e.getEstado() != EstadoEtapa.PARCIAL)
+      throw new BusinessRuleException("La fase no admite evidencias");
+    var set = new HashSet<>(List.of(r.evidencia1().trim(), r.evidencia2().trim(), r.evidencia3().trim()));
+    if (set.size() != 3)
+      throw new BusinessRuleException("Las tres evidencias deben ser distintas");
+    e.setEvidencia1Referencia(r.evidencia1().trim());
+    e.setEvidencia2Referencia(r.evidencia2().trim());
+    e.setEvidencia3Referencia(r.evidencia3().trim());
+    e.setComentario(r.comentario().trim());
+    e.setIdResponsableExterno(r.idUsuario());
+    return map.etapa(repo.saveAndFlush(e));
+  }
+
+  @Transactional
+  public EtapaResponse confirmar(Long id, EtapaConfirmarRequest r) {
+    var e = get(id);
+    ServiceSupport.version(e.getVersion(), r.version());
+    operable(e, r.idUsuario());
+    if (e.getEstado() != EstadoEtapa.EN_PROCESO && e.getEstado() != EstadoEtapa.PARCIAL)
+      throw new BusinessRuleException("La fase no puede confirmarse en su estado actual");
+    if (!r.autorizada())
+      throw new BusinessRuleException("La confirmación es obligatoria");
+    if (blank(e.getEvidencia1Referencia()) || blank(e.getEvidencia2Referencia()) || blank(e.getEvidencia3Referencia())
+        || blank(e.getComentario()))
+      throw new BusinessRuleException("Se requieren exactamente tres evidencias y comentario");
+    if (e.getCantidadPrevista() != null
+        && (e.getCantidadAtendida() == null || !e.getCantidadPrevista().equals(e.getCantidadAtendida())))
+      throw new BusinessRuleException("La cantidad atendida debe completar la cantidad prevista");
+    if (e.getFechaHoraInicio() == null)
+      e.setFechaHoraInicio(LocalDateTime.now());
+    e.setFechaHoraTermino(LocalDateTime.now());
+    e.setEstado(EstadoEtapa.CONCLUIDA);
+    e.setConfirmada(true);
+    e.setIdResponsableExterno(r.idUsuario());
+    e = repo.saveAndFlush(e);
+    if (e.getCodigoEtapa() == CodigoEtapa.EJECUCION)
+      enviarHito(e.getProgramacion(), HitoOrden.SERVICIOS_CONCLUIDOS, r.idUsuario(), "Servicios concluidos");
+    if (e.getCodigoEtapa() == CodigoEtapa.CIERRE) {
+      var p = e.getProgramacion();
+      p.setEstado(EstadoProgramacion.REALIZADA);
+      prog.saveAndFlush(p);
+      var aa = asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId());
+      for (var a : aa)
+        if (a.getEstado() != EstadoAsignacion.CANCELADA)
+          a.setEstado(EstadoAsignacion.CONCLUIDA);
+      asig.saveAll(aa);
+    }
+    return map.etapa(e);
+  }
+
+  private void operable(EtapaLogistica e, Long u) {
+    var c = e.getCodigoEtapa();
+    if (c.esSistema())
+      throw new BusinessRuleException("La fase es administrada por el sistema");
+    if (c.esInventario())
+      throw new BusinessRuleException("La fase pertenece a Inventario y se sincronizará mediante integración interna");
+    var p = e.getProgramacion();
+    if (p.getEstado() == EstadoProgramacion.CANCELADA || p.getEstado() == EstadoProgramacion.REALIZADA)
+      throw new BusinessRuleException("La programación ya no admite ejecución");
+    boolean ok = c.esTraslado()
+        ? (Objects.equals(u, p.getIdChoferExterno()) || Objects.equals(u, p.getIdRepresentanteExterno()))
+        : c.esChofer() ? Objects.equals(u, p.getIdChoferExterno())
+            : c.esRepresentante() && Objects.equals(u, p.getIdRepresentanteExterno());
+    if (!ok)
+      throw new BusinessRuleException("El usuario no está asignado como responsable de esta fase");
+  }
+
+  private void enviarHito(ProgramacionLogistica p, HitoOrden h, Long u, String m) {
+    for (var a : asig.findAllByProgramacionIdOrderByOrdenParadaAsc(p.getId()))
+      if (a.getEstado() != EstadoAsignacion.CANCELADA) {
+        var oc = ordenes.obtenerOrden(a.getIdOrdenExterno());
+        ordenes.aplicarHito(a.getIdOrdenExterno(), h, oc.version(), u, m);
+      }
+  }
+
+  private EtapaLogistica get(Long id) {
+    return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Fase logística no encontrada"));
+  }
+
+  private boolean blank(String s) {
+    return s == null || s.isBlank();
+  }
 }

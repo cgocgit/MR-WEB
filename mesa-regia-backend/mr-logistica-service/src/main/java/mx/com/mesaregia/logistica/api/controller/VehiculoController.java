@@ -1,1 +1,45 @@
-package mx.com.mesaregia.logistica.api.controller; import jakarta.validation.Valid; import mx.com.mesaregia.logistica.api.request.*; import mx.com.mesaregia.logistica.api.response.VehiculoResponse; import mx.com.mesaregia.logistica.application.service.VehiculoService; import org.springframework.http.HttpStatus; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.util.List; @RestController @RequestMapping("/api/v1/logistica/vehiculos") public class VehiculoController {private final VehiculoService s;public VehiculoController(VehiculoService s){this.s=s;} @GetMapping @PreAuthorize("hasAnyAuthority('logistica.consultar','logistica.gestionar')") public List<VehiculoResponse> listar(){return s.listar();} @PostMapping @ResponseStatus(HttpStatus.CREATED) @PreAuthorize("hasAuthority('logistica.gestionar')") public VehiculoResponse crear(@Valid @RequestBody VehiculoCreateRequest r){return s.crear(r);} @PutMapping("/{id}") @PreAuthorize("hasAuthority('logistica.gestionar')") public VehiculoResponse actualizar(@PathVariable Long id,@Valid @RequestBody VehiculoUpdateRequest r){return s.actualizar(id,r);} @PatchMapping("/{id}/estado") @PreAuthorize("hasAuthority('logistica.gestionar')") public VehiculoResponse estado(@PathVariable Long id,@Valid @RequestBody VehiculoEstadoRequest r){return s.estado(id,r);} }
+package mx.com.mesaregia.logistica.api.controller;
+
+import jakarta.validation.Valid;
+import mx.com.mesaregia.logistica.api.request.*;
+import mx.com.mesaregia.logistica.api.response.VehiculoResponse;
+import mx.com.mesaregia.logistica.application.service.VehiculoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/logistica/vehiculos")
+public class VehiculoController {
+  private final VehiculoService s;
+
+  public VehiculoController(VehiculoService s) {
+    this.s = s;
+  }
+
+  @GetMapping
+  @PreAuthorize("hasAnyAuthority('logistica.consultar','logistica.gestionar')")
+  public List<VehiculoResponse> listar() {
+    return s.listar();
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize("hasAuthority('logistica.gestionar')")
+  public VehiculoResponse crear(@Valid @RequestBody VehiculoCreateRequest r) {
+    return s.crear(r);
+  }
+
+  @PutMapping("/{id}")
+  @PreAuthorize("hasAuthority('logistica.gestionar')")
+  public VehiculoResponse actualizar(@PathVariable Long id, @Valid @RequestBody VehiculoUpdateRequest r) {
+    return s.actualizar(id, r);
+  }
+
+  @PatchMapping("/{id}/estado")
+  @PreAuthorize("hasAuthority('logistica.gestionar')")
+  public VehiculoResponse estado(@PathVariable Long id, @Valid @RequestBody VehiculoEstadoRequest r) {
+    return s.estado(id, r);
+  }
+}

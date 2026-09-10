@@ -11,14 +11,15 @@ import java.time.OffsetDateTime;
 
 @Component
 public class ReporteComposer {
-    public void validar(ReporteCriterios criterios) {
-        if (criterios.fechaInicio() != null && criterios.fechaFin() != null && criterios.fechaInicio().isAfter(criterios.fechaFin())) {
-            throw new ReporteValidationException("fechaInicio no puede ser posterior a fechaFin");
-        }
+  public void validar(ReporteCriterios criterios) {
+    if (criterios.fechaInicio() != null && criterios.fechaFin() != null
+        && criterios.fechaInicio().isAfter(criterios.fechaFin())) {
+      throw new ReporteValidationException("fechaInicio no puede ser posterior a fechaFin");
     }
+  }
 
-    public ReporteResultado compose(TipoReporte tipo, ReporteCriterios criterios, FuenteReporteData data) {
-        validar(criterios);
-        return new ReporteResultado(tipo, OffsetDateTime.now(), criterios, data.fuente(), data.columnas(), data.filas());
-    }
+  public ReporteResultado compose(TipoReporte tipo, ReporteCriterios criterios, FuenteReporteData data) {
+    validar(criterios);
+    return new ReporteResultado(tipo, OffsetDateTime.now(), criterios, data.fuente(), data.columnas(), data.filas());
+  }
 }

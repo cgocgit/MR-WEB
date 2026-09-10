@@ -1,3 +1,47 @@
-package mx.com.mesaregia.reportes.integration.client; import mx.com.mesaregia.reportes.domain.model.*; import mx.com.mesaregia.reportes.integration.port.ClientesReportSourcePort; import org.springframework.stereotype.Component; import org.springframework.web.client.RestClient; import java.time.LocalDateTime; import java.util.*; import static mx.com.mesaregia.reportes.integration.client.ReportAdapterSupport.*;
-@Component public class ClientesReportRestAdapter implements ClientesReportSourcePort {private final RestClient client;public ClientesReportRestAdapter(InternalRestClientFactory f){client=f.create(System.getenv().getOrDefault("MR_CLIENTES_BASE_URL","http://localhost:8083"));}@Override public FuenteReporteData consultar(ReporteCriterios c){var rows=new ArrayList<Map<String,Object>>();int p=0,total;do{int page=p;var r=client.get().uri(u->u.path("/internal/v1/clientes-prospectos").queryParam("page",page).queryParam("size",200).build()).retrieve().body(PageDto.class);if(r==null)break;for(var x:r.content())rows.add(row("id",x.id(),"nombre",(x.nombres()+" "+x.apellidos()).trim(),"estado",x.estado(),"activo",x.activo(),"creadoEn",x.creadoEn(),"actualizadoEn",x.actualizadoEn()));total=r.totalPages();p++;}while(p<total);return new FuenteReporteData("mr-clientes-service",List.of(c("id","ID"),c("nombre","Cliente/Prospecto"),c("estado","Estado"),c("activo","Activo"),c("creadoEn","Creado"),c("actualizadoEn","Actualizado")),rows);}private record Cliente(Long id,String nombres,String apellidos,String estado,boolean activo,LocalDateTime creadoEn,LocalDateTime actualizadoEn){}private record PageDto(List<Cliente> content,int totalPages){}
+package mx.com.mesaregia.reportes.integration.client;
+
+import mx.com.mesaregia.reportes.domain.model.*;
+import mx.com.mesaregia.reportes.integration.port.ClientesReportSourcePort;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import java.time.LocalDateTime;
+import java.util.*;
+import static mx.com.mesaregia.reportes.integration.client.ReportAdapterSupport.*;
+
+@Component
+public class ClientesReportRestAdapter implements ClientesReportSourcePort {
+  private final RestClient client;
+
+  public ClientesReportRestAdapter(InternalRestClientFactory f) {
+    client = f.create(System.getenv().getOrDefault("MR_CLIENTES_BASE_URL", "http://localhost:8083"));
+  }
+
+  @Override
+  public FuenteReporteData consultar(ReporteCriterios c) {
+    var rows = new ArrayList<Map<String, Object>>();
+    int p = 0, total;
+    do {
+      int page = p;
+      var r = client.get()
+          .uri(u -> u.path("/internal/v1/clientes-prospectos").queryParam("page", page).queryParam("size", 200).build())
+          .retrieve().body(PageDto.class);
+      if (r == null)
+        break;
+      for (var x : r.content())
+        rows.add(row("id", x.id(), "nombre", (x.nombres() + " " + x.apellidos()).trim(), "estado", x.estado(), "activo",
+            x.activo(), "creadoEn", x.creadoEn(), "actualizadoEn", x.actualizadoEn()));
+      total = r.totalPages();
+      p++;
+    } while (p < total);
+    return new FuenteReporteData("mr-clientes-service", List.of(c("id", "ID"), c("nombre", "Cliente/Prospecto"),
+        c("estado", "Estado"), c("activo", "Activo"), c("creadoEn", "Creado"), c("actualizadoEn", "Actualizado")),
+        rows);
+  }
+
+  private record Cliente(Long id, String nombres, String apellidos, String estado, boolean activo,
+      LocalDateTime creadoEn, LocalDateTime actualizadoEn) {
+  }
+
+  private record PageDto(List<Cliente> content, int totalPages) {
+  }
 }

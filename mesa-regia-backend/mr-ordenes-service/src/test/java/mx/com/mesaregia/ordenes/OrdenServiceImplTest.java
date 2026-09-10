@@ -1,3 +1,36 @@
 package mx.com.mesaregia.ordenes;
-import mx.com.mesaregia.ordenes.api.request.RevisionRequest; import mx.com.mesaregia.ordenes.application.service.impl.*; import mx.com.mesaregia.ordenes.domain.entity.OrdenServicio; import mx.com.mesaregia.ordenes.domain.enums.*; import mx.com.mesaregia.ordenes.mapper.OrdenMapper; import mx.com.mesaregia.ordenes.repository.*; import mx.com.mesaregia.ordenes.integration.event.DomainEventPublisher; import org.junit.jupiter.api.Test; import static org.mockito.Mockito.*; import java.util.*;
-class OrdenServiceImplTest { @Test void registraRevisionSinEditarSnapshot(){var or=mock(OrdenServicioRepository.class);var dr=mock(OrdenDetalleRepository.class);var hr=mock(HistorialEstadoOrdenRepository.class);var ev=mock(DomainEventPublisher.class);var support=new OrdenSupport(or,dr,hr,ev);var svc=new OrdenServiceImpl(support,new OrdenMapper());var o=new OrdenServicio();o.setId(1L);o.setFolio("OSMR-26-000001");o.setEstado(EstadoOrden.EN_REVISION_VENTAS);o.setVersion(1L);when(or.findById(1L)).thenReturn(Optional.of(o));when(hr.existsByOrdenServicio_IdAndAccion(1L,"REVISION_VENTAS_CONFIRMADA")).thenReturn(false);when(dr.findByOrdenServicio_IdOrderByOrdenVisualAscIdAsc(1L)).thenReturn(List.of());when(hr.findByOrdenServicio_IdOrderByFechaHoraAscIdAsc(1L)).thenReturn(List.of());svc.registrarRevisionVentas(1L,new RevisionRequest(1L,10L,"Conforme"));verify(hr).save(any());org.junit.jupiter.api.Assertions.assertEquals(EstadoOrden.EN_REVISION_VENTAS,o.getEstado());} }
+
+import mx.com.mesaregia.ordenes.api.request.RevisionRequest;
+import mx.com.mesaregia.ordenes.application.service.impl.*;
+import mx.com.mesaregia.ordenes.domain.entity.OrdenServicio;
+import mx.com.mesaregia.ordenes.domain.enums.*;
+import mx.com.mesaregia.ordenes.mapper.OrdenMapper;
+import mx.com.mesaregia.ordenes.repository.*;
+import mx.com.mesaregia.ordenes.integration.event.DomainEventPublisher;
+import org.junit.jupiter.api.Test;
+import static org.mockito.Mockito.*;
+import java.util.*;
+
+class OrdenServiceImplTest {
+  @Test
+  void registraRevisionSinEditarSnapshot() {
+    var or = mock(OrdenServicioRepository.class);
+    var dr = mock(OrdenDetalleRepository.class);
+    var hr = mock(HistorialEstadoOrdenRepository.class);
+    var ev = mock(DomainEventPublisher.class);
+    var support = new OrdenSupport(or, dr, hr, ev);
+    var svc = new OrdenServiceImpl(support, new OrdenMapper());
+    var o = new OrdenServicio();
+    o.setId(1L);
+    o.setFolio("OSMR-26-000001");
+    o.setEstado(EstadoOrden.EN_REVISION_VENTAS);
+    o.setVersion(1L);
+    when(or.findById(1L)).thenReturn(Optional.of(o));
+    when(hr.existsByOrdenServicio_IdAndAccion(1L, "REVISION_VENTAS_CONFIRMADA")).thenReturn(false);
+    when(dr.findByOrdenServicio_IdOrderByOrdenVisualAscIdAsc(1L)).thenReturn(List.of());
+    when(hr.findByOrdenServicio_IdOrderByFechaHoraAscIdAsc(1L)).thenReturn(List.of());
+    svc.registrarRevisionVentas(1L, new RevisionRequest(1L, 10L, "Conforme"));
+    verify(hr).save(any());
+    org.junit.jupiter.api.Assertions.assertEquals(EstadoOrden.EN_REVISION_VENTAS, o.getEstado());
+  }
+}

@@ -10,24 +10,24 @@ import org.springframework.data.repository.query.Param;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    Optional<Usuario> findByIdentificador(String identificador);
+  Optional<Usuario> findByIdentificador(String identificador);
 
-    boolean existsByIdentificadorAndIdNot(String identificador, Long id);
+  boolean existsByIdentificadorAndIdNot(String identificador, Long id);
 
-    long countByRolCodigoAndActivoTrue(String codigoRol);
+  long countByRolCodigoAndActivoTrue(String codigoRol);
 
-    @Query("""
-            select u
-            from Usuario u
-            where (:texto is null
-                   or lower(u.nombre) like lower(concat('%', :texto, '%'))
-                   or lower(u.identificador) like lower(concat('%', :texto, '%')))
-              and (:activo is null or u.activo = :activo)
-              and (:idRol is null or u.rol.id = :idRol)
-            """)
-    Page<Usuario> buscar(
-            @Param("texto") String texto,
-            @Param("activo") Boolean activo,
-            @Param("idRol") Long idRol,
-            Pageable pageable);
+  @Query("""
+      select u
+      from Usuario u
+      where (:texto is null
+             or lower(u.nombre) like lower(concat('%', :texto, '%'))
+             or lower(u.identificador) like lower(concat('%', :texto, '%')))
+        and (:activo is null or u.activo = :activo)
+        and (:idRol is null or u.rol.id = :idRol)
+      """)
+  Page<Usuario> buscar(
+      @Param("texto") String texto,
+      @Param("activo") Boolean activo,
+      @Param("idRol") Long idRol,
+      Pageable pageable);
 }

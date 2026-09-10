@@ -1,2 +1,31 @@
-package mx.com.mesaregia.logistica.api.controller; import mx.com.mesaregia.logistica.api.response.InternalLogisticaOrdenContextResponse; import mx.com.mesaregia.logistica.application.service.*; import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*;
-@RestController @RequestMapping("/internal/v1/logistica") @ConditionalOnProperty(prefix="mesaregia.internal-endpoints",name="enabled",havingValue="true") @PreAuthorize("hasAuthority('ROLE_INTERNAL_SERVICE')") public class InternalLogisticaController {private final LogisticaCancellationService cancel;private final LogisticaIntegrationQueryService query;public InternalLogisticaController(LogisticaCancellationService c,LogisticaIntegrationQueryService q){cancel=c;query=q;}@PostMapping("/ordenes/{idOrden}/cancelar")public void cancelar(@PathVariable Long idOrden){cancel.cancelarPorOrden(idOrden);}@GetMapping("/ordenes/{idOrden}/contexto")public InternalLogisticaOrdenContextResponse contexto(@PathVariable Long idOrden){return query.contextoOrden(idOrden);}}
+package mx.com.mesaregia.logistica.api.controller;
+
+import mx.com.mesaregia.logistica.api.response.InternalLogisticaOrdenContextResponse;
+import mx.com.mesaregia.logistica.application.service.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/internal/v1/logistica")
+@ConditionalOnProperty(prefix = "mesaregia.internal-endpoints", name = "enabled", havingValue = "true")
+@PreAuthorize("hasAuthority('ROLE_INTERNAL_SERVICE')")
+public class InternalLogisticaController {
+  private final LogisticaCancellationService cancel;
+  private final LogisticaIntegrationQueryService query;
+
+  public InternalLogisticaController(LogisticaCancellationService c, LogisticaIntegrationQueryService q) {
+    cancel = c;
+    query = q;
+  }
+
+  @PostMapping("/ordenes/{idOrden}/cancelar")
+  public void cancelar(@PathVariable Long idOrden) {
+    cancel.cancelarPorOrden(idOrden);
+  }
+
+  @GetMapping("/ordenes/{idOrden}/contexto")
+  public InternalLogisticaOrdenContextResponse contexto(@PathVariable Long idOrden) {
+    return query.contextoOrden(idOrden);
+  }
+}

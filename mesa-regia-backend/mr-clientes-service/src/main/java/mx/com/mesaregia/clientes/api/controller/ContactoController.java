@@ -15,32 +15,32 @@ import java.util.List;
 @RequestMapping("/api/v1/clientes-prospectos/{clienteId}/contactos")
 @RequiredArgsConstructor
 public class ContactoController {
-    private final ContactoService service;
+  private final ContactoService service;
 
-    @GetMapping
-    @PreAuthorize("hasAuthority('clientes.consultar')")
-    public List<ContactoResponse> listar(@PathVariable Long clienteId) {
-        return service.listar(clienteId);
-    }
+  @GetMapping
+  @PreAuthorize("hasAuthority('clientes.consultar')")
+  public List<ContactoResponse> listar(@PathVariable Long clienteId) {
+    return service.listar(clienteId);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @PreAuthorize("hasAuthority('clientes.modificar')")
-    public ContactoResponse registrar(@PathVariable Long clienteId, @Valid @RequestBody ContactoCreateRequest request) {
-        return service.registrar(clienteId, request);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  @PreAuthorize("hasAuthority('clientes.modificar')")
+  public ContactoResponse registrar(@PathVariable Long clienteId, @Valid @RequestBody ContactoCreateRequest request) {
+    return service.registrar(clienteId, request);
+  }
 
-    @PutMapping("/{contactoId}")
-    @PreAuthorize("hasAuthority('clientes.modificar')")
-    public ContactoResponse actualizar(@PathVariable Long clienteId, @PathVariable Long contactoId,
-                                       @Valid @RequestBody ContactoUpdateRequest request) {
-        return service.actualizar(clienteId, contactoId, request);
-    }
+  @PutMapping("/{contactoId}")
+  @PreAuthorize("hasAuthority('clientes.modificar')")
+  public ContactoResponse actualizar(@PathVariable Long clienteId, @PathVariable Long contactoId,
+      @Valid @RequestBody ContactoUpdateRequest request) {
+    return service.actualizar(clienteId, contactoId, request);
+  }
 
-    @PatchMapping("/{contactoId}/estado")
-    @PreAuthorize("hasAuthority('clientes.modificar')")
-    public ContactoResponse cambiarEstado(@PathVariable Long clienteId, @PathVariable Long contactoId,
-                                          @Valid @RequestBody ContactoEstadoRequest request) {
-        return service.cambiarEstado(clienteId, contactoId, request);
-    }
+  @PatchMapping("/{contactoId}/estado")
+  @PreAuthorize("hasAuthority('clientes.modificar')")
+  public ContactoResponse cambiarEstado(@PathVariable Long clienteId, @PathVariable Long contactoId,
+      @Valid @RequestBody ContactoEstadoRequest request) {
+    return service.cambiarEstado(clienteId, contactoId, request);
+  }
 }

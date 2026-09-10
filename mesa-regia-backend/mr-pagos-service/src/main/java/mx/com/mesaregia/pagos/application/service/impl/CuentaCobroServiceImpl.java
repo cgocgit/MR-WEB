@@ -1,9 +1,58 @@
 package mx.com.mesaregia.pagos.application.service.impl;
-import mx.com.mesaregia.pagos.api.response.*; import mx.com.mesaregia.pagos.application.service.CuentaCobroService; import mx.com.mesaregia.pagos.domain.enums.TipoMovimientoCuenta; import mx.com.mesaregia.pagos.exception.ResourceNotFoundException; import mx.com.mesaregia.pagos.mapper.PagoMapper; import mx.com.mesaregia.pagos.repository.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.List;
-@Service public class CuentaCobroServiceImpl implements CuentaCobroService {
- private final CuentaCobroRepository cuentas;private final MovimientoCuentaRepository movs;private final CuentaCobroCalculator calc;private final PagoMapper mapper;
- public CuentaCobroServiceImpl(CuentaCobroRepository c,MovimientoCuentaRepository m,CuentaCobroCalculator ca,PagoMapper map){cuentas=c;movs=m;calc=ca;mapper=map;}
- @Override @Transactional(readOnly=true) public CuentaCobroResponse obtenerPorCotizacion(Long c,Long v){var x=cuentas.findByIdCotizacionExternoAndIdCotizacionVersionExterno(c,v).orElseThrow(()->new ResourceNotFoundException("Cuenta de cobro no encontrada"));return construir(x);}
- @Transactional(readOnly=true) public CuentaCobroResponse obtenerPorId(Long id){var x=cuentas.findById(id).orElseThrow(()->new ResourceNotFoundException("Cuenta de cobro no encontrada"));return construir(x);}
- private CuentaCobroResponse construir(mx.com.mesaregia.pagos.domain.entity.CuentaCobro c){var t=calc.calcular(c);var hist=movs.findByCuentaCobroIdAndTipoMovimientoInOrderByFechaHoraDesc(c.getId(),List.of(TipoMovimientoCuenta.PAGO,TipoMovimientoCuenta.COMPENSACION)).stream().map(mapper::movimiento).toList();var conf=movs.findFirstByCuentaCobroIdAndTipoMovimientoOrderByIdDesc(c.getId(),TipoMovimientoCuenta.CONFIRMACION).orElse(null);return new CuentaCobroResponse(c.getId(),c.getIdCotizacionExterno(),c.getIdCotizacionVersionExterno(),c.getIdClienteExterno(),c.getFolioCotizacionSnapshot(),c.getNumeroVersionSnapshot(),c.getNombreClienteSnapshot(),c.getImporteTotal(),c.getPorcentajeConfirmacion(),t.importeRequerido(),t.acumuladoBruto(),t.totalCompensado(),t.acumuladoNeto(),t.saldoConfirmar(),t.saldoLiquidar(),t.excedente(),t.porcentajeCubierto(),c.getEstado(),conf!=null,conf==null?null:conf.getResultado(),conf==null?null:conf.getReferenciaExterna(),conf==null?null:conf.getFechaHora(),c.getVersion(),hist);}
+
+import mx.com.mesaregia.pagos.api.response.*;
+import mx.com.mesaregia.pagos.application.service.CuentaCobroService;
+import mx.com.mesaregia.pagos.domain.enums.TipoMovimientoCuenta;
+import mx.com.mesaregia.pagos.exception.ResourceNotFoundException;
+import mx.com.mesaregia.pagos.mapper.PagoMapper;
+import mx.com.mesaregia.pagos.repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+public class CuentaCobroServiceImpl implements CuentaCobroService {
+  private final CuentaCobroRepository cuentas;
+  private final MovimientoCuentaRepository movs;
+  private final CuentaCobroCalculator calc;
+  private final PagoMapper mapper;
+
+  public CuentaCobroServiceImpl(CuentaCobroRepository c, MovimientoCuentaRepository m, CuentaCobroCalculator ca,
+      PagoMapper map) {
+    cuentas = c;
+    movs = m;
+    calc = ca;
+    mapper = map;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public CuentaCobroResponse obtenerPorCotizacion(Long c, Long v) {
+    var x = cuentas.findByIdCotizacionExternoAndIdCotizacionVersionExterno(c, v)
+        .orElseThrow(() -> new ResourceNotFoundException("Cuenta de cobro no encontrada"));
+    return construir(x);
+  }
+
+  @Transactional(readOnly = true)
+  public CuentaCobroResponse obtenerPorId(Long id) {
+    var x = cuentas.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cuenta de cobro no encontrada"));
+    return construir(x);
+  }
+
+  private CuentaCobroResponse construir(mx.com.mesaregia.pagos.domain.entity.CuentaCobro c) {
+    var t = calc.calcular(c);
+    var hist = movs
+        .findByCuentaCobroIdAndTipoMovimientoInOrderByFechaHoraDesc(c.getId(),
+            List.of(TipoMovimientoCuenta.PAGO, TipoMovimientoCuenta.COMPENSACION))
+        .stream().map(mapper::movimiento).toList();
+    var conf = movs.findFirstByCuentaCobroIdAndTipoMovimientoOrderByIdDesc(c.getId(), TipoMovimientoCuenta.CONFIRMACION)
+        .orElse(null);
+    return new CuentaCobroResponse(c.getId(), c.getIdCotizacionExterno(), c.getIdCotizacionVersionExterno(),
+        c.getIdClienteExterno(), c.getFolioCotizacionSnapshot(), c.getNumeroVersionSnapshot(),
+        c.getNombreClienteSnapshot(), c.getImporteTotal(), c.getPorcentajeConfirmacion(), t.importeRequerido(),
+        t.acumuladoBruto(), t.totalCompensado(), t.acumuladoNeto(), t.saldoConfirmar(), t.saldoLiquidar(),
+        t.excedente(), t.porcentajeCubierto(), c.getEstado(), conf != null, conf == null ? null : conf.getResultado(),
+        conf == null ? null : conf.getReferenciaExterna(), conf == null ? null : conf.getFechaHora(), c.getVersion(),
+        hist);
+  }
 }

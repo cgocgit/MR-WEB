@@ -1,1 +1,20 @@
-package mx.com.mesaregia.reportes.integration.client; import mx.com.mesaregia.reportes.domain.model.*; import java.util.*; public final class ReportAdapterSupport {private ReportAdapterSupport(){} public static ReporteColumna c(String k,String t){return new ReporteColumna(k,t);} public static Map<String,Object> row(Object... kv){var m=new LinkedHashMap<String,Object>();for(int i=0;i<kv.length;i+=2)m.put(String.valueOf(kv[i]),kv[i+1]);return m;}}
+package mx.com.mesaregia.reportes.integration.client;
+
+import mx.com.mesaregia.reportes.domain.model.*;
+import java.util.*;
+
+public final class ReportAdapterSupport {
+  private ReportAdapterSupport() {
+  }
+
+  public static ReporteColumna c(String k, String t) {
+    return new ReporteColumna(k, t);
+  }
+
+  public static Map<String, Object> row(Object... kv) {
+    var m = new LinkedHashMap<String, Object>();
+    for (int i = 0; i < kv.length; i += 2)
+      m.put(String.valueOf(kv[i]), kv[i + 1]);
+    return m;
+  }
+}

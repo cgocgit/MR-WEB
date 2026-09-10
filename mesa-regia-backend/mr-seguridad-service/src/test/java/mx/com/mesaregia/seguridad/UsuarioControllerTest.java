@@ -22,33 +22,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(SecurityConfig.class)
 class UsuarioControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
+  @Autowired
+  private MockMvc mvc;
 
-    @Autowired
-    private ObjectMapper json;
+  @Autowired
+  private ObjectMapper json;
 
-    @MockitoBean
-    private UsuarioService service;
+  @MockitoBean
+  private UsuarioService service;
 
-    @Test
-    @WithMockUser(authorities = "usuarios.registrar")
-    void permiteRegistrarConPermiso() throws Exception {
-        when(service.registrar(any())).thenReturn(null);
+  @Test
+  @WithMockUser(authorities = "usuarios.registrar")
+  void permiteRegistrarConPermiso() throws Exception {
+    when(service.registrar(any())).thenReturn(null);
 
-        UsuarioCreateRequest request =
-                new UsuarioCreateRequest(
-                        "Usuario",
-                        "usuario",
-                        1L,
-                        true
-                );
+    UsuarioCreateRequest request = new UsuarioCreateRequest(
+        "Usuario",
+        "usuario",
+        1L,
+        true);
 
-        mvc.perform(
-                        post("/api/v1/usuarios")
-                                .contentType("application/json")
-                                .content(json.writeValueAsString(request))
-                )
-                .andExpect(status().isCreated());
-    }
+    mvc.perform(
+        post("/api/v1/usuarios")
+            .contentType("application/json")
+            .content(json.writeValueAsString(request)))
+        .andExpect(status().isCreated());
+  }
 }

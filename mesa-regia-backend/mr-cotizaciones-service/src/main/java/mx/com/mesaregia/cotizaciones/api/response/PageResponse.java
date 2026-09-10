@@ -1,1 +1,6 @@
-package mx.com.mesaregia.cotizaciones.api.response; import java.util.List; public record PageResponse<T>(List<T> content,int page,int size,long totalElements,int totalPages){}
+package mx.com.mesaregia.cotizaciones.api.response;
+
+import java.util.List;
+
+public record PageResponse<T>(List<T> content, int page, int size, long totalElements, int totalPages) {
+}

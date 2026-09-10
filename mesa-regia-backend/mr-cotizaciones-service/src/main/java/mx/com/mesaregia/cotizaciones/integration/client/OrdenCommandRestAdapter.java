@@ -1,6 +1,52 @@
 package mx.com.mesaregia.cotizaciones.integration.client;
-import mx.com.mesaregia.cotizaciones.exception.IntegrationUnavailableException; import mx.com.mesaregia.cotizaciones.integration.dto.OrdenResultado; import org.springframework.stereotype.Component; import org.springframework.web.client.*; import java.math.BigDecimal; import java.time.LocalDateTime; import java.util.List;
-@Component public class OrdenCommandRestAdapter implements OrdenCommandPort {private final RestClient client;public OrdenCommandRestAdapter(InternalRestClientFactory f){client=f.create(System.getenv().getOrDefault("MR_ORDENES_BASE_URL","http://localhost:8087"));}
- @Override public OrdenResultado generar(String key,OrdenSolicitud s){try{var ds=s.detalles().stream().map(d->new DetalleDto(d.claveTemporal(),d.clavePadreTemporal(),d.tipoConcepto(),d.idConcepto(),d.codigo(),d.nombre(),d.cantidad(),d.orden())).toList();var req=new OrdenReq(s.idCotizacion(),s.idCotizacionVersion(),s.idClienteProspecto(),s.tipoCompromiso(),s.clienteSnapshot(),s.contactoSnapshot(),s.eventoSnapshot(),s.fechaHoraEventoSnapshot(),s.domicilioEventoSnapshot(),s.observaciones(),s.referenciaPago(),s.referenciaReserva(),ds);var r=client.post().uri("/internal/v1/ordenes").header("Idempotency-Key",key).body(req).retrieve().body(OrdenDto.class);if(r==null)throw new IntegrationUnavailableException("Respuesta vacía de Órdenes");return new OrdenResultado(r.id(),r.folio());}catch(HttpClientErrorException e){throw new mx.com.mesaregia.cotizaciones.exception.BusinessRuleException("Órdenes rechazó la generación: "+e.getStatusCode());}catch(ResourceAccessException|HttpServerErrorException e){throw new IntegrationUnavailableException("mr-ordenes-service no disponible");}}
- private record OrdenReq(Long idCotizacion,Long idCotizacionVersion,Long idClienteProspecto,String tipoCompromiso,String clienteSnapshot,String contactoSnapshot,String eventoSnapshot,LocalDateTime fechaHoraEventoSnapshot,String domicilioEventoSnapshot,String observaciones,String referenciaPago,String referenciaReserva,List<DetalleDto> detalles){} private record DetalleDto(String claveTemporal,String clavePadreTemporal,String tipoConcepto,Long idConceptoExterno,String codigoSnapshot,String nombreSnapshot,BigDecimal cantidad,Integer orden){} private record OrdenDto(Long id,String folio){}
+
+import mx.com.mesaregia.cotizaciones.exception.IntegrationUnavailableException;
+import mx.com.mesaregia.cotizaciones.integration.dto.OrdenResultado;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Component
+public class OrdenCommandRestAdapter implements OrdenCommandPort {
+  private final RestClient client;
+
+  public OrdenCommandRestAdapter(InternalRestClientFactory f) {
+    client = f.create(System.getenv().getOrDefault("MR_ORDENES_BASE_URL", "http://localhost:8087"));
+  }
+
+  @Override
+  public OrdenResultado generar(String key, OrdenSolicitud s) {
+    try {
+      var ds = s.detalles().stream().map(d -> new DetalleDto(d.claveTemporal(), d.clavePadreTemporal(),
+          d.tipoConcepto(), d.idConcepto(), d.codigo(), d.nombre(), d.cantidad(), d.orden())).toList();
+      var req = new OrdenReq(s.idCotizacion(), s.idCotizacionVersion(), s.idClienteProspecto(), s.tipoCompromiso(),
+          s.clienteSnapshot(), s.contactoSnapshot(), s.eventoSnapshot(), s.fechaHoraEventoSnapshot(),
+          s.domicilioEventoSnapshot(), s.observaciones(), s.referenciaPago(), s.referenciaReserva(), ds);
+      var r = client.post().uri("/internal/v1/ordenes").header("Idempotency-Key", key).body(req).retrieve()
+          .body(OrdenDto.class);
+      if (r == null)
+        throw new IntegrationUnavailableException("Respuesta vacía de Órdenes");
+      return new OrdenResultado(r.id(), r.folio());
+    } catch (HttpClientErrorException e) {
+      throw new mx.com.mesaregia.cotizaciones.exception.BusinessRuleException(
+          "Órdenes rechazó la generación: " + e.getStatusCode());
+    } catch (ResourceAccessException | HttpServerErrorException e) {
+      throw new IntegrationUnavailableException("mr-ordenes-service no disponible");
+    }
+  }
+
+  private record OrdenReq(Long idCotizacion, Long idCotizacionVersion, Long idClienteProspecto, String tipoCompromiso,
+      String clienteSnapshot, String contactoSnapshot, String eventoSnapshot, LocalDateTime fechaHoraEventoSnapshot,
+      String domicilioEventoSnapshot, String observaciones, String referenciaPago, String referenciaReserva,
+      List<DetalleDto> detalles) {
+  }
+
+  private record DetalleDto(String claveTemporal, String clavePadreTemporal, String tipoConcepto,
+      Long idConceptoExterno, String codigoSnapshot, String nombreSnapshot, BigDecimal cantidad, Integer orden) {
+  }
+
+  private record OrdenDto(Long id, String folio) {
+  }
 }

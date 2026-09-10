@@ -1,1 +1,7 @@
-package mx.com.mesaregia.pagos.exception; public class BusinessRuleException extends RuntimeException { public BusinessRuleException(String m){super(m);} }
+package mx.com.mesaregia.pagos.exception;
+
+public class BusinessRuleException extends RuntimeException {
+  public BusinessRuleException(String m) {
+    super(m);
+  }
+}

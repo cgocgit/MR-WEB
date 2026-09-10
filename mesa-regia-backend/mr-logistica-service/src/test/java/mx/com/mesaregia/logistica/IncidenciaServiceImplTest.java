@@ -31,72 +31,70 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class IncidenciaServiceImplTest {
 
-    @Mock
-    IncidenciaRepository repo;
+  @Mock
+  IncidenciaRepository repo;
 
-    @Mock
-    SeguimientoIncidenciaRepository seg;
+  @Mock
+  SeguimientoIncidenciaRepository seg;
 
-    @Mock
-    TipoIncidenciaRepository tipos;
+  @Mock
+  TipoIncidenciaRepository tipos;
 
-    @Mock
-    ProgramacionLogisticaRepository prog;
+  @Mock
+  ProgramacionLogisticaRepository prog;
 
-    @Mock
-    AsignacionLogisticaRepository asig;
+  @Mock
+  AsignacionLogisticaRepository asig;
 
-    @Mock
-    EtapaLogisticaRepository etapas;
+  @Mock
+  EtapaLogisticaRepository etapas;
 
-    IncidenciaServiceImpl service;
+  IncidenciaServiceImpl service;
 
-    @BeforeEach
-    void init() {
-        service = new IncidenciaServiceImpl(
-                repo,
-                seg,
-                tipos,
-                prog,
-                asig,
-                etapas,
-                new LogisticaMapper()
-        );
-    }
+  @BeforeEach
+  void init() {
+    service = new IncidenciaServiceImpl(
+        repo,
+        seg,
+        tipos,
+        prog,
+        asig,
+        etapas,
+        new LogisticaMapper());
+  }
 
-    @Test
-    void seguimientoPasaAEnSeguimiento() {
-        var programacion = new ProgramacionLogistica();
-        programacion.setId(10L);
+  @Test
+  void seguimientoPasaAEnSeguimiento() {
+    var programacion = new ProgramacionLogistica();
+    programacion.setId(10L);
 
-        var tipo = new TipoIncidencia();
-        tipo.setId(20L);
-        tipo.setCodigo("INCIDENCIA_PRUEBA");
+    var tipo = new TipoIncidencia();
+    tipo.setId(20L);
+    tipo.setCodigo("INCIDENCIA_PRUEBA");
 
-        var incidencia = new Incidencia();
-        incidencia.setId(1L);
-        incidencia.setFolio("INCMR-2026-TEST");
-        incidencia.setProgramacion(programacion);
-        incidencia.setTipo(tipo);
-        incidencia.setEstado(EstadoIncidencia.REPORTADA);
-        incidencia.setDescripcion("Incidencia de prueba");
-        incidencia.setIdUsuarioReportaExterno(1L);
-        incidencia.setIdOrdenExterno(100L);
-        incidencia.setVersion(1L);
-        incidencia.setFechaHoraReporte(LocalDateTime.now());
+    var incidencia = new Incidencia();
+    incidencia.setId(1L);
+    incidencia.setFolio("INCMR-2026-TEST");
+    incidencia.setProgramacion(programacion);
+    incidencia.setTipo(tipo);
+    incidencia.setEstado(EstadoIncidencia.REPORTADA);
+    incidencia.setDescripcion("Incidencia de prueba");
+    incidencia.setIdUsuarioReportaExterno(1L);
+    incidencia.setIdOrdenExterno(100L);
+    incidencia.setVersion(1L);
+    incidencia.setFechaHoraReporte(LocalDateTime.now());
 
-        when(repo.findById(1L)).thenReturn(Optional.of(incidencia));
-        when(repo.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(seg.findAllByIncidenciaIdOrderByFechaHoraAsc(1L)).thenReturn(List.of());
+    when(repo.findById(1L)).thenReturn(Optional.of(incidencia));
+    when(repo.saveAndFlush(any())).thenAnswer(invocation -> invocation.getArgument(0));
+    when(seg.findAllByIncidenciaIdOrderByFechaHoraAsc(1L)).thenReturn(List.of());
 
-        var response = service.seguir(
-                1L,
-                new SeguimientoRequest("Atención iniciada", 2L, 1L)
-        );
+    var response = service.seguir(
+        1L,
+        new SeguimientoRequest("Atención iniciada", 2L, 1L));
 
-        assertEquals(EstadoIncidencia.EN_SEGUIMIENTO, response.estado());
-        assertEquals(10L, response.idProgramacion());
-        assertEquals(20L, response.idTipoIncidencia());
-        verify(seg).save(any());
-    }
+    assertEquals(EstadoIncidencia.EN_SEGUIMIENTO, response.estado());
+    assertEquals(10L, response.idProgramacion());
+    assertEquals(20L, response.idTipoIncidencia());
+    verify(seg).save(any());
+  }
 }

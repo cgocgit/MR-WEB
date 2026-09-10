@@ -1,10 +1,89 @@
 package mx.com.mesaregia.cotizaciones.integration.client;
-import mx.com.mesaregia.cotizaciones.domain.enums.TipoConcepto; import mx.com.mesaregia.cotizaciones.exception.*; import mx.com.mesaregia.cotizaciones.integration.dto.*; import org.springframework.stereotype.Component; import org.springframework.web.client.*; import java.math.BigDecimal; import java.util.*;
-@Component public class CatalogoPricingRestAdapter implements CatalogoPricingPort {
- private final RestClient client; public CatalogoPricingRestAdapter(InternalRestClientFactory f){client=f.create(System.getenv().getOrDefault("MR_CATALOGO_BASE_URL","http://localhost:8082"));}
- @Override public void validarListaPrecio(Long id){lista(id);}
- @Override public ConceptoPrecio resolver(Long lista,TipoConcepto tipo,Long id){try{if(tipo==TipoConcepto.SERVICIO){var s=client.get().uri("/internal/v1/catalogo/servicios/{id}",id).retrieve().body(ServicioDto.class);if(s==null||!s.activo())throw new BusinessRuleException("Servicio inexistente o inactivo");return new ConceptoPrecio(s.codigo(),s.nombre(),s.tarifaBase(),BigDecimal.ZERO);}var l=lista(lista);String esperado=tipo.name();return l.precios().stream().filter(p->esperado.equals(p.tipo())&&Objects.equals(id,p.idConcepto())&&p.activo()).findFirst().map(p->new ConceptoPrecio(p.codigo(),p.nombre(),p.precio(),BigDecimal.ZERO)).orElseThrow(()->new BusinessRuleException("El concepto no tiene precio activo en la Lista seleccionada"));}catch(ResourceAccessException|HttpServerErrorException e){throw new IntegrationUnavailableException("mr-catalogo-service no disponible");}}
- @Override public List<PaqueteComponenteContext> componentesPaquete(Long id){try{var r=client.get().uri("/internal/v1/catalogo/paquetes/{id}/componentes",id).retrieve().body(PaqueteDto.class);if(r==null)return List.of();return r.componentes().stream().map(x->new PaqueteComponenteContext(x.tipo(),x.idConcepto(),x.codigo(),x.nombre(),x.cantidad(),x.orden(),x.conceptoActivo())).toList();}catch(ResourceAccessException|HttpServerErrorException e){throw new IntegrationUnavailableException("mr-catalogo-service no disponible");}}
- private ListaDto lista(Long id){try{var r=client.get().uri("/internal/v1/catalogo/listas-precios/{id}",id).retrieve().body(ListaDto.class);if(r==null||r.lista()==null||!r.lista().activo())throw new BusinessRuleException("Lista de Precios inexistente o inactiva");return r;}catch(HttpClientErrorException.NotFound e){throw new BusinessRuleException("Lista de Precios inexistente");}catch(ResourceAccessException|HttpServerErrorException e){throw new IntegrationUnavailableException("mr-catalogo-service no disponible");}}
- private record ListaInfo(boolean activo){} private record PrecioDto(String tipo,Long idConcepto,String codigo,String nombre,BigDecimal precio,boolean activo){} private record ListaDto(ListaInfo lista,List<PrecioDto> precios){} private record ServicioDto(String codigo,String nombre,BigDecimal tarifaBase,boolean activo){} private record PaqueteDto(Object paquete,List<ComponenteDto> componentes){} private record ComponenteDto(String tipo,Long idConcepto,String codigo,String nombre,BigDecimal cantidad,Integer orden,boolean conceptoActivo){}
+
+import mx.com.mesaregia.cotizaciones.domain.enums.TipoConcepto;
+import mx.com.mesaregia.cotizaciones.exception.*;
+import mx.com.mesaregia.cotizaciones.integration.dto.*;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.*;
+import java.math.BigDecimal;
+import java.util.*;
+
+@Component
+public class CatalogoPricingRestAdapter implements CatalogoPricingPort {
+  private final RestClient client;
+
+  public CatalogoPricingRestAdapter(InternalRestClientFactory f) {
+    client = f.create(System.getenv().getOrDefault("MR_CATALOGO_BASE_URL", "http://localhost:8082"));
+  }
+
+  @Override
+  public void validarListaPrecio(Long id) {
+    lista(id);
+  }
+
+  @Override
+  public ConceptoPrecio resolver(Long lista, TipoConcepto tipo, Long id) {
+    try {
+      if (tipo == TipoConcepto.SERVICIO) {
+        var s = client.get().uri("/internal/v1/catalogo/servicios/{id}", id).retrieve().body(ServicioDto.class);
+        if (s == null || !s.activo())
+          throw new BusinessRuleException("Servicio inexistente o inactivo");
+        return new ConceptoPrecio(s.codigo(), s.nombre(), s.tarifaBase(), BigDecimal.ZERO);
+      }
+      var l = lista(lista);
+      String esperado = tipo.name();
+      return l.precios().stream()
+          .filter(p -> esperado.equals(p.tipo()) && Objects.equals(id, p.idConcepto()) && p.activo()).findFirst()
+          .map(p -> new ConceptoPrecio(p.codigo(), p.nombre(), p.precio(), BigDecimal.ZERO))
+          .orElseThrow(() -> new BusinessRuleException("El concepto no tiene precio activo en la Lista seleccionada"));
+    } catch (ResourceAccessException | HttpServerErrorException e) {
+      throw new IntegrationUnavailableException("mr-catalogo-service no disponible");
+    }
+  }
+
+  @Override
+  public List<PaqueteComponenteContext> componentesPaquete(Long id) {
+    try {
+      var r = client.get().uri("/internal/v1/catalogo/paquetes/{id}/componentes", id).retrieve().body(PaqueteDto.class);
+      if (r == null)
+        return List.of();
+      return r.componentes().stream().map(x -> new PaqueteComponenteContext(x.tipo(), x.idConcepto(), x.codigo(),
+          x.nombre(), x.cantidad(), x.orden(), x.conceptoActivo())).toList();
+    } catch (ResourceAccessException | HttpServerErrorException e) {
+      throw new IntegrationUnavailableException("mr-catalogo-service no disponible");
+    }
+  }
+
+  private ListaDto lista(Long id) {
+    try {
+      var r = client.get().uri("/internal/v1/catalogo/listas-precios/{id}", id).retrieve().body(ListaDto.class);
+      if (r == null || r.lista() == null || !r.lista().activo())
+        throw new BusinessRuleException("Lista de Precios inexistente o inactiva");
+      return r;
+    } catch (HttpClientErrorException.NotFound e) {
+      throw new BusinessRuleException("Lista de Precios inexistente");
+    } catch (ResourceAccessException | HttpServerErrorException e) {
+      throw new IntegrationUnavailableException("mr-catalogo-service no disponible");
+    }
+  }
+
+  private record ListaInfo(boolean activo) {
+  }
+
+  private record PrecioDto(String tipo, Long idConcepto, String codigo, String nombre, BigDecimal precio,
+      boolean activo) {
+  }
+
+  private record ListaDto(ListaInfo lista, List<PrecioDto> precios) {
+  }
+
+  private record ServicioDto(String codigo, String nombre, BigDecimal tarifaBase, boolean activo) {
+  }
+
+  private record PaqueteDto(Object paquete, List<ComponenteDto> componentes) {
+  }
+
+  private record ComponenteDto(String tipo, Long idConcepto, String codigo, String nombre, BigDecimal cantidad,
+      Integer orden, boolean conceptoActivo) {
+  }
 }

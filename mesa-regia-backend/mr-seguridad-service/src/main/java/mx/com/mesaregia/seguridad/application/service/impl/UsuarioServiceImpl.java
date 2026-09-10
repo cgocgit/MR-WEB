@@ -1,12 +1,122 @@
 package mx.com.mesaregia.seguridad.application.service.impl;
-import lombok.RequiredArgsConstructor; import mx.com.mesaregia.seguridad.api.request.*; import mx.com.mesaregia.seguridad.api.response.*; import mx.com.mesaregia.seguridad.application.service.*; import mx.com.mesaregia.seguridad.domain.entity.*; import mx.com.mesaregia.seguridad.exception.*; import mx.com.mesaregia.seguridad.mapper.UsuarioMapper; import mx.com.mesaregia.seguridad.repository.*; import org.springframework.data.domain.Pageable; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
-@Service @RequiredArgsConstructor public class UsuarioServiceImpl implements UsuarioService {
- private final UsuarioRepository repo; private final RolRepository roles; private final UsuarioMapper mapper; private final AuditoriaService auditoria;
- @Override @Transactional(readOnly=true) public PageResponse<UsuarioResponse> buscar(String texto,Boolean activo,Long idRol,Pageable p){String q=texto==null||texto.isBlank()?null:texto.trim();return PageResponse.from(repo.buscar(q,activo,idRol,p).map(mapper::toResponse));}
- @Override @Transactional(readOnly=true) public UsuarioResponse obtener(Long id){return mapper.toResponse(entity(id));}
- @Override @Transactional public UsuarioResponse registrar(UsuarioCreateRequest r){if(repo.findByIdentificador(r.identificador().trim()).isPresent())throw new ConflictException("El identificador de usuario ya existe");Rol rol=rol(r.idRol()); if(!rol.isActivo())throw new BusinessRuleException("El rol seleccionado no está activo"); Usuario u=new Usuario();u.setNombre(r.nombre().trim());u.setIdentificador(r.identificador().trim());u.setRol(rol);u.setActivo(r.activo());u=repo.save(u);auditoria.registrar("Administración","Registrar usuario","Usuario",u.getId().toString(),null,null,snapshot(u),"Usuario registrado");return mapper.toResponse(u);}
- @Override @Transactional public UsuarioResponse actualizar(Long id,UsuarioUpdateRequest r){Usuario u=entity(id);checkVersion(u.getVersion(),r.version());if(repo.existsByIdentificadorAndIdNot(r.identificador().trim(),id))throw new ConflictException("El identificador de usuario ya existe");var old=snapshot(u);u.setNombre(r.nombre().trim());u.setIdentificador(r.identificador().trim());auditoria.registrar("Administración","Modificar usuario","Usuario",id.toString(),null,old,snapshot(u),"Usuario actualizado");return mapper.toResponse(u);}
- @Override @Transactional public UsuarioResponse cambiarEstado(Long id,EstadoRequest r){Usuario u=entity(id);checkVersion(u.getVersion(),r.version());if(u.isActivo()&&Boolean.FALSE.equals(r.activo())&&"ADMIN".equals(u.getRol().getCodigo())&&repo.countByRolCodigoAndActivoTrue("ADMIN")<=1)throw new BusinessRuleException("No es posible desactivar al último Administrador activo");boolean old=u.isActivo();u.setActivo(r.activo());auditoria.registrar("Administración","Cambiar estado usuario","Usuario",id.toString(),null,old,u.isActivo(),"Baja lógica de usuario");return mapper.toResponse(u);}
- @Override @Transactional public UsuarioResponse asignarRol(Long id,AsignarRolRequest r){Usuario u=entity(id);checkVersion(u.getVersion(),r.version());Rol nuevo=rol(r.idRol());if(!nuevo.isActivo())throw new BusinessRuleException("El rol seleccionado no está activo");if(u.getRol().getId().equals(nuevo.getId()))throw new BusinessRuleException("El usuario ya tiene asignado este rol");if("ADMIN".equals(u.getRol().getCodigo())&&u.isActivo()&&repo.countByRolCodigoAndActivoTrue("ADMIN")<=1)throw new BusinessRuleException("No es posible retirar el rol al último Administrador activo");String anterior=u.getRol().getCodigo();u.setRol(nuevo);auditoria.registrar("Administración","Asignar rol","Usuario",id.toString(),r.motivo(),anterior,nuevo.getCodigo(),"Cambio de rol; la invalidación de sesiones permanece fuera de alcance hasta definir la arquitectura de sesión");return mapper.toResponse(u);}
- private Usuario entity(Long id){return repo.findById(id).orElseThrow(()->new ResourceNotFoundException("El usuario no existe"));} private Rol rol(Long id){return roles.findById(id).orElseThrow(()->new ResourceNotFoundException("El rol no existe"));} private void checkVersion(Long actual,Long expected){if(!actual.equals(expected))throw new ConflictException("El registro fue modificado por otra operación");} private Object snapshot(Usuario u){return java.util.Map.of("nombre",u.getNombre(),"identificador",u.getIdentificador(),"activo",u.isActivo(),"rol",u.getRol().getCodigo());}
+
+import lombok.RequiredArgsConstructor;
+import mx.com.mesaregia.seguridad.api.request.*;
+import mx.com.mesaregia.seguridad.api.response.*;
+import mx.com.mesaregia.seguridad.application.service.*;
+import mx.com.mesaregia.seguridad.domain.entity.*;
+import mx.com.mesaregia.seguridad.exception.*;
+import mx.com.mesaregia.seguridad.mapper.UsuarioMapper;
+import mx.com.mesaregia.seguridad.repository.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class UsuarioServiceImpl implements UsuarioService {
+  private final UsuarioRepository repo;
+  private final RolRepository roles;
+  private final UsuarioMapper mapper;
+  private final AuditoriaService auditoria;
+
+  @Override
+  @Transactional(readOnly = true)
+  public PageResponse<UsuarioResponse> buscar(String texto, Boolean activo, Long idRol, Pageable p) {
+    String q = texto == null || texto.isBlank() ? null : texto.trim();
+    return PageResponse.from(repo.buscar(q, activo, idRol, p).map(mapper::toResponse));
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public UsuarioResponse obtener(Long id) {
+    return mapper.toResponse(entity(id));
+  }
+
+  @Override
+  @Transactional
+  public UsuarioResponse registrar(UsuarioCreateRequest r) {
+    if (repo.findByIdentificador(r.identificador().trim()).isPresent())
+      throw new ConflictException("El identificador de usuario ya existe");
+    Rol rol = rol(r.idRol());
+    if (!rol.isActivo())
+      throw new BusinessRuleException("El rol seleccionado no está activo");
+    Usuario u = new Usuario();
+    u.setNombre(r.nombre().trim());
+    u.setIdentificador(r.identificador().trim());
+    u.setRol(rol);
+    u.setActivo(r.activo());
+    u = repo.save(u);
+    auditoria.registrar("Administración", "Registrar usuario", "Usuario", u.getId().toString(), null, null, snapshot(u),
+        "Usuario registrado");
+    return mapper.toResponse(u);
+  }
+
+  @Override
+  @Transactional
+  public UsuarioResponse actualizar(Long id, UsuarioUpdateRequest r) {
+    Usuario u = entity(id);
+    checkVersion(u.getVersion(), r.version());
+    if (repo.existsByIdentificadorAndIdNot(r.identificador().trim(), id))
+      throw new ConflictException("El identificador de usuario ya existe");
+    var old = snapshot(u);
+    u.setNombre(r.nombre().trim());
+    u.setIdentificador(r.identificador().trim());
+    auditoria.registrar("Administración", "Modificar usuario", "Usuario", id.toString(), null, old, snapshot(u),
+        "Usuario actualizado");
+    return mapper.toResponse(u);
+  }
+
+  @Override
+  @Transactional
+  public UsuarioResponse cambiarEstado(Long id, EstadoRequest r) {
+    Usuario u = entity(id);
+    checkVersion(u.getVersion(), r.version());
+    if (u.isActivo() && Boolean.FALSE.equals(r.activo()) && "ADMIN".equals(u.getRol().getCodigo())
+        && repo.countByRolCodigoAndActivoTrue("ADMIN") <= 1)
+      throw new BusinessRuleException("No es posible desactivar al último Administrador activo");
+    boolean old = u.isActivo();
+    u.setActivo(r.activo());
+    auditoria.registrar("Administración", "Cambiar estado usuario", "Usuario", id.toString(), null, old, u.isActivo(),
+        "Baja lógica de usuario");
+    return mapper.toResponse(u);
+  }
+
+  @Override
+  @Transactional
+  public UsuarioResponse asignarRol(Long id, AsignarRolRequest r) {
+    Usuario u = entity(id);
+    checkVersion(u.getVersion(), r.version());
+    Rol nuevo = rol(r.idRol());
+    if (!nuevo.isActivo())
+      throw new BusinessRuleException("El rol seleccionado no está activo");
+    if (u.getRol().getId().equals(nuevo.getId()))
+      throw new BusinessRuleException("El usuario ya tiene asignado este rol");
+    if ("ADMIN".equals(u.getRol().getCodigo()) && u.isActivo() && repo.countByRolCodigoAndActivoTrue("ADMIN") <= 1)
+      throw new BusinessRuleException("No es posible retirar el rol al último Administrador activo");
+    String anterior = u.getRol().getCodigo();
+    u.setRol(nuevo);
+    auditoria.registrar("Administración", "Asignar rol", "Usuario", id.toString(), r.motivo(), anterior,
+        nuevo.getCodigo(),
+        "Cambio de rol; la invalidación de sesiones permanece fuera de alcance hasta definir la arquitectura de sesión");
+    return mapper.toResponse(u);
+  }
+
+  private Usuario entity(Long id) {
+    return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("El usuario no existe"));
+  }
+
+  private Rol rol(Long id) {
+    return roles.findById(id).orElseThrow(() -> new ResourceNotFoundException("El rol no existe"));
+  }
+
+  private void checkVersion(Long actual, Long expected) {
+    if (!actual.equals(expected))
+      throw new ConflictException("El registro fue modificado por otra operación");
+  }
+
+  private Object snapshot(Usuario u) {
+    return java.util.Map.of("nombre", u.getNombre(), "identificador", u.getIdentificador(), "activo", u.isActivo(),
+        "rol", u.getRol().getCodigo());
+  }
 }

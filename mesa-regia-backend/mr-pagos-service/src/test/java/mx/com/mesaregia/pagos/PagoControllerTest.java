@@ -1,3 +1,46 @@
 package mx.com.mesaregia.pagos;
-import com.fasterxml.jackson.databind.ObjectMapper; import mx.com.mesaregia.pagos.api.controller.PagoController; import mx.com.mesaregia.pagos.api.request.PagoCreateRequest; import mx.com.mesaregia.pagos.application.service.*; import mx.com.mesaregia.pagos.domain.enums.MetodoPago; import mx.com.mesaregia.pagos.security.SecurityConfig; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest; import org.springframework.context.annotation.Import; import org.springframework.security.test.context.support.WithMockUser; import org.springframework.test.context.bean.override.mockito.MockitoBean; import org.springframework.test.web.servlet.MockMvc; import java.math.BigDecimal; import java.time.LocalDate; import static org.mockito.ArgumentMatchers.*; import static org.mockito.Mockito.*; import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post; import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-@WebMvcTest(PagoController.class) @Import(SecurityConfig.class) class PagoControllerTest {@Autowired MockMvc mvc;@Autowired ObjectMapper json;@MockitoBean PagoQueryService query;@MockitoBean PagoService pagos;@MockitoBean MovimientoCuentaService movimientos;@Test @WithMockUser(authorities="pagos.gestionar") void permiteRegistrarConPermiso()throws Exception{when(pagos.registrar(anyString(),any())).thenReturn(null);var r=new PagoCreateRequest(10L,11L,LocalDate.now(),new BigDecimal("100.00"),MetodoPago.EFECTIVO,null,null,null,1L);mvc.perform(post("/api/v1/pagos").header("Idempotency-Key","test-1").contentType("application/json").content(json.writeValueAsString(r))).andExpect(status().isCreated());}}
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mx.com.mesaregia.pagos.api.controller.PagoController;
+import mx.com.mesaregia.pagos.api.request.PagoCreateRequest;
+import mx.com.mesaregia.pagos.application.service.*;
+import mx.com.mesaregia.pagos.domain.enums.MetodoPago;
+import mx.com.mesaregia.pagos.security.SecurityConfig;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(PagoController.class)
+@Import(SecurityConfig.class)
+class PagoControllerTest {
+  @Autowired
+  MockMvc mvc;
+  @Autowired
+  ObjectMapper json;
+  @MockitoBean
+  PagoQueryService query;
+  @MockitoBean
+  PagoService pagos;
+  @MockitoBean
+  MovimientoCuentaService movimientos;
+
+  @Test
+  @WithMockUser(authorities = "pagos.gestionar")
+  void permiteRegistrarConPermiso() throws Exception {
+    when(pagos.registrar(anyString(), any())).thenReturn(null);
+    var r = new PagoCreateRequest(10L, 11L, LocalDate.now(), new BigDecimal("100.00"), MetodoPago.EFECTIVO, null, null,
+        null, 1L);
+    mvc.perform(post("/api/v1/pagos").header("Idempotency-Key", "test-1").contentType("application/json")
+        .content(json.writeValueAsString(r))).andExpect(status().isCreated());
+  }
+}

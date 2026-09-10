@@ -1,2 +1,39 @@
-package mx.com.mesaregia.cotizaciones.domain.entity; import jakarta.persistence.*; import lombok.*; import java.time.*; import java.math.BigDecimal; import mx.com.mesaregia.cotizaciones.domain.enums.ResultadoEnvio;
-@Entity @Table(name="envio_cotizacion") @Getter @Setter @NoArgsConstructor public class EnvioCotizacion {@Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="id_envio_cotizacion") private Long id; @Column(name="id_cotizacion_version",nullable=false) private Long idCotizacionVersion; @Column(nullable=false,length=30) private String medio; @Column(nullable=false,length=200) private String destinatario; @Column(name="fecha_hora_envio",nullable=false) private LocalDateTime fechaHoraEnvio; @Enumerated(EnumType.STRING) @Column(nullable=false,length=30) private ResultadoEnvio resultado; @Column(name="referencia_envio",length=150) private String referenciaEnvio; @Column(name="id_usuario_externo",nullable=false) private Long idUsuarioExterno; @PrePersist void pp(){if(fechaHoraEnvio==null)fechaHoraEnvio=LocalDateTime.now();}}
+package mx.com.mesaregia.cotizaciones.domain.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.*;
+import mx.com.mesaregia.cotizaciones.domain.enums.ResultadoEnvio;
+
+@Entity
+@Table(name = "envio_cotizacion")
+@Getter
+@Setter
+@NoArgsConstructor
+public class EnvioCotizacion {
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id_envio_cotizacion")
+  private Long id;
+  @Column(name = "id_cotizacion_version", nullable = false)
+  private Long idCotizacionVersion;
+  @Column(nullable = false, length = 30)
+  private String medio;
+  @Column(nullable = false, length = 200)
+  private String destinatario;
+  @Column(name = "fecha_hora_envio", nullable = false)
+  private LocalDateTime fechaHoraEnvio;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 30)
+  private ResultadoEnvio resultado;
+  @Column(name = "referencia_envio", length = 150)
+  private String referenciaEnvio;
+  @Column(name = "id_usuario_externo", nullable = false)
+  private Long idUsuarioExterno;
+
+  @PrePersist
+  void pp() {
+    if (fechaHoraEnvio == null)
+      fechaHoraEnvio = LocalDateTime.now();
+  }
+}

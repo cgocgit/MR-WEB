@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ContactoRepository extends JpaRepository<Contacto, Long> {
-    List<Contacto> findByClienteProspectoIdOrderByEsPrincipalDescIdAsc(Long clienteId);
-    Optional<Contacto> findByIdAndClienteProspectoId(Long id, Long clienteId);
-    boolean existsByClienteProspectoIdAndTipoMedioContactoAndMedioContactoIgnoreCase(
-            Long clienteId, TipoMedioContacto tipo, String medioContacto);
-    boolean existsByClienteProspectoIdAndTipoMedioContactoAndMedioContactoIgnoreCaseAndIdNot(
-            Long clienteId, TipoMedioContacto tipo, String medioContacto, Long id);
+  List<Contacto> findByClienteProspectoIdOrderByEsPrincipalDescIdAsc(Long clienteId);
+
+  Optional<Contacto> findByIdAndClienteProspectoId(Long id, Long clienteId);
+
+  boolean existsByClienteProspectoIdAndTipoMedioContactoAndMedioContactoIgnoreCase(
+      Long clienteId, TipoMedioContacto tipo, String medioContacto);
+
+  boolean existsByClienteProspectoIdAndTipoMedioContactoAndMedioContactoIgnoreCaseAndIdNot(
+      Long clienteId, TipoMedioContacto tipo, String medioContacto, Long id);
 }

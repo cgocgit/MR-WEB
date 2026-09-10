@@ -1,1 +1,9 @@
-package mx.com.mesaregia.logistica.application.service; import mx.com.mesaregia.logistica.api.response.MisOperacionResponse; import mx.com.mesaregia.logistica.domain.enums.PerfilReportante; import java.util.List; public interface AsignacionLogisticaQueryService {List<MisOperacionResponse> misOperaciones(Long idUsuario,PerfilReportante perfil);}
+package mx.com.mesaregia.logistica.application.service;
+
+import mx.com.mesaregia.logistica.api.response.MisOperacionResponse;
+import mx.com.mesaregia.logistica.domain.enums.PerfilReportante;
+import java.util.List;
+
+public interface AsignacionLogisticaQueryService {
+  List<MisOperacionResponse> misOperaciones(Long idUsuario, PerfilReportante perfil);
+}

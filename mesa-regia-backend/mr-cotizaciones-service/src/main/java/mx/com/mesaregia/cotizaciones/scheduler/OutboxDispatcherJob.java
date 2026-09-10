@@ -1,2 +1,48 @@
-package mx.com.mesaregia.cotizaciones.scheduler; import mx.com.mesaregia.cotizaciones.domain.enums.EstadoOutbox; import mx.com.mesaregia.cotizaciones.integration.event.SecurityAuditRestClient; import mx.com.mesaregia.cotizaciones.repository.IntegrationOutboxRepository; import org.springframework.context.annotation.Profile; import org.springframework.scheduling.annotation.Scheduled; import org.springframework.stereotype.Component; import java.time.LocalDateTime; import java.util.List;
-@Component @Profile("!test") public class OutboxDispatcherJob {private final IntegrationOutboxRepository repo;private final SecurityAuditRestClient client;public OutboxDispatcherJob(IntegrationOutboxRepository r,SecurityAuditRestClient c){repo=r;client=c;}@Scheduled(fixedDelayString="${MR_OUTBOX_DISPATCH_MS:10000}") public void run(){for(var e:repo.findTop50ByEstadoInAndProximoIntentoLessThanEqualOrderByIdAsc(List.of(EstadoOutbox.PENDIENTE,EstadoOutbox.ERROR),LocalDateTime.now())){try{client.send(e.getTipo(),e.getAgregadoId(),e.getPayload(),null);e.setEstado(EstadoOutbox.ENVIADO);e.setEnviadoEn(LocalDateTime.now());e.setUltimoError(null);}catch(RuntimeException ex){e.setEstado(EstadoOutbox.ERROR);e.setIntentos(e.getIntentos()+1);e.setUltimoError(shorten(ex.getMessage()));e.setProximoIntento(LocalDateTime.now().plusSeconds(Math.min(3600,10L*(1L<<Math.min(e.getIntentos(),8)))));}repo.save(e);}}private String shorten(String s){if(s==null)return null;return s.substring(0,Math.min(1000,s.length()));}}
+package mx.com.mesaregia.cotizaciones.scheduler;
+
+import mx.com.mesaregia.cotizaciones.domain.enums.EstadoOutbox;
+import mx.com.mesaregia.cotizaciones.integration.event.SecurityAuditRestClient;
+import mx.com.mesaregia.cotizaciones.repository.IntegrationOutboxRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Component
+@Profile("!test")
+public class OutboxDispatcherJob {
+  private final IntegrationOutboxRepository repo;
+  private final SecurityAuditRestClient client;
+
+  public OutboxDispatcherJob(IntegrationOutboxRepository r, SecurityAuditRestClient c) {
+    repo = r;
+    client = c;
+  }
+
+  @Scheduled(fixedDelayString = "${MR_OUTBOX_DISPATCH_MS:10000}")
+  public void run() {
+    for (var e : repo.findTop50ByEstadoInAndProximoIntentoLessThanEqualOrderByIdAsc(
+        List.of(EstadoOutbox.PENDIENTE, EstadoOutbox.ERROR), LocalDateTime.now())) {
+      try {
+        client.send(e.getTipo(), e.getAgregadoId(), e.getPayload(), null);
+        e.setEstado(EstadoOutbox.ENVIADO);
+        e.setEnviadoEn(LocalDateTime.now());
+        e.setUltimoError(null);
+      } catch (RuntimeException ex) {
+        e.setEstado(EstadoOutbox.ERROR);
+        e.setIntentos(e.getIntentos() + 1);
+        e.setUltimoError(shorten(ex.getMessage()));
+        e.setProximoIntento(
+            LocalDateTime.now().plusSeconds(Math.min(3600, 10L * (1L << Math.min(e.getIntentos(), 8)))));
+      }
+      repo.save(e);
+    }
+  }
+
+  private String shorten(String s) {
+    if (s == null)
+      return null;
+    return s.substring(0, Math.min(1000, s.length()));
+  }
+}

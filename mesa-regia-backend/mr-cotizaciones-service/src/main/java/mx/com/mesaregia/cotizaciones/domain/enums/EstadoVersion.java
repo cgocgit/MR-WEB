@@ -1,1 +1,5 @@
-package mx.com.mesaregia.cotizaciones.domain.enums; public enum EstadoVersion { BORRADOR, ENVIADA }
+package mx.com.mesaregia.cotizaciones.domain.enums;
+
+public enum EstadoVersion {
+  BORRADOR, ENVIADA
+}

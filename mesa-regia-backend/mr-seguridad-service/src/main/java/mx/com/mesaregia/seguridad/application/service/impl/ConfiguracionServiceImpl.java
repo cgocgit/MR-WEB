@@ -1,9 +1,76 @@
 package mx.com.mesaregia.seguridad.application.service.impl;
-import lombok.RequiredArgsConstructor; import mx.com.mesaregia.seguridad.api.request.ConfiguracionUpdateRequest; import mx.com.mesaregia.seguridad.api.response.ConfiguracionResponse; import mx.com.mesaregia.seguridad.application.service.*; import mx.com.mesaregia.seguridad.domain.entity.ConfiguracionSistema; import mx.com.mesaregia.seguridad.domain.enums.TipoDatoConfiguracion; import mx.com.mesaregia.seguridad.exception.*; import mx.com.mesaregia.seguridad.mapper.ConfiguracionMapper; import mx.com.mesaregia.seguridad.repository.ConfiguracionSistemaRepository; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.math.BigDecimal; import java.time.LocalDate; import java.util.*;
-@Service @RequiredArgsConstructor public class ConfiguracionServiceImpl implements ConfiguracionService {private final ConfiguracionSistemaRepository repo;private final ConfiguracionMapper mapper;private final AuditoriaService auditoria;
- @Override @Transactional(readOnly=true)public List<ConfiguracionResponse> consultar(){return repo.findAll().stream().filter(ConfiguracionSistema::isActivo).sorted(Comparator.comparing(ConfiguracionSistema::getClave)).map(mapper::toResponse).toList();}
- @Override @Transactional(readOnly=true)public ConfiguracionResponse obtener(String clave){return mapper.toResponse(entity(clave));}
- @Override @Transactional public ConfiguracionResponse actualizar(String clave,ConfiguracionUpdateRequest r){ConfiguracionSistema c=entity(clave);if(!c.getVersion().equals(r.version()))throw new ConflictException("La configuración fue modificada por otra operación");validar(c.getTipoDato(),r.valor());String old=c.getValor();c.setValor(r.valor());auditoria.registrar("Administración","Modificar configuración","ConfiguracionSistema",c.getClave(),null,old,r.valor(),"Parámetro funcional actualizado");return mapper.toResponse(c);}
- private ConfiguracionSistema entity(String c){return repo.findByClave(c).filter(ConfiguracionSistema::isActivo).orElseThrow(()->new ResourceNotFoundException("La configuración no existe"));}
- private void validar(TipoDatoConfiguracion t,String v){if(v==null)return;try{switch(t){case TEXTO->{}case ENTERO->Long.parseLong(v);case DECIMAL->new BigDecimal(v);case BOOLEANO->{if(!v.equalsIgnoreCase("true")&&!v.equalsIgnoreCase("false"))throw new IllegalArgumentException();}case FECHA->LocalDate.parse(v);}}catch(Exception e){throw new BusinessRuleException("El valor no corresponde al tipo "+t);}}
+
+import lombok.RequiredArgsConstructor;
+import mx.com.mesaregia.seguridad.api.request.ConfiguracionUpdateRequest;
+import mx.com.mesaregia.seguridad.api.response.ConfiguracionResponse;
+import mx.com.mesaregia.seguridad.application.service.*;
+import mx.com.mesaregia.seguridad.domain.entity.ConfiguracionSistema;
+import mx.com.mesaregia.seguridad.domain.enums.TipoDatoConfiguracion;
+import mx.com.mesaregia.seguridad.exception.*;
+import mx.com.mesaregia.seguridad.mapper.ConfiguracionMapper;
+import mx.com.mesaregia.seguridad.repository.ConfiguracionSistemaRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class ConfiguracionServiceImpl implements ConfiguracionService {
+  private final ConfiguracionSistemaRepository repo;
+  private final ConfiguracionMapper mapper;
+  private final AuditoriaService auditoria;
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<ConfiguracionResponse> consultar() {
+    return repo.findAll().stream().filter(ConfiguracionSistema::isActivo)
+        .sorted(Comparator.comparing(ConfiguracionSistema::getClave)).map(mapper::toResponse).toList();
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public ConfiguracionResponse obtener(String clave) {
+    return mapper.toResponse(entity(clave));
+  }
+
+  @Override
+  @Transactional
+  public ConfiguracionResponse actualizar(String clave, ConfiguracionUpdateRequest r) {
+    ConfiguracionSistema c = entity(clave);
+    if (!c.getVersion().equals(r.version()))
+      throw new ConflictException("La configuración fue modificada por otra operación");
+    validar(c.getTipoDato(), r.valor());
+    String old = c.getValor();
+    c.setValor(r.valor());
+    auditoria.registrar("Administración", "Modificar configuración", "ConfiguracionSistema", c.getClave(), null, old,
+        r.valor(), "Parámetro funcional actualizado");
+    return mapper.toResponse(c);
+  }
+
+  private ConfiguracionSistema entity(String c) {
+    return repo.findByClave(c).filter(ConfiguracionSistema::isActivo)
+        .orElseThrow(() -> new ResourceNotFoundException("La configuración no existe"));
+  }
+
+  private void validar(TipoDatoConfiguracion t, String v) {
+    if (v == null)
+      return;
+    try {
+      switch (t) {
+        case TEXTO -> {
+        }
+        case ENTERO -> Long.parseLong(v);
+        case DECIMAL -> new BigDecimal(v);
+        case BOOLEANO -> {
+          if (!v.equalsIgnoreCase("true") && !v.equalsIgnoreCase("false"))
+            throw new IllegalArgumentException();
+        }
+        case FECHA -> LocalDate.parse(v);
+      }
+    } catch (Exception e) {
+      throw new BusinessRuleException("El valor no corresponde al tipo " + t);
+    }
+  }
 }

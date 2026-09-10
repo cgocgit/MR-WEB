@@ -1,12 +1,70 @@
 package mx.com.mesaregia.ordenes.application.service.impl;
-import mx.com.mesaregia.ordenes.api.request.HitoRequest; import mx.com.mesaregia.ordenes.api.response.OrdenResponse; import mx.com.mesaregia.ordenes.application.service.OrdenStateService; import mx.com.mesaregia.ordenes.domain.enums.*; import mx.com.mesaregia.ordenes.exception.BusinessRuleException; import mx.com.mesaregia.ordenes.mapper.OrdenMapper; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
-@Service public class OrdenStateServiceImpl implements OrdenStateService { private final OrdenSupport s;private final OrdenMapper m;public OrdenStateServiceImpl(OrdenSupport s,OrdenMapper m){this.s=s;this.m=m;}
- @Transactional public OrdenResponse aplicarHito(Long id,HitoRequest r,String corr){var o=s.get(id);s.version(o,r.version());if(o.getEstado()==EstadoOrden.CANCELADA)throw new BusinessRuleException("Una Orden cancelada no admite hitos");String action="HITO_"+r.hito().name();if(s.has(id,action))return response(o);
-  switch(r.hito()){
-   case PROGRAMACION_CONFIRMADA -> {require(o.getEstado()==EstadoOrden.PENDIENTE_PROGRAMACION,"La programación requiere estado PENDIENTE_PROGRAMACION");s.change(o,EstadoOrden.PROGRAMADA,action,r.motivo(),r.idUsuario(),corr);}
-   case PREPARACION_INICIADA -> {require(o.getEstado()==EstadoOrden.PROGRAMADA,"La preparación requiere estado PROGRAMADA");s.change(o,EstadoOrden.EN_EJECUCION,action,r.motivo(),r.idUsuario(),corr);}
-   case SERVICIOS_CONCLUIDOS -> {require(o.getEstado()==EstadoOrden.EN_EJECUCION,"La conclusión requiere estado EN_EJECUCION");require(o.getTipoCompromiso()!=TipoCompromiso.PRODUCTOS,"El hito de servicios no aplica a una Orden de PRODUCTOS");s.history(o,o.getEstado(),o.getEstado(),action,r.motivo(),r.idUsuario());if(o.getTipoCompromiso()==TipoCompromiso.SERVICIOS||s.has(id,"HITO_INSPECCION_RETORNO_CONFIRMADA"))s.change(o,EstadoOrden.REALIZADA,"ORDEN_REALIZADA",r.motivo(),r.idUsuario(),corr);}
-   case INSPECCION_RETORNO_CONFIRMADA -> {require(o.getEstado()==EstadoOrden.EN_EJECUCION,"La inspección requiere estado EN_EJECUCION");require(o.getTipoCompromiso()!=TipoCompromiso.SERVICIOS,"El hito de inspección no aplica a una Orden de SERVICIOS");s.history(o,o.getEstado(),o.getEstado(),action,r.motivo(),r.idUsuario());if(o.getTipoCompromiso()==TipoCompromiso.PRODUCTOS||s.has(id,"HITO_SERVICIOS_CONCLUIDOS"))s.change(o,EstadoOrden.REALIZADA,"ORDEN_REALIZADA",r.motivo(),r.idUsuario(),corr);}
-  }return response(o);}
- private void require(boolean b,String m){if(!b)throw new BusinessRuleException(m);} private OrdenResponse response(mx.com.mesaregia.ordenes.domain.entity.OrdenServicio o){return m.full(o,s.details().findByOrdenServicio_IdOrderByOrdenVisualAscIdAsc(o.getId()),s.historyRepo().findByOrdenServicio_IdOrderByFechaHoraAscIdAsc(o.getId()));}
+
+import mx.com.mesaregia.ordenes.api.request.HitoRequest;
+import mx.com.mesaregia.ordenes.api.response.OrdenResponse;
+import mx.com.mesaregia.ordenes.application.service.OrdenStateService;
+import mx.com.mesaregia.ordenes.domain.enums.*;
+import mx.com.mesaregia.ordenes.exception.BusinessRuleException;
+import mx.com.mesaregia.ordenes.mapper.OrdenMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class OrdenStateServiceImpl implements OrdenStateService {
+  private final OrdenSupport s;
+  private final OrdenMapper m;
+
+  public OrdenStateServiceImpl(OrdenSupport s, OrdenMapper m) {
+    this.s = s;
+    this.m = m;
+  }
+
+  @Transactional
+  public OrdenResponse aplicarHito(Long id, HitoRequest r, String corr) {
+    var o = s.get(id);
+    s.version(o, r.version());
+    if (o.getEstado() == EstadoOrden.CANCELADA)
+      throw new BusinessRuleException("Una Orden cancelada no admite hitos");
+    String action = "HITO_" + r.hito().name();
+    if (s.has(id, action))
+      return response(o);
+    switch (r.hito()) {
+      case PROGRAMACION_CONFIRMADA -> {
+        require(o.getEstado() == EstadoOrden.PENDIENTE_PROGRAMACION,
+            "La programación requiere estado PENDIENTE_PROGRAMACION");
+        s.change(o, EstadoOrden.PROGRAMADA, action, r.motivo(), r.idUsuario(), corr);
+      }
+      case PREPARACION_INICIADA -> {
+        require(o.getEstado() == EstadoOrden.PROGRAMADA, "La preparación requiere estado PROGRAMADA");
+        s.change(o, EstadoOrden.EN_EJECUCION, action, r.motivo(), r.idUsuario(), corr);
+      }
+      case SERVICIOS_CONCLUIDOS -> {
+        require(o.getEstado() == EstadoOrden.EN_EJECUCION, "La conclusión requiere estado EN_EJECUCION");
+        require(o.getTipoCompromiso() != TipoCompromiso.PRODUCTOS,
+            "El hito de servicios no aplica a una Orden de PRODUCTOS");
+        s.history(o, o.getEstado(), o.getEstado(), action, r.motivo(), r.idUsuario());
+        if (o.getTipoCompromiso() == TipoCompromiso.SERVICIOS || s.has(id, "HITO_INSPECCION_RETORNO_CONFIRMADA"))
+          s.change(o, EstadoOrden.REALIZADA, "ORDEN_REALIZADA", r.motivo(), r.idUsuario(), corr);
+      }
+      case INSPECCION_RETORNO_CONFIRMADA -> {
+        require(o.getEstado() == EstadoOrden.EN_EJECUCION, "La inspección requiere estado EN_EJECUCION");
+        require(o.getTipoCompromiso() != TipoCompromiso.SERVICIOS,
+            "El hito de inspección no aplica a una Orden de SERVICIOS");
+        s.history(o, o.getEstado(), o.getEstado(), action, r.motivo(), r.idUsuario());
+        if (o.getTipoCompromiso() == TipoCompromiso.PRODUCTOS || s.has(id, "HITO_SERVICIOS_CONCLUIDOS"))
+          s.change(o, EstadoOrden.REALIZADA, "ORDEN_REALIZADA", r.motivo(), r.idUsuario(), corr);
+      }
+    }
+    return response(o);
+  }
+
+  private void require(boolean b, String m) {
+    if (!b)
+      throw new BusinessRuleException(m);
+  }
+
+  private OrdenResponse response(mx.com.mesaregia.ordenes.domain.entity.OrdenServicio o) {
+    return m.full(o, s.details().findByOrdenServicio_IdOrderByOrdenVisualAscIdAsc(o.getId()),
+        s.historyRepo().findByOrdenServicio_IdOrderByFechaHoraAscIdAsc(o.getId()));
+  }
 }

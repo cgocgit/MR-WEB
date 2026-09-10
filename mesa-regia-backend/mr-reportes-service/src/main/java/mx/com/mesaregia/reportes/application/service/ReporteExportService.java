@@ -6,5 +6,5 @@ import mx.com.mesaregia.reportes.domain.model.ReporteArchivo;
 import mx.com.mesaregia.reportes.domain.model.ReporteCriterios;
 
 public interface ReporteExportService {
-    ReporteArchivo exportar(TipoReporte tipo, FormatoExportacion formato, ReporteCriterios criterios);
+  ReporteArchivo exportar(TipoReporte tipo, FormatoExportacion formato, ReporteCriterios criterios);
 }

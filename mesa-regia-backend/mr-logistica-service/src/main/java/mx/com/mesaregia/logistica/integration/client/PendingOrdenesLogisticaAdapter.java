@@ -1,1 +1,15 @@
-package mx.com.mesaregia.logistica.integration.client; import mx.com.mesaregia.logistica.domain.enums.HitoOrden; import mx.com.mesaregia.logistica.exception.IntegrationUnavailableException; import mx.com.mesaregia.logistica.integration.dto.OrdenLogisticaContext; import org.springframework.stereotype.Component; public class PendingOrdenesLogisticaAdapter implements OrdenesLogisticaPort { public OrdenLogisticaContext obtenerOrden(Long id){throw new IntegrationUnavailableException("Integración real con mr-ordenes-service pendiente de Etapa 10");} public void aplicarHito(Long id,HitoOrden h,Long v,Long u,String m){throw new IntegrationUnavailableException("Integración real con mr-ordenes-service pendiente de Etapa 10");} }
+package mx.com.mesaregia.logistica.integration.client;
+
+import mx.com.mesaregia.logistica.domain.enums.HitoOrden;
+import mx.com.mesaregia.logistica.exception.IntegrationUnavailableException;
+import mx.com.mesaregia.logistica.integration.dto.OrdenLogisticaContext;
+
+public class PendingOrdenesLogisticaAdapter implements OrdenesLogisticaPort {
+  public OrdenLogisticaContext obtenerOrden(Long id) {
+    throw new IntegrationUnavailableException("Integración real con mr-ordenes-service pendiente de Etapa 10");
+  }
+
+  public void aplicarHito(Long id, HitoOrden h, Long v, Long u, String m) {
+    throw new IntegrationUnavailableException("Integración real con mr-ordenes-service pendiente de Etapa 10");
+  }
+}

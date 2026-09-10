@@ -5,5 +5,5 @@ import java.util.Optional;
 
 /** Puerto preparado para enriquecer/validar productos sin acceso cross-DB. */
 public interface CatalogoProductoPort {
-    Optional<ProductoInventarioDto> obtenerProducto(Long idProducto);
+  Optional<ProductoInventarioDto> obtenerProducto(Long idProducto);
 }

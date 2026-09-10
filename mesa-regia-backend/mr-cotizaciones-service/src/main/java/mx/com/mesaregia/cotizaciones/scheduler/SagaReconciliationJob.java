@@ -1,1 +1,21 @@
-package mx.com.mesaregia.cotizaciones.scheduler; import mx.com.mesaregia.cotizaciones.application.service.CotizacionConfirmationOrchestrator; import org.springframework.context.annotation.Profile; import org.springframework.scheduling.annotation.Scheduled; import org.springframework.stereotype.Component; @Component @Profile("!test") public class SagaReconciliationJob {private final CotizacionConfirmationOrchestrator s;public SagaReconciliationJob(CotizacionConfirmationOrchestrator s){this.s=s;}@Scheduled(fixedDelayString="${MR_SAGA_RECONCILIATION_MS:30000}")public void run(){s.reconciliarPendientes();}}
+package mx.com.mesaregia.cotizaciones.scheduler;
+
+import mx.com.mesaregia.cotizaciones.application.service.CotizacionConfirmationOrchestrator;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+@Component
+@Profile("!test")
+public class SagaReconciliationJob {
+  private final CotizacionConfirmationOrchestrator s;
+
+  public SagaReconciliationJob(CotizacionConfirmationOrchestrator s) {
+    this.s = s;
+  }
+
+  @Scheduled(fixedDelayString = "${MR_SAGA_RECONCILIATION_MS:30000}")
+  public void run() {
+    s.reconciliarPendientes();
+  }
+}
