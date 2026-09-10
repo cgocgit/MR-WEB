@@ -1,10 +1,72 @@
 package mx.com.mesaregia.ordenes.application.service.impl;
-import mx.com.mesaregia.ordenes.domain.entity.*; import mx.com.mesaregia.ordenes.domain.enums.*; import mx.com.mesaregia.ordenes.exception.*; import mx.com.mesaregia.ordenes.integration.event.*; import mx.com.mesaregia.ordenes.repository.*; import org.slf4j.MDC; import org.springframework.stereotype.Component; import java.time.*;
-@Component public class OrdenSupport { private final OrdenServicioRepository or; private final OrdenDetalleRepository dr; private final HistorialEstadoOrdenRepository hr; private final DomainEventPublisher events;
- public OrdenSupport(OrdenServicioRepository or,OrdenDetalleRepository dr,HistorialEstadoOrdenRepository hr,DomainEventPublisher events){this.or=or;this.dr=dr;this.hr=hr;this.events=events;}
- OrdenServicio get(Long id){return or.findById(id).orElseThrow(()->new ResourceNotFoundException("Orden no encontrada"));}
- void version(OrdenServicio o,Long v){if(v==null||!v.equals(o.getVersion()))throw new ConflictException("La versión de la Orden cambió; recargue la información");}
- HistorialEstadoOrden history(OrdenServicio o,EstadoOrden anterior,EstadoOrden nuevo,String accion,String motivo,Long user){var h=new HistorialEstadoOrden();h.setOrdenServicio(o);h.setEstadoAnterior(anterior);h.setEstadoNuevo(nuevo);h.setAccion(accion);h.setMotivo(motivo);h.setIdUsuarioExterno(user);return hr.save(h);}
- void change(OrdenServicio o,EstadoOrden nuevo,String accion,String motivo,Long user,String correlationId){var ant=o.getEstado();o.setEstado(nuevo);or.saveAndFlush(o);history(o,ant,nuevo,accion,motivo,user);events.publish(new OrdenEstadoCambiadoEvent(o.getId(),o.getFolio(),ant,nuevo,accion,LocalDateTime.now(),correlationId==null?MDC.get("correlationId"):correlationId));}
- boolean has(Long id,String action){return hr.existsByOrdenServicio_IdAndAccion(id,action);} OrdenDetalleRepository details(){return dr;} HistorialEstadoOrdenRepository historyRepo(){return hr;} OrdenServicioRepository orders(){return or;}
+
+import mx.com.mesaregia.ordenes.domain.entity.*;
+import mx.com.mesaregia.ordenes.domain.enums.*;
+import mx.com.mesaregia.ordenes.exception.*;
+import mx.com.mesaregia.ordenes.integration.event.*;
+import mx.com.mesaregia.ordenes.repository.*;
+import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
+import java.time.*;
+
+@Component
+public class OrdenSupport {
+  private final OrdenServicioRepository or;
+  private final OrdenDetalleRepository dr;
+  private final HistorialEstadoOrdenRepository hr;
+  private final DomainEventPublisher events;
+
+  public OrdenSupport(OrdenServicioRepository or, OrdenDetalleRepository dr, HistorialEstadoOrdenRepository hr,
+      DomainEventPublisher events) {
+    this.or = or;
+    this.dr = dr;
+    this.hr = hr;
+    this.events = events;
+  }
+
+  OrdenServicio get(Long id) {
+    return or.findById(id).orElseThrow(() -> new ResourceNotFoundException("Orden no encontrada"));
+  }
+
+  void version(OrdenServicio o, Long v) {
+    if (v == null || !v.equals(o.getVersion()))
+      throw new ConflictException("La versión de la Orden cambió; recargue la información");
+  }
+
+  HistorialEstadoOrden history(OrdenServicio o, EstadoOrden anterior, EstadoOrden nuevo, String accion, String motivo,
+      Long user) {
+    var h = new HistorialEstadoOrden();
+    h.setOrdenServicio(o);
+    h.setEstadoAnterior(anterior);
+    h.setEstadoNuevo(nuevo);
+    h.setAccion(accion);
+    h.setMotivo(motivo);
+    h.setIdUsuarioExterno(user);
+    return hr.save(h);
+  }
+
+  void change(OrdenServicio o, EstadoOrden nuevo, String accion, String motivo, Long user, String correlationId) {
+    var ant = o.getEstado();
+    o.setEstado(nuevo);
+    or.saveAndFlush(o);
+    history(o, ant, nuevo, accion, motivo, user);
+    events.publish(new OrdenEstadoCambiadoEvent(o.getId(), o.getFolio(), ant, nuevo, accion, LocalDateTime.now(),
+        correlationId == null ? MDC.get("correlationId") : correlationId));
+  }
+
+  boolean has(Long id, String action) {
+    return hr.existsByOrdenServicio_IdAndAccion(id, action);
+  }
+
+  OrdenDetalleRepository details() {
+    return dr;
+  }
+
+  HistorialEstadoOrdenRepository historyRepo() {
+    return hr;
+  }
+
+  OrdenServicioRepository orders() {
+    return or;
+  }
 }

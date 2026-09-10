@@ -1,1 +1,5 @@
-package mx.com.mesaregia.ordenes.domain.enums; public enum HitoOrden { PROGRAMACION_CONFIRMADA,PREPARACION_INICIADA,SERVICIOS_CONCLUIDOS,INSPECCION_RETORNO_CONFIRMADA }
+package mx.com.mesaregia.ordenes.domain.enums;
+
+public enum HitoOrden {
+  PROGRAMACION_CONFIRMADA, PREPARACION_INICIADA, SERVICIOS_CONCLUIDOS, INSPECCION_RETORNO_CONFIRMADA
+}

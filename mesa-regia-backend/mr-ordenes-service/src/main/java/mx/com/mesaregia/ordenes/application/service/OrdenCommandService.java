@@ -1,1 +1,8 @@
-package mx.com.mesaregia.ordenes.application.service; import mx.com.mesaregia.ordenes.api.request.OrdenCreateRequest; import mx.com.mesaregia.ordenes.api.response.OrdenResponse; public interface OrdenCommandService { OrdenResponse generarDesdeCotizacion(OrdenCreateRequest request,String correlationId); }
+package mx.com.mesaregia.ordenes.application.service;
+
+import mx.com.mesaregia.ordenes.api.request.OrdenCreateRequest;
+import mx.com.mesaregia.ordenes.api.response.OrdenResponse;
+
+public interface OrdenCommandService {
+  OrdenResponse generarDesdeCotizacion(OrdenCreateRequest request, String correlationId);
+}

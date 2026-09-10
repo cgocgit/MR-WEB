@@ -1,2 +1,16 @@
-package mx.com.mesaregia.ordenes.api.request; import jakarta.validation.Valid; import jakarta.validation.constraints.*; import mx.com.mesaregia.ordenes.domain.enums.TipoCompromiso; import java.time.LocalDateTime; import java.util.List;
-public record OrdenCreateRequest(@NotNull @Positive Long idCotizacion,@NotNull @Positive Long idCotizacionVersion,@NotNull @Positive Long idClienteProspecto,@NotNull TipoCompromiso tipoCompromiso,@NotBlank @Size(max=300) String clienteSnapshot,@Size(max=250) String contactoSnapshot,@NotBlank @Size(max=200) String eventoSnapshot,@NotNull LocalDateTime fechaHoraEventoSnapshot,@NotBlank @Size(max=500) String domicilioEventoSnapshot,@Size(max=1000) String observaciones,@NotBlank @Size(max=100) String referenciaPago,@Size(max=100) String referenciaReserva,@NotEmpty List<@Valid OrdenDetalleCreateRequest> detalles) {}
+package mx.com.mesaregia.ordenes.api.request;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import mx.com.mesaregia.ordenes.domain.enums.TipoCompromiso;
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record OrdenCreateRequest(@NotNull @Positive Long idCotizacion, @NotNull @Positive Long idCotizacionVersion,
+    @NotNull @Positive Long idClienteProspecto, @NotNull TipoCompromiso tipoCompromiso,
+    @NotBlank @Size(max = 300) String clienteSnapshot, @Size(max = 250) String contactoSnapshot,
+    @NotBlank @Size(max = 200) String eventoSnapshot, @NotNull LocalDateTime fechaHoraEventoSnapshot,
+    @NotBlank @Size(max = 500) String domicilioEventoSnapshot, @Size(max = 1000) String observaciones,
+    @NotBlank @Size(max = 100) String referenciaPago, @Size(max = 100) String referenciaReserva,
+    @NotEmpty List<@Valid OrdenDetalleCreateRequest> detalles) {
+}
