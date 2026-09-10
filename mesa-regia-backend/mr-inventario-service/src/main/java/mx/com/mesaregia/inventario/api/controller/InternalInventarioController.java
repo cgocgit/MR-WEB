@@ -1,0 +1,8 @@
+package mx.com.mesaregia.inventario.api.controller;
+import jakarta.validation.Valid; import mx.com.mesaregia.inventario.api.request.DisponibilidadBatchRequest; import mx.com.mesaregia.inventario.api.response.*; import mx.com.mesaregia.inventario.application.service.*; import org.springframework.data.domain.PageRequest; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*; import java.util.List;
+@RestController @RequestMapping("/internal/v1/inventario") @PreAuthorize("hasAuthority('ROLE_INTERNAL_SERVICE')")
+public class InternalInventarioController {private final DisponibilidadService disponibilidad;private final ExistenciaQueryService existencia;private final ReservaQueryService reservas;public InternalInventarioController(DisponibilidadService d,ExistenciaQueryService e,ReservaQueryService r){disponibilidad=d;existencia=e;reservas=r;}
+ @PostMapping("/disponibilidad") public List<DisponibilidadResponse> disponibilidad(@Valid @RequestBody DisponibilidadBatchRequest r){return r.items().stream().map(i->disponibilidad.consultarFutura(i.idProducto(),r.idAlmacen(),r.fechaInicio(),r.fechaFin(),i.cantidad())).toList();}
+ @GetMapping("/existencias") public PageResponse<ExistenciaResponse> existencias(@RequestParam Long idAlmacen,@RequestParam(defaultValue="0")int page,@RequestParam(defaultValue="200")int size){return existencia.buscar(idAlmacen,PageRequest.of(page,Math.min(size,200)));}
+ @GetMapping("/reservas/ordenes/{idOrden}") public ReservaResponse reserva(@PathVariable Long idOrden){return reservas.obtenerPorOrden(idOrden);}
+}

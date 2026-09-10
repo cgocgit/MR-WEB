@@ -20,6 +20,14 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long>, JpaSpec
     @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
     Optional<Reserva> findFirstByIdOrdenExternoOrderByIdDesc(Long idOrdenExterno);
 
+    @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
+    Optional<Reserva> findByClaveConfirmacion(String claveConfirmacion);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
+    @Query("select distinct r from Reserva r where r.id = :id")
+    Optional<Reserva> findByIdForUpdate(@Param("id") Long id);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
     @Query("select distinct r from Reserva r where r.idOrdenExterno = :orden order by r.id desc")

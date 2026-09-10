@@ -81,4 +81,4 @@ spring:
       ddl-auto: validate
 mesaregia:
   internal-endpoints:
-    enabled: ${MR_INTERNAL_ENDPOINTS_ENABLED:false}
+    enabled: ${MR_INTERNAL_ENDPOINTS_ENABLED:true}

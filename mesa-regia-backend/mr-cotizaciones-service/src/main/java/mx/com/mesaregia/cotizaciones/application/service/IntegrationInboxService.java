@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.application.service; import mx.com.mesaregia.cotizaciones.api.request.ImporteCubiertoEventRequest; public interface IntegrationInboxService {void importeCubierto(ImporteCubiertoEventRequest r);}

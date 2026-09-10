@@ -1,2 +1,2 @@
 package mx.com.mesaregia.ordenes.integration.client; import mx.com.mesaregia.ordenes.exception.IntegrationUnavailableException; import org.springframework.stereotype.Component;
-@Component public class LogisticaCancellationUnavailableAdapter implements LogisticaCancellationPort { public void cancelarOrden(Long idOrden,String motivo,String correlationId){throw new IntegrationUnavailableException("Integración con Logística pendiente de Etapa 10");} }
+public class LogisticaCancellationUnavailableAdapter implements LogisticaCancellationPort { public void cancelarOrden(Long idOrden,String motivo,String correlationId){throw new IntegrationUnavailableException("Integración con Logística pendiente de Etapa 10");} }

@@ -14,7 +14,10 @@ import java.util.List;
 public class Reserva {
     @Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="id_reserva") private Long id;
     @Column(nullable=false, length=40, unique=true) private String folio;
-    @Column(name="id_orden_externo", nullable=false) private Long idOrdenExterno;
+    @Column(name="id_orden_externo") private Long idOrdenExterno;
+    @Column(name="clave_confirmacion", length=120, unique=true) private String claveConfirmacion;
+    @Column(name="id_cotizacion_externo") private Long idCotizacionExterno;
+    @Column(name="id_version_externa") private Long idVersionExterna;
     @Enumerated(EnumType.STRING) @Column(nullable=false, length=20) private EstadoReserva estado;
     @Column(name="fecha_inicio", nullable=false) private LocalDate fechaInicio;
     @Column(name="fecha_fin", nullable=false) private LocalDate fechaFin;

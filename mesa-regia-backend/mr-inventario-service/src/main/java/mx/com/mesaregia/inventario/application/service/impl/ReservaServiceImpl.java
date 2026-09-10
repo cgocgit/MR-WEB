@@ -1,118 +1,20 @@
 package mx.com.mesaregia.inventario.application.service.impl;
-
-import mx.com.mesaregia.inventario.api.request.ReservaCrearRequest;
-import mx.com.mesaregia.inventario.api.request.ReservaLiberarRequest;
-import mx.com.mesaregia.inventario.api.response.ReservaResponse;
-import mx.com.mesaregia.inventario.application.service.ReservaQueryService;
-import mx.com.mesaregia.inventario.application.service.ReservaService;
-import mx.com.mesaregia.inventario.domain.entity.Reserva;
-import mx.com.mesaregia.inventario.domain.entity.ReservaDetalle;
-import mx.com.mesaregia.inventario.domain.enums.EstadoReserva;
-import mx.com.mesaregia.inventario.exception.BusinessRuleException;
-import mx.com.mesaregia.inventario.exception.ConflictException;
-import mx.com.mesaregia.inventario.exception.ResourceNotFoundException;
-import mx.com.mesaregia.inventario.repository.ReservaDetalleRepository;
-import mx.com.mesaregia.inventario.repository.ReservaRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
-
-@Service
-public class ReservaServiceImpl implements ReservaService {
-    private final ReservaRepository reservaRepository;
-    private final ReservaDetalleRepository detalleRepository;
-    private final InventorySupport support;
-    private final ReservaQueryService queryService;
-
-    public ReservaServiceImpl(
-            ReservaRepository reservaRepository,
-            ReservaDetalleRepository detalleRepository,
-            InventorySupport support,
-            ReservaQueryService queryService) {
-        this.reservaRepository = reservaRepository;
-        this.detalleRepository = detalleRepository;
-        this.support = support;
-        this.queryService = queryService;
-    }
-
-    @Override
-    @Transactional
-    public ReservaResponse crearConfirmada(String idempotencyKey, ReservaCrearRequest request) {
-        if (request.fechaFin().isBefore(request.fechaInicio())) {
-            throw new BusinessRuleException("La fecha fin no puede ser anterior a la fecha inicio");
-        }
-
-        // El DDL vigente no posee una clave de idempotencia en reserva; la Orden externa
-        // se utiliza como identidad funcional del comando hasta aprobar una restricción UNIQUE.
-        var existing = reservaRepository.findFirstByIdOrdenExternoOrderByIdDesc(request.idOrdenExterno());
-        if (existing.isPresent()) {
-            return queryService.obtenerPorOrden(request.idOrdenExterno());
-        }
-
-        var reserva = new Reserva();
-        reserva.setFolio(support.folio("RES"));
-        reserva.setIdOrdenExterno(request.idOrdenExterno());
-        reserva.setEstado(EstadoReserva.CONFIRMADA);
-        reserva.setFechaInicio(request.fechaInicio());
-        reserva.setFechaFin(request.fechaFin());
-        reserva.setIdUsuarioCreacionExterno(request.idUsuarioExterno());
-        reserva = reservaRepository.saveAndFlush(reserva);
-
-        var seen = new HashSet<String>();
-        for (var item : request.detalles()) {
-            String key = item.idAlmacen() + "|" + item.idProducto();
-            if (!seen.add(key)) {
-                throw new BusinessRuleException("No se permiten productos duplicados en la reserva");
-            }
-
-            var existencia = support.existencia(item.idAlmacen(), item.idProducto());
-            int reservado = support.reservada(existencia.getId(), request.fechaInicio(), request.fechaFin());
-            if (existencia.getExistenciaFisica() - reservado < item.cantidad()) {
-                throw new ConflictException("Disponibilidad insuficiente para producto " + item.idProducto());
-            }
-
-            var detalle = new ReservaDetalle();
-            detalle.setReserva(reserva);
-            detalle.setExistencia(existencia);
-            detalle.setCantidadReservada(item.cantidad());
-            detalleRepository.save(detalle);
-        }
-        detalleRepository.flush();
-        return queryService.obtenerPorOrden(request.idOrdenExterno());
-    }
-
-    @Override
-    @Transactional
-    public ReservaResponse activar(Long idOrdenExterno, Long idUsuarioExterno) {
-        var reserva = reservaForUpdate(idOrdenExterno);
-        if (reserva.getEstado() == EstadoReserva.CONFIRMADA) {
-            reserva.setEstado(EstadoReserva.ACTIVA);
-        } else if (reserva.getEstado() != EstadoReserva.ACTIVA) {
-            throw new ConflictException("La reserva no puede activarse desde " + reserva.getEstado());
-        }
-        reserva.setIdUsuarioModificacionExterno(idUsuarioExterno);
-        reservaRepository.saveAndFlush(reserva);
-        return queryService.obtenerPorOrden(idOrdenExterno);
-    }
-
-    @Override
-    @Transactional
-    public ReservaResponse liberarPorOrden(Long idOrdenExterno, ReservaLiberarRequest request) {
-        var reserva = reservaForUpdate(idOrdenExterno);
-        if (reserva.getEstado() == EstadoReserva.LIBERADA || reserva.getEstado() == EstadoReserva.CANCELADA) {
-            return queryService.obtenerPorOrden(idOrdenExterno);
-        }
-
-        reserva.setEstado(request.cancelacion() ? EstadoReserva.CANCELADA : EstadoReserva.LIBERADA);
-        reserva.setMotivoCancelacion(request.cancelacion() ? request.motivo() : null);
-        reserva.setIdUsuarioModificacionExterno(request.idUsuarioExterno());
-        reservaRepository.saveAndFlush(reserva);
-        return queryService.obtenerPorOrden(idOrdenExterno);
-    }
-
-    private Reserva reservaForUpdate(Long idOrdenExterno) {
-        return reservaRepository.findByOrdenForUpdate(idOrdenExterno).stream().findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada para la Orden"));
-    }
+import mx.com.mesaregia.inventario.api.request.*; import mx.com.mesaregia.inventario.api.response.ReservaResponse; import mx.com.mesaregia.inventario.application.service.*; import mx.com.mesaregia.inventario.domain.entity.*; import mx.com.mesaregia.inventario.domain.enums.EstadoReserva; import mx.com.mesaregia.inventario.exception.*; import mx.com.mesaregia.inventario.repository.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.*;
+@Service public class ReservaServiceImpl implements ReservaService {
+ private final ReservaRepository rr;private final ReservaDetalleRepository dr;private final InventorySupport support;private final ReservaQueryService query;
+ public ReservaServiceImpl(ReservaRepository r,ReservaDetalleRepository d,InventorySupport s,ReservaQueryService q){rr=r;dr=d;support=s;query=q;}
+ @Override @Transactional public ReservaResponse crearConfirmada(String key,ReservaCrearRequest r){
+  if(r.fechaFin().isBefore(r.fechaInicio()))throw new BusinessRuleException("La fecha fin no puede ser anterior a la fecha inicio");
+  if((r.idOrdenExterno()==null)&&(r.claveConfirmacion()==null||r.claveConfirmacion().isBlank()))throw new BusinessRuleException("Se requiere idOrdenExterno o claveConfirmacion");
+  if(r.claveConfirmacion()!=null&&!r.claveConfirmacion().isBlank()){var ex=rr.findByClaveConfirmacion(r.claveConfirmacion());if(ex.isPresent())return query.obtener(ex.get().getId());}
+  if(r.idOrdenExterno()!=null){var ex=rr.findFirstByIdOrdenExternoOrderByIdDesc(r.idOrdenExterno());if(ex.isPresent())return query.obtener(ex.get().getId());}
+  var x=new Reserva();x.setFolio(support.folio("RES"));x.setIdOrdenExterno(r.idOrdenExterno());x.setClaveConfirmacion(r.claveConfirmacion());x.setIdCotizacionExterno(r.idCotizacionExterno());x.setIdVersionExterna(r.idVersionExterna());x.setEstado(EstadoReserva.CONFIRMADA);x.setFechaInicio(r.fechaInicio());x.setFechaFin(r.fechaFin());x.setIdUsuarioCreacionExterno(r.idUsuarioExterno());x=rr.saveAndFlush(x);
+  var seen=new HashSet<String>();for(var i:r.detalles()){String k=i.idAlmacen()+"|"+i.idProducto();if(!seen.add(k))throw new BusinessRuleException("No se permiten productos duplicados en la reserva");var e=support.existencia(i.idAlmacen(),i.idProducto());int reservado=support.reservada(e.getId(),r.fechaInicio(),r.fechaFin());if(e.getExistenciaFisica()-reservado<i.cantidad())throw new ConflictException("Disponibilidad insuficiente para producto "+i.idProducto());var d=new ReservaDetalle();d.setReserva(x);d.setExistencia(e);d.setCantidadReservada(i.cantidad());dr.save(d);}dr.flush();return query.obtener(x.getId());
+ }
+ @Override @Transactional public ReservaResponse vincularOrden(Long id,ReservaVincularOrdenRequest r){var x=rr.findByIdForUpdate(id).orElseThrow(()->new ResourceNotFoundException("Reserva no encontrada"));if(x.getIdOrdenExterno()!=null&&!Objects.equals(x.getIdOrdenExterno(),r.idOrdenExterno()))throw new ConflictException("La reserva ya está vinculada a otra Orden");x.setIdOrdenExterno(r.idOrdenExterno());x.setIdUsuarioModificacionExterno(r.idUsuarioExterno());rr.saveAndFlush(x);return query.obtener(id);}
+ @Override @Transactional public ReservaResponse activar(Long orden,Long usuario){var x=forOrder(orden);if(x.getEstado()==EstadoReserva.CONFIRMADA)x.setEstado(EstadoReserva.ACTIVA);else if(x.getEstado()!=EstadoReserva.ACTIVA)throw new ConflictException("La reserva no puede activarse desde "+x.getEstado());x.setIdUsuarioModificacionExterno(usuario);rr.saveAndFlush(x);return query.obtener(x.getId());}
+ @Override @Transactional public ReservaResponse liberarPorReserva(Long id,ReservaLiberarRequest r){var x=rr.findByIdForUpdate(id).orElseThrow(()->new ResourceNotFoundException("Reserva no encontrada"));return liberar(x,r);}
+ @Override @Transactional public ReservaResponse liberarPorOrden(Long orden,ReservaLiberarRequest r){return liberar(forOrder(orden),r);}
+ private ReservaResponse liberar(Reserva x,ReservaLiberarRequest r){if(x.getEstado()==EstadoReserva.LIBERADA||x.getEstado()==EstadoReserva.CANCELADA)return query.obtener(x.getId());x.setEstado(r.cancelacion()?EstadoReserva.CANCELADA:EstadoReserva.LIBERADA);x.setMotivoCancelacion(r.cancelacion()?r.motivo():null);x.setIdUsuarioModificacionExterno(r.idUsuarioExterno());rr.saveAndFlush(x);return query.obtener(x.getId());}
+ private Reserva forOrder(Long orden){return rr.findByOrdenForUpdate(orden).stream().findFirst().orElseThrow(()->new ResourceNotFoundException("Reserva no encontrada para la Orden"));}
 }

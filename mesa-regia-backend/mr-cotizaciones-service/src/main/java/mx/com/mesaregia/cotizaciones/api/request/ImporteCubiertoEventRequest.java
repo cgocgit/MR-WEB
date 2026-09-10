@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.api.request; import jakarta.validation.constraints.*; import java.math.BigDecimal; public record ImporteCubiertoEventRequest(@NotBlank String eventId,@NotNull Long idCuentaCobro,@NotNull Long idCotizacion,@NotNull Long idCotizacionVersion,@NotNull BigDecimal acumuladoNeto,@NotNull BigDecimal importeRequerido,String correlationId){}
