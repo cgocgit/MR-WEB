@@ -9,9 +9,9 @@ import java.util.Map;
 @Slf4j
 @Component
 public class LoggingDomainEventPublisher implements DomainEventPublisher {
-    @Override
-    public void publish(String eventType, Long aggregateId, Map<String, Object> attributes) {
-        log.info("domainEvent={} aggregateId={} correlationId={} attributes={}",
-                eventType, aggregateId, MDC.get("correlationId"), attributes);
-    }
+  @Override
+  public void publish(String eventType, Long aggregateId, Map<String, Object> attributes) {
+    log.info("domainEvent={} aggregateId={} correlationId={} attributes={}",
+        eventType, aggregateId, MDC.get("correlationId"), attributes);
+  }
 }
