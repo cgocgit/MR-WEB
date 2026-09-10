@@ -1,3 +1,34 @@
 package mx.com.mesaregia.inventario;
-import mx.com.mesaregia.inventario.api.controller.ExistenciaController; import mx.com.mesaregia.inventario.api.response.*; import mx.com.mesaregia.inventario.application.service.ExistenciaQueryService; import mx.com.mesaregia.inventario.security.SecurityConfig; import org.junit.jupiter.api.Test; import org.springframework.beans.factory.annotation.Autowired; import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest; import org.springframework.context.annotation.Import; import org.springframework.security.test.context.support.WithMockUser; import org.springframework.test.context.bean.override.mockito.MockitoBean; import org.springframework.test.web.servlet.MockMvc; import java.util.List; import static org.mockito.ArgumentMatchers.*; import static org.mockito.Mockito.*; import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get; import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-@WebMvcTest(ExistenciaController.class) @Import(SecurityConfig.class) class ExistenciaControllerTest { @Autowired MockMvc mvc; @MockitoBean ExistenciaQueryService service; @Test @WithMockUser(authorities="inventario.consultar") void permiteConsultaConPermiso() throws Exception {when(service.buscar(eq(1L),any())).thenReturn(new PageResponse<>(List.of(),0,20,0,0));mvc.perform(get("/api/v1/inventario/existencias").param("idAlmacen","1")).andExpect(status().isOk());} }
+
+import mx.com.mesaregia.inventario.api.controller.ExistenciaController;
+import mx.com.mesaregia.inventario.api.response.*;
+import mx.com.mesaregia.inventario.application.service.ExistenciaQueryService;
+import mx.com.mesaregia.inventario.security.SecurityConfig;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import java.util.List;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(ExistenciaController.class)
+@Import(SecurityConfig.class)
+class ExistenciaControllerTest {
+  @Autowired
+  MockMvc mvc;
+  @MockitoBean
+  ExistenciaQueryService service;
+
+  @Test
+  @WithMockUser(authorities = "inventario.consultar")
+  void permiteConsultaConPermiso() throws Exception {
+    when(service.buscar(eq(1L), any())).thenReturn(new PageResponse<>(List.of(), 0, 20, 0, 0));
+    mvc.perform(get("/api/v1/inventario/existencias").param("idAlmacen", "1")).andExpect(status().isOk());
+  }
+}

@@ -17,25 +17,25 @@ import java.util.Optional;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long>, JpaSpecificationExecutor<Reserva> {
 
-    @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
-    Optional<Reserva> findFirstByIdOrdenExternoOrderByIdDesc(Long idOrdenExterno);
+  @EntityGraph(attributePaths = { "detalles", "detalles.existencia", "detalles.existencia.almacen" })
+  Optional<Reserva> findFirstByIdOrdenExternoOrderByIdDesc(Long idOrdenExterno);
 
-    @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
-    Optional<Reserva> findByClaveConfirmacion(String claveConfirmacion);
+  @EntityGraph(attributePaths = { "detalles", "detalles.existencia", "detalles.existencia.almacen" })
+  Optional<Reserva> findByClaveConfirmacion(String claveConfirmacion);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
-    @Query("select distinct r from Reserva r where r.id = :id")
-    Optional<Reserva> findByIdForUpdate(@Param("id") Long id);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @EntityGraph(attributePaths = { "detalles", "detalles.existencia", "detalles.existencia.almacen" })
+  @Query("select distinct r from Reserva r where r.id = :id")
+  Optional<Reserva> findByIdForUpdate(@Param("id") Long id);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @EntityGraph(attributePaths = {"detalles", "detalles.existencia", "detalles.existencia.almacen"})
-    @Query("select distinct r from Reserva r where r.idOrdenExterno = :orden order by r.id desc")
-    List<Reserva> findByOrdenForUpdate(@Param("orden") Long idOrdenExterno);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @EntityGraph(attributePaths = { "detalles", "detalles.existencia", "detalles.existencia.almacen" })
+  @Query("select distinct r from Reserva r where r.idOrdenExterno = :orden order by r.id desc")
+  List<Reserva> findByOrdenForUpdate(@Param("orden") Long idOrdenExterno);
 
-    @Query("select r from Reserva r where r.estado in :estados and r.fechaInicio <= :hasta and r.fechaFin >= :desde")
-    List<Reserva> findOverlapping(
-            @Param("estados") Collection<EstadoReserva> estados,
-            @Param("desde") LocalDate desde,
-            @Param("hasta") LocalDate hasta);
+  @Query("select r from Reserva r where r.estado in :estados and r.fechaInicio <= :hasta and r.fechaFin >= :desde")
+  List<Reserva> findOverlapping(
+      @Param("estados") Collection<EstadoReserva> estados,
+      @Param("desde") LocalDate desde,
+      @Param("hasta") LocalDate hasta);
 }
