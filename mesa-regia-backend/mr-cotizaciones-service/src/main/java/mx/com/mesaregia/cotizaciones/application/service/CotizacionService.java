@@ -1,1 +1,18 @@
-package mx.com.mesaregia.cotizaciones.application.service; import mx.com.mesaregia.cotizaciones.api.request.*; import mx.com.mesaregia.cotizaciones.api.response.CotizacionResponse; public interface CotizacionService { CotizacionResponse crear(CotizacionCreateRequest r); CotizacionResponse seguimiento(Long id,SeguimientoRequest r); CotizacionResponse seleccionarVersion(Long id,SeleccionVersionRequest r); CotizacionResponse cancelar(Long id,EstadoTerminalRequest r); CotizacionResponse rechazar(Long id,EstadoTerminalRequest r); int vencerElegibles(); }
+package mx.com.mesaregia.cotizaciones.application.service;
+
+import mx.com.mesaregia.cotizaciones.api.request.*;
+import mx.com.mesaregia.cotizaciones.api.response.CotizacionResponse;
+
+public interface CotizacionService {
+  CotizacionResponse crear(CotizacionCreateRequest r);
+
+  CotizacionResponse seguimiento(Long id, SeguimientoRequest r);
+
+  CotizacionResponse seleccionarVersion(Long id, SeleccionVersionRequest r);
+
+  CotizacionResponse cancelar(Long id, EstadoTerminalRequest r);
+
+  CotizacionResponse rechazar(Long id, EstadoTerminalRequest r);
+
+  int vencerElegibles();
+}

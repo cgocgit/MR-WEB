@@ -1,1 +1,12 @@
-package mx.com.mesaregia.cotizaciones.repository; import mx.com.mesaregia.cotizaciones.domain.entity.SagaConfirmacion; import mx.com.mesaregia.cotizaciones.domain.enums.EstadoSagaConfirmacion; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface SagaConfirmacionRepository extends JpaRepository<SagaConfirmacion,Long>{Optional<SagaConfirmacion> findByClaveIdempotencia(String clave);List<SagaConfirmacion> findTop50ByEstadoInOrderByActualizadoEnAsc(Collection<EstadoSagaConfirmacion> estados);}
+package mx.com.mesaregia.cotizaciones.repository;
+
+import mx.com.mesaregia.cotizaciones.domain.entity.SagaConfirmacion;
+import mx.com.mesaregia.cotizaciones.domain.enums.EstadoSagaConfirmacion;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.*;
+
+public interface SagaConfirmacionRepository extends JpaRepository<SagaConfirmacion, Long> {
+  Optional<SagaConfirmacion> findByClaveIdempotencia(String clave);
+
+  List<SagaConfirmacion> findTop50ByEstadoInOrderByActualizadoEnAsc(Collection<EstadoSagaConfirmacion> estados);
+}

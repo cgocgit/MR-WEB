@@ -1,23 +1,185 @@
 package mx.com.mesaregia.cotizaciones.application.service.impl;
-import mx.com.mesaregia.cotizaciones.api.request.ConfirmacionRequest; import mx.com.mesaregia.cotizaciones.api.response.ConfirmacionResponse; import mx.com.mesaregia.cotizaciones.application.service.*; import mx.com.mesaregia.cotizaciones.domain.entity.*; import mx.com.mesaregia.cotizaciones.domain.enums.*; import mx.com.mesaregia.cotizaciones.exception.*; import mx.com.mesaregia.cotizaciones.integration.client.*; import mx.com.mesaregia.cotizaciones.integration.dto.*; import mx.com.mesaregia.cotizaciones.repository.*; import org.springframework.stereotype.Service; import java.math.BigDecimal; import java.time.LocalDateTime; import java.util.*;
-@Service public class CotizacionConfirmationOrchestratorImpl implements CotizacionConfirmationOrchestrator {
- private final CotizacionSupport support;private final CotizacionDetalleRepository detalles;private final EventoRepository eventos;private final DomicilioRepository domicilios;private final SagaConfirmacionRepository sagas;private final SagaConfirmacionStore store;private final PagoCoveragePort pagos;private final InventarioReservationPort reservas;private final OrdenCommandPort ordenes;private final CatalogoPricingPort catalogo;private final ClienteProspectoPort clientes;
- public CotizacionConfirmationOrchestratorImpl(CotizacionSupport s,CotizacionDetalleRepository d,EventoRepository e,DomicilioRepository dom,SagaConfirmacionRepository sr,SagaConfirmacionStore st,PagoCoveragePort p,InventarioReservationPort r,OrdenCommandPort o,CatalogoPricingPort cat,ClienteProspectoPort cli){support=s;detalles=d;eventos=e;domicilios=dom;sagas=sr;store=st;pagos=p;reservas=r;ordenes=o;catalogo=cat;clientes=cli;}
- @Override public ConfirmacionResponse confirmar(Long c,String key,String corr,ConfirmacionRequest r){if(key==null||key.isBlank())throw new BusinessRuleException("Idempotency-Key es obligatorio");if(corr==null||corr.isBlank())throw new BusinessRuleException("X-Correlation-Id es obligatorio");var q=support.get(c);if(q.getIdVersionElegida()==null)throw new BusinessRuleException("Debe existir una versión elegida");var ver=support.version(c,q.getIdVersionElegida());var saga=store.iniciar(key,c,ver.getId(),r.idUsuario(),corr);if(saga.getEstado()==EstadoSagaConfirmacion.CONFIRMADA)return store.confirmarLocal(saga.getId(),r.idUsuario());if(saga.getEstado()==EstadoSagaConfirmacion.COMPENSADA)throw new ConflictException("La Saga anterior fue compensada; use un nuevo Idempotency-Key");if(saga.getEstado()==EstadoSagaConfirmacion.INICIADA&&!Objects.equals(q.getVersion(),r.version()))throw new ConflictException("Versión de concurrencia desactualizada");if(ver.getEstadoVersion()!=EstadoVersion.ENVIADA)throw new BusinessRuleException("La versión elegida debe estar ENVIADA");return ejecutar(saga,r.idUsuario());}
- private ConfirmacionResponse ejecutar(SagaConfirmacion saga,Long usuario){try{var q=support.get(saga.getIdCotizacion());var ver=support.version(q.getId(),saga.getIdVersion());if(saga.getReferenciaPago()==null){var cob=pagos.consultar(q.getId(),ver.getId());if(!cob.cubierta())throw new BusinessRuleException("El importe requerido de confirmación aún no está cubierto");saga=store.pago(saga.getId(),cob.referenciaPago());}
-  var plan=plan(q,ver,saga.getReferenciaPago(),saga.getReferenciaReserva());
-  if(!plan.inventario().isEmpty()&&saga.getIdReservaExterna()==null){var res=reservas.reservar(saga.getClaveIdempotencia()+":reserva",q.getId(),ver.getId(),plan.fechaEvento().toLocalDate(),plan.fechaEvento().toLocalTime(),plan.inventario());saga=store.reserva(saga.getId(),res);plan=plan(q,ver,saga.getReferenciaPago(),saga.getReferenciaReserva());}
-  if(saga.getIdOrdenExterna()==null){var ord=ordenes.generar(saga.getClaveIdempotencia()+":orden",plan.orden());saga=store.orden(saga.getId(),ord);}
-  if(saga.getIdReservaExterna()!=null&&saga.getEstado()!=EstadoSagaConfirmacion.RESERVA_VINCULADA&&saga.getEstado()!=EstadoSagaConfirmacion.CONFIRMADA){reservas.vincularOrden(saga.getIdReservaExterna(),saga.getIdOrdenExterna(),usuario);saga=store.vinculada(saga.getId());}
-  return store.confirmarLocal(saga.getId(),usuario);
- }catch(BusinessRuleException ex){compensarSiSeguro(saga,usuario,ex);throw ex;}catch(RuntimeException ex){store.error(saga.getId(),ex.getMessage(),false);throw ex;}}
- private void compensarSiSeguro(SagaConfirmacion saga,Long usuario,RuntimeException ex){if(saga.getIdReservaExterna()!=null&&saga.getIdOrdenExterna()==null){try{reservas.liberar(saga.getIdReservaExterna(),"Compensación Saga: "+ex.getMessage(),usuario);store.compensada(saga.getId());}catch(RuntimeException comp){store.error(saga.getId(),comp.getMessage(),true);}}else store.error(saga.getId(),ex.getMessage(),false);}
- private Plan plan(Cotizacion q,CotizacionVersion v,String pago,String reserva){var ev=eventos.findByIdCotizacion(q.getId()).orElseThrow();var dom=domicilios.findByIdCotizacion(q.getId()).orElseThrow();var cli=clientes.obtener(q.getIdClienteProspectoExterno());var origen=detalles.findByIdCotizacionVersionOrderByOrdenAsc(v.getId());var inventario=new LinkedHashMap<Long,BigDecimal>();var od=new ArrayList<OrdenCommandPort.Detalle>();boolean prod=false,serv=false;int pos=1;
-  for(var d:origen){String clave="DET-"+d.getId();if(d.getTipoConcepto()==TipoConcepto.PRODUCTO){inventario.merge(d.getIdConceptoExterno(),d.getCantidad(),BigDecimal::add);prod=true;od.add(det(clave,null,d.getTipoConcepto().name(),d.getIdConceptoExterno(),d.getCodigoSnapshot(),d.getNombreSnapshot(),d.getCantidad(),d.getOrden()==null?pos:d.getOrden()));}
-   else if(d.getTipoConcepto()==TipoConcepto.SERVICIO){serv=true;od.add(det(clave,null,"SERVICIO",d.getIdConceptoExterno(),d.getCodigoSnapshot(),d.getNombreSnapshot(),d.getCantidad(),d.getOrden()==null?pos:d.getOrden()));}
-   else {od.add(det(clave,null,"PAQUETE",d.getIdConceptoExterno(),d.getCodigoSnapshot(),d.getNombreSnapshot(),d.getCantidad(),d.getOrden()==null?pos:d.getOrden()));for(var c:catalogo.componentesPaquete(d.getIdConceptoExterno())){BigDecimal qty=d.getCantidad().multiply(c.cantidad());if("PRODUCTO".equals(c.tipo())){inventario.merge(c.idConcepto(),qty,BigDecimal::add);prod=true;}else if("SERVICIO".equals(c.tipo()))serv=true;od.add(det(clave+"-"+c.orden(),clave,c.tipo(),c.idConcepto(),c.codigo(),c.nombre(),qty,c.orden()));}}
-   pos++;}
-  String tipo=prod&&serv?"MIXTA":prod?"PRODUCTOS":"SERVICIOS";var items=inventario.entrySet().stream().map(e->new InventarioReservationPort.Item(e.getKey(),e.getValue())).toList();var order=new OrdenCommandPort.OrdenSolicitud(q.getId(),v.getId(),q.getIdClienteProspectoExterno(),tipo,cli.nombreCompleto(),cli.contactoPrincipal(),ev.getDescripcion(),LocalDateTime.of(ev.getFechaEvento(),ev.getHoraEvento()),dom.getDireccion(),v.getObservaciones(),pago,reserva,od);return new Plan(LocalDateTime.of(ev.getFechaEvento(),ev.getHoraEvento()),items,order);}
- private OrdenCommandPort.Detalle det(String c,String p,String t,Long id,String cod,String nom,BigDecimal q,Integer o){return new OrdenCommandPort.Detalle(c,p,t,id,cod,nom,q,o);} private record Plan(LocalDateTime fechaEvento,List<InventarioReservationPort.Item> inventario,OrdenCommandPort.OrdenSolicitud orden){}
- @Override public void reconciliarPendientes(){var estados=List.of(EstadoSagaConfirmacion.ERROR,EstadoSagaConfirmacion.COMPENSACION_PENDIENTE,EstadoSagaConfirmacion.ORDEN_CREADA,EstadoSagaConfirmacion.RESERVA_CREADA);for(var s:sagas.findTop50ByEstadoInOrderByActualizadoEnAsc(estados)){try{if(s.getEstado()==EstadoSagaConfirmacion.COMPENSACION_PENDIENTE&&s.getIdOrdenExterna()==null){reservas.liberar(s.getIdReservaExterna(),"Reconciliación automática",s.getIdUsuarioExterno());store.compensada(s.getId());}else ejecutar(s,s.getIdUsuarioExterno());}catch(RuntimeException ignored){}}}
+
+import mx.com.mesaregia.cotizaciones.api.request.ConfirmacionRequest;
+import mx.com.mesaregia.cotizaciones.api.response.ConfirmacionResponse;
+import mx.com.mesaregia.cotizaciones.application.service.*;
+import mx.com.mesaregia.cotizaciones.domain.entity.*;
+import mx.com.mesaregia.cotizaciones.domain.enums.*;
+import mx.com.mesaregia.cotizaciones.exception.*;
+import mx.com.mesaregia.cotizaciones.integration.client.*;
+import mx.com.mesaregia.cotizaciones.repository.*;
+import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Service
+public class CotizacionConfirmationOrchestratorImpl implements CotizacionConfirmationOrchestrator {
+  private final CotizacionSupport support;
+  private final CotizacionDetalleRepository detalles;
+  private final EventoRepository eventos;
+  private final DomicilioRepository domicilios;
+  private final SagaConfirmacionRepository sagas;
+  private final SagaConfirmacionStore store;
+  private final PagoCoveragePort pagos;
+  private final InventarioReservationPort reservas;
+  private final OrdenCommandPort ordenes;
+  private final CatalogoPricingPort catalogo;
+  private final ClienteProspectoPort clientes;
+
+  public CotizacionConfirmationOrchestratorImpl(CotizacionSupport s, CotizacionDetalleRepository d, EventoRepository e,
+      DomicilioRepository dom, SagaConfirmacionRepository sr, SagaConfirmacionStore st, PagoCoveragePort p,
+      InventarioReservationPort r, OrdenCommandPort o, CatalogoPricingPort cat, ClienteProspectoPort cli) {
+    support = s;
+    detalles = d;
+    eventos = e;
+    domicilios = dom;
+    sagas = sr;
+    store = st;
+    pagos = p;
+    reservas = r;
+    ordenes = o;
+    catalogo = cat;
+    clientes = cli;
+  }
+
+  @Override
+  public ConfirmacionResponse confirmar(Long c, String key, String corr, ConfirmacionRequest r) {
+    if (key == null || key.isBlank())
+      throw new BusinessRuleException("Idempotency-Key es obligatorio");
+    if (corr == null || corr.isBlank())
+      throw new BusinessRuleException("X-Correlation-Id es obligatorio");
+    var q = support.get(c);
+    if (q.getIdVersionElegida() == null)
+      throw new BusinessRuleException("Debe existir una versión elegida");
+    var ver = support.version(c, q.getIdVersionElegida());
+    var saga = store.iniciar(key, c, ver.getId(), r.idUsuario(), corr);
+    if (saga.getEstado() == EstadoSagaConfirmacion.CONFIRMADA)
+      return store.confirmarLocal(saga.getId(), r.idUsuario());
+    if (saga.getEstado() == EstadoSagaConfirmacion.COMPENSADA)
+      throw new ConflictException("La Saga anterior fue compensada; use un nuevo Idempotency-Key");
+    if (saga.getEstado() == EstadoSagaConfirmacion.INICIADA && !Objects.equals(q.getVersion(), r.version()))
+      throw new ConflictException("Versión de concurrencia desactualizada");
+    if (ver.getEstadoVersion() != EstadoVersion.ENVIADA)
+      throw new BusinessRuleException("La versión elegida debe estar ENVIADA");
+    return ejecutar(saga, r.idUsuario());
+  }
+
+  private ConfirmacionResponse ejecutar(SagaConfirmacion saga, Long usuario) {
+    try {
+      var q = support.get(saga.getIdCotizacion());
+      var ver = support.version(q.getId(), saga.getIdVersion());
+      if (saga.getReferenciaPago() == null) {
+        var cob = pagos.consultar(q.getId(), ver.getId());
+        if (!cob.cubierta())
+          throw new BusinessRuleException("El importe requerido de confirmación aún no está cubierto");
+        saga = store.pago(saga.getId(), cob.referenciaPago());
+      }
+      var plan = plan(q, ver, saga.getReferenciaPago(), saga.getReferenciaReserva());
+      if (!plan.inventario().isEmpty() && saga.getIdReservaExterna() == null) {
+        var res = reservas.reservar(saga.getClaveIdempotencia() + ":reserva", q.getId(), ver.getId(),
+            plan.fechaEvento().toLocalDate(), plan.fechaEvento().toLocalTime(), plan.inventario());
+        saga = store.reserva(saga.getId(), res);
+        plan = plan(q, ver, saga.getReferenciaPago(), saga.getReferenciaReserva());
+      }
+      if (saga.getIdOrdenExterna() == null) {
+        var ord = ordenes.generar(saga.getClaveIdempotencia() + ":orden", plan.orden());
+        saga = store.orden(saga.getId(), ord);
+      }
+      if (saga.getIdReservaExterna() != null && saga.getEstado() != EstadoSagaConfirmacion.RESERVA_VINCULADA
+          && saga.getEstado() != EstadoSagaConfirmacion.CONFIRMADA) {
+        reservas.vincularOrden(saga.getIdReservaExterna(), saga.getIdOrdenExterna(), usuario);
+        saga = store.vinculada(saga.getId());
+      }
+      return store.confirmarLocal(saga.getId(), usuario);
+    } catch (BusinessRuleException ex) {
+      compensarSiSeguro(saga, usuario, ex);
+      throw ex;
+    } catch (RuntimeException ex) {
+      store.error(saga.getId(), ex.getMessage(), false);
+      throw ex;
+    }
+  }
+
+  private void compensarSiSeguro(SagaConfirmacion saga, Long usuario, RuntimeException ex) {
+    if (saga.getIdReservaExterna() != null && saga.getIdOrdenExterna() == null) {
+      try {
+        reservas.liberar(saga.getIdReservaExterna(), "Compensación Saga: " + ex.getMessage(), usuario);
+        store.compensada(saga.getId());
+      } catch (RuntimeException comp) {
+        store.error(saga.getId(), comp.getMessage(), true);
+      }
+    } else
+      store.error(saga.getId(), ex.getMessage(), false);
+  }
+
+  private Plan plan(Cotizacion q, CotizacionVersion v, String pago, String reserva) {
+    var ev = eventos.findByIdCotizacion(q.getId()).orElseThrow();
+    var dom = domicilios.findByIdCotizacion(q.getId()).orElseThrow();
+    var cli = clientes.obtener(q.getIdClienteProspectoExterno());
+    var origen = detalles.findByIdCotizacionVersionOrderByOrdenAsc(v.getId());
+    var inventario = new LinkedHashMap<Long, BigDecimal>();
+    var od = new ArrayList<OrdenCommandPort.Detalle>();
+    boolean prod = false, serv = false;
+    int pos = 1;
+    for (var d : origen) {
+      String clave = "DET-" + d.getId();
+      if (d.getTipoConcepto() == TipoConcepto.PRODUCTO) {
+        inventario.merge(d.getIdConceptoExterno(), d.getCantidad(), BigDecimal::add);
+        prod = true;
+        od.add(det(clave, null, d.getTipoConcepto().name(), d.getIdConceptoExterno(), d.getCodigoSnapshot(),
+            d.getNombreSnapshot(), d.getCantidad(), d.getOrden() == null ? pos : d.getOrden()));
+      } else if (d.getTipoConcepto() == TipoConcepto.SERVICIO) {
+        serv = true;
+        od.add(det(clave, null, "SERVICIO", d.getIdConceptoExterno(), d.getCodigoSnapshot(), d.getNombreSnapshot(),
+            d.getCantidad(), d.getOrden() == null ? pos : d.getOrden()));
+      } else {
+        od.add(det(clave, null, "PAQUETE", d.getIdConceptoExterno(), d.getCodigoSnapshot(), d.getNombreSnapshot(),
+            d.getCantidad(), d.getOrden() == null ? pos : d.getOrden()));
+        for (var c : catalogo.componentesPaquete(d.getIdConceptoExterno())) {
+          BigDecimal qty = d.getCantidad().multiply(c.cantidad());
+          if ("PRODUCTO".equals(c.tipo())) {
+            inventario.merge(c.idConcepto(), qty, BigDecimal::add);
+            prod = true;
+          } else if ("SERVICIO".equals(c.tipo()))
+            serv = true;
+          od.add(det(clave + "-" + c.orden(), clave, c.tipo(), c.idConcepto(), c.codigo(), c.nombre(), qty, c.orden()));
+        }
+      }
+      pos++;
+    }
+    String tipo = prod && serv ? "MIXTA" : prod ? "PRODUCTOS" : "SERVICIOS";
+    var items = inventario.entrySet().stream().map(e -> new InventarioReservationPort.Item(e.getKey(), e.getValue()))
+        .toList();
+    var order = new OrdenCommandPort.OrdenSolicitud(q.getId(), v.getId(), q.getIdClienteProspectoExterno(), tipo,
+        cli.nombreCompleto(), cli.contactoPrincipal(), ev.getDescripcion(),
+        LocalDateTime.of(ev.getFechaEvento(), ev.getHoraEvento()), dom.getDireccion(), v.getObservaciones(), pago,
+        reserva, od);
+    return new Plan(LocalDateTime.of(ev.getFechaEvento(), ev.getHoraEvento()), items, order);
+  }
+
+  private OrdenCommandPort.Detalle det(String c, String p, String t, Long id, String cod, String nom, BigDecimal q,
+      Integer o) {
+    return new OrdenCommandPort.Detalle(c, p, t, id, cod, nom, q, o);
+  }
+
+  private record Plan(LocalDateTime fechaEvento, List<InventarioReservationPort.Item> inventario,
+      OrdenCommandPort.OrdenSolicitud orden) {
+  }
+
+  @Override
+  public void reconciliarPendientes() {
+    var estados = List.of(EstadoSagaConfirmacion.ERROR, EstadoSagaConfirmacion.COMPENSACION_PENDIENTE,
+        EstadoSagaConfirmacion.ORDEN_CREADA, EstadoSagaConfirmacion.RESERVA_CREADA);
+    for (var s : sagas.findTop50ByEstadoInOrderByActualizadoEnAsc(estados)) {
+      try {
+        if (s.getEstado() == EstadoSagaConfirmacion.COMPENSACION_PENDIENTE && s.getIdOrdenExterna() == null) {
+          reservas.liberar(s.getIdReservaExterna(), "Reconciliación automática", s.getIdUsuarioExterno());
+          store.compensada(s.getId());
+        } else
+          ejecutar(s, s.getIdUsuarioExterno());
+      } catch (RuntimeException ignored) {
+      }
+    }
+  }
 }

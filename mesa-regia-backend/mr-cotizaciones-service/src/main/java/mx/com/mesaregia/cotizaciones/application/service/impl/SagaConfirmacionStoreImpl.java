@@ -1,12 +1,150 @@
-package mx.com.mesaregia.cotizaciones.application.service.impl; import com.fasterxml.jackson.databind.ObjectMapper; import mx.com.mesaregia.cotizaciones.api.response.ConfirmacionResponse; import mx.com.mesaregia.cotizaciones.application.service.SagaConfirmacionStore; import mx.com.mesaregia.cotizaciones.domain.entity.*; import mx.com.mesaregia.cotizaciones.domain.enums.*; import mx.com.mesaregia.cotizaciones.integration.dto.*; import mx.com.mesaregia.cotizaciones.repository.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.*; import java.time.LocalDateTime; import java.util.*;
-@Service public class SagaConfirmacionStoreImpl implements SagaConfirmacionStore {private final SagaConfirmacionRepository sagas;private final CotizacionRepository cotizaciones;private final CotizacionSupport support;private final IntegrationOutboxRepository outbox;private final ObjectMapper json;public SagaConfirmacionStoreImpl(SagaConfirmacionRepository s,CotizacionRepository c,CotizacionSupport sup,IntegrationOutboxRepository o,ObjectMapper j){sagas=s;cotizaciones=c;support=sup;outbox=o;json=j;}
- @Override @Transactional public SagaConfirmacion iniciar(String key,Long c,Long v,Long u,String corr){var ex=sagas.findByClaveIdempotencia(key);if(ex.isPresent()){var x=ex.get();if(!Objects.equals(x.getIdCotizacion(),c))throw new IllegalStateException("Idempotency-Key usado por otra cotización");return x;}var x=new SagaConfirmacion();x.setClaveIdempotencia(key);x.setIdCotizacion(c);x.setIdVersion(v);x.setIdUsuarioExterno(u);x.setCorrelationId(corr);x.setEstado(EstadoSagaConfirmacion.INICIADA);return sagas.saveAndFlush(x);}
- @Override @Transactional public SagaConfirmacion pago(Long id,String ref){var x=get(id);x.setReferenciaPago(ref);x.setEstado(EstadoSagaConfirmacion.PAGO_VALIDADO);return sagas.saveAndFlush(x);}
- @Override @Transactional public SagaConfirmacion reserva(Long id,ReservaResultado r){var x=get(id);x.setIdReservaExterna(r.idReserva());x.setReferenciaReserva(r.referenciaReserva());x.setEstado(EstadoSagaConfirmacion.RESERVA_CREADA);return sagas.saveAndFlush(x);}
- @Override @Transactional public SagaConfirmacion orden(Long id,OrdenResultado r){var x=get(id);x.setIdOrdenExterna(r.idOrden());x.setFolioOrden(r.folioOrden());x.setEstado(EstadoSagaConfirmacion.ORDEN_CREADA);return sagas.saveAndFlush(x);}
- @Override @Transactional public SagaConfirmacion vinculada(Long id){var x=get(id);x.setEstado(EstadoSagaConfirmacion.RESERVA_VINCULADA);return sagas.saveAndFlush(x);}
- @Override @Transactional public SagaConfirmacion error(Long id,String err,boolean comp){var x=get(id);x.setIntentos(x.getIntentos()+1);x.setUltimoError(err==null?null:err.substring(0,Math.min(1000,err.length())));x.setEstado(comp?EstadoSagaConfirmacion.COMPENSACION_PENDIENTE:EstadoSagaConfirmacion.ERROR);return sagas.saveAndFlush(x);}
- @Override @Transactional public SagaConfirmacion compensada(Long id){var x=get(id);x.setEstado(EstadoSagaConfirmacion.COMPENSADA);return sagas.saveAndFlush(x);}
- @Override @Transactional public ConfirmacionResponse confirmarLocal(Long idSaga,Long usuario){var x=get(idSaga);var q=support.get(x.getIdCotizacion());if(q.getEstadoGeneral()!=EstadoCotizacion.CONFIRMADA){var ant=q.getEstadoGeneral();q.setEstadoGeneral(EstadoCotizacion.CONFIRMADA);q.setReferenciaPagoExterna(x.getReferenciaPago());q.setReferenciaReservaExterna(x.getReferenciaReserva());q.setFechaConfirmacion(LocalDateTime.now());q.setIdUsuarioModificacionExterno(usuario);cotizaciones.saveAndFlush(q);support.history(q.getId(),x.getIdVersion(),"COTIZACION_CONFIRMADA",ant.name(),EstadoCotizacion.CONFIRMADA.name(),"Orden "+x.getFolioOrden()+"; reserva "+x.getReferenciaReserva(),usuario);enqueue(q,x);}x.setEstado(EstadoSagaConfirmacion.CONFIRMADA);x.setUltimoError(null);sagas.saveAndFlush(x);return new ConfirmacionResponse(q.getId(),x.getIdVersion(),q.getEstadoGeneral(),x.getReferenciaPago(),x.getReferenciaReserva(),x.getIdOrdenExterna(),x.getFolioOrden());}
- private SagaConfirmacion get(Long id){return sagas.findById(id).orElseThrow();} private void enqueue(Cotizacion q,SagaConfirmacion s){try{var e=new IntegrationOutbox();e.setEventId(UUID.randomUUID().toString());e.setTipo("COTIZACION_CONFIRMADA");e.setAgregadoTipo("COTIZACION");e.setAgregadoId(q.getId().toString());e.setPayload(json.writeValueAsString(Map.of("folio",q.getFolio(),"idOrden",s.getIdOrdenExterna(),"correlationId",s.getCorrelationId())));outbox.save(e);}catch(Exception ex){throw new IllegalStateException("No fue posible persistir Outbox",ex);}}
+package mx.com.mesaregia.cotizaciones.application.service.impl;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mx.com.mesaregia.cotizaciones.api.response.ConfirmacionResponse;
+import mx.com.mesaregia.cotizaciones.application.service.SagaConfirmacionStore;
+import mx.com.mesaregia.cotizaciones.domain.entity.*;
+import mx.com.mesaregia.cotizaciones.domain.enums.*;
+import mx.com.mesaregia.cotizaciones.integration.dto.*;
+import mx.com.mesaregia.cotizaciones.repository.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.*;
+import java.time.LocalDateTime;
+import java.util.*;
+
+@Service
+public class SagaConfirmacionStoreImpl implements SagaConfirmacionStore {
+  private final SagaConfirmacionRepository sagas;
+  private final CotizacionRepository cotizaciones;
+  private final CotizacionSupport support;
+  private final IntegrationOutboxRepository outbox;
+  private final ObjectMapper json;
+
+  public SagaConfirmacionStoreImpl(SagaConfirmacionRepository s, CotizacionRepository c, CotizacionSupport sup,
+      IntegrationOutboxRepository o, ObjectMapper j) {
+    sagas = s;
+    cotizaciones = c;
+    support = sup;
+    outbox = o;
+    json = j;
+  }
+
+  @Override
+  @Transactional
+  public SagaConfirmacion iniciar(String key, Long c, Long v, Long u, String corr) {
+    var ex = sagas.findByClaveIdempotencia(key);
+    if (ex.isPresent()) {
+      var x = ex.get();
+      if (!Objects.equals(x.getIdCotizacion(), c))
+        throw new IllegalStateException("Idempotency-Key usado por otra cotización");
+      return x;
+    }
+    var x = new SagaConfirmacion();
+    x.setClaveIdempotencia(key);
+    x.setIdCotizacion(c);
+    x.setIdVersion(v);
+    x.setIdUsuarioExterno(u);
+    x.setCorrelationId(corr);
+    x.setEstado(EstadoSagaConfirmacion.INICIADA);
+    return sagas.saveAndFlush(x);
+  }
+
+  @Override
+  @Transactional
+  public SagaConfirmacion pago(Long id, String ref) {
+    var x = get(id);
+    x.setReferenciaPago(ref);
+    x.setEstado(EstadoSagaConfirmacion.PAGO_VALIDADO);
+    return sagas.saveAndFlush(x);
+  }
+
+  @Override
+  @Transactional
+  public SagaConfirmacion reserva(Long id, ReservaResultado r) {
+    var x = get(id);
+    x.setIdReservaExterna(r.idReserva());
+    x.setReferenciaReserva(r.referenciaReserva());
+    x.setEstado(EstadoSagaConfirmacion.RESERVA_CREADA);
+    return sagas.saveAndFlush(x);
+  }
+
+  @Override
+  @Transactional
+  public SagaConfirmacion orden(Long id, OrdenResultado r) {
+    var x = get(id);
+    x.setIdOrdenExterna(r.idOrden());
+    x.setFolioOrden(r.folioOrden());
+    x.setEstado(EstadoSagaConfirmacion.ORDEN_CREADA);
+    return sagas.saveAndFlush(x);
+  }
+
+  @Override
+  @Transactional
+  public SagaConfirmacion vinculada(Long id) {
+    var x = get(id);
+    x.setEstado(EstadoSagaConfirmacion.RESERVA_VINCULADA);
+    return sagas.saveAndFlush(x);
+  }
+
+  @Override
+  @Transactional
+  public SagaConfirmacion error(Long id, String err, boolean comp) {
+    var x = get(id);
+    x.setIntentos(x.getIntentos() + 1);
+    x.setUltimoError(err == null ? null : err.substring(0, Math.min(1000, err.length())));
+    x.setEstado(comp ? EstadoSagaConfirmacion.COMPENSACION_PENDIENTE : EstadoSagaConfirmacion.ERROR);
+    return sagas.saveAndFlush(x);
+  }
+
+  @Override
+  @Transactional
+  public SagaConfirmacion compensada(Long id) {
+    var x = get(id);
+    x.setEstado(EstadoSagaConfirmacion.COMPENSADA);
+    return sagas.saveAndFlush(x);
+  }
+
+  @Override
+  @Transactional
+  public ConfirmacionResponse confirmarLocal(Long idSaga, Long usuario) {
+    var x = get(idSaga);
+    var q = support.get(x.getIdCotizacion());
+    if (q.getEstadoGeneral() != EstadoCotizacion.CONFIRMADA) {
+      var ant = q.getEstadoGeneral();
+      q.setEstadoGeneral(EstadoCotizacion.CONFIRMADA);
+      q.setReferenciaPagoExterna(x.getReferenciaPago());
+      q.setReferenciaReservaExterna(x.getReferenciaReserva());
+      q.setFechaConfirmacion(LocalDateTime.now());
+      q.setIdUsuarioModificacionExterno(usuario);
+      cotizaciones.saveAndFlush(q);
+      support.history(q.getId(), x.getIdVersion(), "COTIZACION_CONFIRMADA", ant.name(),
+          EstadoCotizacion.CONFIRMADA.name(), "Orden " + x.getFolioOrden() + "; reserva " + x.getReferenciaReserva(),
+          usuario);
+      enqueue(q, x);
+    }
+    x.setEstado(EstadoSagaConfirmacion.CONFIRMADA);
+    x.setUltimoError(null);
+    sagas.saveAndFlush(x);
+    return new ConfirmacionResponse(q.getId(), x.getIdVersion(), q.getEstadoGeneral(), x.getReferenciaPago(),
+        x.getReferenciaReserva(), x.getIdOrdenExterna(), x.getFolioOrden());
+  }
+
+  private SagaConfirmacion get(Long id) {
+    return sagas.findById(id).orElseThrow();
+  }
+
+  private void enqueue(Cotizacion q, SagaConfirmacion s) {
+    try {
+      var e = new IntegrationOutbox();
+      e.setEventId(UUID.randomUUID().toString());
+      e.setTipo("COTIZACION_CONFIRMADA");
+      e.setAgregadoTipo("COTIZACION");
+      e.setAgregadoId(q.getId().toString());
+      e.setPayload(json.writeValueAsString(
+          Map.of("folio", q.getFolio(), "idOrden", s.getIdOrdenExterna(), "correlationId", s.getCorrelationId())));
+      outbox.save(e);
+    } catch (Exception ex) {
+      throw new IllegalStateException("No fue posible persistir Outbox", ex);
+    }
+  }
 }

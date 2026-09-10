@@ -1,1 +1,4 @@
-package mx.com.mesaregia.cotizaciones.integration.dto; public record CoberturaPago(boolean cubierta,String referenciaPago){}
+package mx.com.mesaregia.cotizaciones.integration.dto;
+
+public record CoberturaPago(boolean cubierta, String referenciaPago) {
+}

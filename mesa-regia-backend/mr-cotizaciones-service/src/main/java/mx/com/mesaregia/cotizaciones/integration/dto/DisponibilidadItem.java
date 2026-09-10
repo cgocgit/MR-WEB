@@ -1,1 +1,7 @@
-package mx.com.mesaregia.cotizaciones.integration.dto; import java.math.BigDecimal; public record DisponibilidadItem(Long idProducto,BigDecimal cantidadSolicitada,BigDecimal cantidadDisponible,String estado){}
+package mx.com.mesaregia.cotizaciones.integration.dto;
+
+import java.math.BigDecimal;
+
+public record DisponibilidadItem(Long idProducto, BigDecimal cantidadSolicitada, BigDecimal cantidadDisponible,
+    String estado) {
+}

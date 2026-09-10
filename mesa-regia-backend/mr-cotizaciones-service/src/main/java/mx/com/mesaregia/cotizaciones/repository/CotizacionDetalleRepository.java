@@ -1,1 +1,11 @@
-package mx.com.mesaregia.cotizaciones.repository; import mx.com.mesaregia.cotizaciones.domain.entity.CotizacionDetalle; import org.springframework.data.jpa.repository.JpaRepository; import java.util.*; public interface CotizacionDetalleRepository extends JpaRepository<CotizacionDetalle,Long>{List<CotizacionDetalle> findByIdCotizacionVersionOrderByOrdenAsc(Long id); void deleteByIdCotizacionVersion(Long id);}
+package mx.com.mesaregia.cotizaciones.repository;
+
+import mx.com.mesaregia.cotizaciones.domain.entity.CotizacionDetalle;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.*;
+
+public interface CotizacionDetalleRepository extends JpaRepository<CotizacionDetalle, Long> {
+  List<CotizacionDetalle> findByIdCotizacionVersionOrderByOrdenAsc(Long id);
+
+  void deleteByIdCotizacionVersion(Long id);
+}

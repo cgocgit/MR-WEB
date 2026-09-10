@@ -1,1 +1,11 @@
-package mx.com.mesaregia.cotizaciones.api.response; import mx.com.mesaregia.cotizaciones.domain.enums.EstadoVersion; import java.math.BigDecimal; import java.time.LocalDateTime; import java.util.List; public record VersionResponse(Long id,Integer numero,String folio,EstadoVersion estado,Long idListaPrecio,String observaciones,Long version,LocalDateTime creadoEn,LocalDateTime actualizadoEn,List<DetalleResponse> detalle,BigDecimal total){}
+package mx.com.mesaregia.cotizaciones.api.response;
+
+import mx.com.mesaregia.cotizaciones.domain.enums.EstadoVersion;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record VersionResponse(Long id, Integer numero, String folio, EstadoVersion estado, Long idListaPrecio,
+    String observaciones, Long version, LocalDateTime creadoEn, LocalDateTime actualizadoEn,
+    List<DetalleResponse> detalle, BigDecimal total) {
+}

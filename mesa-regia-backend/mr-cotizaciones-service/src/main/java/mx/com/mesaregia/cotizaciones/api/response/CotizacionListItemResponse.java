@@ -1,1 +1,8 @@
-package mx.com.mesaregia.cotizaciones.api.response; import mx.com.mesaregia.cotizaciones.domain.enums.EstadoCotizacion; import java.time.*; public record CotizacionListItemResponse(Long id,String folio,Long idClienteProspecto,EstadoCotizacion estado,LocalDate fechaEvento,LocalTime horaEvento,Long idVersionElegida,Long version){}
+package mx.com.mesaregia.cotizaciones.api.response;
+
+import mx.com.mesaregia.cotizaciones.domain.enums.EstadoCotizacion;
+import java.time.*;
+
+public record CotizacionListItemResponse(Long id, String folio, Long idClienteProspecto, EstadoCotizacion estado,
+    LocalDate fechaEvento, LocalTime horaEvento, Long idVersionElegida, Long version) {
+}

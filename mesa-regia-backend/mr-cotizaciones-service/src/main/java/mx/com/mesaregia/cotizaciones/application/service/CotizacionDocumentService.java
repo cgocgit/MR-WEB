@@ -1,1 +1,5 @@
-package mx.com.mesaregia.cotizaciones.application.service; public interface CotizacionDocumentService { byte[] generarPdf(Long idCotizacion,Long idVersion); }
+package mx.com.mesaregia.cotizaciones.application.service;
+
+public interface CotizacionDocumentService {
+  byte[] generarPdf(Long idCotizacion, Long idVersion);
+}

@@ -1,7 +1,48 @@
 package mx.com.mesaregia.cotizaciones.integration.client;
-import mx.com.mesaregia.cotizaciones.exception.IntegrationUnavailableException; import mx.com.mesaregia.cotizaciones.integration.dto.DisponibilidadItem; import org.springframework.stereotype.Component; import org.springframework.web.client.*; import java.time.*; import java.util.*;
-@Component public class InventarioAvailabilityRestAdapter implements InventarioAvailabilityPort {
- private final RestClient client; private final Long almacen=Long.valueOf(System.getenv().getOrDefault("MR_INVENTARIO_ALMACEN_DEFAULT_ID","1")); public InventarioAvailabilityRestAdapter(InternalRestClientFactory f){client=f.create(System.getenv().getOrDefault("MR_INVENTARIO_BASE_URL","http://localhost:8084"));}
- @Override public List<DisponibilidadItem> consultar(LocalDate fecha,LocalTime hora,List<Solicitud> solicitudes){try{var items=solicitudes.stream().map(s->new ItemReq(s.idProducto(),s.cantidad().intValueExact())).toList();var r=client.post().uri("/internal/v1/inventario/disponibilidad").body(new BatchReq(almacen,fecha,fecha,items)).retrieve().body(DisponibilidadDto[].class);if(r==null)return List.of();return Arrays.stream(r).map(x->new DisponibilidadItem(x.idProducto(),java.math.BigDecimal.valueOf(x.cantidadSolicitada()),java.math.BigDecimal.valueOf(x.disponible()),x.suficiente()?"Disponible":"No disponible-Incompleto")).toList();}catch(ArithmeticException e){throw new mx.com.mesaregia.cotizaciones.exception.BusinessRuleException("Inventario solo admite cantidades enteras");}catch(ResourceAccessException|HttpServerErrorException e){throw new IntegrationUnavailableException("mr-inventario-service no disponible");}}
- private record ItemReq(Long idProducto,Integer cantidad){} private record BatchReq(Long idAlmacen,LocalDate fechaInicio,LocalDate fechaFin,List<ItemReq> items){} private record DisponibilidadDto(Long idProducto,Integer disponible,Integer cantidadSolicitada,boolean suficiente){}
+
+import mx.com.mesaregia.cotizaciones.exception.IntegrationUnavailableException;
+import mx.com.mesaregia.cotizaciones.integration.dto.DisponibilidadItem;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.*;
+import java.time.*;
+import java.util.*;
+
+@Component
+public class InventarioAvailabilityRestAdapter implements InventarioAvailabilityPort {
+  private final RestClient client;
+  private final Long almacen = Long.valueOf(System.getenv().getOrDefault("MR_INVENTARIO_ALMACEN_DEFAULT_ID", "1"));
+
+  public InventarioAvailabilityRestAdapter(InternalRestClientFactory f) {
+    client = f.create(System.getenv().getOrDefault("MR_INVENTARIO_BASE_URL", "http://localhost:8084"));
+  }
+
+  @Override
+  public List<DisponibilidadItem> consultar(LocalDate fecha, LocalTime hora, List<Solicitud> solicitudes) {
+    try {
+      var items = solicitudes.stream().map(s -> new ItemReq(s.idProducto(), s.cantidad().intValueExact())).toList();
+      var r = client.post().uri("/internal/v1/inventario/disponibilidad")
+          .body(new BatchReq(almacen, fecha, fecha, items)).retrieve().body(DisponibilidadDto[].class);
+      if (r == null)
+        return List.of();
+      return Arrays.stream(r)
+          .map(x -> new DisponibilidadItem(x.idProducto(), java.math.BigDecimal.valueOf(x.cantidadSolicitada()),
+              java.math.BigDecimal.valueOf(x.disponible()), x.suficiente() ? "Disponible" : "No disponible-Incompleto"))
+          .toList();
+    } catch (ArithmeticException e) {
+      throw new mx.com.mesaregia.cotizaciones.exception.BusinessRuleException(
+          "Inventario solo admite cantidades enteras");
+    } catch (ResourceAccessException | HttpServerErrorException e) {
+      throw new IntegrationUnavailableException("mr-inventario-service no disponible");
+    }
+  }
+
+  private record ItemReq(Long idProducto, Integer cantidad) {
+  }
+
+  private record BatchReq(Long idAlmacen, LocalDate fechaInicio, LocalDate fechaFin, List<ItemReq> items) {
+  }
+
+  private record DisponibilidadDto(Long idProducto, Integer disponible, Integer cantidadSolicitada,
+      boolean suficiente) {
+  }
 }
