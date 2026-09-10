@@ -1,9 +1,63 @@
 package mx.com.mesaregia.cotizaciones.application.service.impl;
-import mx.com.mesaregia.cotizaciones.api.response.*; import mx.com.mesaregia.cotizaciones.domain.entity.*; import mx.com.mesaregia.cotizaciones.exception.ResourceNotFoundException; import mx.com.mesaregia.cotizaciones.mapper.CotizacionMapper; import mx.com.mesaregia.cotizaciones.repository.*; import org.springframework.stereotype.Component; import java.util.*;
-@Component public class CotizacionSupport { final CotizacionRepository c; final CotizacionVersionRepository v; final CotizacionDetalleRepository d; final DomicilioRepository dom; final EventoRepository ev; final HistorialEstadoCotizacionRepository h;
- public CotizacionSupport(CotizacionRepository c,CotizacionVersionRepository v,CotizacionDetalleRepository d,DomicilioRepository dom,EventoRepository ev,HistorialEstadoCotizacionRepository h){this.c=c;this.v=v;this.d=d;this.dom=dom;this.ev=ev;this.h=h;}
- public Cotizacion get(Long id){return c.findById(id).orElseThrow(()->new ResourceNotFoundException("Cotización no encontrada"));}
- public CotizacionVersion version(Long idCot,Long idVer){return v.findByIdAndIdCotizacion(idVer,idCot).orElseThrow(()->new ResourceNotFoundException("Versión no encontrada"));}
- public CotizacionResponse response(Cotizacion x){var domicilio=dom.findByIdCotizacion(x.getId()).orElse(null);var evento=ev.findByIdCotizacion(x.getId()).orElse(null);var versiones=v.findByIdCotizacionOrderByNumeroVersionAsc(x.getId()).stream().map(z->CotizacionMapper.version(z,d.findByIdCotizacionVersionOrderByOrdenAsc(z.getId()))).toList();var hist=h.findByIdCotizacionOrderByFechaHoraAsc(x.getId()).stream().map(CotizacionMapper::historial).toList();return new CotizacionResponse(x.getId(),x.getFolio(),x.getIdClienteProspectoExterno(),x.getEstadoGeneral(),x.getIdVersionElegida(),x.getPorcentajeConfirmacion(),x.getReferenciaPagoExterna(),x.getReferenciaReservaExterna(),x.getFechaConfirmacion(),x.getVersion(),domicilio==null?null:domicilio.getDireccion(),domicilio==null?null:domicilio.getReferencias(),evento==null?null:evento.getDescripcion(),evento==null?null:evento.getFechaEvento(),evento==null?null:evento.getHoraEvento(),versiones,hist);}
- public void history(Long idCot,Long idVer,String event,String before,String after,String reason,Long user){var x=new HistorialEstadoCotizacion();x.setIdCotizacion(idCot);x.setIdCotizacionVersion(idVer);x.setEvento(event);x.setEstadoAnterior(before);x.setEstadoNuevo(after);x.setMotivo(reason);x.setIdUsuarioExterno(user);h.save(x);}
+
+import mx.com.mesaregia.cotizaciones.api.response.*;
+import mx.com.mesaregia.cotizaciones.domain.entity.*;
+import mx.com.mesaregia.cotizaciones.exception.ResourceNotFoundException;
+import mx.com.mesaregia.cotizaciones.mapper.CotizacionMapper;
+import mx.com.mesaregia.cotizaciones.repository.*;
+import org.springframework.stereotype.Component;
+
+@Component
+public class CotizacionSupport {
+  final CotizacionRepository c;
+  final CotizacionVersionRepository v;
+  final CotizacionDetalleRepository d;
+  final DomicilioRepository dom;
+  final EventoRepository ev;
+  final HistorialEstadoCotizacionRepository h;
+
+  public CotizacionSupport(CotizacionRepository c, CotizacionVersionRepository v, CotizacionDetalleRepository d,
+      DomicilioRepository dom, EventoRepository ev, HistorialEstadoCotizacionRepository h) {
+    this.c = c;
+    this.v = v;
+    this.d = d;
+    this.dom = dom;
+    this.ev = ev;
+    this.h = h;
+  }
+
+  public Cotizacion get(Long id) {
+    return c.findById(id).orElseThrow(() -> new ResourceNotFoundException("Cotización no encontrada"));
+  }
+
+  public CotizacionVersion version(Long idCot, Long idVer) {
+    return v.findByIdAndIdCotizacion(idVer, idCot)
+        .orElseThrow(() -> new ResourceNotFoundException("Versión no encontrada"));
+  }
+
+  public CotizacionResponse response(Cotizacion x) {
+    var domicilio = dom.findByIdCotizacion(x.getId()).orElse(null);
+    var evento = ev.findByIdCotizacion(x.getId()).orElse(null);
+    var versiones = v.findByIdCotizacionOrderByNumeroVersionAsc(x.getId()).stream()
+        .map(z -> CotizacionMapper.version(z, d.findByIdCotizacionVersionOrderByOrdenAsc(z.getId()))).toList();
+    var hist = h.findByIdCotizacionOrderByFechaHoraAsc(x.getId()).stream().map(CotizacionMapper::historial).toList();
+    return new CotizacionResponse(x.getId(), x.getFolio(), x.getIdClienteProspectoExterno(), x.getEstadoGeneral(),
+        x.getIdVersionElegida(), x.getPorcentajeConfirmacion(), x.getReferenciaPagoExterna(),
+        x.getReferenciaReservaExterna(), x.getFechaConfirmacion(), x.getVersion(),
+        domicilio == null ? null : domicilio.getDireccion(), domicilio == null ? null : domicilio.getReferencias(),
+        evento == null ? null : evento.getDescripcion(), evento == null ? null : evento.getFechaEvento(),
+        evento == null ? null : evento.getHoraEvento(), versiones, hist);
+  }
+
+  public void history(Long idCot, Long idVer, String event, String before, String after, String reason, Long user) {
+    var x = new HistorialEstadoCotizacion();
+    x.setIdCotizacion(idCot);
+    x.setIdCotizacionVersion(idVer);
+    x.setEvento(event);
+    x.setEstadoAnterior(before);
+    x.setEstadoNuevo(after);
+    x.setMotivo(reason);
+    x.setIdUsuarioExterno(user);
+    h.save(x);
+  }
 }

@@ -2,7 +2,6 @@ package mx.com.mesaregia.reportes.integration.file;
 
 import mx.com.mesaregia.reportes.domain.model.ReporteResultado;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
