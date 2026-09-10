@@ -10,19 +10,22 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReporteVentasServiceImpl implements ReporteVentasService {
-    private final VentasReportSourcePort source;
-    private final ReporteComposer composer;
-    private final ReportGenerationAuditPort audit;
+  private final VentasReportSourcePort source;
+  private final ReporteComposer composer;
+  private final ReportGenerationAuditPort audit;
 
-    public ReporteVentasServiceImpl(VentasReportSourcePort source, ReporteComposer composer, ReportGenerationAuditPort audit) {
-        this.source = source; this.composer = composer; this.audit = audit;
-    }
+  public ReporteVentasServiceImpl(VentasReportSourcePort source, ReporteComposer composer,
+      ReportGenerationAuditPort audit) {
+    this.source = source;
+    this.composer = composer;
+    this.audit = audit;
+  }
 
-    @Override
-    public ReporteResultado generar(ReporteCriterios criterios) {
-        composer.validar(criterios);
-        ReporteResultado result = composer.compose(TipoReporte.VENTAS, criterios, source.consultar(criterios));
-        audit.registrar(result, null);
-        return result;
-    }
+  @Override
+  public ReporteResultado generar(ReporteCriterios criterios) {
+    composer.validar(criterios);
+    ReporteResultado result = composer.compose(TipoReporte.VENTAS, criterios, source.consultar(criterios));
+    audit.registrar(result, null);
+    return result;
+  }
 }

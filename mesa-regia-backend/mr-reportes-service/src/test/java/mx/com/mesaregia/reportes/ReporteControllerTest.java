@@ -25,19 +25,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ReporteController.class)
-@Import({SecurityConfig.class, ReporteMapper.class})
+@Import({ SecurityConfig.class, ReporteMapper.class })
 class ReporteControllerTest {
-    @Autowired MockMvc mvc;
-    @MockitoBean ReporteVentasService ventas;
-    @MockitoBean ReporteClientesService clientes;
-    @MockitoBean ReporteCotizacionesService cotizaciones;
-    @MockitoBean ReporteInventarioService inventario;
-    @MockitoBean ReporteExportService export;
+  @Autowired
+  MockMvc mvc;
+  @MockitoBean
+  ReporteVentasService ventas;
+  @MockitoBean
+  ReporteClientesService clientes;
+  @MockitoBean
+  ReporteCotizacionesService cotizaciones;
+  @MockitoBean
+  ReporteInventarioService inventario;
+  @MockitoBean
+  ReporteExportService export;
 
-    @Test
-    @WithMockUser(authorities = "reportes.consultar")
-    void permiteConsultarVentasConPermisoReal() throws Exception {
-        when(ventas.generar(any())).thenReturn(new ReporteResultado(TipoReporte.VENTAS, OffsetDateTime.now(), new ReporteCriterios(null, null, Map.of()), "Ventas", List.of(), List.of()));
-        mvc.perform(get("/api/v1/reportes/ventas")).andExpect(status().isOk());
-    }
+  @Test
+  @WithMockUser(authorities = "reportes.consultar")
+  void permiteConsultarVentasConPermisoReal() throws Exception {
+    when(ventas.generar(any())).thenReturn(new ReporteResultado(TipoReporte.VENTAS, OffsetDateTime.now(),
+        new ReporteCriterios(null, null, Map.of()), "Ventas", List.of(), List.of()));
+    mvc.perform(get("/api/v1/reportes/ventas")).andExpect(status().isOk());
+  }
 }

@@ -1,1 +1,13 @@
-package mx.com.mesaregia.seguridad.application.service; import mx.com.mesaregia.seguridad.api.request.ConfiguracionUpdateRequest; import mx.com.mesaregia.seguridad.api.response.ConfiguracionResponse; import java.util.List; public interface ConfiguracionService{List<ConfiguracionResponse> consultar();ConfiguracionResponse obtener(String clave);ConfiguracionResponse actualizar(String clave,ConfiguracionUpdateRequest r);}
+package mx.com.mesaregia.seguridad.application.service;
+
+import mx.com.mesaregia.seguridad.api.request.ConfiguracionUpdateRequest;
+import mx.com.mesaregia.seguridad.api.response.ConfiguracionResponse;
+import java.util.List;
+
+public interface ConfiguracionService {
+  List<ConfiguracionResponse> consultar();
+
+  ConfiguracionResponse obtener(String clave);
+
+  ConfiguracionResponse actualizar(String clave, ConfiguracionUpdateRequest r);
+}

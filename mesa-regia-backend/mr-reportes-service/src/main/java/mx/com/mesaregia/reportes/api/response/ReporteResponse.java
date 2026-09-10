@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 public record ReporteResponse(
-        TipoReporte tipo,
-        OffsetDateTime fechaCorte,
-        LocalDate fechaInicio,
-        LocalDate fechaFin,
-        Map<String, String> filtros,
-        String fuente,
-        int totalRegistros,
-        List<ReporteColumna> columnas,
-        List<Map<String, Object>> filas) { }
+    TipoReporte tipo,
+    OffsetDateTime fechaCorte,
+    LocalDate fechaInicio,
+    LocalDate fechaFin,
+    Map<String, String> filtros,
+    String fuente,
+    int totalRegistros,
+    List<ReporteColumna> columnas,
+    List<Map<String, Object>> filas) {
+}

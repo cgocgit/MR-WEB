@@ -1,3 +1,29 @@
 package mx.com.mesaregia.seguridad.application.service.impl;
-import lombok.RequiredArgsConstructor; import mx.com.mesaregia.seguridad.api.response.MatrizAccesoItemResponse; import mx.com.mesaregia.seguridad.application.service.AccessMatrixService; import mx.com.mesaregia.seguridad.repository.RolPermisoAlcanceRepository; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.List;
-@Service @RequiredArgsConstructor public class AccessMatrixServiceImpl implements AccessMatrixService {private final RolPermisoAlcanceRepository repo;@Override @Transactional(readOnly=true)public List<MatrizAccesoItemResponse> consultar(Long idRol,String modulo,String permiso){return repo.findByActivoTrueOrderByRolCodigoAscPermisoModuloAscPermisoCodigoAsc().stream().filter(x->idRol==null||x.getRol().getId().equals(idRol)).filter(x->modulo==null||modulo.isBlank()||x.getPermiso().getModulo().equalsIgnoreCase(modulo)).filter(x->permiso==null||permiso.isBlank()||x.getPermiso().getCodigo().toLowerCase().contains(permiso.toLowerCase())).map(x->new MatrizAccesoItemResponse(x.getRol().getId(),x.getRol().getCodigo(),x.getRol().getNombre(),x.getPermiso().getId(),x.getPermiso().getCodigo(),x.getPermiso().getModulo(),x.getPermiso().getAccion(),x.getAlcance())).toList();}}
+
+import lombok.RequiredArgsConstructor;
+import mx.com.mesaregia.seguridad.api.response.MatrizAccesoItemResponse;
+import mx.com.mesaregia.seguridad.application.service.AccessMatrixService;
+import mx.com.mesaregia.seguridad.repository.RolPermisoAlcanceRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class AccessMatrixServiceImpl implements AccessMatrixService {
+  private final RolPermisoAlcanceRepository repo;
+
+  @Override
+  @Transactional(readOnly = true)
+  public List<MatrizAccesoItemResponse> consultar(Long idRol, String modulo, String permiso) {
+    return repo.findByActivoTrueOrderByRolCodigoAscPermisoModuloAscPermisoCodigoAsc().stream()
+        .filter(x -> idRol == null || x.getRol().getId().equals(idRol))
+        .filter(x -> modulo == null || modulo.isBlank() || x.getPermiso().getModulo().equalsIgnoreCase(modulo))
+        .filter(x -> permiso == null || permiso.isBlank()
+            || x.getPermiso().getCodigo().toLowerCase().contains(permiso.toLowerCase()))
+        .map(x -> new MatrizAccesoItemResponse(x.getRol().getId(), x.getRol().getCodigo(), x.getRol().getNombre(),
+            x.getPermiso().getId(), x.getPermiso().getCodigo(), x.getPermiso().getModulo(), x.getPermiso().getAccion(),
+            x.getAlcance()))
+        .toList();
+  }
+}

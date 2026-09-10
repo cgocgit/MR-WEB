@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 public record ReporteResultado(
-        TipoReporte tipo,
-        OffsetDateTime fechaCorte,
-        ReporteCriterios criterios,
-        String fuente,
-        List<ReporteColumna> columnas,
-        List<Map<String, Object>> filas) {
-    public ReporteResultado {
-        columnas = columnas == null ? List.of() : List.copyOf(columnas);
-        filas = filas == null ? List.of() : List.copyOf(filas);
-    }
+    TipoReporte tipo,
+    OffsetDateTime fechaCorte,
+    ReporteCriterios criterios,
+    String fuente,
+    List<ReporteColumna> columnas,
+    List<Map<String, Object>> filas) {
+  public ReporteResultado {
+    columnas = columnas == null ? List.of() : List.copyOf(columnas);
+    filas = filas == null ? List.of() : List.copyOf(filas);
+  }
 }

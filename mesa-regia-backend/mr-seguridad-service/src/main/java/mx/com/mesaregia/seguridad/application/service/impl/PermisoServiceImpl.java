@@ -1,3 +1,61 @@
 package mx.com.mesaregia.seguridad.application.service.impl;
-import lombok.RequiredArgsConstructor; import mx.com.mesaregia.seguridad.api.request.*; import mx.com.mesaregia.seguridad.api.response.*; import mx.com.mesaregia.seguridad.application.service.*; import mx.com.mesaregia.seguridad.domain.entity.Permiso; import mx.com.mesaregia.seguridad.exception.*; import mx.com.mesaregia.seguridad.mapper.PermisoMapper; import mx.com.mesaregia.seguridad.repository.PermisoRepository; import org.springframework.data.domain.Pageable; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
-@Service @RequiredArgsConstructor public class PermisoServiceImpl implements PermisoService {private final PermisoRepository repo;private final PermisoMapper mapper;private final AuditoriaService auditoria;@Override @Transactional(readOnly=true)public PageResponse<PermisoResponse> buscar(Boolean activo,String modulo,Pageable p){String m=modulo==null||modulo.isBlank()?null:modulo.trim();return PageResponse.from(repo.buscar(activo,m,p).map(mapper::toResponse));}@Override @Transactional public PermisoResponse actualizar(Long id,PermisoUpdateRequest r){Permiso x=entity(id);ver(x.getVersion(),r.version());x.setModulo(r.modulo().trim());x.setAccion(r.accion().trim());x.setDescripcion(r.descripcion()==null?null:r.descripcion().trim());auditoria.registrar("Administración","Modificar permiso","Permiso",id.toString(),null,null,x.getCodigo(),"El código estable del permiso no fue modificado");return mapper.toResponse(x);}@Override @Transactional public PermisoResponse cambiarEstado(Long id,EstadoRequest r){Permiso x=entity(id);ver(x.getVersion(),r.version());x.setActivo(r.activo());auditoria.registrar("Administración","Cambiar estado permiso","Permiso",id.toString(),null,null,r.activo(),"Baja lógica de permiso");return mapper.toResponse(x);}private Permiso entity(Long id){return repo.findById(id).orElseThrow(()->new ResourceNotFoundException("El permiso no existe"));}private void ver(Long a,Long e){if(!a.equals(e))throw new ConflictException("El registro fue modificado por otra operación");}}
+
+import lombok.RequiredArgsConstructor;
+import mx.com.mesaregia.seguridad.api.request.*;
+import mx.com.mesaregia.seguridad.api.response.*;
+import mx.com.mesaregia.seguridad.application.service.*;
+import mx.com.mesaregia.seguridad.domain.entity.Permiso;
+import mx.com.mesaregia.seguridad.exception.*;
+import mx.com.mesaregia.seguridad.mapper.PermisoMapper;
+import mx.com.mesaregia.seguridad.repository.PermisoRepository;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class PermisoServiceImpl implements PermisoService {
+  private final PermisoRepository repo;
+  private final PermisoMapper mapper;
+  private final AuditoriaService auditoria;
+
+  @Override
+  @Transactional(readOnly = true)
+  public PageResponse<PermisoResponse> buscar(Boolean activo, String modulo, Pageable p) {
+    String m = modulo == null || modulo.isBlank() ? null : modulo.trim();
+    return PageResponse.from(repo.buscar(activo, m, p).map(mapper::toResponse));
+  }
+
+  @Override
+  @Transactional
+  public PermisoResponse actualizar(Long id, PermisoUpdateRequest r) {
+    Permiso x = entity(id);
+    ver(x.getVersion(), r.version());
+    x.setModulo(r.modulo().trim());
+    x.setAccion(r.accion().trim());
+    x.setDescripcion(r.descripcion() == null ? null : r.descripcion().trim());
+    auditoria.registrar("Administración", "Modificar permiso", "Permiso", id.toString(), null, null, x.getCodigo(),
+        "El código estable del permiso no fue modificado");
+    return mapper.toResponse(x);
+  }
+
+  @Override
+  @Transactional
+  public PermisoResponse cambiarEstado(Long id, EstadoRequest r) {
+    Permiso x = entity(id);
+    ver(x.getVersion(), r.version());
+    x.setActivo(r.activo());
+    auditoria.registrar("Administración", "Cambiar estado permiso", "Permiso", id.toString(), null, null, r.activo(),
+        "Baja lógica de permiso");
+    return mapper.toResponse(x);
+  }
+
+  private Permiso entity(Long id) {
+    return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("El permiso no existe"));
+  }
+
+  private void ver(Long a, Long e) {
+    if (!a.equals(e))
+      throw new ConflictException("El registro fue modificado por otra operación");
+  }
+}

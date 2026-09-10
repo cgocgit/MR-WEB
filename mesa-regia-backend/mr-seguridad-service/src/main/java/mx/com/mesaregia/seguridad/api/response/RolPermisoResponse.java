@@ -1,1 +1,5 @@
-package mx.com.mesaregia.seguridad.api.response; public record RolPermisoResponse(Long id,Long idPermiso,String codigo,String modulo,String accion,String alcance,boolean activo,Long version){}
+package mx.com.mesaregia.seguridad.api.response;
+
+public record RolPermisoResponse(Long id, Long idPermiso, String codigo, String modulo, String accion, String alcance,
+    boolean activo, Long version) {
+}

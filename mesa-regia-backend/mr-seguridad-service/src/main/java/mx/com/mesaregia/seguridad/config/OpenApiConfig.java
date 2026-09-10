@@ -8,11 +8,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OpenApiConfig {
-    @Bean
-    OpenAPI mesaRegiaOpenApi(@Value("${spring.application.name}") String applicationName) {
-        return new OpenAPI().info(new Info()
-                .title(applicationName)
-                .version("v1")
-                .description("API de Seguridad / Administración"));
-    }
+  @Bean
+  OpenAPI mesaRegiaOpenApi(@Value("${spring.application.name}") String applicationName) {
+    return new OpenAPI().info(new Info()
+        .title(applicationName)
+        .version("v1")
+        .description("API de Seguridad / Administración"));
+  }
 }

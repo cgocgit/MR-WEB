@@ -1,3 +1,50 @@
-package mx.com.mesaregia.reportes.integration.client; import mx.com.mesaregia.reportes.domain.model.*; import mx.com.mesaregia.reportes.integration.port.InventarioReportSourcePort; import org.springframework.stereotype.Component; import org.springframework.web.client.RestClient; import java.time.LocalDateTime; import java.util.*; import static mx.com.mesaregia.reportes.integration.client.ReportAdapterSupport.*;
-@Component public class InventarioReportRestAdapter implements InventarioReportSourcePort {private final RestClient client;private final Long almacen=Long.valueOf(System.getenv().getOrDefault("MR_INVENTARIO_ALMACEN_DEFAULT_ID","1"));public InventarioReportRestAdapter(InternalRestClientFactory f){client=f.create(System.getenv().getOrDefault("MR_INVENTARIO_BASE_URL","http://localhost:8084"));}@Override public FuenteReporteData consultar(ReporteCriterios c){var rows=new ArrayList<Map<String,Object>>();int p=0,total;do{int page=p;var r=client.get().uri(u->u.path("/internal/v1/inventario/existencias").queryParam("idAlmacen",almacen).queryParam("page",page).queryParam("size",200).build()).retrieve().body(PageDto.class);if(r==null)break;for(var x:r.content())rows.add(row("idProducto",x.idProducto(),"almacen",x.almacen(),"existenciaFisica",x.existenciaFisica(),"reservado",x.cantidadReservada(),"disponible",x.disponible(),"minimo",x.minimo(),"maximo",x.maximo(),"nivel",x.nivel(),"actualizadoEn",x.actualizadoEn()));total=r.totalPages();p++;}while(p<total);return new FuenteReporteData("mr-inventario-service",List.of(c("idProducto","Producto"),c("almacen","Almacén"),c("existenciaFisica","Existencia"),c("reservado","Reservado"),c("disponible","Disponible"),c("minimo","Mínimo"),c("maximo","Máximo"),c("nivel","Nivel"),c("actualizadoEn","Actualizado")),rows);}private record Ex(Long idProducto,String almacen,Integer existenciaFisica,Integer cantidadReservada,Integer disponible,Integer minimo,Integer maximo,String nivel,LocalDateTime actualizadoEn){}private record PageDto(List<Ex> content,int totalPages){}
+package mx.com.mesaregia.reportes.integration.client;
+
+import mx.com.mesaregia.reportes.domain.model.*;
+import mx.com.mesaregia.reportes.integration.port.InventarioReportSourcePort;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import java.time.LocalDateTime;
+import java.util.*;
+import static mx.com.mesaregia.reportes.integration.client.ReportAdapterSupport.*;
+
+@Component
+public class InventarioReportRestAdapter implements InventarioReportSourcePort {
+  private final RestClient client;
+  private final Long almacen = Long.valueOf(System.getenv().getOrDefault("MR_INVENTARIO_ALMACEN_DEFAULT_ID", "1"));
+
+  public InventarioReportRestAdapter(InternalRestClientFactory f) {
+    client = f.create(System.getenv().getOrDefault("MR_INVENTARIO_BASE_URL", "http://localhost:8084"));
+  }
+
+  @Override
+  public FuenteReporteData consultar(ReporteCriterios c) {
+    var rows = new ArrayList<Map<String, Object>>();
+    int p = 0, total;
+    do {
+      int page = p;
+      var r = client.get().uri(u -> u.path("/internal/v1/inventario/existencias").queryParam("idAlmacen", almacen)
+          .queryParam("page", page).queryParam("size", 200).build()).retrieve().body(PageDto.class);
+      if (r == null)
+        break;
+      for (var x : r.content())
+        rows.add(row("idProducto", x.idProducto(), "almacen", x.almacen(), "existenciaFisica", x.existenciaFisica(),
+            "reservado", x.cantidadReservada(), "disponible", x.disponible(), "minimo", x.minimo(), "maximo",
+            x.maximo(), "nivel", x.nivel(), "actualizadoEn", x.actualizadoEn()));
+      total = r.totalPages();
+      p++;
+    } while (p < total);
+    return new FuenteReporteData("mr-inventario-service",
+        List.of(c("idProducto", "Producto"), c("almacen", "Almacén"), c("existenciaFisica", "Existencia"),
+            c("reservado", "Reservado"), c("disponible", "Disponible"), c("minimo", "Mínimo"), c("maximo", "Máximo"),
+            c("nivel", "Nivel"), c("actualizadoEn", "Actualizado")),
+        rows);
+  }
+
+  private record Ex(Long idProducto, String almacen, Integer existenciaFisica, Integer cantidadReservada,
+      Integer disponible, Integer minimo, Integer maximo, String nivel, LocalDateTime actualizadoEn) {
+  }
+
+  private record PageDto(List<Ex> content, int totalPages) {
+  }
 }

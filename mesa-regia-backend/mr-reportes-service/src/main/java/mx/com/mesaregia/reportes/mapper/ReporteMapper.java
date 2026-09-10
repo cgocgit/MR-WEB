@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ReporteMapper {
-    public ReporteResponse toResponse(ReporteResultado r) {
-        return new ReporteResponse(
-                r.tipo(), r.fechaCorte(), r.criterios().fechaInicio(), r.criterios().fechaFin(), r.criterios().filtros(),
-                r.fuente(), r.filas().size(), r.columnas(), r.filas());
-    }
+  public ReporteResponse toResponse(ReporteResultado r) {
+    return new ReporteResponse(
+        r.tipo(), r.fechaCorte(), r.criterios().fechaInicio(), r.criterios().fechaFin(), r.criterios().filtros(),
+        r.fuente(), r.filas().size(), r.columnas(), r.filas());
+  }
 }
