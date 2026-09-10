@@ -1,1 +1,5 @@
-package mx.com.mesaregia.pagos.domain.enums; public enum EstadoOutbox {PENDIENTE,ENVIADO,ERROR}
+package mx.com.mesaregia.pagos.domain.enums;
+
+public enum EstadoOutbox {
+  PENDIENTE, ENVIADO, ERROR
+}

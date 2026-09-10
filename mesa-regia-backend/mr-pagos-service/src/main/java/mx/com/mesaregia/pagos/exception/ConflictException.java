@@ -1,1 +1,7 @@
-package mx.com.mesaregia.pagos.exception; public class ConflictException extends RuntimeException { public ConflictException(String m){super(m);} }
+package mx.com.mesaregia.pagos.exception;
+
+public class ConflictException extends RuntimeException {
+  public ConflictException(String m) {
+    super(m);
+  }
+}
