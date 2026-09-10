@@ -1,0 +1,1 @@
+package mx.com.mesaregia.ordenes.domain.enums; public enum TipoCompromiso { PRODUCTOS,SERVICIOS,MIXTA }

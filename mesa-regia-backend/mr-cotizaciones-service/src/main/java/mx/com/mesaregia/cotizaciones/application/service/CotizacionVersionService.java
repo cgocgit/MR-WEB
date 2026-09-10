@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.application.service; import mx.com.mesaregia.cotizaciones.api.request.*; import mx.com.mesaregia.cotizaciones.api.response.VersionResponse; public interface CotizacionVersionService { VersionResponse recotizar(Long idCotizacion,RecotizarRequest r); VersionResponse actualizar(Long idCotizacion,Long idVersion,VersionUpsertRequest r); }

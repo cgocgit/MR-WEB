@@ -1,0 +1,1 @@
+package mx.com.mesaregia.ordenes.domain.enums; public enum EstadoOrden { EN_REVISION_VENTAS,PENDIENTE_PROGRAMACION,PROGRAMADA,EN_EJECUCION,REALIZADA,CANCELADA }

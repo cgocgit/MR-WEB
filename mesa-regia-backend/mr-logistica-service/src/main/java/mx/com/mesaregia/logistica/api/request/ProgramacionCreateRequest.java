@@ -1,0 +1,1 @@
+package mx.com.mesaregia.logistica.api.request; import jakarta.validation.Valid; import jakarta.validation.constraints.*; import java.time.LocalDateTime; import java.util.List; public record ProgramacionCreateRequest(@NotNull @Positive Long idOrden,@NotNull LocalDateTime fechaHoraPreparacion,@NotNull @Positive Long idSupervisor,@NotEmpty List<@Valid FasePlanRequest> fases){}

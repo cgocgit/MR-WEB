@@ -1,0 +1,3 @@
+package mx.com.mesaregia.inventario.application.service;
+import mx.com.mesaregia.inventario.api.request.*; import mx.com.mesaregia.inventario.api.response.*; import org.springframework.data.domain.Pageable;
+public interface CorteFisicoService { CorteResponse iniciar(CorteIniciarRequest r); CorteResponse registrarConteos(Long id, CorteConteosRequest r); CorteResponse cerrar(Long id, CorteCerrarRequest r); CorteResponse obtener(Long id); PageResponse<CorteResponse> buscar(Pageable p); }

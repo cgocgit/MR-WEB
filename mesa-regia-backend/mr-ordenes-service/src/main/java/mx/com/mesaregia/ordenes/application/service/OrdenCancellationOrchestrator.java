@@ -1,0 +1,1 @@
+package mx.com.mesaregia.ordenes.application.service; import mx.com.mesaregia.ordenes.api.request.CancelacionRequest; import mx.com.mesaregia.ordenes.api.response.OrdenResponse; public interface OrdenCancellationOrchestrator { OrdenResponse cancelar(Long id,CancelacionRequest request,String correlationId); }

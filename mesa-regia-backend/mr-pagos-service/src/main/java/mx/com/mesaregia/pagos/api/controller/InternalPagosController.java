@@ -1,0 +1,3 @@
+package mx.com.mesaregia.pagos.api.controller;
+import mx.com.mesaregia.pagos.api.response.CuentaCobroResponse; import mx.com.mesaregia.pagos.application.service.CuentaCobroService; import org.springframework.security.access.prepost.PreAuthorize; import org.springframework.web.bind.annotation.*;
+@RestController @RequestMapping("/internal/v1/cuentas-cobro") @PreAuthorize("hasAuthority('ROLE_INTERNAL_SERVICE')") public class InternalPagosController {private final CuentaCobroService s;public InternalPagosController(CuentaCobroService s){this.s=s;}@GetMapping("/cotizaciones/{c}/versiones/{v}")public CuentaCobroResponse cuenta(@PathVariable Long c,@PathVariable Long v){return s.obtenerPorCotizacion(c,v);}}

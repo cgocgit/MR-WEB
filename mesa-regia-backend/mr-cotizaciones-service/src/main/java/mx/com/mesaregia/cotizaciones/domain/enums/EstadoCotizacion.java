@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.domain.enums; public enum EstadoCotizacion { BORRADOR, EN_SEGUIMIENTO, CONFIRMADA, CANCELADA, RECHAZADA, VENCIDA }

@@ -1,0 +1,5 @@
+package mx.com.mesaregia.ordenes.integration.client;
+import mx.com.mesaregia.ordenes.exception.IntegrationUnavailableException; import org.springframework.stereotype.Component; import org.springframework.web.client.*;
+@Component public class InventarioCancellationRestAdapter implements InventarioCancellationPort {private final RestClient client;public InventarioCancellationRestAdapter(InternalRestClientFactory f){client=f.create(System.getenv().getOrDefault("MR_INVENTARIO_BASE_URL","http://localhost:8084"));}
+ @Override public void liberarReserva(Long idOrden,String motivo,String corr){try{client.post().uri("/internal/v1/reservas/ordenes/{id}/liberar",idOrden).body(new Req(motivo,true,null)).retrieve().toBodilessEntity();}catch(HttpClientErrorException.NotFound e){return;}catch(ResourceAccessException|HttpServerErrorException e){throw new IntegrationUnavailableException("Inventario no disponible para liberar reserva");}} private record Req(String motivo,boolean cancelacion,Long idUsuarioExterno){}
+}

@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.application.service; import mx.com.mesaregia.cotizaciones.api.request.EnvioRequest; import mx.com.mesaregia.cotizaciones.api.response.EnvioResponse; public interface CotizacionEnvioService { EnvioResponse registrarEnvio(Long idCotizacion,Long idVersion,EnvioRequest r); }

@@ -1,0 +1,1 @@
+package mx.com.mesaregia.cotizaciones.application.service; import mx.com.mesaregia.cotizaciones.api.response.DisponibilidadResponse; public interface CotizacionAvailabilityService { DisponibilidadResponse consultar(Long idCotizacion,Long idVersion); }

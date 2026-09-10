@@ -1,0 +1,62 @@
+CREATE TABLE IF NOT EXISTS orden_servicio (
+  id_orden_servicio BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  folio VARCHAR(40) NOT NULL,
+  estado VARCHAR(30) NOT NULL DEFAULT 'PENDIENTE_PROGRAMACION',
+  tipo_compromiso VARCHAR(20) NOT NULL,
+  id_cotizacion_externo BIGINT UNSIGNED NOT NULL,
+  id_cotizacion_version_externo BIGINT UNSIGNED NOT NULL,
+  id_cliente_prospecto_externo BIGINT UNSIGNED NOT NULL,
+  cliente_snapshot VARCHAR(300) NOT NULL,
+  contacto_snapshot VARCHAR(250) NULL,
+  evento_snapshot VARCHAR(200) NOT NULL,
+  fecha_hora_evento_snapshot DATETIME(6) NOT NULL,
+  domicilio_evento_snapshot VARCHAR(500) NOT NULL,
+  observaciones VARCHAR(1000) NULL,
+  referencia_pago_externa VARCHAR(100) NULL,
+  referencia_reserva_externa VARCHAR(100) NULL,
+  fecha_generacion DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  actualizado_en DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  version BIGINT UNSIGNED NOT NULL DEFAULT 1,
+  CONSTRAINT pk_orden_servicio PRIMARY KEY (id_orden_servicio),
+  CONSTRAINT uk_orden_folio UNIQUE (folio),
+  CONSTRAINT uk_orden_cotizacion_version UNIQUE (id_cotizacion_externo,id_cotizacion_version_externo),
+  CONSTRAINT ck_orden_estado CHECK (estado IN ('PENDIENTE_PROGRAMACION','PROGRAMADA','EN_EJECUCION','REALIZADA','CANCELADA')),
+  CONSTRAINT ck_orden_tipo CHECK (tipo_compromiso IN ('PRODUCTOS','SERVICIOS','MIXTA')),
+  INDEX ix_orden_estado_fecha (estado,fecha_hora_evento_snapshot),
+  INDEX ix_orden_cliente (id_cliente_prospecto_externo),
+  INDEX ix_orden_cotizacion (id_cotizacion_externo)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS orden_detalle (
+  id_orden_detalle BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_orden_servicio BIGINT UNSIGNED NOT NULL,
+  id_detalle_padre BIGINT UNSIGNED NULL,
+  tipo_concepto VARCHAR(20) NOT NULL,
+  id_concepto_externo BIGINT UNSIGNED NOT NULL,
+  codigo_snapshot VARCHAR(50) NULL,
+  nombre_snapshot VARCHAR(200) NOT NULL,
+  cantidad DECIMAL(12,3) NOT NULL,
+  orden SMALLINT UNSIGNED NULL,
+  CONSTRAINT pk_orden_detalle PRIMARY KEY (id_orden_detalle),
+  CONSTRAINT fk_orden_detalle_orden FOREIGN KEY (id_orden_servicio) REFERENCES orden_servicio(id_orden_servicio),
+  CONSTRAINT fk_orden_detalle_padre FOREIGN KEY (id_detalle_padre) REFERENCES orden_detalle(id_orden_detalle),
+  CONSTRAINT ck_orden_detalle_tipo CHECK (tipo_concepto IN ('PRODUCTO','SERVICIO','PAQUETE')),
+  CONSTRAINT ck_orden_detalle_cantidad CHECK (cantidad > 0),
+  INDEX ix_orden_detalle_orden (id_orden_servicio),
+  INDEX ix_orden_detalle_concepto (tipo_concepto,id_concepto_externo)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS historial_estado_orden (
+  id_historial_estado_orden BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  id_orden_servicio BIGINT UNSIGNED NOT NULL,
+  estado_anterior VARCHAR(30) NULL,
+  estado_nuevo VARCHAR(30) NOT NULL,
+  accion VARCHAR(80) NOT NULL,
+  motivo VARCHAR(500) NULL,
+  fecha_hora DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  id_usuario_externo BIGINT UNSIGNED NULL,
+  CONSTRAINT pk_historial_estado_orden PRIMARY KEY (id_historial_estado_orden),
+  CONSTRAINT fk_historial_orden FOREIGN KEY (id_orden_servicio) REFERENCES orden_servicio(id_orden_servicio),
+  CONSTRAINT ck_historial_orden_estado CHECK (estado_nuevo IN ('PENDIENTE_PROGRAMACION','PROGRAMADA','EN_EJECUCION','REALIZADA','CANCELADA')),
+  INDEX ix_historial_orden_fecha (id_orden_servicio,fecha_hora)
+) ENGINE=InnoDB;
