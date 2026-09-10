@@ -1,1 +1,8 @@
-package mx.com.mesaregia.logistica.api.request; import jakarta.validation.constraints.*; public record RecursosRequest(@NotNull @Positive Long idVehiculo,@NotNull @Positive Long idChofer,@NotNull @Positive Long idRepresentante,@NotNull @PositiveOrZero Long version,@NotNull @Positive Long idSupervisor){}
+package mx.com.mesaregia.logistica.api.request;
+
+import jakarta.validation.constraints.*;
+
+public record RecursosRequest(@NotNull @Positive Long idVehiculo, @NotNull @Positive Long idChofer,
+    @NotNull @Positive Long idRepresentante, @NotNull @PositiveOrZero Long version,
+    @NotNull @Positive Long idSupervisor) {
+}

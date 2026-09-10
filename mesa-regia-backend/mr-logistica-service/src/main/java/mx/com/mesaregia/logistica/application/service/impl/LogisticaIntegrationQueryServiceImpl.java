@@ -1,2 +1,31 @@
-package mx.com.mesaregia.logistica.application.service.impl; import mx.com.mesaregia.logistica.api.response.InternalLogisticaOrdenContextResponse; import mx.com.mesaregia.logistica.application.service.LogisticaIntegrationQueryService; import mx.com.mesaregia.logistica.domain.enums.EstadoAsignacion; import mx.com.mesaregia.logistica.exception.ResourceNotFoundException; import mx.com.mesaregia.logistica.repository.AsignacionLogisticaRepository; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional; import java.util.Comparator;
-@Service public class LogisticaIntegrationQueryServiceImpl implements LogisticaIntegrationQueryService {private final AsignacionLogisticaRepository repo;public LogisticaIntegrationQueryServiceImpl(AsignacionLogisticaRepository r){repo=r;}@Override @Transactional(readOnly=true) public InternalLogisticaOrdenContextResponse contextoOrden(Long id){var a=repo.findAllByIdOrdenExternoAndEstadoNot(id,EstadoAsignacion.CANCELADA).stream().min(Comparator.comparing(x->x.getProgramacion().getFechaHoraPreparacion())).orElseThrow(()->new ResourceNotFoundException("Programación no encontrada para Orden"));var p=a.getProgramacion();var ini=p.getFechaHoraPreparacion().toLocalDate();var fin=a.getFechaHoraProgramada()==null?ini:a.getFechaHoraProgramada().toLocalDate();return new InternalLogisticaOrdenContextResponse(id,ini,fin,p.getEstado().name());}}
+package mx.com.mesaregia.logistica.application.service.impl;
+
+import mx.com.mesaregia.logistica.api.response.InternalLogisticaOrdenContextResponse;
+import mx.com.mesaregia.logistica.application.service.LogisticaIntegrationQueryService;
+import mx.com.mesaregia.logistica.domain.enums.EstadoAsignacion;
+import mx.com.mesaregia.logistica.exception.ResourceNotFoundException;
+import mx.com.mesaregia.logistica.repository.AsignacionLogisticaRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.Comparator;
+
+@Service
+public class LogisticaIntegrationQueryServiceImpl implements LogisticaIntegrationQueryService {
+  private final AsignacionLogisticaRepository repo;
+
+  public LogisticaIntegrationQueryServiceImpl(AsignacionLogisticaRepository r) {
+    repo = r;
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public InternalLogisticaOrdenContextResponse contextoOrden(Long id) {
+    var a = repo.findAllByIdOrdenExternoAndEstadoNot(id, EstadoAsignacion.CANCELADA).stream()
+        .min(Comparator.comparing(x -> x.getProgramacion().getFechaHoraPreparacion()))
+        .orElseThrow(() -> new ResourceNotFoundException("Programación no encontrada para Orden"));
+    var p = a.getProgramacion();
+    var ini = p.getFechaHoraPreparacion().toLocalDate();
+    var fin = a.getFechaHoraProgramada() == null ? ini : a.getFechaHoraProgramada().toLocalDate();
+    return new InternalLogisticaOrdenContextResponse(id, ini, fin, p.getEstado().name());
+  }
+}

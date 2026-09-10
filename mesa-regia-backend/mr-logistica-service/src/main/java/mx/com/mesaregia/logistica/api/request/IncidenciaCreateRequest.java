@@ -1,1 +1,10 @@
-package mx.com.mesaregia.logistica.api.request; import jakarta.validation.constraints.*; import mx.com.mesaregia.logistica.domain.enums.PerfilReportante; public record IncidenciaCreateRequest(@NotNull @Positive Long idProgramacion,Long idEtapa,@NotNull @Positive Long idTipoIncidencia,@NotNull @Positive Long idOrden,Long idProducto,@Positive Integer cantidadAfectada,@NotBlank @Size(max=1000) String descripcion,@NotNull @Positive Long idUsuario,@NotNull PerfilReportante perfil){}
+package mx.com.mesaregia.logistica.api.request;
+
+import jakarta.validation.constraints.*;
+import mx.com.mesaregia.logistica.domain.enums.PerfilReportante;
+
+public record IncidenciaCreateRequest(@NotNull @Positive Long idProgramacion, Long idEtapa,
+    @NotNull @Positive Long idTipoIncidencia, @NotNull @Positive Long idOrden, Long idProducto,
+    @Positive Integer cantidadAfectada, @NotBlank @Size(max = 1000) String descripcion,
+    @NotNull @Positive Long idUsuario, @NotNull PerfilReportante perfil) {
+}
